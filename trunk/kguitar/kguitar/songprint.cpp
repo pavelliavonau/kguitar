@@ -67,6 +67,9 @@
 #include <qprinter.h>
 #include <kglobal.h>
 
+#include <iostream>		// required for cout and friends
+using namespace std;		// required for cout and friends
+
 static const QString notes[7] = {"C", "D", "E", "F", "G", "A", "B"};
 
 /***************************************************************************
@@ -79,9 +82,15 @@ SongPrint::SongPrint()
 {
 	p = new QPainter;
 	trp = new TrackPrint;
-	fTBar1 = 0;
-	fTBar2 = 0;
-	fTSig  = 0;
+	fTBar1  = 0;
+	fTBar2  = 0;
+	fTSig   = 0;
+	fFeta   = 0;
+	fFetaNr = 0;
+
+	// initialize fonts, must be done before initMetrics
+	// (metrics depend on fonts)
+	initFonts();
 }
 
 // SongPrint destructor
@@ -96,6 +105,10 @@ SongPrint::~SongPrint()
 		delete fTBar2;
 	if (fTSig)
 		delete fTSig;
+	if (fFeta)
+		delete fFeta;
+	if (fFetaNr)
+		delete fFetaNr;
 }
 
 // draw header of song song, page n
@@ -165,34 +178,26 @@ int SongPrint::eraWidth(const QString s)
 	return (int) (brws + 0.4 * brw8);
 }
 
-// helper function to initialize font and check exactly this font was found
-// return true on succes
-
-// LVIFIX: according to the documentation, the following should
-// supply the font family actually used.
-// p->setFont(fFeta);
-// QFontInfo info = p->fontInfo();
-// QString actualFamily = info.family();
-// Unfortunately, instead it returns the font family requested.
-// This prevents checking if the correct font is used.
-// Workaround is to use the rawName, which starts with
-// "<family>-<pointsize>:"
-// Another issue is that font "TeX feta-nummer10" cannot be found.
-// Tested on RedHat 8.0 with Qt 3.0.5.
-
-static bool initExactFont(const QString fn, int fs, QFont & fnt)
+static void fontInfo(QFont * f)
 {
-	QString an;					// actual name
-	QString rn;					// requested name
+	QFont lf = *f;
+	QFontInfo fi = QFontInfo(lf);
+//	bool b = fi.exactMatch();
+	QString s = fi.family();
+	if (s.isNull()) s = "(null)";
+//	cout
+//	<< "f=" << hex << f << dec
+//	<< (b ? " exact match" : " not matched")
+//	<< " family=" << s
+//	<< " pointsize=" << fi.pointSize()
+//	<< endl;
+}
 
-	rn.setNum(fs);
-	rn = fn + "-" + rn;
-	fnt = QFont(fn, fs);
-	an = fnt.rawName().section(':', 0, 0);
-	// LVIFIX: debug
-	// cout << "rn='" << rn << "'" << endl;
-	// cout << "an='" << an << "'" << endl;
-	return (rn == an);
+static bool fontIsExactMatch(QFont * f)
+{
+	QFont lf = *f;
+	QFontInfo fi = QFontInfo(lf);
+	return fi.exactMatch();
 }
 
 // initialize fonts
@@ -200,27 +205,27 @@ static bool initExactFont(const QString fn, int fs, QFont & fnt)
 void SongPrint::initFonts()
 {
 	// LVIFIX: use same font for printing as is used on-screen
-	fHdr1  = QFont("Helvetica", 12, QFont::Bold);
-	fHdr2  = QFont("Helvetica", 10, QFont::Normal);
-	fHdr3  = QFont("Helvetica",  8, QFont::Normal);
-	fTBar1 = new QFont("Helvetica",  8, QFont::Bold);
-	fTBar2 = new QFont("Helvetica",  7, QFont::Normal);
-	fTSig  = new QFont("Helvetica", 12, QFont::Bold);
-
-	// following fonts must be found: if not, printing of notes is disabled
-	QString fn;
+	fHdr1   = QFont("Helvetica", 12, QFont::Bold);
+	fHdr2   = QFont("Helvetica", 10, QFont::Normal);
+	fHdr3   = QFont("Helvetica",  8, QFont::Normal);
+	fTBar1  = new QFont("Helvetica",  8, QFont::Bold);
+	fTBar2  = new QFont("Helvetica",  7, QFont::Normal);
+	fTSig   = new QFont("Helvetica", 12, QFont::Bold);
+	fFeta   = new QFont("TeX feta19", 18);
+	fFetaNr = new QFont("TeX feta nummer10", 10);
 	fFetaFnd = true;
-	fn = "TeX feta19";
-	if (!initExactFont(fn, 18, fFeta)) {
-		kdDebug() << "KGuitar: could not find font '" << fn << "'" << endl;
-		fFetaFnd = false;
-	}
-	fn = "TeX feta-nummer10";
-	if (!initExactFont(fn, 10, fFetaNr)) {
-		// LVIFIX: font is not found (don't know why), but acceptable
-		// replacement is, therefore suppress error
-		// cout << "KGuitar: could not find font '" << fn << "'" << endl;
-		// fFetaFnd = false;
+
+	fontInfo(fTSig);
+	fontInfo(fFeta);
+	fontInfo(fFetaNr);
+
+	// verify font feta is found: if not, printing of notes will be disabled
+	if (!fontIsExactMatch(fFeta)) {
+		delete fFeta;
+		fFeta = 0;
+		cout << "KGuitar: could not find font 'TeX feta19',"
+		     << " cannot show or print score"
+		     << endl;
 	}
 }
 
@@ -258,12 +263,17 @@ void SongPrint::initMetrics(QPaintDevice *printer)
 	// determine font-dependent staff metrics
 	QChar c;
 	QRect r;
-	p->setFont(fFeta);
-	fm  = p->fontMetrics();
-	c = 0x24;
-	r = fm.boundingRect(c);
-	ystepst = (int) (0.95 * r.height());
-	wNote = r.width();
+	if (fFeta) {
+		p->setFont(*fFeta);
+		fm  = p->fontMetrics();
+		c   = 0x24;
+		r   = fm.boundingRect(c);
+		ystepst = (int) (0.95 * r.height());
+		wNote   = r.width();
+	} else {
+		ystepst = 0;
+		wNote   = 0;
+	}
 }
 
 // initialize pens
@@ -308,8 +318,7 @@ void SongPrint::initPrStyle()
 		stTab = true;
 	}
 	// no notes if feta fonts not found
-	// LVIFIX: feta font handling to be delegated to TrackPrint
-	if (!fFetaFnd) {
+	if (!fFeta) {
 		stNts = false;
 	}
 }
@@ -336,10 +345,6 @@ void SongPrint::printSong(KPrinter *printer, TabSong *song)
 	if (!p->begin(prntr))
 		return;
 
-	// initialize fonts, must be done before initMetrics
-	// (metrics depend on fonts)
-	initFonts();
-
 	// initialize metrics
 	initMetrics(prntr);
 
@@ -351,7 +356,7 @@ void SongPrint::printSong(KPrinter *printer, TabSong *song)
 	initPrStyle();
 
 	// now also initialize the TrackPrint
-	trp->initFonts(fTBar1, fTBar2, fTSig);
+	trp->initFonts(fTBar1, fTBar2, fTSig, fFeta, fFetaNr);
 	trp->setPainter(p);
 	trp->initMetrics();
 	trp->initPens();
@@ -473,7 +478,8 @@ void SongPrint::printSong(KPrinter *printer, TabSong *song)
 					trp->xpos = xpos;
 					trp->yposst = yposst;
 					trp->ypostb = ypostb;
-					trp->drawBar(bn, trk, 0);
+					int dummy1, dummy2;
+					trp->drawBar(bn, trk, 0, dummy1, dummy2);
 					xpos = trp->xpos;
 					bn++;
 				}
@@ -489,7 +495,8 @@ void SongPrint::printSong(KPrinter *printer, TabSong *song)
 					trp->xpos = xpos;
 					trp->yposst = yposst;
 					trp->ypostb = ypostb;
-					trp->drawBar(bn, trk, extSpInBar);
+					int dummy1, dummy2;
+					trp->drawBar(bn, trk, extSpInBar, dummy1, dummy2);
 					xpos = trp->xpos;
 					extSpLeft -= extSpInBar;
 					bn++;

@@ -35,6 +35,7 @@ public:
 	void refreshView();
 	void print(KPrinter *printer);
 
+	SongPrint *sp;
 	TrackView *tv;
 	TrackList *tl;
 	TrackPane *tp;
@@ -78,7 +79,6 @@ private:
 	QSplitter *split, *splitv;
 	TabSong *m_song;
 	KCommandHistory *cmdHist;
-	SongPrint *sp;
 
 	bool ro;
 

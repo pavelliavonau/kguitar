@@ -100,6 +100,7 @@ SongView::SongView(KXMLGUIClient *_XMLGUIClient, KCommandHistory *_cmdHist,
 	cmdHist = _cmdHist;
 
 	sp = new SongPrint();
+	tv->initFonts(sp->fFeta, sp->fFetaNr);
 }
 
 SongView::~SongView()

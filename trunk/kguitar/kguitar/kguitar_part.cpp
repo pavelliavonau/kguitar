@@ -1,5 +1,6 @@
 #include "kguitar_part.h"
 
+#include "songprint.h"
 #include "songview.h"
 #include "trackview.h"
 #include "tracklist.h"
@@ -42,6 +43,9 @@
 #include <qbuttongroup.h>
 #include <qradiobutton.h>
 #include <qfileinfo.h>
+
+#include <iostream>		// required for cout and friends
+using namespace std;		// required for cout and friends
 
 typedef KParts::GenericFactory<KGuitarPart> KGuitarPartFactory;
 K_EXPORT_COMPONENT_FACTORY(libkguitarpart, KGuitarPartFactory);
@@ -523,7 +527,7 @@ void KGuitarPart::viewMelodyEditor()
 
 void KGuitarPart::viewScore()
 {
-	if (viewScoreAct->isChecked())
+	if (viewScoreAct->isChecked() /* && sv->sp->fFeta LVIFIX: enable after drawing code merge */)
 		sv->tv->viewScore(true);
 	else
 		sv->tv->viewScore(false);
