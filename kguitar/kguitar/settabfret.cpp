@@ -10,40 +10,40 @@
 #include <qlabel.h>
 
 SetTabFret::SetTabFret(QWidget *parent=0, const char *name=0):
-    QGroupBox(i18n("Fret tabulature"),parent,name)
+    QGroupBox(i18n("Fret tabulature"), parent, name)
 {
     // Controls
 
-    lib = new QComboBox(FALSE,this);
-    connect(lib,SIGNAL(highlighted(int)),SLOT(setLibTuning(int)));
+    lib = new QComboBox(FALSE, this);
+    connect(lib, SIGNAL(highlighted(int)), SLOT(setLibTuning(int)));
 
-    for (int i=0;lib_tuning[i].strings;i++)
-	lib->insertItem(lib_tuning[i].name);
+    for (int i = 0; lib_tuning[i].strings; i++)
+		lib->insertItem(lib_tuning[i].name);
 
-    QLabel *lib_l = new QLabel(i18n("Tuning:"),this);
-    lib_l->setGeometry(10,20,80,20);
+    QLabel *lib_l = new QLabel(i18n("Tuning:"), this);
+    lib_l->setGeometry(10, 20, 80, 20);
 
-    st = new QSpinBox(1,MAX_STRINGS,1,this);
-    connect(st,SIGNAL(valueChanged(int)),SLOT(stringChanged(int)));
-    connect(st,SIGNAL(valueChanged(int)),SLOT(tuneChanged()));
-    st->setGeometry(90,50,40,20);
+    st = new QSpinBox(1, MAX_STRINGS, 1, this);
+    connect(st, SIGNAL(valueChanged(int)), SLOT(stringChanged(int)));
+    connect(st, SIGNAL(valueChanged(int)), SLOT(tuneChanged()));
+    st->setGeometry(90, 50, 40, 20);
 
-    QLabel *st_l = new QLabel(i18n("Strings:"),this);
-    st_l->setGeometry(10,50,50,20);
+    QLabel *st_l = new QLabel(i18n("Strings:"), this);
+    st_l->setGeometry(10, 50, 50, 20);
 
-    fr = new QSpinBox(1,MAX_FRETS,1,this);
-    fr->setGeometry(190,50,40,20);
+    fr = new QSpinBox(1, MAX_FRETS, 1, this);
+    fr->setGeometry(190, 50, 40, 20);
 
-    QLabel *fr_l = new QLabel(i18n("Frets:"),this);
-    fr_l->setGeometry(140,50,50,20);
+    QLabel *fr_l = new QLabel(i18n("Frets:"), this);
+    fr_l->setGeometry(140, 50, 50, 20);
 
     // Tuners
 
     for (int i=0;i<MAX_STRINGS;i++) {
-	tuner[i] = new RadiusTuner(this);
-	connect(tuner[i],SIGNAL(valueChanged(int)),SLOT(tuneChanged()));
+		tuner[i] = new RadiusTuner(this);
+		connect(tuner[i], SIGNAL(valueChanged(int)), SLOT(tuneChanged()));
     }
-    oldst=MAX_STRINGS;
+    oldst = MAX_STRINGS;
 }
 
 void SetTabFret::setLibTuning(int n)
