@@ -1,3 +1,38 @@
+2001-09-22  Alexander Brand  <alinx@users.sourceforge.net>
+
+	* Release 0.3-pre
+
+	* Changed automake/autoconf stuff to KDE2 standard one in admin directory.
+
+	* Ported to KParts as browser extension. The KGuitar tab view is now a
+	KPart. KG-files can viewed with Konqueror like PDF-Files.
+
+	* MIDI playback support (required libkmid to compile - it's available in
+	kdelibs-sound package). Basic MIDI playback implemented in chord constructor
+	and tabulature view. It's a new unstable feature and feedback about it (how
+	it works on different systems/soundcards) is highly appreciated.
+
+	* Added option in configure script: MIDI playback for tabs
+	can be enabled with './configure --with-midisupport'
+
+	* Added MIDI options.
+
+	* New strumming shemes are added.
+
+	* Moved file export/import to file save/open.
+
+	* Added drum track mode template - basically function-less, but it's a
+	template for further track modes coming in future.
+
+	* Up-to-date translation for de, fr, it.
+
+
+2000-11-09 Mikhail Yakshin <yakshin@online.ru>
+
+	* Release 0.2.9
+
+	* Port to KDE2
+
 2000-10-14  Mikhail Yakshin  <yakshin@online.ru>
 
 	* Release 0.2.1
