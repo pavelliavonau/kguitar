@@ -2,6 +2,6 @@
 #ifndef HAVE_BOOL
 #define HAVE_BOOL
 typedef int bool;
-const bool false = 0;
-const bool true = 1;
+const bool FALSE = 0;
+const bool TRUE = 1;
 #endif
