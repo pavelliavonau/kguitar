@@ -30,7 +30,7 @@ TrackView::TrackView(QWidget *parent,const char *name): QTableView(parent,name)
 	curt->tune[i]=standtune[i];
 
 //    curt->xi=QListIterator<TabColumn>(curt->c);
-    curt->x=0;
+//    curt->x=0;
     curt->y=0;
 
     curt->c.append(new TabColumn());
@@ -46,28 +46,31 @@ TrackView::~TrackView()
 
 void TrackView::setFinger(int num,int fret)
 {
-    curt->c.at(curt->x)->a[num]=fret;
+    curt->c.current()->a[num]=fret;
 }
 
 void TrackView::paintCell(QPainter *p, int row, int col)
 {
-    TabColumn *tc;
+    QListIterator<TabColumn> it(curt->c);
+
     QString tmp;
 
     int s = curt->string-1;
+    int i;
 
-    for (int i=0;i<curt->string;i++)
+    for (i=0;i<=s;i++)
 	p->drawLine(0,VERTSPACE+(s-i)*VERTLINE,width(),VERTSPACE+(s-i)*VERTLINE);
 
     p->setFont(QFont("helvetica",VERTLINE));
     p->setBrush(KApplication::getKApplication()->windowColor);
 
     int xpos=10,xdelta;
-
-    for (tc=curt->c.first();tc!=0;tc=song->t.getFirst()->c.next()) {
+    
+    for (;it.current();++it) {
+	TabColumn *tc = it.current();
 	p->setPen(NoPen);
-	for (int i=0;i<curt->string;i++) {
-	    if ((curt->c.at()==curt->x) && 
+	for (i=0;i<=s;i++) {
+	    if ((curt->c.current()==tc) && 
 		(curt->y==i)) {
 		p->setBrush(KApplication::getKApplication()->selectColor);
 		p->drawRect(xpos,VERTSPACE+(s-i)*VERTLINE-VERTLINE/2,
@@ -104,8 +107,13 @@ void TrackView::paintCell(QPainter *p, int row, int col)
 	case 60:  // 1/8
 	    p->drawLine(xpos+VERTLINE/2,BOTTOMDUR+VERTLINE,
 			xpos+VERTLINE/2+HORDUR,BOTTOMDUR+VERTLINE);
-	case 120: // 1/4
-	    p->drawLine(xpos+VERTLINE/2,BOTTOMDUR,
+	case 120: // 1/4 - a long vertical line, so we need to find the lowest note
+	    for (i=0;((i<=s) && (tc->a[i]==-1));i++);
+
+	    // If it's an empty measure at all - draw the vertical line from bottom
+	    if (i>s)  i=0;
+
+	    p->drawLine(xpos+VERTLINE/2,VERTSPACE+VERTLINE*(s-i)+VERTLINE/2+1,
 			xpos+VERTLINE/2,BOTTOMDUR+VERTLINE);
 	case 240: // 1/2
 	    p->drawLine(xpos+VERTLINE/2,BOTTOMDUR+3,
@@ -133,7 +141,7 @@ void TrackView::resizeEvent(QResizeEvent *e)
 
 bool TrackView::moveFinger(int from, int dir)
 {
-    int n0=curt->c.at(curt->x)->a[from];
+    int n0=curt->c.current()->a[from];
     int n=n0;
     if (n<0)
 	return FALSE;
@@ -147,10 +155,10 @@ bool TrackView::moveFinger(int from, int dir)
 	n=n0+curt->tune[from]-curt->tune[to];
 	if (n<0)
 	    return FALSE;
-    } while (curt->c.at(curt->x)->a[to]!=-1);
+    } while (curt->c.current()->a[to]!=-1);
 
-    curt->c.at(curt->x)->a[from]=-1;
-    curt->c.at(curt->x)->a[to]=n;
+    curt->c.current()->a[from]=-1;
+    curt->c.current()->a[to]=n;
 
     curt->y=to;
     return TRUE;
@@ -162,13 +170,14 @@ void TrackView::keyPressEvent(QKeyEvent *e)
 
     switch (e->key()) {
     case Key_Left:
-	if (curt->x>0)
-	    curt->x--;
+	if (curt->c.at()>0)
+	    curt->c.prev();
 	break;
     case Key_Right:
-	if (curt->x+1==curt->c.count())
+	if (curt->c.at()+1==curt->c.count())
 	    curt->c.append(new TabColumn());
-	curt->x++;
+	else
+	    curt->c.next();
 	break;
     case Key_Down:
 	if (curt->y>0) {
@@ -197,23 +206,26 @@ void TrackView::keyPressEvent(QKeyEvent *e)
     case Key_9:
     case Key_0:
 	num=num-'0'; // GREYFIX - may be a bad thing to do
-	curt->c.at(curt->x)->a[curt->y]=num;
+	curt->c.current()->a[curt->y]=num;
 	break;
     case Key_Delete:
-	curt->c.at(curt->x)->a[curt->y]=-1;
+	curt->c.current()->a[curt->y]=-1;
 	break;
     case Key_Plus:
-	if (curt->c.at(curt->x)->l<480)
-	    curt->c.at(curt->x)->l*=2;
+	if (curt->c.current()->l<480)
+	    curt->c.current()->l*=2;
 	break;
     case Key_Minus:
-	if (curt->c.at(curt->x)->l>15)
-	    curt->c.at(curt->x)->l/=2;
+	if (curt->c.current()->l>15)
+	    curt->c.current()->l/=2;
 	break;	
     default:
 	e->ignore();
 	return;
     }
+
+    printf("Current item %d. curt->c.current()->a[0]=%d\n",curt->c.at(),curt->c.current()->a[0]);
+
     update();
     e->accept();
 }

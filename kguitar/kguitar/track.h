@@ -33,7 +33,9 @@ public:
 class TabTrack
 {
 public:
-    TabTrack(TrackMode _tm, QString _name, int _bank, uchar _patch, uchar str, uchar _frets) { tm=_tm;name=_name;bank=_bank;patch=_patch;string=str;frets=_frets;c.setAutoDelete(TRUE); };
+    TabTrack(TrackMode _tm, QString _name, int _bank,
+	     uchar _patch, uchar _string, uchar _frets);
+
     QList<TabColumn> c;                 // Tab columns
 
     uchar string;                       // Number of strings
@@ -45,11 +47,11 @@ public:
     int bank;                           // MIDI bank
     uchar patch;                        // MIDI patch
 
-//    QListIterator<TabColumn> xi(QListT<TabColumn>);        // Current tab col iterator
+//    QListIterator<TabColumn> xi(QListT<TabColumn>);  // Current tab col iterator
 
     QString name;                       // Track text name
 
-    int x;                              // Current tab col
+//    int x;                              // Current tab col
     int y;                              // Current tab row
 private:
     TrackMode tm;                       // Track mode

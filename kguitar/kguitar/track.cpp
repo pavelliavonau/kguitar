@@ -3,6 +3,21 @@
 #include <qfile.h>
 #include <qdatastream.h>
 
+TabTrack::TabTrack(TrackMode _tm, QString _name, int _bank,
+		   uchar _patch, uchar _string, uchar _frets)
+{
+    tm=_tm;
+    name=_name;
+    bank=_bank;
+    patch=_patch;
+    string=_string;
+    frets=_frets;
+
+//    c = new QList<TabColumn>;
+    c.setAutoDelete(TRUE);
+//    QListIterator<TabColumn> xi(c);
+};
+
 bool TabSong::load_from_kg(QString fileName)
 {
     QFile f(fileName);
