@@ -4,6 +4,7 @@
 #include "chordlist.h"
 #include "tabsong.h"
 #include "strumming.h"
+#include "globaloptions.h"
 
 #include <klocale.h>
 #include <kmessagebox.h>
@@ -50,11 +51,11 @@ QString note_name(int num)
 	case 0: return notes_us1[num];
 	case 1: return notes_us2[num];
 	case 2: return notes_us3[num];
-	
+
 	case 3: return notes_eu1[num];
 	case 4: return notes_eu2[num];
 	case 5: return notes_eu3[num];
-	
+
 	case 6: return notes_jz1[num];
 	case 7: return notes_jz2[num];
 	case 8: return notes_jz3[num];
@@ -138,10 +139,10 @@ ChordSelector::ChordSelector(DeviceManager *_dm, TabTrack *p, QWidget *parent = 
 		tmp = tmp + "\'";
 		stlabel[i] = new QLabel(tmp, this);
 		stlabel[i]->setAlignment(AlignCenter);
-		
+
 		cnote[i] = new QLabel(this);
 		cnote[i]->setAlignment(AlignCenter);
-		
+
 		if (i > 0) {
 			st[i - 1] = new QComboBox(FALSE, this);
 			st[i - 1]->insertItem("x");
@@ -154,7 +155,7 @@ ChordSelector::ChordSelector(DeviceManager *_dm, TabTrack *p, QWidget *parent = 
 			connect(st[i - 1], SIGNAL(activated(int)), SLOT(findChords()));
 		}
 	}
-	
+
 	st[0]->insertItem("2");
 	st[0]->insertItem(flat[globalFlatPlus]);
 	st[0]->insertItem("3");
@@ -200,9 +201,9 @@ ChordSelector::ChordSelector(DeviceManager *_dm, TabTrack *p, QWidget *parent = 
 	fnglist = new FingerList(p,this);
 	connect(fnglist,SIGNAL(chordSelected(const int *)),
 	        fng,SLOT(setFingering(const int *)));
-	
+
 	// DIALOG BUTTONS
-	
+
 	QPushButton *ok, *cancel, *strumbut;
 
 	ok = new QPushButton(i18n("OK"), this);
@@ -222,6 +223,7 @@ ChordSelector::ChordSelector(DeviceManager *_dm, TabTrack *p, QWidget *parent = 
 	play = new QPushButton(i18n("&Play"), this);
 	play->setMinimumSize(75, 30);
 	connect(play, SIGNAL(clicked()), SLOT(playMidi()));
+    play->setEnabled(globalHaveMidi);
 
 	// LAYOUT MANAGEMENT
 
@@ -265,7 +267,7 @@ ChordSelector::ChordSelector(DeviceManager *_dm, TabTrack *p, QWidget *parent = 
 	// Steps editor layout
 	QGridLayout *lsteps = new QGridLayout(3, 7, 0);
 	lshow->addLayout(lsteps);
-	
+
 	lsteps->addWidget(stlabel[0], 0, 0);
 	lsteps->addWidget(cnote[0], 2, 0);
 
@@ -279,7 +281,7 @@ ChordSelector::ChordSelector(DeviceManager *_dm, TabTrack *p, QWidget *parent = 
 		lsteps->addWidget(st[i - 1], 1, i);
 		lsteps->addWidget(cnote[i], 2, i);
 		lsteps->setColStretch(i, 1);
-	}	
+	}
 
 	// Strumming and buttons stuff layout
 	QBoxLayout *lstrum = new QVBoxLayout();
@@ -309,8 +311,7 @@ void ChordSelector::playMidi()
 
 	if (dm->checkInit() == -1) {
 		KMessageBox::error(this, i18n("Can't open /dev/sequenzer !!\n"
-									  "Is there another application who\n"
-									  "are using /dev/sequenzer ?"));
+									  "Probably there is another program using it."));
 		return;
 	}
 
@@ -327,7 +328,7 @@ void ChordSelector::playMidi()
 
  	dm->wait(1000);
 
-	for (int i = 0; i < parm->string; i++) 
+	for (int i = 0; i < parm->string; i++)
 		if (fng->app(i) != -1)
 			dm->noteOff(0, fng->app(i) + parm->tune[i], 127);
 
@@ -362,7 +363,7 @@ void ChordSelector::detectChord()
 //	chords->setAutoUpdate(FALSE);
 	chords->clearSelection();
 	chords->clear();
-	
+
 	for (i = 0; i < 12; i++)  if (cn[i]) {
 
 		// Initializing
@@ -379,7 +380,7 @@ void ChordSelector::detectChord()
 		} else if (cn[(i + 2) % 12]) {
 			s3 = 2; noteok--;			// Sus2
 		}
-		
+
 		// Detecting fifths
 		if (cn[(i + 7) % 12]) {
 			s5 = 7; noteok--;			// 5
@@ -388,7 +389,7 @@ void ChordSelector::detectChord()
 		} else if (cn[(i+8) % 12]) {
 			s5 = 8; noteok--;			// 5+
 		}
-		
+
 		// Detecting sevenths
 		if (cn[(i + 10) % 12]) {
 			s7 = 10;noteok--;			// 7
@@ -397,7 +398,7 @@ void ChordSelector::detectChord()
 		} else if (cn[(i + 9) % 12]) {
 			s7 = 9;noteok--;			// 6
 		}
-		
+
 		// Detecting 9ths
 		if ((cn[(i + 2) % 12]) && (s3 != 2)) {
 			s9 = 2;noteok--;			// 9
@@ -406,7 +407,7 @@ void ChordSelector::detectChord()
 		} else if (cn[(i + 1) % 12]) {
 			s9 = 1;noteok--;			// 9-
 		}
-		
+
 		// Detecting 11ths
 		if ((cn[(i+5)%12]) && (s3!=5)) {
 			s11=5;noteok--;				  // 11
@@ -415,7 +416,7 @@ void ChordSelector::detectChord()
 		} else if ((cn[(i+6)%12]) && (s5!=6)) {
 			s11=6;noteok--;				  // 11+
 		}
-		
+
 		// Detecting 13ths
 		if ((cn[(i+9)%12]) && (s7!=9)) {
 			s13=9;noteok--;
@@ -424,14 +425,14 @@ void ChordSelector::detectChord()
 		} else if ((cn[(i+10)%12]) && (s7!=10)) {
 			s13=10;noteok--;
 		}
-		
+
 		if (noteok == 0) {
 			ChordListItem *item = new ChordListItem(i, bass, s3, s5,
 			                                        s7, s9, s11, s13);
 			chords->inSort(item);
 		}
 	}
-	
+
 //	chords->setAutoUpdate(TRUE);
 	chords->repaint();
 }
@@ -512,7 +513,7 @@ void ChordSelector::findChords()
 	int app[MAX_STRINGS];				// raw fingering itself
 	int ind[MAX_STRINGS];				// indexes in hfret array
 
-	//				    1  5  7   9  11 13 
+	//				    1  5  7   9  11 13
 	int toneshift[6] = {0, 7, 10, 2, 5, 9};
 
 	int fb[MAX_STRINGS][parm->frets];	// array with an either -1 or number of note from a chord
@@ -558,7 +559,7 @@ void ChordSelector::findChords()
 			cnote[i + 1]->clear();
 		}
 	}
-	
+
 	// CLEARING THE LIST FOR FUTURE FINGERINGS
 
 	fnglist->switchAuto(FALSE);
@@ -581,14 +582,14 @@ void ChordSelector::findChords()
 		inv->setCurrentItem(0);
 
 	int span = 3; // maximal fingerspan
-	
+
 	if (complexer[1]->isChecked())
 		span = 4;
 	if (complexer[2]->isChecked())
-		span = 5;	   
-	
+		span = 5;
+
 	// PREPARING FOR FINGERING CALCULATION
-	
+
 	for (i = 0; i < parm->string; i++) {
 		for (j = 0; j <= parm->frets; j++)
 			fb[i][j] = -1;
@@ -660,7 +661,7 @@ void ChordSelector::findChords()
 					}
 				}
 			}
-			
+
 			if ((k==notenum) && (max-min<span) && (bass%12==need[inv->currentItem()])) {
 				for (j=0;j<parm->string;j++)
 					app[j]=hfret[j][ind[j]];
@@ -674,7 +675,7 @@ void ChordSelector::findChords()
 					fnglist->addFingering(app,TRUE);
 				}
 			}
-			
+
 			i=0;
 		} else {						// end of string reached
 			ind[i]=0;i++;
@@ -682,7 +683,7 @@ void ChordSelector::findChords()
 			if (i>=parm->string)
 				break;
 		}
-		
+
 		if (hfret[i][ind[i]]>min) {
 			ind[i]++;
 			if (hfret[i][ind[i]]>max)
@@ -693,7 +694,7 @@ void ChordSelector::findChords()
 			needrecalc=TRUE;
 		}
 	} while (TRUE);
-	
+
 	fnglist->switchAuto(TRUE);
 	fnglist->repaint();
 }

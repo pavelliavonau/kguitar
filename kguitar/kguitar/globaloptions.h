@@ -21,3 +21,5 @@ extern int globalAlsaPort;
 extern QString maj7name[];
 extern QString flat[];
 extern QString sharp[];
+
+extern bool globalHaveMidi;
