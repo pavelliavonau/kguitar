@@ -1,6 +1,5 @@
 #include "tabtrack.h"
 
-
 TabTrack::TabTrack(TrackMode _tm, QString _name, int _channel,
 				   int _bank, uchar _patch, char _string, char _frets)
 {
@@ -133,133 +132,118 @@ void TabTrack::updateXB()
 			}
 }
 
-//////////////////////////////////////////////////////////////////////
-//
-// Okay, down below is the probably the *messiest* and the *ugliest*
-// code in the whole program. It's not for the faint of heart. It's
-// really hard to understand (I doubt if I understand it myself), but
-// it should work. If you'll proceed, please read it and think of
-// any way of improving it...
-//
-//////////////////////////////////////////////////////////////////////
+// Add column "dat" to the end of the track, making this column span
+// as many real columns as needed to sum up to duration of "value"
 
+void TabTrack::addNewColumn(TabColumn dat, int value, bool *arc)
+{
+	// Cleverly sorted lookup array of all possible "standard" note durations
+	// Norm  Dot  Triplet
+	const int bits[] = {
+		     720,
+		480, 360, 320,
+		240, 180, 160,
+		120, 90,  80,
+		60,  45,  40,
+		30,  23,  20,
+		15,       10,
+		0
+	};
 
+	int toput = value; // What's left to distribute
 
-// Well, if you insist on reading... Then try...
+	while (toput > 0) {
+		int bit = toput;
 
+		for (int i = 0; bits[i]; i++)
+			if (toput >= bits[i]) {
+				bit = bits[i];
+				break;
+			}
 
+		toput -= bit;
 
-#define ADD_NEW_COLUMN(value);							\
-	toput = value;										\
-	while (toput>0) {									\
-		if (toput>=720) {								\
-			dot = TRUE;	 ln = 480; toput -= 720;		\
-		} else if (toput>=480) {						\
-			dot = FALSE; ln = 480; toput -= 480;		\
-		} else if (toput>=360) {						\
-			dot = TRUE;	 ln = 240; toput -= 360;		\
-		} else if (toput>=240) {						\
-			dot = FALSE; ln = 240; toput -= 240;		\
-		} else if (toput>=180) {						\
-			dot = TRUE;	 ln = 120; toput -= 180;		\
-		} else if (toput>=120) {						\
-			dot = FALSE; ln = 120; toput -= 120;		\
-		} else if (toput>=90) {							\
-			dot = TRUE;	 ln = 60; toput -= 90;			\
-		} else if (toput>=60) {							\
-			dot = FALSE; ln = 60; toput -= 60;			\
-		} else if (toput>=45) {							\
-			dot = TRUE;	 ln = 30; toput -= 45;			\
-		} else if (toput>=30) {							\
-			dot = FALSE; ln = 30; toput -= 30;			\
-		} else if (toput>=23) {							\
-			dot = TRUE;	 ln = 15; toput -= 23;			\
-		} else if (toput>=15) {							\
-			dot = FALSE; ln = 15; toput -= 15;			\
-		}												\
-		i++;											\
-		c.resize(i); c[i-1] = an[nn]; c[i-1].l = ln;	\
-		if (dot)  c[i-1].flags |= FLAG_DOT;				\
-		if (!firstnote) {								\
-			c[i-1].flags |= FLAG_ARC;					\
-			for (int k=0;k<MAX_STRINGS;k++)			\
-				c[i-1].a[k] = -1;						\
-		}												\
-		firstnote = FALSE;								\
+		int last = c.size();
+		c.resize(last + 1);
+		c[last] = dat;
+		c[last].setFullDuration(bit);
+		if (*arc) {
+			c[last].flags |= FLAG_ARC;
+			for (int i = 0; i < MAX_STRINGS; i++)
+				c[last].a[i] = -1;
+		}
+		*arc = TRUE;
 	}
+}
+
+// Arrange the track: collect all columns into an additional array,
+// then add them one by one to clean track, taking care about bar
+// limits
 
 void TabTrack::arrangeBars()
 {
-	int barlen = 480 * b[0].time1 / b[0].time2;
 	int barnum = 1;
-	int cl = 0;						// Current length
 
 	// COLLECT ALL NOTES INFORMATION
 
-	QArray<TabColumn> an;				// Collected columns information
+	QArray<TabColumn> an;			// Collected columns information
 	int nn = 0;						// Number of already made columns
-	int i;
 
-	for (i=0;i<c.size();i++) {
-		cl = c[i].l;
-		if (c[i].flags & FLAG_DOT)		// Dotted are 1.5 times larger
-			cl = cl + cl/2;
+	for (int i = 0; i < c.size(); i++) {
 		if (!(c[i].flags & FLAG_ARC)) { // Add the note, if it's not arc
 			nn++;
 			an.resize(nn);
 			an[nn-1] = c[i];
-			an[nn-1].l = cl;
+			an[nn-1].l = c[i].fullDuration();
 		} else {						// Add to duration of previous note
-			an[nn-1].l += cl;
+			an[nn-1].l += c[i].fullDuration();
 		}
 	}
 
 	// RECONSTRUCTING BARS & COLUMNS ARRAYS
 
-	i = 0;
-	int ln;
-	int cbl;
-	int toput;
-	bool firstnote = TRUE, dot = FALSE;
+	bool arc;
+	int cl;
+	int cbl = 480 * b[0].time1 / b[0].time2;
 
-	cbl = barlen;
 	b[0].start = 0;
 	barnum = 0;
 
-	for (nn=0; nn<an.size(); nn++) {
-		cl = an[nn].l;
-		firstnote = TRUE;
+	c.resize(0);
 
-		while (cl>0) {
-			if (cl<cbl) {
-				ADD_NEW_COLUMN(cl);
+	for (nn = 0; nn < an.size(); nn++) {
+		cl = an[nn].l;
+		arc = FALSE;
+
+		while (cl > 0) {
+			if (cl < cbl) {
+				addNewColumn(an[nn], cl, &arc);
 				cbl -= cl;
 				cl = 0;
 			} else {
-				ADD_NEW_COLUMN(cbl);
+				addNewColumn(an[nn], cbl, &arc);
 				cl -= cbl;
-				cbl = barlen;
 
 				barnum++;
-				b.resize(barnum+1);
-				b[barnum].start = i;
-				// GREYFIX - preserve other possible time signatures
-				b[barnum].time1 = b[barnum-1].time1;
-				b[barnum].time2 = b[barnum-1].time2;
+				if (b.size() < barnum + 1) {
+					b.resize(barnum + 1);
+					b[barnum].time1 = b[barnum-1].time1;
+					b[barnum].time2 = b[barnum-1].time2;
+				}
+				b[barnum].start = c.size();
+				cbl = 480 * b[barnum].time1 / b[barnum].time2;
 			}
 		}
 	}
 
 	// Clean up last bar if it's empty
-	if (b[barnum].start == i)
+	if (b[barnum].start == c.size())
 		b.resize(barnum);
 
 	// Make sure that cursor x is in legal range
-	if (x>=c.size())
-		x = c.size()-1;
+	if (x >= c.size())
+		x = c.size() - 1;
 
 	// Find the bar the cursor is in
 	updateXB();
-
-	// All should be done now.
 }
