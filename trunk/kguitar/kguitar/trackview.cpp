@@ -60,7 +60,7 @@ void TrackView::paintCell(QPainter *p, int row, int col)
     p->setFont(QFont("helvetica",VERTLINE));
     p->setBrush(KApplication::getKApplication()->windowColor);
 
-    int xpos=10;
+    int xpos=10,xdelta;
 
     for (tc=curt->c.first();tc!=0;tc=song->t.getFirst()->c.next()) {
 	p->setPen(NoPen);
@@ -93,27 +93,30 @@ void TrackView::paintCell(QPainter *p, int row, int col)
 
 	p->setPen(SolidLine);
         switch (tc->l) {
-	case 6: // 1/32
+	case 15:  // 1/32
 	    p->drawLine(xpos+VERTLINE/2,BOTTOMDUR+VERTLINE-4,
 			xpos+VERTLINE/2+HORDUR,BOTTOMDUR+VERTLINE-4);
-	case 5: // 1/16
+	case 30:  // 1/16
 	    p->drawLine(xpos+VERTLINE/2,BOTTOMDUR+VERTLINE-2,
 			xpos+VERTLINE/2+HORDUR,BOTTOMDUR+VERTLINE-2);
-	case 4: // 1/8
+	case 60:  // 1/8
 	    p->drawLine(xpos+VERTLINE/2,BOTTOMDUR+VERTLINE,
 			xpos+VERTLINE/2+HORDUR,BOTTOMDUR+VERTLINE);
-	case 3: // 1/4
+	case 120: // 1/4
 	    p->drawLine(xpos+VERTLINE/2,BOTTOMDUR,
 			xpos+VERTLINE/2,BOTTOMDUR+VERTLINE);
-	case 2: // 1/2
+	case 240: // 1/2
 	    p->drawLine(xpos+VERTLINE/2,BOTTOMDUR+3,
 			xpos+VERTLINE/2,BOTTOMDUR+VERTLINE);
-	case 1: // whole
+	case 480: // whole
 	    break;
 	}
 
 	// Length of interval
-	xpos+=(7-tc->l)*HORCELL;
+	xdelta=(tc->l)/20*HORCELL;
+	if (xdelta<HORCELL)
+	    xdelta=HORCELL;
+	xpos+=xdelta;
     }
 
     p->setBrush(SolidPattern);
@@ -198,12 +201,12 @@ void TrackView::keyPressEvent(QKeyEvent *e)
 	curt->c.at(curt->x)->a[curt->y]=-1;
 	break;
     case Key_Plus:
-	if (curt->c.at(curt->x)->l>1)
-	    curt->c.at(curt->x)->l--;
+	if (curt->c.at(curt->x)->l<480)
+	    curt->c.at(curt->x)->l*=2;
 	break;
     case Key_Minus:
-	if (curt->c.at(curt->x)->l<6)
-	    curt->c.at(curt->x)->l++;
+	if (curt->c.at(curt->x)->l>15)
+	    curt->c.at(curt->x)->l/=2;
 	break;	
     default:
 	e->ignore();
