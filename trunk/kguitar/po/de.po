@@ -6,17 +6,17 @@ msgid ""
 msgstr ""
 "Project-Id-Version: PACKAGE VERSION\n"
 "POT-Creation-Date: 2001-06-28 16:14-0400\n"
-"PO-Revision-Date: 2001-06-28 17:12GMT\n"
+"PO-Revision-Date: 2001-07-02 22:20GMT\n"
 "Last-Translator: Alexander Brand <alinx@users.sourceforge.net>\n"
 "Language-Team: Deutsch <de@li.org>\n"
 "MIME-Version: 1.0\n"
-"Content-Type: text/plain; charset=ISO-8859-1\n"
+"Content-Type: text/plain; charset=UTF-8\n"
 "Content-Transfer-Encoding: 8bit\n"
 "X-Generator: KBabel 0.8\n"
 
 #: application.cpp:135
 msgid "P&roperties..."
-msgstr "&Einstllungen"
+msgstr "&Einstellungen"
 
 #: application.cpp:140
 msgid "&Chord..."
@@ -68,11 +68,11 @@ msgstr "Legato (hammer on/pull off)"
 
 #: application.cpp:174
 msgid "Natural harmonic"
-msgstr "Natürliches Flageolet"
+msgstr "NatÃ¼rliches Flageolet"
 
 #: application.cpp:177
 msgid "Artificial harmonic"
-msgstr "Künstliches Flageolet"
+msgstr "KÃ¼nstliches Flageolet"
 
 #: application.cpp:182
 msgid "American, sharps"
@@ -224,7 +224,7 @@ msgstr "Unbenannt"
 
 #: application.cpp:344
 msgid "Please select a file."
-msgstr "Bitte eine Datei wählen."
+msgstr "Bitte eine Datei wÃ¤hlen."
 
 #: application.cpp:348
 msgid "You have no permission to read this file."
@@ -241,7 +241,7 @@ msgid ""
 "please write an email to: greycat@users.sourceforge.net"
 msgstr ""
 "Diese Funktion ist zur Zeit noch nicht implementiert. Wenn Sie\n"
-"helfen möchten, diese zu implementieren, dann schreiben\n"
+"helfen mÃ¶chten, diese zu implementieren, dann schreiben\n"
 "sie bitte eine eMail an: greycat@users.sourceforge.net"
 
 #: application.cpp:423
@@ -260,7 +260,7 @@ msgid ""
 "an email to: greycat@users.sourceforge.net"
 msgstr ""
 "Die Druckfunktion ist zur Zeit noch nicht implementiert\n"
-"Wenn Sie helfen möchten, diese in KGuitar zu implementieren,\n"
+"Wenn Sie helfen mÃ¶chten, diese in KGuitar zu implementieren,\n"
 "schreiben Sie bitte eine eMail an: greycat@users.sourceforge.net."
 
 #: chord.cpp:169
@@ -320,7 +320,7 @@ msgid ""
 "Can't open /dev/sequenzer !!\n"
 "Probably there is another program using it."
 msgstr ""
-"Kann /dev/sequenzer nicht öffnen !!\n"
+"Kann /dev/sequenzer nicht Ã¶ffnen !!\n"
 "Eventuell benutzt ihn ein anderes Programm."
 
 #: filebrowser.cpp:103 filebrowser.cpp:289 filebrowser.cpp:306
@@ -338,7 +338,7 @@ msgstr "Unterverzeichnisse durchsuchen"
 
 #: filebrowser.cpp:118
 msgid "Play score"
-msgstr "Spiele das Stück"
+msgstr "Spiele das StÃ¼ck"
 
 #: filebrowser.cpp:124
 msgid "No Jump"
@@ -366,7 +366,7 @@ msgstr "Weiter nach 25 Takten"
 
 #: filebrowser.cpp:130
 msgid "Jump after the score"
-msgstr "Weiter nach dem Stück"
+msgstr "Weiter nach dem StÃ¼ck"
 
 #: filebrowser.cpp:135
 msgid "Directories"
@@ -378,11 +378,11 @@ msgstr "Name"
 
 #: filebrowser.cpp:145
 msgid "Size"
-msgstr "Größe"
+msgstr "GrÃ¶ÃŸe"
 
 #: filebrowser.cpp:146
 msgid "Modified"
-msgstr "Verändert"
+msgstr "VerÃ¤ndert"
 
 #: filebrowser.cpp:147
 msgid "Directory"
@@ -402,7 +402,7 @@ msgstr ""
 
 #: filebrowser.cpp:288
 msgid "Please select a directory!"
-msgstr "Bitte wählen Sie ein Verzeichnis!"
+msgstr "Bitte wÃ¤hlen Sie ein Verzeichnis!"
 
 #: filebrowser.cpp:305 filebrowser.cpp:332
 msgid "You have no permission to read this directory!"
@@ -464,7 +464,7 @@ msgstr ""
 
 #: kguitar_shell.cpp:153
 msgid "This file exists! Do you overwrite this file?"
-msgstr "Die Datei existiert schon! Möchten Sie sie überschreiben?"
+msgstr "Die Datei existiert schon! MÃ¶chten Sie sie Ã¼berschreiben?"
 
 #: kguitar_shell.cpp:157
 msgid "You have no permission to write this file!"
@@ -472,15 +472,15 @@ msgstr "Sie haben keine Berechtigung zum Schreiben dieser Datei!"
 
 #: kguitar_shell.cpp:166
 msgid "Please select a filter or add an extension."
-msgstr "Bitte einen Filter wählen oder eine Erweiterung anhängen."
+msgstr "Bitte einen Filter wÃ¤hlen oder eine Erweiterung anhÃ¤ngen."
 
 #: main.cpp:13
 msgid "File to open."
-msgstr "Zu öffnende Datei"
+msgstr "Zu Ã¶ffnende Datei"
 
 #: main.cpp:17
 msgid "A stringed instrument tabulature editor"
-msgstr "Ein Tabulatur-Editor für Seiteninstrumente"
+msgstr "Ein Tabulatur-Editor fÃ¼r Seiteninstrumente"
 
 #: main.cpp:22
 msgid "KGuitar"
@@ -496,7 +496,7 @@ msgid ""
 "allowed us to make changes to tabdefs.tex"
 msgstr ""
 "Einen speziellen Dank an Ronald Gelten, der\n"
-"uns erlaubt tabdefs.tex zu verändern."
+"uns erlaubt tabdefs.tex zu verÃ¤ndern."
 
 #: options.cpp:23
 msgid "Preferences"
@@ -556,7 +556,7 @@ msgstr "Noten"
 
 #: options.cpp:112
 msgid "Tab Size"
-msgstr "Tab Größe"
+msgstr "Tab GrÃ¶ÃŸe"
 
 #: options.cpp:114
 msgid "Smallest"
@@ -572,11 +572,11 @@ msgstr "Normal"
 
 #: options.cpp:117
 msgid "Big"
-msgstr "Groß"
+msgstr "GroÃŸ"
 
 #: options.cpp:135
 msgid "MIDI Device Support"
-msgstr "MIDI Gerät Unterstützung"
+msgstr "MIDI GerÃ¤t UnterstÃ¼tzung"
 
 #: options.cpp:165
 msgid "ALSA"
@@ -632,7 +632,7 @@ msgstr "Saiten:"
 
 #: settabfret.cpp:37
 msgid "Frets:"
-msgstr "Bünde:"
+msgstr "BÃ¼nde:"
 
 #: settrack.cpp:27
 msgid "Fretted instrument"
