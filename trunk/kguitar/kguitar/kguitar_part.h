@@ -101,13 +101,11 @@ private:
 	// It would then have to be passed down to SongPrint via SongView.
 	// KPrinter *printer;
 
-	KAction *preferencesAct, *confTBAct, *browserAct, *sngPropAct,
+	KAction *confTBAct,
 		*trkNewAct, *trkDeleteAct, *trkBassLineAct, *trkPropAct, *insChordAct,
-		*len1Act, *len2Act, *len4Act, *len8Act, *len16Act, *len32Act,
 		*keySigAct, *timeSigAct, *arcAct, *legatoAct, *natHarmAct, *artHarmAct,
 		*palmMuteAct, *slideAct, *letRingAct, *saveOptionAct, *confKeyAct,
-		*arrTrkAct, *midiPlaySongAct, *midiStopPlayAct, *rhythmerAct,
-		*zoomInAct, *zoomOutAct, *zoomLevelAct, *pasteAct;
+		*arrTrkAct, *midiPlaySongAct, *midiStopPlayAct, *rhythmerAct;
     KToggleAction *showMainTBAct, *showEditTBAct, *viewMelodyEditorAct, *viewScoreAct;
 
 	KAccel *mainAccel;
