@@ -53,6 +53,7 @@ TabTrack::TabTrack(TrackMode _tm, QString _name, int _channel,
 // et='X' - end of track, no more reading track chunks
 // et='T' - tab column: x bytes - raw tab data, 2 bytes - duration of column
 // et='B' - new bar start
+// et='S' - new time signature: 2 bytes - time1:time2
 
 bool TabSong::load_from_kg(QString fileName)
 {
@@ -137,8 +138,11 @@ bool TabSong::load_from_kg(QString fileName)
 	bool finished=FALSE;
 
 	int x=0,bar=1;
+	uchar tcsize=t.current()->string+2;
 	t.current()->b.resize(1);
 	t.current()->b[0].start=0;
+	t.current()->b[0].time1=4;
+	t.current()->b[0].time2=4;
 
 	do {
 	    s >> event;
@@ -152,7 +156,6 @@ bool TabSong::load_from_kg(QString fileName)
 		break;
 	    case 'T':                   // Tab column
 		x++;
-		printf("Reading column %d... ",x);
 		t.current()->c.resize(x);
 		for (int k=0;k<string;k++) {
 		    s >> cn;
@@ -160,7 +163,10 @@ bool TabSong::load_from_kg(QString fileName)
 		}
 		s >> i16;
 		t.current()->c[x-1].l = i16;
-		printf("done\n");
+		break;
+	    case 'S':
+		s >> cn; t.current()->b[bar-1].time1 = cn;
+		s >> cn; t.current()->b[bar-1].time2 = cn;
 		break;
 	    case 'X':                   // End of track
 		finished=TRUE;
@@ -226,6 +232,10 @@ bool TabSong::save_to_kg(QString fileName)
 	Q_UINT8 tcsize=trk->string+2;
 	uint bar=1;
 
+	s << (Q_UINT8) 'S';
+	s << (Q_UINT8) trk->b[0].time1;
+	s << (Q_UINT8) trk->b[0].time2;
+
  	for (uint x=0;x<trk->c.size();x++) {
 	    if (bar+1<trk->b.size()) {  // This bar's not last
 		if (trk->b[bar+1].start==x)
@@ -234,7 +244,7 @@ bool TabSong::save_to_kg(QString fileName)
 	    
 	    if (trk->b[bar].start==x) { // New bar event
 		s << (Q_UINT8) 'B';
-		s << (Q_UINT8) 0;		
+		s << (Q_UINT8) 0;
 	    }
 
 	    s << (Q_UINT8) 'T';         // Tab column events
