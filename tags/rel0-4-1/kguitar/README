@@ -1,0 +1,252 @@
+                               KGuitar
+                       A KDE tabulature editor
+
+                 (C) 2001 by KGuitar development team
+     Current maintainer - GreyCat <GreyCat@users.sourceforge.net>
+
+KGuitar is basically a guitar tabulature editor for K Desktop
+Environment. It's much more than just a tab editor. It's features are:
+
+
+* Free GPLed program;
+
+* K Desktop Environment GUI;
+
+* Powerful and convenient tabulature editing, including many effects
+and classical note score editing for classic instrument players;
+
+* Full and very customizable MIDI to tabulature import and export;
+
+* Support of extra data formats, such as ASCII tabulatures or popular
+programs' format, such as Guitar Pro's or TablEdit;
+
+* Chord fingering construction tools - chord finder & chord analyzer;
+
+* Highly customizable to suit a lot of possible instruments (not only
+6-stringed guitars, and even not only guitars), including drum tracks,
+lyrics and other MIDI events.
+
+
+Well, right now KGuitar is in very alpha state and doesn't support
+everything stated. However, it already features a nice tabulature
+editor, though not ultimately powerful, loading/saving its own format (kg
+files) and all the chord construction tools.
+
+As the KDE style docs are still not available, I'd try to give some
+directions on usage of KGuitar here:
+
+MAIN WINDOW
+===========
+
+It's a generic KDE application that you're familiar with. All the
+File/Edit/etc menus are here. The most interesting thing is what is
+below the menus :) It's a tab editor area.
+
+Tab editor could be basically navigated by a mouse (just click on a
+column to move a cursor there), but most editing is done by keyboard
+in this release, so it won't hurt to learn these keys:
+
+Left, Right - move the cursor on previous/next column;
+
+Up, Down - move the cursor on previous/next string;
+
+Number keys - edit the fret number in cursor position. To enter simple
+one-digited fret number just press the apropriate key. To enter
+2-digit fret number (such as 12, for example), press keys "1" and "2"
+consequentally - they'll add up to the 12 fret number. Note that
+you'll be unable to enter invalid fret numbers - for example 36th fret
+on the 24 fret guitar.
+
+X - makes the current string sound with dead note. This is marked with
+"X" mark in tab and sounds like a very short undetermined note.
+
+Delete - deletes the current fret number in cursor position.
+
+Ctrl+Delete - deletes the whole current column.
+
+Ctrl+Up, Ctrl+Down - if there is a fret number in cursor postion, move
+the cursor up or down taking the number with it, trying to maintain
+the tone frequency. Thus, on a normal 6-string guitar tuning, if
+you'll pull the "0" from the 1st string down, it will become "5" on the
+2nd string (it will still sound as E note). This way you can manually
+optimize the fret fingerings without changing the sounding.
+
+"+" and "-" keys (recommended to use keypad ones) - doubles or halves
+the note length. Note lengths are shown as that familiar note-style
+lines. That is:
+
+       No note line                 whole
+       Short note line              1/2
+       Long note line               1/4
+       Long line+1 horizontal bar   1/8
+       Long line+2 horizontal bars  1/16
+       Long line+3 horizontal bars  1/32
+
+"." - add or remove dot that makes current column sound longer by one
+half of it's duration. I.e. dotted column duration is 1.5x non-dotted.
+
+L - make current column to be the continuation of previous column,
+maintaining the sound, thus making it longer by the duration of
+current column. Sounds complex, but that's really just links the
+column with previous one to make possible durations like 5/16 (1/4 as
+4/16 and 1/16 linked to it).
+
+Shift+A - reArrange bars, according to specified time signature. It
+splits the columns when needed and joins them where possible to
+simplify the notation (for example, 1/4 and 1/4 will be joined into
+single 1/2).
+
+Shift+C - insert chord, starts a chord construction dialog, look below.
+
+That were the basic editing tools. That's enough to create pretty
+complex tabs.
+
+EFFECTS
+=======
+
+Tabulature can contain various guitar-specific (and not only guitar)
+effects. All these things have special symbols assigned to them. You
+can add effects via either pressing a hotkey or clicking on a toolbar
+item.
+
+Supported effects so far:
+
+H - Natural Harmonic
+R - Artifical Harmonic
+P - Legato (hammer on/pull off)
+
+CHORD CONSTRUCTION
+==================
+
+For the guitarist's convenience, there is a fast chord construction
+tool - a chord finder & analyzer. Just use "Insert/Chord" menu or
+chord toolbar button to run it. It's pretty self-explanatory for
+anybody who knows music theory, but I still want to do some notes.
+
+To find a chord by name, just build its name in the left selection
+boxes. This way, if you want to enter, for example, "Esus2/7" chord,
+select "E" in the first box, "sus2" in the second and "7" in the
+third.
+
+For more complex tasks, such as chord with step alterations, like
+Bm/5+, use step diagram. If you want to raise or lower a particular
+step - just select a "+" or "-" there. If you want to mute a
+particulat step - select "x" there. Everything's simple.
+
+When you've got your chord entered, you'll get a lot of fingering
+methods in the bottom box. Select one with a mouse there and press the
+OK button - this chord would be automatically entered in the tab
+editor.
+
+Using chord analyzer is even simplier. Just set the fingering using
+the big chord diagram and instantly get the result in the box near
+it. It would read all somewhat reasonable naming of a given chord.
+
+Also, for a quick creation of pretty complex rhythms, there is a
+support for so-called strumming schemes. It's nothing more than just a
+pre-defined pattern that states how a given chord should be played,
+what strings picked and what's the notes duration should be.
+
+Let's demonstrate on a small example. The famous song's "House of the
+Rising Sun" chord progression is Am-C-D-F. If you want to tab this
+song really fast, just set the 3:4 size, and call the chord
+constructor. Select an Am chord first, then select a "Smooth arpegio"
+from the list of strummings and just press "OK". You'll get a properly
+picked Am chord instantly. Proceed with C, D and F chords in the same
+way and you'll get the pretty good-sounding first line of the song.
+
+SONG PROPERTIES
+===============
+
+Each song should have some properties - title, author name, etc. All
+these things can be set up in File/Properties dialog.
+
+Each track also has some properties. These can be accessed via
+Edit/Track menu. The things that could be set up there include:
+
+Title - title of the track; would be used in MIDI;
+MIDI Channel, Bank and Patch numbers - self-explanatory;
+
+For guitar track:
+
+Number of string and frets - parameters of used guitar;
+Tuning - the note of open string sounding. Tuning could be set up
+manually or quickly selected from a library. 
+
+Moreover, one can save and load current song in the .kg files. All
+properties are also saved into the files.
+
+
+MusiXTeX EXPORT
+===============
+
+It's possible to print your tabulatures. You'll need several external
+things to do that:
+
+* TeX typesetting engine. If you use Linux, use tetex from your
+  distribution.
+
+* MusiXTeX package. You can get it from the following places:
+  ftp://ftp.dante.de/tex-archive/macros/musixtex/taupin
+  http://www.gmd.de/Misc/Music
+
+The third component - a set of macros, required to typeset
+tabulatures, is supplied with KGuitar. You have to install it manually
+for now, so just copy file "kguitar/kgtabs.tex" to the MusiXTeX
+directory (it's something like /usr/share/texmf/tex/generic/musixtex).
+After this run as root the program: 'texhash'. 
+
+Okay, when you have everything installed and ready to go, do the
+following:
+
+1) Do "File/Export/MusiXTeX" from KGuitar. You'll get a .tex file.
+
+2) Do
+
+    tex your-file.tex
+
+   (replacing "your-file" with the real name of your file, of
+   course). You'll get a .dvi file.
+
+3) You can preview a .dvi file before printing, do
+
+    xdvi your-file.tex
+
+   or
+
+    kdvi your-file.tex
+
+   depending of what sort of dvi parser you have installed with
+   TeX. Preview would look ugly, anyway, because some postscript
+   tricks used to make the number background clear.
+
+4) Print the .dvi file with something like
+
+    dvips your-file.tex
+
+   if you have a postscript printer (or postscript filters installed),
+   or something like
+
+    dvilj your-file.tex
+
+   if you want to use your printer's native driver (and have it
+   installed too)
+
+
+MIDI EXPORT
+===========
+
+MIDI export function outputs a complete midi file that can be opened
+in any sequencer and played in any player or synth. Most properties of
+KG files are exported, such as:
+
+* Song name
+
+* Song author
+
+* Tracks' names
+
+* MIDI channel, patches and banks selection
+
+Tabulature effects are also emulated to get the same song in MIDI as
+if played on real instrument.
