@@ -19,6 +19,8 @@
 #include "convertmidi.h"
 #include "converttse3.h"
 #include "converttex.h"
+#include "convertgtp.h"
+#include "convertgp3.h"
 
 #include "optionsexportascii.h"
 #include "optionsexportmusixtex.h"
@@ -62,8 +64,8 @@ K_EXPORT_COMPONENT_FACTORY(libkguitarpart, KGuitarPartFactory)
 QString drum_abbr[128];
 
 KGuitarPart::KGuitarPart(QWidget *parentWidget,
-						 const char * /*widgetName*/, QObject *parent, const char *name,
-						 const QStringList & /*args*/)
+                         const char * /*widgetName*/, QObject *parent, const char *name,
+                         const QStringList & /*args*/)
 	: KParts::ReadWritePart(parent, name)
 {
 	Settings::config = KGuitarPartFactory::instance()->config();
@@ -156,28 +158,18 @@ bool KGuitarPart::openFile()
 	QString ext = fi.extension();
 	ext = ext.lower();
 
-	if (ext == "kg") {
-		ConvertKg converter(sv->song());
-		success = converter.load(m_file);
-	}
-	if (ext == "tab") {
-		ConvertAscii converter(sv->song());
-		success = converter.load(m_file);
-	}
+	ConvertBase *converter = NULL;
+
+	if (ext == "kg")   converter = new ConvertKg(sv->song());
+	if (ext == "tab")  converter = new ConvertAscii(sv->song());
 #ifdef WITH_TSE3
-	if (ext == "mid") {
-		ConvertMidi converter(sv->song());
-		success = converter.load(m_file);
-	}
+	if (ext == "mid")  converter = new ConvertMidi(sv->song());
 #endif
-	if (ext == "gtp")
-		success = sv->song()->loadFromGtp(m_file);
-	if (ext == "gp3")
-		success = sv->song()->loadFromGp3(m_file);
-	if (ext == "xml") {
-		ConvertXml converter(sv->song());
-		success = converter.load(m_file);
-	}
+	if (ext == "gtp")  converter = new ConvertGtp(sv->song());
+	if (ext == "gp3")  converter = new ConvertGp3(sv->song());
+	if (ext == "xml")  converter = new ConvertXml(sv->song());
+	
+	if (converter)  success = converter->load(m_file);
 
 	if (success) {
 		sv->refreshView();
@@ -201,7 +193,7 @@ bool KGuitarPart::exportOptionsDialog(QString ext)
 
 	KDialogBase opDialog(0, 0, TRUE, i18n("Additional Export Options"),
 	                     KDialogBase::Help|KDialogBase::Default|
-						 KDialogBase::Ok|KDialogBase::Cancel, KDialogBase::Ok);
+	                     KDialogBase::Ok|KDialogBase::Cancel, KDialogBase::Ok);
 
     QVBox *box = opDialog.makeVBoxMainWidget();
 
@@ -267,10 +259,14 @@ bool KGuitarPart::saveFile()
 		success = converter.save(m_file);
 	}
 #endif
-	if (ext == "gtp")
-		success = sv->song()->saveToGtp(m_file);
-	if (ext == "gp3")
-		success = sv->song()->saveToGp3(m_file);
+	if (ext == "gtp") {
+		ConvertGtp converter(sv->song());
+		success = converter.save(m_file);
+	}
+	if (ext == "gp3") {
+		ConvertGp3 converter(sv->song());
+		success = converter.save(m_file);
+	}
 	if (ext == "tex") {
 		if (exportOptionsDialog(ext)) {
 			ConvertTex converter(sv->song());
@@ -609,31 +605,31 @@ void KGuitarPart::setupAccels()
 	mainAccel = new KAccel(sv->tv);
 
 	// ...FOR CURSOR
-	mainAccel->insertItem(i18n("Move cursor left"), "key_left", "Left");
-	mainAccel->connectItem("key_left", sv->tv, SLOT(keyLeft()));
-	mainAccel->insertItem(i18n("Move cursor right"), "key_right", "Right");
-	mainAccel->connectItem("key_right", sv->tv, SLOT(keyRight()));
-	mainAccel->insertItem(i18n("Move cursor to the beginning of bar"), "key_home", "Home");
-	mainAccel->connectItem("key_home", sv->tv, SLOT(keyHome()));
-	mainAccel->insertItem(i18n("Move cursor to the end of bar"), "key_end", "End");
-	mainAccel->connectItem("key_end", sv->tv, SLOT(keyEnd()));
-	mainAccel->insertItem(i18n("Move cursor to the beginning of track"), "key_CtrlHome", "Ctrl+Home");
-	mainAccel->connectItem("key_CtrlHome", sv->tv, SLOT(keyCtrlHome()));
-	mainAccel->insertItem(i18n("Move cursor to the end of track"), "key_CtrlEnd", "Ctrl+End");
-	mainAccel->connectItem("key_CtrlEnd", sv->tv, SLOT(keyCtrlEnd()));
-	mainAccel->insertItem(i18n("Move and select left"), "key_ShiftLeft", "Shift+Left");
-	mainAccel->connectItem("key_ShiftLeft", sv->tv, SLOT(selectLeft()));
-	mainAccel->insertItem(i18n("Move and select right"), "key_ShiftRight", "Shift+Right");
-	mainAccel->connectItem("key_ShiftRight", sv->tv, SLOT(selectRight()));
+	mainAccel->insert("key_left", i18n("Move cursor left"), QString::null,
+	                  Key_Left, sv->tv, SLOT(keyLeft()));
+	mainAccel->insert("key_right", i18n("Move cursor right"), QString::null,
+	                  Key_Right, sv->tv, SLOT(keyRight()));
+	mainAccel->insert("key_home", i18n("Move cursor to the beginning of bar"), QString::null,
+	                  Key_Home, sv->tv, SLOT(keyHome()));
+	mainAccel->insert("key_end", i18n("Move cursor to the end of bar"), QString::null,
+	                  Key_End, sv->tv, SLOT(keyEnd()));
+	mainAccel->insert("key_CtrlHome", i18n("Move cursor to the beginning of track"), QString::null,
+	                  Key_Control + Key_Home, sv->tv, SLOT(keyCtrlHome()));
+	mainAccel->insert("key_CtrlEnd", i18n("Move cursor to the end of track"), QString::null,
+	                  Key_Control + Key_End, sv->tv, SLOT(keyCtrlEnd()));
+	mainAccel->insert("key_ShiftLeft", i18n("Move and select left"), QString::null,
+	                  Key_Shift + Key_Left, sv->tv, SLOT(selectLeft()));
+	mainAccel->insert("key_ShiftRight", i18n("Move and select right"), QString::null,
+	                  Key_Shift + Key_Right, sv->tv, SLOT(selectRight()));
 
 	mainAccel->insert("key_up", i18n("Move cursor up"), QString::null,
 	                  Key_Up, sv->tv, SLOT(moveUp()));
 	mainAccel->insert("key_down", i18n("Move cursor down"), QString::null,
 	                  Key_Down, sv->tv, SLOT(moveDown()));
-	mainAccel->insertItem(i18n("Transpose up"), "key_CtrlUp", "Ctrl+Up");
-	mainAccel->connectItem("key_CtrlUp", sv->tv, SLOT(transposeUp()));
-	mainAccel->insertItem(i18n("Transpose down"), "key_CtrlDown", "Ctrl+Down");
-	mainAccel->connectItem("key_CtrlDown", sv->tv, SLOT(transposeDown()));
+	mainAccel->insert("key_CtrlUp", i18n("Transpose up"), QString::null,
+	                  Key_Control + Key_Up, sv->tv, SLOT(transposeUp()));
+	mainAccel->insert("key_CtrlDown", i18n("Transpose down"), QString::null,
+	                  Key_Control + Key_Down, sv->tv, SLOT(transposeDown()));
 
     // ...FOR OTHER KEYS
 	mainAccel->insert("key_x", i18n("Dead note"), QString::null,
