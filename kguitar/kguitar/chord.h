@@ -27,51 +27,50 @@ class FingerList;
 class TabTrack;
 class Strumming;
 
-
 class ChordSelector: public QDialog {
-    Q_OBJECT
+	Q_OBJECT
 public:
 	ChordSelector(TabTrack *p, QWidget *parent = 0, const char *name = 0);
 #ifdef WITH_TSE3
-    ChordSelector(TSE3::MidiScheduler *_scheduler, TabTrack *p, QWidget *parent = 0,
-				  const char *name = 0);
+	ChordSelector(TSE3::MidiScheduler *_scheduler, TabTrack *p, QWidget *parent = 0,
+	              const char *name = 0);
 #endif
 
 	void initChordSelector(TabTrack *p);
 
 	int  app(int x) { return fng->app(x); }
-    void setApp(int x, int fret) { fng->setApp(x, fret); }
+	void setApp(int x, int fret) { fng->setApp(x, fret); }
 	int  scheme() { return strum_scheme; }
 
-    Fingering *fng;
-    ChordList *chords;
+	Fingering *fng;
+	ChordList *chords;
 
 public slots:
-    void detectChord();
-    void setStep3();
-    void setHighSteps();
-    void setStepsFromChord();
-    void findSelection();
-    void findChords();
+	void detectChord();
+	void setStep3();
+	void setHighSteps();
+	void setStepsFromChord();
+	void findSelection();
+	void findChords();
 	void askStrum();
 	void playMidi();
 
-    void analyzeChordName();
-    void quickInsert();
+	void analyzeChordName();
+	void quickInsert();
 
 private:
-    bool calculateNotesFromSteps(int *, int &);
+	bool calculateNotesFromSteps(int *, int &);
 
-    TabTrack *parm;
+	TabTrack *parm;
 
-    QLineEdit *chordName;
-    QListBox *tonic, *step3, *stephigh;
-    QComboBox *st[7], *inv, *bassnote;
-    QLabel *cnote[7];
-    QButtonGroup *complexity;
-    QRadioButton *complexer[3];
+	QLineEdit *chordName;
+	QListBox *tonic, *step3, *stephigh;
+	QComboBox *st[7], *inv, *bassnote;
+	QLabel *cnote[7];
+	QButtonGroup *complexity;
+	QRadioButton *complexer[3];
 	QPushButton *play;
-    FingerList *fnglist;
+	FingerList *fnglist;
 
 	int strum_scheme;
 
