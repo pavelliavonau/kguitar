@@ -2,12 +2,15 @@
 #include "global.h"
 
 #include <qpainter.h>
+#include <qcolor.h>
 
 FingerList::FingerList(QWidget *parent,const char *name): QTableView(parent,name)
 {
   setTableFlags(Tbl_autoVScrollBar | Tbl_smoothScrolling);
   setFrameStyle(Panel | Sunken);
+  setBackgroundMode(PaletteBase);
   num=0;
+  curSel=-1;
 
   numstr=6; // GREYFIX
 
@@ -41,14 +44,29 @@ void FingerList::resizeEvent(QResizeEvent *e)
   setNumRows((num-1)/perRow+1);
 }
 
+void FingerList::mousePressEvent(QMouseEvent *e)
+{
+  int col = e->x()/ICONCHORD;
+  int row = e->y()/ICONCHORD;
+
+  curSel = row*perRow+col;
+  repaint();
+
+  emit chordSelected(appl[curSel]);
+}
+
 void FingerList::paintCell(QPainter *p, int row, int col)
 {
   int n = row*perRow+col;
 
-  p->drawRect(0,0,ICONCHORD-1,ICONCHORD-1);
-
   if (n<num) {
     int barre,eff;
+
+    if (curSel==n) {
+      p->setBrush(yellow);
+      p->drawRect(0,0,ICONCHORD,ICONCHORD);
+      p->setBrush(NoBrush);
+    }
     
     // Horizontal lines
     
@@ -94,7 +112,7 @@ void FingerList::paintCell(QPainter *p, int row, int col)
 	p->setBrush(SolidPattern);
 	p->drawEllipse(i*SCALE+BORDER+CIRCBORD+FRETTEXT,BORDER+SCALE+2*SPACER+(appl[n][i]-firstFret)*SCALE+
 		       CIRCBORD,CIRCLE,CIRCLE);
-      };
+      }
     }
     
     // Analyze & draw barre
