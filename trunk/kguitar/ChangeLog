@@ -1,2 +1,27 @@
-2000-07-08 Mikhail Yakshin <yakshin@glasnet.ru>
-	* initial release
+2000-07-15  Mikhail Yakshin  <yakshin@glasnet.ru>
+
+	* Release 0.0.2
+	
+	* A working release, could be helpful for somebody. Includes a pretty	
+	  good chord dialog, with both chord finder and chord analyzer almost
+	  totally rewritten.
+
+	* Chord finder now works *much* faster due to precalculation. Interface
+	  allows to find most chords (like major/minor, 7th, sus2, sus4, 9, 11,
+	  etc). Filter found chord, based on its complexity on 3 basises: usual
+	  chords, rare chords and all chords. Also, takes care about showing
+	  only root forms (tonic note is bass note).
+	
+	* Chord analyzer now works totally different, it tries to disassemble
+	  a chord from a tonic note to steps, and then assembles step record
+	  again into readable chord form, thus detecing very weird (but
+	  sometimes useful chord forms, such as Em6/9sus4 or C7add11 (no3)).
+	  Compared to Guitar Pro chord analyzer that works on similiar concepts,
+	  this chord analyzer detects more chord forms (but currently lacks
+	  changed bass note detection, like Dm/E).
+	
+2000-07-08  Mikhail Yakshin  <yakshin@glasnet.ru>
+
+	* Release 0.0.1
+	
+	* Initial release
