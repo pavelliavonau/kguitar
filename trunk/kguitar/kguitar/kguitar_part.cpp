@@ -74,7 +74,7 @@ KGuitarPart::KGuitarPart(QWidget *parentWidget,
 	// Custom main widget
 	sv = new SongView(this, cmdHist, parentWidget);
 
-    // notify the part that this is our internal widget
+	// notify the part that this is our internal widget
 	setWidget(sv);
 
 	setupActions();
@@ -131,8 +131,8 @@ void KGuitarPart::setModified(bool modified)
 KAboutData *KGuitarPart::createAboutData()
 {
 	KAboutData *aboutData = new KAboutData("kguitar", I18N_NOOP("KGuitarPart"), VERSION);
-    aboutData->addAuthor("KGuitar development team", 0, 0);
-    return aboutData;
+	aboutData->addAuthor("KGuitar development team", 0, 0);
+	return aboutData;
 }
 
 // Reimplemented method from KParts to open file m_file
@@ -191,7 +191,7 @@ bool KGuitarPart::exportOptionsDialog(QString ext)
 	                     KDialogBase::Help|KDialogBase::Default|
 	                     KDialogBase::Ok|KDialogBase::Cancel, KDialogBase::Ok);
 
-    QVBox *box = opDialog.makeVBoxMainWidget();
+	QVBox *box = opDialog.makeVBoxMainWidget();
 
 	OptionsPage *op;
 
@@ -303,55 +303,6 @@ void KGuitarPart::fileSaveAs()
 	if (file_name.isEmpty() == false)
 		saveAs(file_name);
 }
-
-// void KGuitarPart::fileSaveAs()
-// {
-// 	KFileDialog::getSaveFileName dlg(0,
-// 	                "*.kg|" + i18n("KGuitar files") + " (*.kg)\n"
-// 	                "*.tab|" + i18n("ASCII files") + " (*.tab)\n"
-// 	                "*.mid|" + i18n("MIDI files") + " (*.mid)\n"
-// 	                "*.tse3|" + i18n("TSE3MDL files") + " (*.tse3)\n"
-// 	                "*.gtp|" + i18n("Guitar Pro files") + " (*.gtp)\n"
-// 	                "*.gp3|" + i18n("Guitar Pro 3 files") + " (*.gp3)\n"
-// 	                "*.xml|" + i18n("MusicXML files") + " (*.xml)\n"
-// 	                "*.tex|" + i18n("MusiXTeX") + " (*.tex)\n"
-// 	                "*|" + i18n("All files"), this, 0, TRUE);
-// 	dlg.setCaption(i18n("Save as..."));
-
-// 	if (dlg.exec() == QDialog::Accepted) {
-// 		QString filter = dlg.currentFilter();
-// 		QString fn = dlg.selectedFile();
-
-// 		QFileInfo *fi = new QFileInfo(fn);
-// 		if (fi->exists())
-// 			if (KMessageBox::warningYesNo(this, i18n("This file exists! "
-// 													 "Do you overwrite this file?")) == KMessageBox::No)
-// 				return;
-// 		if (fi->exists() && !fi->isWritable()) {
-// 			KMessageBox::sorry(this, i18n("You have no permission to write this file!"));
-// 			return;
-// 		}
-
-// 		if (filter == "*") {
-// 			filter = fi->extension();
-// 			filter = filter.lower();
-// 			if (!((filter == "kg") || (filter == "mid") || (filter == "gtp") || (filter == "gp3") ||
-// 				  (filter == "tex") || (filter == "tab") || (filter == "xml") || (filter == "tse3"))) {
-// 				KMessageBox::sorry(this, i18n("Please select a filter or add an extension."));
-// 				return;
-// 			}
-// 			filter = "*." + filter;
-// 		}
-
-// 		if ((filter == "*.kg") || (filter == "*.tab") || (filter == "*.mid") ||
-// 			(filter == "*.gtp") || (filter == "*.gp3") || (filter == "*.tex") || (filter == "*.xml") || (filter = "*.tse3")) {
-// 			KURL url = KURL(fn);
-// 			saveURL(url);
-// 		} else {
-// 			KMessageBox::sorry(this, i18n("Unknown format: %1").arg(filter));
-// 		}
-// 	}
-// }
 
 // Updates possibility of actions, depending on freshly selected
 // track. For drum track, lots of actions are unavailable.
@@ -626,7 +577,7 @@ void KGuitarPart::setupAccels()
 	mainAccel->insert("key_down", i18n("Move cursor down"), QString::null,
 	                  Key_Down, sv->tv, SLOT(moveDown()));
 
-    // ...FOR OTHER KEYS
+	// ...FOR OTHER KEYS
 	mainAccel->insert("key_del", i18n("Delete note"), QString::null,
 	                  Key_Delete, sv->tv, SLOT(deleteNote()));
 	mainAccel->insert("key_CtrlDel", i18n("Delete column"), QString::null,
@@ -634,7 +585,7 @@ void KGuitarPart::setupAccels()
 	mainAccel->insert("key_ins", i18n("Insert column"), QString::null,
 	                  Key_Insert, sv->tv, SLOT(insertColumn()));
 
-    // ...FOR KEY '0' - '9'
+	// ...FOR KEY '0' - '9'
 	mainAccel->insert("key_1", i18n("Key 1"), QString::null, Key_1, sv->tv, SLOT(key1()));
 	mainAccel->insert("key_2", i18n("Key 2"), QString::null, Key_2, sv->tv, SLOT(key2()));
 	mainAccel->insert("key_3", i18n("Key 3"), QString::null, Key_3, sv->tv, SLOT(key3()));
