@@ -14,6 +14,7 @@ TrackList::TrackList(TabSong *s, QWidget *parent = 0, const char *name = 0):
 
 // 	setFrameStyle(Panel | Sunken);
 	setFocusPolicy(QWidget::StrongFocus);
+    setAllColumnsShowFocus(TRUE);
 
 	addColumn("N");
 	addColumn("Title");
