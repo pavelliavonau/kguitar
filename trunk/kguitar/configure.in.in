@@ -4,6 +4,7 @@
 # KGuitar configure script
 #--------------------------------------------------------------
 # (Everything above this one is standard KDE stuff)
+# This one should be edited in configure.in.in, not configure.in!
 #
 # TSE3 configuration stuff is is based on Anthem and Noteedit
 # configure scripts, edited to suit KGuitar by alinx.
@@ -282,4 +283,5 @@ AC_SUBST(UNINSTALL_KGTABS)
 # KGuitar configure script finished
 #--------------------------------------------------------------
 # (Everything below this one is standard KDE stuff)
+# This one should be edited in configure.in.in, not configure.in!
 #--------------------------------------------------------------
