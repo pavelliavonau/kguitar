@@ -68,10 +68,12 @@ public:
 
     QString filename;                   // File name to save under
 
-    bool load_from_kg(const char* fileName);
-    bool save_to_kg(const char* fileName);
-    bool load_from_gtp(const char* fileName);
-    bool save_to_gtp(const char* fileName);
+    bool load_from_kg(QString fileName);
+    bool save_to_kg(QString fileName);
+    bool load_from_gtp(QString fileName);
+    bool save_to_gtp(QString fileName);
+    bool load_from_mid(QString fileName);
+    bool save_to_mid(QString fileName);
 };
 
 #endif

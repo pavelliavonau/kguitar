@@ -3,7 +3,7 @@
 #include <qfile.h>
 #include <qdatastream.h>
 
-bool TabSong::load_from_kg(const char* fileName)
+bool TabSong::load_from_kg(QString fileName)
 {
     QFile f(fileName);
     if (!f.open(IO_ReadOnly))
@@ -52,6 +52,9 @@ bool TabSong::load_from_kg(const char* fileName)
 
     for (int i=0;i<cnt;i++) {
 	s >> tm;                        // Track properties (Track mode)
+
+	// GREYFIX - todo track mode check
+
 	s >> tn;                        // Track name
 	s >> i16;                       // Bank
 	s >> patch;
@@ -94,7 +97,7 @@ bool TabSong::load_from_kg(const char* fileName)
     return TRUE;
 }
 
-bool TabSong::save_to_kg(const char* fileName)
+bool TabSong::save_to_kg(QString fileName)
 {
     QFile f(fileName);
     if (!f.open(IO_WriteOnly))
@@ -144,14 +147,61 @@ bool TabSong::save_to_kg(const char* fileName)
     return TRUE;
 }
 
-bool TabSong::load_from_gtp(const char* fileName)
+bool TabSong::load_from_gtp(QString fileName)
 {
     // Loading from Guitar Pro format here
     return FALSE;
 }
 
-bool TabSong::save_to_gtp(const char* fileName)
+bool TabSong::save_to_gtp(QString fileName)
 {
     // Saving to Guitar Pro format here
     return FALSE;
+}
+
+bool TabSong::load_from_mid(QString fileName)
+{
+    // Loading from MIDI file here
+    return FALSE;
+}
+
+bool TabSong::save_to_mid(QString fileName)
+{
+    QFile f(fileName);
+    if (!f.open(IO_WriteOnly))
+	return FALSE;
+
+    QDataStream s(&f);
+
+    // HEADER SIGNATURE
+
+    s.writeRawBytes("MThd",4);       
+    s << (Q_INT32) 6;                   // Length?
+    s << (Q_INT16) 0;                   // Format - GREYFIX
+    s << (Q_INT16) t.count();           // Number of tracks
+    s << (Q_INT16) 96;                  // Divisions
+
+    // TRACK DATA
+
+    QListIterator<TabTrack> it(t);
+    for (;it.current();++it) {          // For every track
+	TabTrack *trk = it.current();
+
+	s.writeRawBytes("MTrk",4);      // Track header
+	s << (Q_INT32) 0;               // Length - GREYFIX
+
+	s << trk->c.count();            // Track columns
+
+ 	QListIterator<TabColumn> ic(trk->c);
+ 	for (;ic.current();++ic) {
+ 	    TabColumn *col = ic.current();
+	    for (int i=0;i<trk->string;i++)
+		s << (Q_INT8) col->a[i];
+	    s << (Q_INT16) col->l;      // Duration
+ 	}
+    }
+
+    f.close();
+
+    return TRUE;
 }
