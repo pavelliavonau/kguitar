@@ -29,15 +29,18 @@
 
 #include <stdlib.h>		// required for declaration of abs()
 
-#define VERTSPACE 30
-#define VERTLINE 10
-#define HORDUR 4
-#define HORCELL 14
-#define TIMESIGSIZE 14
-#define HORSCALE 10
-#define ABBRLENGTH 25
+#define VERTSPACE                       30
+#define VERTLINE                        10
+#define HORDUR                          4
+#define HORCELL                         14
+#define TIMESIGSIZE                     14
+#define HORSCALE                        10
+#define ABBRLENGTH                      25
 
-#define BOTTOMDUR	VERTSPACE+VERTLINE*(s+1)
+#define BOTTOMDUR   VERTSPACE+VERTLINE*(s+1)
+
+#define TIME_SIG_FONT_FACTOR            1.4
+#define SMALL_CAPTION_FONT_FACTOR       0.7
 
 TrackView::TrackView(TabSong *s, KXMLGUIClient *_XMLGUIClient, KCommandHistory *_cmdHist,
 #ifdef WITH_TSE3
@@ -61,9 +64,18 @@ TrackView::TrackView(TabSong *s, KXMLGUIClient *_XMLGUIClient, KCommandHistory *
 	updateRows();
 
  	smallCaptionFont = new QFont(KGlobalSettings::generalFont());
- 	smallCaptionFont->setPointSizeFloat(smallCaptionFont->pointSizeFloat() * 0.7);
+	if (smallCaptionFont->pointSize() == -1) {
+		smallCaptionFont->setPixelSize((int) ((double) smallCaptionFont->pixelSize() * SMALL_CAPTION_FONT_FACTOR));
+	} else {
+		smallCaptionFont->setPointSizeFloat(smallCaptionFont->pointSizeFloat() * SMALL_CAPTION_FONT_FACTOR);
+	}
+
   	timeSigFont = new QFont(KGlobalSettings::generalFont());
-  	timeSigFont->setPointSizeFloat(timeSigFont->pointSizeFloat() * 1.4);
+	if (timeSigFont->pointSize() == -1) {
+		timeSigFont->setPixelSize((int) ((double) timeSigFont->pixelSize() * TIME_SIG_FONT_FACTOR));
+	} else {
+		timeSigFont->setPointSizeFloat(timeSigFont->pointSizeFloat() * TIME_SIG_FONT_FACTOR);
+	}
   	timeSigFont->setBold(TRUE);
 
 	lastnumber = -1;

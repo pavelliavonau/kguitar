@@ -196,7 +196,7 @@ bool MusicXMLParser::startDocument()
 	ts->author = "";			// default author
 	ts->transcriber = "";		// default transcriber
 	ts->comments = "";			// default comments
-	ts->filename = "";			// is set in KGuitarPart::slotOpenFile()
+// 	ts->filename = "";			// is set in KGuitarPart::slotOpenFile()
 	// init global variables: clear part list
 	partIds.clear();
 	// init global variables: characters collected
