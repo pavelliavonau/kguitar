@@ -14,6 +14,7 @@ public:
 
     void addFingering(const int a[MAX_STRINGS], bool update=TRUE);
     void clear();
+    void switchAuto(bool update);
 
 public slots:
 /*     void setFirstFret(int fret); */
@@ -33,7 +34,7 @@ private:
     enum { SCALE=6, CIRCLE=4, CIRCBORD=1, BORDER=1, SPACER=1, FRETTEXT=5 };
     
     int num,perRow;
-    int appl[100][MAX_STRINGS];
+    int appl[1000][MAX_STRINGS];
 
     int curSel;
     int numstr;
