@@ -13,6 +13,12 @@
 
 #include "tabtrack.h"
 
+/**
+ * Represents tabulature-based song in memory.
+ *
+ * Stores a collection of TabTracks and misc song info, such as
+ * metainfo and tempo info.
+ */
 class TabSong {
 public:
 	TabSong(QString _title, int _tempo);
@@ -22,8 +28,6 @@ public:
 	QString author;						// Author of the tune
 	QString transcriber;				// Who made the tab
 	QString comments;					// Comments
-
-// 	QString filename;					// File name to save under
 
 	int freeChannel();
 	uint maxLen();
@@ -41,15 +45,12 @@ public:
 	bool loadFromMid(QString fileName);		// MIDI files
 	bool saveToMid(QString fileName);
 	bool saveToTse3(QString fileName);        // TSE3MDL files
-	bool loadFromTab(QString fileName);		// ASCII tabulatures
-	bool saveToTab(QString fileName);
 	bool saveToTexTab(QString fileName);		// MusiXTeX/kgtabs.tex tabulatures
 	bool saveToTexNotes(QString fileName);	// MusiXTeX notes
 	bool loadFromXml(QString fileName);		// MusicXML format
 	bool saveToXml(QString fileName);
 
 private:
-	void writeCentered(QTextStream *s, QString l);
 	Q_UINT32 readVarLen(QDataStream *s);
 	void writeVarLen(QDataStream *s, uint value);
 	void writeTempo(QDataStream *s, uint value);
