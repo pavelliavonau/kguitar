@@ -22,6 +22,7 @@
 #include <qstring.h>
 #include <qlabel.h>
 #include <qlayout.h>
+#include <qkeysequence.h>
 
 #ifdef WITH_TSE3
 #include <tse3/Song.h>
@@ -77,12 +78,6 @@ void ChordSelector::initChordSelector(TabTrack *p)
 	// CHORD NAMING ANALYZER
 
 	chordName = new QLineEdit(this);
-
-	QPushButton *chordNameAnalyze, *chordNameQuickInsert;
-	chordNameAnalyze = new QPushButton(i18n("&Analyze"), this);
-	connect(chordNameAnalyze, SIGNAL(clicked()), SLOT(analyzeChordName()));
-	chordNameQuickInsert = new QPushButton(i18n("&Quick Insert"), this);
-	connect(chordNameQuickInsert, SIGNAL(clicked()), SLOT(quickInsert()));
 
 	// CHORD SELECTOR FOR FINDER WIDGETS
 
@@ -148,16 +143,16 @@ void ChordSelector::initChordSelector(TabTrack *p)
         if (i > 0)
         	st[i]->insertItem("x");
         if ((i == 2) || (i >= 4)) {
-		st[i]->insertItem(Settings::flatName());
-		st[i]->insertItem("0");
-		st[i]->insertItem(Settings::sharpName());
+			st[i]->insertItem(Settings::flatName());
+			st[i]->insertItem("0");
+			st[i]->insertItem(Settings::sharpName());
         }
         if (i > 0)  {
-		connect(st[i], SIGNAL(activated(int)), SLOT(findSelection()));
-		connect(st[i], SIGNAL(activated(int)), SLOT(findChords()));
+			connect(st[i], SIGNAL(activated(int)), SLOT(findSelection()));
+			connect(st[i], SIGNAL(activated(int)), SLOT(findChords()));
         } else {
-		st[i]->insertItem("0");
-		st[i]->setEnabled(FALSE);
+			st[i]->insertItem("0");
+			st[i]->setEnabled(FALSE);
         }
 	}
 
@@ -204,13 +199,15 @@ void ChordSelector::initChordSelector(TabTrack *p)
 
 	// DIALOG BUTTONS
 
-	QPushButton *ok, *cancel, *strumbut;
+	QPushButton *ok, *cancel, *strumbut, *chordNameAnalyze, *chordNameQuickInsert;
 
-	ok = new QPushButton(i18n("OK"), this);
-	connect(ok, SIGNAL(clicked()), SLOT(accept()));
+	chordNameAnalyze = new QPushButton(i18n("&Analyze"), this);
+	connect(chordNameAnalyze, SIGNAL(clicked()), SLOT(analyzeChordName()));
+	chordNameAnalyze->setAccel(QKeySequence(Qt::SHIFT + Qt::Key_Return));
 
-	cancel = new QPushButton(i18n("Cancel"), this);
-	connect(cancel, SIGNAL(clicked()), SLOT(reject()));
+	chordNameQuickInsert = new QPushButton(i18n("&Quick Insert"), this);
+	connect(chordNameQuickInsert, SIGNAL(clicked()), SLOT(quickInsert()));
+	chordNameQuickInsert->setAccel(QKeySequence(Qt::CTRL + Qt::Key_Return));
 
 	strumbut = new QPushButton(i18n("&Strum..."), this);
 	connect(strumbut, SIGNAL(clicked()), SLOT(askStrum()));
@@ -218,6 +215,13 @@ void ChordSelector::initChordSelector(TabTrack *p)
 	play = new QPushButton(i18n("&Play"), this);
 	connect(play, SIGNAL(clicked()), SLOT(playMidi()));
     play->setEnabled(FALSE);
+
+	ok = new QPushButton(i18n("OK"), this);
+	connect(ok, SIGNAL(clicked()), SLOT(accept()));
+	ok->setDefault(TRUE);
+
+	cancel = new QPushButton(i18n("Cancel"), this);
+	connect(cancel, SIGNAL(clicked()), SLOT(reject()));
 
 	// LAYOUT MANAGEMENT
 
