@@ -232,8 +232,9 @@ bool TabSong::save_to_kg(QString fileName)
 	Q_UINT8 tcsize=trk->string+2;
 	uint bar=1;
 
-	s << (Q_UINT8) 'S';
-	s << (Q_UINT8) trk->b[0].time1;
+	s << (Q_UINT8) 'S';             // Time signature event
+	s << (Q_UINT8) 2;               // 2 byte event length
+	s << (Q_UINT8) trk->b[0].time1; // Time signature itself
 	s << (Q_UINT8) trk->b[0].time2;
 
  	for (uint x=0;x<trk->c.size();x++) {
@@ -251,7 +252,7 @@ bool TabSong::save_to_kg(QString fileName)
 	    s << (Q_UINT8) tcsize;      // Size of event
 	    for (int i=0;i<trk->string;i++)
 		s << (Q_INT8) trk->c[x].a[i];
-	    s << (Q_INT16) trk->c[x].l;      // Duration
+	    s << (Q_INT16) trk->c[x].l; // Duration
  	}
 
 	s << (Q_UINT8) 'X';             // End of track marker
