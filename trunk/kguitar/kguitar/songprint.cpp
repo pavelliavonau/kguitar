@@ -111,6 +111,8 @@ int SongPrint::barWidth(int bn, TabTrack *trk)
 	int w = 0;
 	for (uint t = trk->b[bn].start; (int) t <= trk->lastColumn(bn); t++)
 		w += colWidth(t, trk);
+	// LVIFIX: when KGuitar supports changing the key at the start of any bar,
+	// calculate space for keysig here
 	if (trk->showBarSig(bn))
 		w += tsgfw;				// space for timesig
 	w += nt0fw;					// space before first note
@@ -1173,6 +1175,46 @@ void SongPrint::drawKey(int l, TabTrack *trk)
 	}
 }
 
+// Key signature accidental placement table
+// if keySig > 0, start at F and work to the right, notes are sharpened
+// if keySig < 0, start at B and work to the left, notes are flattened
+//                               F   C   G   D   A   E   B
+static int accPosSharpTab[7] = { 3,  0,  4,  1, -2,  2, -1};
+static int accPosFlatTab[7]  = {-4,  0, -3,  1, -2,  2, -1};
+
+// draw key signature at xpos,yposst
+
+void SongPrint::drawKeySig(TabTrack *trk)
+{
+	QString s;
+	p->setFont(fFeta);
+	if (stNts) {
+		int ypos;
+		int sig = trk->b[0].keysig;
+		if ((sig <= -8) || (8 <= sig)) {
+			sig = 0;
+		}
+		if (sig != 0) {
+			xpos += wNote;
+		}
+		if (sig > 0) {
+			s = QChar(0x201c);
+			for (int i = 0; i < sig; i++) {
+				ypos = accPosSharpTab[i];
+				p->drawText(xpos, yposst - (ypos + 5) * ystepst / 2, s);
+				xpos += (int) (0.8 * wNote);
+			}
+		} else if (sig < 0) {
+			s = QChar(0x201e);
+			for (int i = 0; i > sig; i--) {
+				ypos = accPosFlatTab[i + 6];
+				p->drawText(xpos, yposst - (ypos + 5) * ystepst / 2, s);
+				xpos += (int) (0.7 * wNote);
+			}
+		}
+	}
+}
+
 // draw "let ring" with point of arrowhead at x on string y
 // LVIFIX: use xpos too ?
 
@@ -1348,10 +1390,6 @@ void SongPrint::drawPageHdr(int n, TabSong *song)
 
 void SongPrint::drawRstCntAt(int x, int y, int t)
 {
-//	cout << "drawRstCntAt("
-//		<< x << ", "
-//		<< y << ", "
-//		<< t << ")";
 	int restSym = 0;
 	int yoffset = 0;
 	switch (t) {
@@ -1377,7 +1415,6 @@ void SongPrint::drawRstCntAt(int x, int y, int t)
 	default:
 		return; // do nothing
 	} // end switch (t)
-//	cout << " restSym=" << restSym << endl;
 	QString s;
 	s = QChar(restSym);
 	p->setFont(fFeta);
@@ -1433,6 +1470,18 @@ void SongPrint::drawStrCntAt(int x, int n, const QString s)
 				x, ypostb - n * ysteptb + ysteptb / 2);
 	p->setPen(pLnBl);
 	p->drawText(x + xoffs, ypostb - n * ysteptb + yOffs, s);
+}
+
+// debug: show xpos as arrow below the staff
+
+void SongPrint::drawXpos()
+{
+	p->setPen(pLnBl);
+	p->drawLine(xpos, yposst, xpos, yposst + 2 * wNote);
+	p->drawLine(xpos - wNote / 2, yposst + wNote, xpos, yposst);
+	p->drawLine(xpos + wNote / 2, yposst + wNote, xpos, yposst);
+	p->drawLine(xpos - wNote / 2, yposst + wNote,
+				xpos + wNote / 2, yposst + wNote);
 }
 
 // return width (of barline) to erase for string s
@@ -1768,9 +1817,10 @@ void SongPrint::printSong(KPrinter *printer, TabSong *song)
 				drawBarLns(pprw - 1, trk);
 			}
 
-			xpos += 1;				// LVIFIX: first vertical line
+			xpos += 1;				// first vertical line
 			drawKey(l, trk);
 			xpos += tabfw;			// "TAB"
+			drawKeySig(trk);		// key signature (note: updates xpos)
 
 			// determine # bars fitting on this line
 			// must be at least 1 (very long bar will be truncated)

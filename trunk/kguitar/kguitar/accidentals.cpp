@@ -3,7 +3,7 @@
  *
  * This file is part of KGuitar, a KDE tabulature editor
  *
- * copyright (C) 2002 the KGuitar development team
+ * copyright (C) 2002-2003 the KGuitar development team
  ***************************************************************************/
 
 /***************************************************************************
@@ -16,10 +16,8 @@
  ***************************************************************************/
 
 // LVIFIX:
-// add support for key signature
-
-// LVIFIX:
-// a sharp is printed on all F#'s in the same chord
+// a sharp is printed on all F#'s in the same chord, while the accidentals
+// for all F's should be independent
 
 #include <qstring.h>
 #include "accidentals.h"
@@ -27,6 +25,7 @@
 // class Accidentals -- given note pitch, handle all accidentals
 //
 // use as follows:
+// setKeySig()
 // foreach measure
 //   resetToKeySig()
 //   foreach chord in measure:
@@ -42,10 +41,21 @@ static const QString notes_flat[12]  = {"C",  "Db", "D",  "Eb", "E",  "F",
 static const QString notes_sharp[12] = {"C",  "C#", "D",  "D#", "E",  "F",
                                         "F#", "G",  "G#", "A",  "A#", "B"};
 
+// Key signature table
+// if keySig > 0, start at F and work to the right, notes are sharpened
+// if keySig < 0, start at B and work to the left, notes are flattened
+// Examples:
+// keySig =  1 (G major / E minor): F#
+// keySig = -2 (Bb major / G minor): Bb, Eb
+
+//                               F  C  G  D  A  E   B
+static const int keySigTab[7] = {5, 0, 7, 2, 9, 4, 11};
+
 // Accidentals constructor
 
 Accidentals::Accidentals()
 {
+	keySig = 0;
 	for (int i=0; i<stPerOct; i++) {
 		notes_av[i]       = false;
 		notes_req[i]      = false;
@@ -58,17 +68,22 @@ Accidentals::Accidentals()
 
 // add pitch to chord
 
-void
-Accidentals::addPitch(int pitch)
+void Accidentals::addPitch(int pitch)
 {
 	int noteNumber = normalize(pitch);
 	notes_req[noteNumber] = true;
 }
 
+// return the key signature
+
+int Accidentals::getKeySig()
+{
+	return keySig;
+}
+
 // do the work
 
-void
-Accidentals::calcChord()
+void Accidentals::calcChord()
 {
 	// init
 	for (int i=0; i<stPerOct; i++) {
@@ -142,8 +157,8 @@ Accidentals::calcChord()
 
 // get note info for given pitch
 
-bool
-Accidentals::getNote(int pitch, QString& stp, int& alt, int& oct, Accid& acc)
+bool Accidentals::getNote(int pitch, QString& stp,
+							int& alt, int& oct, Accid& acc)
 {
 	int noteNumber = normalize(pitch);
 	if (!notes_req[noteNumber]) {
@@ -158,8 +173,7 @@ Accidentals::getNote(int pitch, QString& stp, int& alt, int& oct, Accid& acc)
 
 // mark pitch i as composed of pitch nlh and accidental a
 
-void
-Accidentals::markInUse(int i, int nlh, Accid a)
+void Accidentals::markInUse(int i, int nlh, Accid a)
 {
 	notes_av[nlh]      = false;
 	new_acc_state[nlh] = a;
@@ -173,8 +187,7 @@ Accidentals::markInUse(int i, int nlh, Accid a)
 
 // make sure note number is in range 0..11
 
-int
-Accidentals::normalize(int pitch)
+int Accidentals::normalize(int pitch)
 {
 	int noteNumber = pitch % stPerOct;
 	if (noteNumber < 0) {
@@ -185,19 +198,26 @@ Accidentals::normalize(int pitch)
 
 // reset to key signature
 
-void
-Accidentals::resetToKeySig()
+void Accidentals::resetToKeySig()
 {
 	for (int i=0; i<stPerOct; i++) {
 		old_acc_state[i] = Natural;
+	}
+	if (keySig > 0) {
+		for (int i = 0; i < keySig; i++) {
+			old_acc_state[keySigTab[i]] = Sharp;
+		}
+	} else if (keySig < 0) {
+		for (int i = 0; i > keySig; i--) {
+			old_acc_state[keySigTab[i + 6]] = Flat;
+		}
 	}
 }
 
 // convert step (note name), alter (flat/sharp) and octave to pitch
 // return -1 on failure
 
-int
-Accidentals::sao2Pitch(const QString& stp, int alt = 0, int oct = 0)
+int Accidentals::sao2Pitch(const QString& stp, int alt = 0, int oct = 0)
 {
     int cn = -1;
 
@@ -216,10 +236,20 @@ Accidentals::sao2Pitch(const QString& stp, int alt = 0, int oct = 0)
 	return oct * 12 + cn + alt;
 }
 
+// set the key signature
+
+void Accidentals::setKeySig(int sig)
+{
+	if ((-8 < sig) && (sig < 8)) {
+		keySig = sig;
+	} else {
+		keySig = 0;
+	}
+}
+
 // start a new chord
 
-void
-Accidentals::startChord()
+void Accidentals::startChord()
 {
 	for (int i=0; i<stPerOct; i++) {
 		notes_req[i] = false;

@@ -5,6 +5,7 @@
 #include "tabsong.h"
 #include "chord.h"
 #include "rhythmer.h"
+#include "keysig.h"
 #include "timesig.h"
 #include "songview.h"
 
@@ -608,6 +609,29 @@ bool TrackView::moveFinger(int from, int dir)
 	cmdHist->addCommand(new MoveFingerCommand(this, curt, from, to, n));
 
 	return TRUE;
+}
+
+// LVIFIX: eventually KGuitar should support changing the key at the start
+// of a new bar. For the time being, we don't: the key is the same for the
+// whole track and is stored in the first bar
+
+void TrackView::keySig()
+{
+	int oldsig = curt->b[0].keysig;
+	if ((oldsig <= -8) || (8 <= oldsig)) {
+		// LVIFIX: report error ???
+		oldsig = 0;
+	}
+
+	SetKeySig *sks = new SetKeySig();
+	sks->sig->setCurrentItem(7 - oldsig);
+
+	if (sks->exec()) {
+		int newsig = sks->sig->currentItem();
+		curt->b[0].keysig = (short) (7 - newsig);
+	}
+
+	lastnumber = -1;
 }
 
 void TrackView::timeSig()
