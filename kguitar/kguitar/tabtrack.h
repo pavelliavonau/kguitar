@@ -22,6 +22,10 @@ typedef enum {
 #define FLAG_ARC        1
 #define FLAG_DOT        2
 
+#define EFFECT_HARMONIC 1
+
+#define DEAD_NOTE       -2
+
 typedef struct {
     uint l;                             // Duration of note or chord
     char a[MAX_STRINGS];                // Number of fret
