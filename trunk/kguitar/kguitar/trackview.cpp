@@ -38,6 +38,7 @@
 
 #define BOTTOMDUR   VERTSPACE+VERTLINE*(s+1)
 
+#define NORMAL_FONT_FACTOR              0.8
 #define TIME_SIG_FONT_FACTOR            1.4
 #define SMALL_CAPTION_FONT_FACTOR       0.7
 
@@ -62,14 +63,21 @@ TrackView::TrackView(TabSong *s, KXMLGUIClient *_XMLGUIClient, KCommandHistory *
 
 	updateRows();
 
- 	smallCaptionFont = new QFont(KGlobalSettings::generalFont());
+	normalFont = new QFont(KGlobalSettings::generalFont());
+	if (normalFont->pointSize() == -1) {
+		normalFont->setPixelSize((int) ((double) normalFont->pixelSize() * NORMAL_FONT_FACTOR));
+	} else {
+		normalFont->setPointSizeFloat(normalFont->pointSizeFloat() * NORMAL_FONT_FACTOR);
+	}
+
+ 	smallCaptionFont = new QFont(*normalFont);
 	if (smallCaptionFont->pointSize() == -1) {
 		smallCaptionFont->setPixelSize((int) ((double) smallCaptionFont->pixelSize() * SMALL_CAPTION_FONT_FACTOR));
 	} else {
 		smallCaptionFont->setPointSizeFloat(smallCaptionFont->pointSizeFloat() * SMALL_CAPTION_FONT_FACTOR);
 	}
 
-  	timeSigFont = new QFont(KGlobalSettings::generalFont());
+  	timeSigFont = new QFont(*normalFont);
 	if (timeSigFont->pointSize() == -1) {
 		timeSigFont->setPixelSize((int) ((double) timeSigFont->pixelSize() * TIME_SIG_FONT_FACTOR));
 	} else {
@@ -89,6 +97,7 @@ TrackView::TrackView(TabSong *s, KXMLGUIClient *_XMLGUIClient, KCommandHistory *
 
 TrackView::~TrackView()
 {
+	delete normalFont;
  	delete smallCaptionFont;
 	delete timeSigFont;
 }
@@ -169,8 +178,15 @@ void TrackView::repaintCurrentColumn()
 
 	//	int ycoord = 0;
 //	if (rowYPos(curt->xb, &ycoord)) // GREYFIX - what was it all about?
-	repaintContents(selxcoord, cellHeight() * curt->xb, HORCELL + 1, cellHeight());
-	emit paneChanged();
+
+	// GREYFIX: some crazy things going here about what coordinate
+	// system to use. I'm totally screwed up trying to figure it out,
+	// until I do, just update whole cell.
+
+// 	repaint(selxcoord, cellHeight() * curt->xb - contentsY(), HORCELL + 1, cellHeight());
+
+	repaintCell(curt->xb, 0);
+// 	emit paneChanged();
 }
 
 // Checks is current bar is fully visible, and, if it's not, tries to
@@ -431,7 +447,7 @@ void TrackView::paintCell(QPainter *p, int row, int /*col*/)
 					TIMESIGSIZE, TIMESIGSIZE, AlignCenter, tmp);
 	}
 
-	p->setFont(KGlobalSettings::generalFont());
+	p->setFont(*normalFont);
 	p->setBrush(KGlobalSettings::baseColor());
 
 	// Drum abbreviations markings
@@ -520,7 +536,7 @@ void TrackView::paintCell(QPainter *p, int row, int /*col*/)
 							xpos * 2 - lastxpos + HORCELL / 2, BOTTOMDUR + VERTLINE + 5);
 				p->setFont(*smallCaptionFont);
 				p->drawText(xpos, BOTTOMDUR + VERTLINE + 7, HORCELL, VERTLINE, AlignHCenter | AlignTop, "3");
-				p->setFont(KGlobalSettings::generalFont());
+				p->setFont(*normalFont);
  			} else {
 				if (!(((curt->c.size() >= t + 2) &&
 					   (curt->c[t + 1].flags & FLAG_TRIPLET) &&
@@ -534,7 +550,7 @@ void TrackView::paintCell(QPainter *p, int row, int /*col*/)
 					   (curt->c[t - 2].l == curt->c[t].l)))) {
 					p->setFont(*smallCaptionFont);
 					p->drawText(xpos, BOTTOMDUR + VERTLINE + 7, HORCELL, VERTLINE, AlignHCenter | AlignTop, "3");
-					p->setFont(KGlobalSettings::generalFont());
+					p->setFont(*normalFont);
 				}
 			}
 		}
@@ -560,7 +576,7 @@ void TrackView::paintCell(QPainter *p, int row, int /*col*/)
 			// draw "3"
 			p->setFont(*smallCaptionFont);
 			p->drawText(xpos, BOTTOMDUR + VERTLINE + 7, HORCELL, VERTLINE, AlignHCenter | AlignTop, "3");
-			p->setFont(KGlobalSettings::generalFont());
+			p->setFont(*normalFont);
 		}
 
 		// Draw arcs to backward note
@@ -576,7 +592,7 @@ void TrackView::paintCell(QPainter *p, int row, int /*col*/)
 				p->setFont(*smallCaptionFont);
 				p->drawText(xpos, VERTSPACE / 2, VERTLINE * 2, VERTLINE,
 							AlignCenter, "P.M.");
-				p->setFont(KGlobalSettings::generalFont());
+				p->setFont(*normalFont);
 				lastPalmMute = 1;
 			} else if (lastPalmMute == 1) {
 				p->drawLine(lastxpos + VERTLINE * 2, VERTSPACE / 2 + VERTLINE / 2,
@@ -634,13 +650,13 @@ void TrackView::paintCell(QPainter *p, int row, int /*col*/)
  				p->setFont(*smallCaptionFont);
 				p->drawText(xpos + VERTLINE + 2, VERTSPACE + (s - i) * VERTLINE - VERTLINE * 2 / 3,
 							HORCELL, VERTLINE, AlignCenter, "H");
- 				p->setFont(KGlobalSettings::generalFont());
+ 				p->setFont(*normalFont);
 				break;
 			case EFFECT_ARTHARM:
  				p->setFont(*smallCaptionFont);
 				p->drawText(xpos + VERTLINE + 2, VERTSPACE + (s - i) * VERTLINE - VERTLINE * 2 / 3,
 							HORCELL * 2, VERTLINE, AlignCenter, "AH");
- 				p->setFont(KGlobalSettings::generalFont());
+ 				p->setFont(*normalFont);
 				break;
 			case EFFECT_LEGATO:
  				p->setPen(SolidLine);
@@ -655,7 +671,7 @@ void TrackView::paintCell(QPainter *p, int row, int /*col*/)
 						p->drawText(xpos + xdelta / 2 - HORCELL / 2, VERTSPACE + (s - i) * VERTLINE - VERTLINE / 3,
 									HORCELL * 2, VERTLINE, AlignCenter, "PO");
 					}
- 					p->setFont(KGlobalSettings::generalFont());
+ 					p->setFont(*normalFont);
 				}
 				p->setPen(NoPen);
 				break;
@@ -995,7 +1011,8 @@ void TrackView::moveUp()
 		curt->y++;
 		if (curt->sel)
 			repaintCurrentCell();
-		else repaintCurrentColumn();
+		else
+			repaintCurrentColumn();
 	}
 	lastnumber = -1;
 }
