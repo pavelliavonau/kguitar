@@ -560,10 +560,8 @@ void ChordSelector::findChords()
 		}
 	}
 
-	// CLEARING THE LIST FOR FUTURE FINGERINGS
-
-	fnglist->switchAuto(FALSE);
-	fnglist->clear();
+	// BEGIN THE CHORD FILLING SESSION
+	fnglist->beginSession();
 
 	// CHECKING IF NOTE NUMBER GREATER THAT AVAILABLE STRINGS
 
@@ -571,8 +569,7 @@ void ChordSelector::findChords()
 	//	   possible on 7 string guitar. This way we optimize things a bit
 
 	if (parm->string<notenum) {
-		fnglist->switchAuto(TRUE);
-		fnglist->repaint();
+		fnglist->endSession();
 		return;
 	}
 
@@ -669,10 +666,10 @@ void ChordSelector::findChords()
 					if ((muted==0) ||										// No muted strings
 						((muted==1) && (app[0]==-1)) ||						// Last string muted
 						((muted==2) && (app[0]==-1) && (app[1]==-1))) {		// Last and pre-last muted
-						fnglist->addFingering(app,TRUE);
+						fnglist->addFingering(app);
 					}
 				} else {
-					fnglist->addFingering(app,TRUE);
+					fnglist->addFingering(app);
 				}
 			}
 
@@ -695,8 +692,7 @@ void ChordSelector::findChords()
 		}
 	} while (TRUE);
 
-	fnglist->switchAuto(TRUE);
-	fnglist->repaint();
+	fnglist->endSession();
 }
 
 void ChordSelector::resizeEvent(QResizeEvent *e)
