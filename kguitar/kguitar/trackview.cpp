@@ -31,12 +31,12 @@
 
 #include <stdlib.h>		// required for declaration of abs()
 
-#define VERTSPACE                       30
-#define VERTLINE                        10
+#define VERTSPACE                       30 // between top of cell and first line
+#define VERTLINE                        10 // between horizontal tabulature lines
 #define HORDUR                          4
-#define HORCELL                         14
-#define TIMESIGSIZE                     14
-#define ABBRLENGTH                      25
+#define HORCELL                         14 // horizontal size of tab numbers column
+#define TIMESIGSIZE                     14 // horizontal time sig size
+#define ABBRLENGTH                      25 // drum abbreviations horizontal size
 
 #define BOTTOMDUR   VERTSPACE+VERTLINE*(s+1)
 
@@ -123,6 +123,7 @@ void TrackView::setZoomLevel(int newZoomLevel)
 {
 	if (newZoomLevel > 0) {
 		zoomLevel = newZoomLevel;
+		updateRows();
 		repaintContents();
 	}
 }
@@ -395,6 +396,7 @@ void TrackView::paintCell(QPainter *p, int row, int col)
 	QString tmp;
 	bool ringing[MAX_STRINGS];
 	int trpCnt = 0;                     // triplet count
+	int lastPalmMute = 0;
 
 	int s = curt->string - 1;
 
@@ -570,10 +572,26 @@ void TrackView::paintCell(QPainter *p, int row, int col)
 		// Draw palm muting
 
 		if (curt->c[t].flags & FLAG_PM) {
-			p->setFont(*smallCaptionFont);
-			p->drawText(xpos, VERTSPACE / 2, VERTLINE * 2, VERTLINE,
-						AlignCenter, "P.M.");
-			p->setFont(KGlobalSettings::generalFont());
+			if (lastPalmMute == 0)  {     // start drawing with "P.M."
+				p->setFont(*smallCaptionFont);
+				p->drawText(xpos, VERTSPACE / 2, VERTLINE * 2, VERTLINE,
+							AlignCenter, "P.M.");
+				p->setFont(KGlobalSettings::generalFont());
+				lastPalmMute = 1;
+			} else if (lastPalmMute == 1) {
+				p->drawLine(lastxpos + VERTLINE * 2, VERTSPACE / 2 + VERTLINE / 2,
+							xpos + HORCELL / 2, VERTSPACE / 2 + VERTLINE / 2);
+				lastPalmMute = 2;
+			} else {
+				p->drawLine(lastxpos + HORCELL / 2, VERTSPACE / 2 + VERTLINE / 2,
+							xpos + HORCELL / 2, VERTSPACE / 2 + VERTLINE / 2);
+			}
+		} else {
+			if (lastPalmMute == 2) {
+				p->drawLine(lastxpos + HORCELL / 2, VERTSPACE / 2 + VERTLINE / 2,
+				            lastxpos + HORCELL / 2, VERTSPACE / 2 + VERTLINE);
+			}
+			lastPalmMute = 0;
 		}
 
 		// Draw the number column
