@@ -636,16 +636,52 @@ void TrackView::deleteNote()
 
 void TrackView::deleteColumn()
 {
+	bool p_all = FALSE;
+
 	if (curt->c.size() > 1) {
-		curt->removeColumn(1);
+
+		uint p_delta = 1;
+
+		//If we have some columns selected we have to delete
+		//these selected columns
+		if (curt->sel) {
+			if (curt->x <= curt->xsel)
+				p_delta = curt->xsel - curt->x;
+			else p_delta = curt->x - curt->xsel;
+
+			p_delta++;
+
+			//Check if all columns are selected
+			if (p_delta == curt->c.size()) {
+				p_delta--;
+				p_all = TRUE;
+			}
+		}
+
+		curt->removeColumn(p_delta);
+
 		if (curt->x == curt->c.size())
 			curt->x--;
+
+		curt->sel = FALSE;
+		curt->xsel = 0;
+
 		updateRows();
 	}
 
 	update();
 	emit paneChanged();
 	lastnumber = -1;
+
+	//If all of the track was selected then
+	//delete all notes of the first column
+	if (p_all) {
+		curt->x = 0;
+		for (int i = curt->string - 1; i >= 0; i--) {
+			curt->y = i;
+			deleteNote();
+		}
+	}
 }
 
 void TrackView::insertColumn()
