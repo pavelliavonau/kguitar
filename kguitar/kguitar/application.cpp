@@ -61,16 +61,11 @@ ApplicationWindow::ApplicationWindow(): KTMainWindow()
 	readOptions();
 
 	// MAIN WIDGET
-
 	tv = new TrackView(this);
 	setView(tv);
 	tv->setFocus();
 
-	setGeometry(global_mainWinX, global_mainWinY, 
-				global_mainWinWidth, global_mainWinHeight);
-
-	// SET UP TOOLBAR
-	// MainToolBar
+	// SET UP MAIN TOOLBAR
 	toolBar()->insertButton(Icon("filenew.xpm"),1,SIGNAL(clicked()),
 							this,SLOT(newDoc()),TRUE,i18n("New document"));
 	toolBar()->insertButton(Icon("fileopen.xpm"),1,SIGNAL(clicked()),
@@ -81,7 +76,7 @@ ApplicationWindow::ApplicationWindow(): KTMainWindow()
 							this,SLOT(print()),TRUE,i18n("Print"));
 	toolBar()->insertSeparator();
 
-	//EditToolBar
+	// SET UP EDITING TOOLBAR
 	toolBar(1)->insertButton(Icon("chord.xpm"),1,SIGNAL(clicked()),
 							this,SLOT(inschord()),TRUE,i18n("Insert chord"));
 	toolBar(1)->insertButton(Icon("note1.xpm"),1,SIGNAL(clicked()),
@@ -118,9 +113,9 @@ ApplicationWindow::ApplicationWindow(): KTMainWindow()
 
 	recMenu = new QPopupMenu();
 	connect(recMenu, SIGNAL(activated(int)), SLOT(recentLoad(int)));
-	p->insertItem(i18n("Open &recent..."), recMenu);
+	p->insertItem(i18n("Open &Recent"), recMenu);
 	recMenu->clear();
-	for (int i = 0 ; i < (int) recentFiles.count(); i++)
+	for (int i = 0; i < recentFiles.count(); i++)
 		recMenu->insertItem(recentFiles.at(i));
 
 	p->insertSeparator();
@@ -164,7 +159,7 @@ ApplicationWindow::ApplicationWindow(): KTMainWindow()
 	tbMenu->setCheckable(TRUE);
 	updateTbMenu();
 
-	p->insertItem(i18n("Show Toolbars..."), tbMenu);
+	p->insertItem(i18n("Show Toolbars"), tbMenu);
 
 	nnMenu = new QPopupMenu();
 	ni[0] = nnMenu->insertItem(i18n("American, sharps"), this, SLOT(setUSsharp()));
@@ -445,6 +440,9 @@ void ApplicationWindow::inschord()
 	for (int i = 0; i < tv->trk()->string; i++)
 		cs.setApp(i, tv->finger(i));
 
+	// required to detect chord from tabulature
+	cs.detectChord();
+
 	if (cs.exec()) {
 		for (int i = 0; i < tv->trk()->string; i++)
 			a[i] = cs.app(i);
@@ -549,10 +547,9 @@ void ApplicationWindow::readOptions()
 	global_showEditTB = kapp->getConfig()->readBoolEntry("showEditTB", TRUE);
 	global_mainTBPos = kapp->getConfig()->readNumEntry("mainTBPos", 0);
 	global_editTBPos = kapp->getConfig()->readNumEntry("editTBPos", 0);
-	global_mainWinWidth = kapp->getConfig()->readNumEntry("mainWinWidth",400);
-	global_mainWinHeight = kapp->getConfig()->readNumEntry("mainWinHeight", 240);
-	global_mainWinX = kapp->getConfig()->readNumEntry("mainWinX",10);
-	global_mainWinY = kapp->getConfig()->readNumEntry("mainWinX", 10);
+	QSize size = kapp->getConfig()->readSizeEntry("geometry");
+	if (!size.isEmpty())
+		resize(size);
 	kapp->getConfig()->readListEntry("recentFiles", recentFiles);
 }
 
@@ -574,9 +571,6 @@ void ApplicationWindow::saveOptions()
 	kapp->getConfig()->writeEntry("showEditTB", global_showEditTB);
 	kapp->getConfig()->writeEntry("mainTBPos", toolBar()->barPos());
 	kapp->getConfig()->writeEntry("editTBPos", toolBar(1)->barPos());
-	kapp->getConfig()->writeEntry("mainWinWidth", width());
-	kapp->getConfig()->writeEntry("mainWinHeight", height());
-	kapp->getConfig()->writeEntry("mainWinX", x());
-	kapp->getConfig()->writeEntry("mainWinY", y());
+	kapp->getConfig()->writeEntry("geometry", size());
 	kapp->getConfig()->writeEntry("recentFiles", recentFiles);
 }
