@@ -25,6 +25,10 @@
    <Action name="edit_paste" />
    <Action name="edit_selectAll" />
   </Menu>
+	<Menu name="view" >
+		<Separator/>
+		<Action name="view_melodyEditor" />
+	</Menu>
   <Menu noMerge="1" name="settings" >
    <text>&amp;Settings</text>
    <Menu name="showtoolbars" >
@@ -49,5 +53,7 @@
   <Action name="edit_cut" />
   <Action name="edit_copy" />
   <Action name="edit_paste" />
+	<Separator/>
+	<Action name="view_melodyEditor" />
  </ToolBar>
 </kpartgui>
