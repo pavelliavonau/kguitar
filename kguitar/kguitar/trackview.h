@@ -43,6 +43,20 @@ public:
 	void repaintCurrentCell();
 	void repaintCurrentColumn();
 
+	// Forwards declarations of all undo/redo commands
+	class SetLengthCommand;
+	class InsertTabCommand;
+	class MoveFingerCommand;
+	class AddFXCommand;
+	class SetFlagCommand;
+	class DeleteNoteCommand;
+	class AddColumnCommand;
+	class DeleteColumnCommand;
+	class SetTimeSigCommand;
+	class InsertColumnCommand;
+	class InsertStrumCommand;
+	class InsertRhythm;
+
 public slots:
 	void setLength1() { setLength(480); };
 	void setLength2() { setLength(240); };
@@ -112,6 +126,7 @@ signals:
 	void paneChanged();
 	void trackChanged(TabTrack *);
 	void columnChanged();
+	void songChanged();
 
 protected:
 	void repaintCellNumber(int n);

@@ -386,7 +386,7 @@ void TrackView::drawLetRing(QPainter *p, int x, int y)
 	p->setPen(NoPen);
 }
 
-void TrackView::paintCell(QPainter *p, int row, int col)
+void TrackView::paintCell(QPainter *p, int row, int /*col*/)
 {
 	if (row >= int(curt->b.size())) {
 		kdDebug() << "Drawing the bar out of limits!" << endl;
