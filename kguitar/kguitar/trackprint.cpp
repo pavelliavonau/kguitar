@@ -20,32 +20,6 @@
 // - xpos/ypos interface
 // - adapt linewidth to resolution of output device
 
-// Besides the current usage by the SongPrint class, TrackPrint can also
-// be used by TrackView to provide wysiwyg screen output as follows:
-//
-// add to TrackView::TrackView()
-//	trp = new TrackPrint;
-//	trp->initFonts();
-//
-// increase the cell height in TrackView::updateRows()
-//
-// replace the drawing code in TrackView::paintCell() by
-//	trp->setPainter(p);
-//	trp->initMetrics();
-//	const int lw = 1;
-//	trp->pLnBl = QPen(Qt::black, lw);
-//	trp->pLnWh = QPen(Qt::white, lw);
-//	trp->initPrStyle();
-//	curt->calcVoices();
-//	curt->calcStepAltOct();
-//	curt->calcBeams();
-//	trp->yposst = 200;
-//	trp->xpos = 50;
-//	trp->drawStLns(400 - 1);
-//	trp->ypostb = 300;
-//	trp->drawBarLns(400 - 1, curt);
-//	trp->drawBar(row, curt, 0);
-
 #include "settings.h"
 
 #include <iostream>		// required for cout and friends
@@ -159,9 +133,9 @@ int TrackPrint::colWidth(int cl, TabTrack *trk)
 		int emsf = 0;			// extra minimum space between notes due to flag
 		// not the last column in a track
 		// and not the last column in a bar
-		if ((cl < (trk->c.size() - 1))
+		if ((cl < ((int) trk->c.size() - 1))
 			&& (cl != trk->lastColumn(trk->barNr(cl)))) {
-			for (int i = 0; i < trk->string; i++) {
+			for (unsigned int i = 0; i < trk->string; i++) {
 				// if next column has note with accidental, add space
 				if ((trk->c[cl + 1].a[i] > -1)
 					&& (trk->c[cl + 1].acc[i] != Accidentals::None)) {
@@ -197,8 +171,9 @@ int TrackPrint::colWidth(int cl, TabTrack *trk)
 }
 
 // draw bar bn's contents starting at xpos,ypostb adding extra space es
+// also update selection x coordinates for trackview
 
-void TrackPrint::drawBar(int bn, TabTrack *trk, int es)
+void TrackPrint::drawBar(int bn, TabTrack *trk, int es, int& sx, int& sx2)
 {
 //	cout << "TrackPrint::drawBar(" << bn << ", " << trk << ", " << es << ")" << endl;
 
@@ -225,7 +200,7 @@ void TrackPrint::drawBar(int bn, TabTrack *trk, int es)
 		int y;
 		if (stNts) {
 			// staff
-			p->setFont(fFetaNr);
+			p->setFont(*fFetaNr);
 			fm = p->fontMetrics();
 			// calculate vertical position:
 			// exactly halfway between top and bottom string
@@ -455,7 +430,7 @@ void TrackPrint::drawBar(int bn, TabTrack *trk, int es)
 							QString s;
 							s = QChar(0xA7);
 							int y = ln | 1;
-							p->setFont(fFeta);
+							p->setFont(*fFeta);
 							p->drawText((int) (xpos + 0.8 * wNote),
 										yposst - ystepst * y / 2, s);
 						}
@@ -488,7 +463,7 @@ void TrackPrint::drawBar(int bn, TabTrack *trk, int es)
 							QString s;
 							s = QChar(0xA7);
 							int y = ln | 1;
-							p->setFont(fFeta);
+							p->setFont(*fFeta);
 							p->drawText((int) (xpos + 0.8 * wNote),
 										yposst - ystepst * y / 2, s);
 						}
@@ -521,7 +496,7 @@ void TrackPrint::drawBar(int bn, TabTrack *trk, int es)
 			p->setFont(*fTBar1);
 			int ew_2 = 0;			// used for positioning effects
 			QString note = "";
-			for (int i = 0; i < trk->string; i++) {
+			for (unsigned int i = 0; i < trk->string; i++) {
 				if (trk->c[t].a[i] != -1) {
 					if (curt->c[t].a[i] == DEAD_NOTE)
 						note = "X";
@@ -638,9 +613,15 @@ void TrackPrint::drawBar(int bn, TabTrack *trk, int es)
 					p->drawLine(x, y + sz_2, x + sz_2, y - sz_2);
 				}
 
-			} // end for (int i = 0 ... (end draw the number column ...)
+			} // end for (unsigned int i = 0 ... (end draw the number column ...)
 
 		} // end if (stTab ...
+
+		// update selection x coordinates for trackview
+		if ((int) t == curt->x)
+			sx  = xpos;
+		if ((int) t == curt->xsel)
+			sx2 = xpos;
 
 		lastxpos = xpos;
 		xpos += colWidth(t, trk);
@@ -660,12 +641,14 @@ void TrackPrint::drawBar(int bn, TabTrack *trk, int es)
 	}
 
 	// space after last note
-	xpos += ntlfw;
+	if (! onScreen) {
+		xpos += ntlfw;
+	}
 
 	// end bar
 	if (stTab) {
 		// show notes still ringing at end of bar
-		for (int i = 0; i <= s; i++) {
+		for (unsigned int i = 0; i <= s; i++) {
 			if (ringing[i]) {
 				int ew_3 = eraWidth("0") / 4;
 				drawLetRing(xpos - ew_3, i);
@@ -850,7 +833,7 @@ void TrackPrint::drawKey(int l, TabTrack *trk)
 		// draw clef
 		QString s;
 		s = QChar(0x6A);
-		p->setFont(fFeta);
+		p->setFont(*fFeta);
 		// LVIFIX: determine correct location (both clef and key)
 		p->drawText(xpos + tabpp, yposst - ystepst, s);
 	}
@@ -899,8 +882,8 @@ static int accPosFlatTab[7]  = {-4,  0, -3,  1, -2,  2, -1};
 void TrackPrint::drawKeySig(TabTrack *trk)
 {
 	QString s;
-	p->setFont(fFeta);
 	if (stNts) {
+		p->setFont(*fFeta);
 		int ypos;
 		int sig = trk->b[0].keysig;
 		if ((sig <= -8) || (8 <= sig)) {
@@ -976,7 +959,7 @@ void TrackPrint::drawNtHdCntAt(int x, int y, int t, Accidentals::Accid a)
 	}
 	QString s;
 	s = QChar(noteHead);
-	p->setFont(fFeta);
+	p->setFont(*fFeta);
 	p->drawText(x - wNote / 2, yposst - ystepst * y / 2, s);
 	// draw accidentals
 	int acc = 0;				// accidental char code
@@ -1008,7 +991,6 @@ void TrackPrint::drawNtHdCntAt(int x, int y, int t, Accidentals::Accid a)
 void TrackPrint::drawNtStmCntAt(int x, int yl, int yh, int t, char dir)
 {
 	int flagCh = 0;
-	int w = 0;
 	int yoffset = 0;						// y offset flags
 	switch (t) {
 	case 0:   // none
@@ -1112,7 +1094,7 @@ void TrackPrint::drawRstCntAt(int x, int y, int t)
 	} // end switch (t)
 	QString s;
 	s = QChar(restSym);
-	p->setFont(fFeta);
+	p->setFont(*fFeta);
 	p->drawText(x - wNote / 2, yposst - ystepst * (y + yoffset) / 2, s);
 }
 
@@ -1214,71 +1196,20 @@ bool TrackPrint::findHiLo(int cl, int v, TabTrack *trk, int & hi, int & lo)
 	return found;
 }
 
-// helper function to initialize font and check exactly this font was found
-// return true on succes
-
-// LVIFIX: according to the documentation, the following should
-// supply the font family actually used.
-// p->setFont(fFeta);
-// QFontInfo info = p->fontInfo();
-// QString actualFamily = info.family();
-// Unfortunately, instead it returns the font family requested.
-// This prevents checking if the correct font is used.
-// Workaround is to use the rawName, which starts with
-// "<family>-<pointsize>:"
-// Another issue is that font "TeX feta-nummer10" cannot be found.
-// Tested on RedHat 8.0 with Qt 3.0.5.
-
-static bool initExactFont(const QString fn, int fs, QFont & fnt)
-{
-	cout << "initExactFont(fn=" << fn << ", fs=" << fs << ")" << endl;
-	QString an;					// actual name
-	QString rn;					// requested name
-
-	rn.setNum(fs);
-	rn = fn + "-" + rn;
-	fnt = QFont(fn, fs);
-	an = fnt.rawName().section(':', 0, 0);
-	// LVIFIX: debug
-	cout << "rn='" << rn << "'" << endl;
-	cout << "an='" << an << "'" << endl;
-	cout << "ts='" << fnt.toString() << "'" << endl;
-//	return (rn == an);
-	return TRUE;		// LVIFIX
-}
-
 // initialize fonts
 
-void TrackPrint::initFonts(QFont *f1, QFont *f2, QFont *f3)
+void TrackPrint::initFonts(QFont *f1, QFont *f2, QFont *f3, QFont *f4, QFont *f5)
 {
 //	cout << "TrackPrint::initFonts()" << endl;
-	// LVIFIX: use same font for printing as is used on-screen
-	fTBar1 = f1;
-	fTBar2 = f2;
-	fTSig  = f3;
-//	fTBar1 = QFont("Helvetica",  8, QFont::Bold);
-//	fTBar2 = QFont("Helvetica",  7, QFont::Normal);
-//	fTSig  = QFont("Helvetica", 12, QFont::Bold);
-
-	// following fonts must be found: if not, printing of notes is disabled
-	QString fn;
-	fFetaFnd = true;
-	fn = "TeX feta19";
-	if (!initExactFont(fn, 18, fFeta)) {
-		kdDebug() << "KGuitar: could not find font '" << fn << "'" << endl;
-		cout << "KGuitar: could not find font '" << fn << "'" << endl;
-		fFetaFnd = false;
-	}
-	fn = "TeX feta-nummer10";
-	if (!initExactFont(fn, 10, fFetaNr)) {
-		// LVIFIX: font is not found (don't know why), but acceptable
-		// replacement is, therefore suppress error
-		// cout << "KGuitar: could not find font '" << fn << "'" << endl;
-		// fFetaFnd = false;
-	}
+	fTBar1   = f1;
+	fTBar2   = f2;
+	fTSig    = f3;
+	fFeta    = f4;
+	fFetaNr  = f5;
 }
 
 // initialize paper format and font dependent metrics
+// note: some metrics depend on onScreen: setOnScreen() must have been called
 
 void TrackPrint::initMetrics()
 {
@@ -1295,15 +1226,24 @@ void TrackPrint::initMetrics()
 	tsgpp = 2 * br8w;
 	nt0fw = 2 * br8w;
 	ntlfw =     br8w / 2;
+	if (onScreen) {
+		tsgfw = (int) (4.5 * br8w);
+		tsgpp = 4 * br8w;
+	}
 	// determine font-dependent staff metrics
 	QChar c;
 	QRect r;
-	p->setFont(fFeta);
-	fm  = p->fontMetrics();
-	c = 0x24;
-	r = fm.boundingRect(c);
-	ystepst = (int) (0.95 * r.height());
-	wNote = r.width();
+	if (fFeta) {
+		p->setFont(*fFeta);
+		fm  = p->fontMetrics();
+		c   = 0x24;
+		r   = fm.boundingRect(c);
+		ystepst = (int) (0.95 * r.height());
+		wNote   = r.width();
+	} else {
+		ystepst = 0;
+		wNote   = 0;
+	}
 }
 
 // initialize pens
@@ -1350,7 +1290,7 @@ void TrackPrint::initPrStyle()
 		stTab = true;
 	}
 	// no notes if feta fonts not found
-	if (!fFetaFnd) {
+	if (!fFeta) {
 		stNts = false;
 	}
 }
@@ -1377,7 +1317,7 @@ int TrackPrint::line(const QString step, int oct)
 
 void TrackPrint::setOnScreen(bool scrn)
 {
-	cout << "TrackPrint::setOnScreen(scrn=" << scrn << ")" << endl;
+//	cout << "TrackPrint::setOnScreen(scrn=" << scrn << ")" << endl;
 	onScreen = scrn;
 }
 

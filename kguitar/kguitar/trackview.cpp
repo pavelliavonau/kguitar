@@ -89,6 +89,9 @@ TrackView::TrackView(TabSong *s, KXMLGUIClient *_XMLGUIClient, KCommandHistory *
 	}
   	timeSigFont->setBold(TRUE);
 
+	fetaFont   = 0;
+	fetaNrFont = 0;
+	
 	lastnumber = -1;
 	zoomLevel = 10;
 
@@ -99,7 +102,6 @@ TrackView::TrackView(TabSong *s, KXMLGUIClient *_XMLGUIClient, KCommandHistory *
 	playbackCursor = FALSE;
 
 	trp = new TrackPrint;
-	trp->initFonts(normalFont, smallCaptionFont, timeSigFont);
 	trp->setOnScreen();
 }
 
@@ -109,6 +111,13 @@ TrackView::~TrackView()
 	delete smallCaptionFont;
 	delete timeSigFont;
 	delete trp;
+}
+
+void TrackView::initFonts(QFont *f4, QFont *f5)
+{
+	fetaFont   = f4;
+	fetaNrFont = f5;
+	trp->initFonts(normalFont, smallCaptionFont, timeSigFont, fetaFont, fetaNrFont);
 }
 
 void TrackView::selectTrack(TabTrack *trk)
@@ -166,15 +175,19 @@ void TrackView::updateRows()
 {
 	int ch = VERTSPACE * 2 + VERTLINE * (curt->string - 1);
 	if (viewscore) {
-		ch *= 3;	// LVIFIX
+		if (fetaFont) {
+			ch *= 3;	// LVIFIX
+		} else {
+			ch *= 2;	// LVIFIX
+		}
 	}
 	setNumRows(curt->b.size());
 	setMinimumHeight(ch);
 	setCellHeight(ch);
-	cout << "TrackView::updateRows()"
-	<< " ch=" << ch
-	<< " nr=" << curt->b.size()
-	<< endl;
+//	cout << "TrackView::updateRows()"
+//	<< " ch=" << ch
+//	<< " nr=" << curt->b.size()
+//	<< endl;
 }
 
 void TrackView::repaintCellNumber(int n)
@@ -418,12 +431,18 @@ void TrackView::drawLetRing(QPainter *p, int x, int y)
 
 void TrackView::paintCell(QPainter *p, int row, int /*col*/)
 {
+//	cout << "TrackView::paintCell(row=" << row << ")" << endl;
+
+	int s = curt->string - 1;
+	int selx2coord = -1;
+
 	if (row >= int(curt->b.size())) {
 		kdDebug() << "Drawing the bar out of limits!" << endl;
 		return;
 	}
 
-	if (viewscore) {
+	if (viewscore /* LVIFIX && fetaFont */) {
+		selxcoord = -1;
 		trp->setPainter(p);
 		// LVIFIX: initmetrics may be expensive but depends on p, init only once ?
 		trp->initMetrics();
@@ -437,10 +456,64 @@ void TrackView::paintCell(QPainter *p, int row, int /*col*/)
 		curt->calcBeams();
 		trp->yposst = 170;
 		trp->xpos = -1;
-		trp->drawStLns(width());
-		trp->ypostb = 270;
+		if (fetaFont) {
+			trp->drawStLns(width());
+			trp->ypostb = 270;
+		} else {
+			trp->ypostb = 170;
+		}
 		trp->drawBarLns(width(), curt);
-		trp->drawBar(row, curt, 0);
+		trp->drawBar(row, curt, 0, selxcoord, selx2coord);
+
+		// DRAW SELECTION
+
+		p->setRasterOp(Qt::XorROP);
+		p->setBrush(KGlobalSettings::baseColor());
+
+		if (playbackCursor) {
+			// Draw MIDI playback cursor
+			if (selxcoord != -1)
+				p->drawRect(selxcoord, 0, HORCELL + 1, cellHeight());
+
+		} else {
+
+			// Draw selection between selxcoord and selx2coord (if it exists)
+			/* LVIFIX: enable when original drawing code is removed
+			           (xor for selection should be executed only once)
+			if (curt->sel) {
+				if ((selxcoord != -1) && (selx2coord != -1)) {
+					int x1 = KMIN(selxcoord, selx2coord);
+					int wid = abs(selx2coord - selxcoord) + HORCELL + 1;
+					p->drawRect(x1, 0, wid, cellHeight());
+				} else if ((selxcoord == -1) && (selx2coord != -1)) {
+					if (curt->x > curt->lastColumn(bn))
+						p->drawRect(selx2coord, 0, cellWidth(), cellHeight());
+					else
+						p->drawRect(0, 0, selx2coord + HORCELL + 1, cellHeight());
+				} else if ((selxcoord != -1) && (selx2coord == -1)) {
+					if (curt->xsel > curt->lastColumn(bn))
+						p->drawRect(selxcoord, 0, cellWidth(), cellHeight());
+					else
+						p->drawRect(0, 0, selxcoord + HORCELL + 1, cellHeight());
+				} else { // both are -1
+					int x1 = KMIN(curt->x, curt->xsel);
+					int x2 = KMAX(curt->x, curt->xsel);
+					if ((x1 < curt->b[bn].start) && (x2 > curt->lastColumn(bn)))
+						p->drawRect(0, 0, cellWidth(), cellHeight());
+				}
+			}
+			*/
+
+			// Draw original cursor (still inverted)
+			if (selxcoord != -1) {
+//				p->drawRect(selxcoord, VERTSPACE + (s - curt->y) * VERTLINE - VERTLINE / 2 - 1,
+//							HORCELL + 1, VERTLINE + 2);
+				p->drawRect(selxcoord - (int) (1.3 * trp->br8w), trp->ypostb + (0 - curt->y) * trp->ysteptb - trp->ysteptb / 2 - 2,
+							(int) (2.6 * trp->br8w), trp->ysteptb + 3);
+			}
+		}
+
+		p->setRasterOp(Qt::CopyROP);
 	}
 
 	uint bn = row;                      // Drawing only this bar
@@ -450,8 +523,6 @@ void TrackView::paintCell(QPainter *p, int row, int /*col*/)
 	int trpCnt = 0;                     // triplet count
 	int lastPalmMute = 0;
 
-	int s = curt->string - 1;
-
 	for (int i = 0; i <= s; i++) {
 		p->drawLine(0, VERTSPACE + (s - i) * VERTLINE,
 		            width(), VERTSPACE + (s - i) * VERTLINE);
@@ -460,7 +531,6 @@ void TrackView::paintCell(QPainter *p, int row, int /*col*/)
 
 	int xpos = 40, lastxpos = 20, xdelta;
 
-	int selx2coord = -1;
 	selxcoord = -1;
 
 	// Starting bars - very thick and thick one
@@ -1289,7 +1359,7 @@ void TrackView::setPlaybackCursor(bool pc)
 	
 void TrackView::viewScore(bool on)
 {
-	cout << "TrackView::viewScore(on=" << on << ")" << endl;
+//	cout << "TrackView::viewScore(on=" << on << ")" << endl;
 	viewscore = on;
 	updateRows();
 }

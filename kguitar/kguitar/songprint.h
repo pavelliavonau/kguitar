@@ -3,7 +3,7 @@
  *
  * This file is part of KGuitar, a KDE tabulature editor
  *
- * copyright (C) 2002-2003 the KGuitar development team
+ * copyright (C) 2002-2004 the KGuitar development team
  ***************************************************************************/
 
 /***************************************************************************
@@ -42,6 +42,10 @@ public:
 	SongPrint();
 	~SongPrint();
 	void printSong(KPrinter *printer, TabSong *song);
+	// Fonts used
+	bool fFetaFnd;				// true if feta fonts found
+	QFont *fFeta;				// used for notes on the staff
+	QFont *fFetaNr;				// used for time signature on the staff
 private:
 	void drawPageHdr(int n, TabSong *song);
 	void drawStrCntAt(int x, int y, const QString s);
@@ -85,9 +89,6 @@ private:
 	int hdrh3;					// space between line 2 and music or trkname
 	int hdrh4;					// height trkname (top of text to top of music)
 	// Fonts used
-	bool fFetaFnd;				// true if feta fonts found
-	QFont fFeta;				// used for notes on the staff
-	QFont fFetaNr;				// used for time signature on the staff
 	QFont fHdr1;				// used for headers (title/author)
 	QFont fHdr2;				// used for headers (pagenr/trkname)
 	QFont fHdr3;				// used for headers (transcriber)

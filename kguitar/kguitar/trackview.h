@@ -42,6 +42,8 @@ public:
 
 	void repaintCurrentCell();
 	void repaintCurrentColumn();
+	
+	void initFonts(QFont *f4, QFont *f5);
 
 	// Forwards declarations of all undo/redo commands
 	class SetLengthCommand;
@@ -172,6 +174,8 @@ private:
 	QFont *normalFont;
 	QFont *timeSigFont;
 	QFont *smallCaptionFont;
+	QFont *fetaFont;
+	QFont *fetaNrFont;
 
 	char lastnumber;
 	int selxcoord;
