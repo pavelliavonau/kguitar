@@ -47,10 +47,6 @@ bool global_showMainTB;       // Toolbars
 bool global_showEditTB;
 int global_mainTBPos;
 int global_editTBPos;
-int global_mainWinWidth;      // ApplicationWindow
-int global_mainWinHeight;
-int global_mainWinX;
-int global_mainWinY;
 
 ApplicationWindow::ApplicationWindow(): KTMainWindow()
 {
@@ -220,22 +216,14 @@ void ApplicationWindow::updateTbMenu()
 	saveOptions();
 
 	if (global_showMainTB)
-		toolBar()->show();
+		enableToolBar(KToolBar::Show, 0);
 	else
-		toolBar()->hide();
+		enableToolBar(KToolBar::Hide, 0);
 
 	if (global_showEditTB)
-		toolBar(1)->show();
+		enableToolBar(KToolBar::Show, 1);
 	else
-		toolBar(1)->hide();
-
-	int  w, h;
-	w = width();
-	h = height();
-	w += 2;
-	resize(w, h);
-	w -=2;          // ALINXFIX: is there a better way?
-	resize(w, h);
+		enableToolBar(KToolBar::Hide, 1);
 }
 
 void ApplicationWindow::updateStatusBar()
@@ -309,8 +297,6 @@ void ApplicationWindow::recentLoad(int _id)
 
 void ApplicationWindow::addRecentFile(QString fn)
 {
-// copied from Quanta 1.0.4 (http://quanta.sourceforge.net)
-
 	if (recentFiles.find(fn) == -1) {
 		if (recentFiles.count() < 5) {
 			recentFiles.insert(0, fn);
