@@ -1,5 +1,5 @@
 #include "fingers.h"
-#include "track.h"
+#include "tabtrack.h"
 
 #include <qpainter.h>
 #include <qdrawutil.h>

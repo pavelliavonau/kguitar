@@ -1,6 +1,6 @@
 #include "fingerlist.h"
 #include "global.h"
-#include "track.h"
+#include "tabtrack.h"
 
 #include <qpainter.h>
 #include <qcolor.h>
