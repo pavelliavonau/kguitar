@@ -105,7 +105,7 @@ ApplicationWindow::ApplicationWindow(): KTMainWindow()
 	QPopupMenu *exp = new QPopupMenu();
 //	  exp->insertItem(i18n("&MIDI file..."), this, SLOT(exportMID()));
 	exp->insertItem(i18n("ASCII &tab..."), this, SLOT(exportTAB()));
-     exp->insertItem(i18n("Musi&XTeX tab..."), this, SLOT(exportTEX()));
+	exp->insertItem(i18n("Musi&XTeX tab..."), this, SLOT(exportTEX()));
 	p->insertItem(i18n("&Export"), exp);
 
 	p->insertSeparator();
