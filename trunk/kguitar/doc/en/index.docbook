@@ -135,7 +135,7 @@ developers.
 </para>
 </chapter>
 
-<chapter id="using-kapp">
+<chapter id="using-kguitar">
 <title>Using &kguitar;</title>
 
 <!-- This chapter should tell the user how to use your app. You should use as
@@ -333,11 +333,15 @@ item.
 
 <para>
 Supported effects so far:
-
-H - Natural Harmonic
-R - Artifical Harmonic
-P - Legato (hammer on/pull off)
 </para>
+
+<itemizedlist>
+
+<listitem><para><keycap>h</keycap> - Natural harmonic</para></listitem>
+<listitem><para><keycap>r</keycap> - Artifical Harmonic</para></listitem>
+<listitem><para><keycap>p</keycap> - Legato (hammer on/pull off)</para></listitem>
+
+</itemizedlist>
 
 </sect1>
 
@@ -520,7 +524,7 @@ Also include any keys that have a special function but have no equivalent in the
 menus or toolbars. This may not be necessary for small apps or apps with no tool
 or menu bars. -->
 
-<sect1 id="kapp-mainwindow">
+<sect1 id="kguitar-mainwindow">
 <title>The main &kguitar; window</title>
 <para></para>
 
@@ -679,7 +683,7 @@ will let you use all MIDI features.
 
 <para>
 TSE3 library can be found at <ulink
-url="http://tse3.sourceforge.net/">it's home page</ulink>.
+url="http://tse3.sourceforge.net/">TSE3 home page</ulink>.
 </para>
 
 </sect1>
