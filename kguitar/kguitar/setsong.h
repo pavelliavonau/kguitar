@@ -4,7 +4,7 @@
 #include <qdialog.h>
 #include "global.h"
 
-class KLined;
+class QLineEdit;
 class QMultiLineEdit;
 
 class SetSong: public QDialog
@@ -13,7 +13,7 @@ class SetSong: public QDialog
 public:
     SetSong(QWidget *parent=0, const char *name=0);
 
-    KLined *title,*author,*transcriber;
+    QLineEdit *title,*author,*transcriber;
     QMultiLineEdit *comments;
 private:
 };
