@@ -197,6 +197,8 @@ AddFXCommand::AddFXCommand(TrackView *_tv, TabTrack *&_trk, char _fx):
 		break;
 	case EFFECT_LETRING: p_fx = i18n("let ring");
 		break;
+	case EFFECT_STOPRING: p_fx = i18n("stop ring");
+		break;
 	default:
 		break;
 	}
@@ -336,7 +338,7 @@ void DeleteNoteCommand::execute()
 	trk->c[x].a[y] = -1;
 	trk->c[x].e[y] = 0;
 	trk->sel = FALSE;
-	tv->repaintCurrentColumn();
+	tv->repaintCurrentCell();
 }
 
 void DeleteNoteCommand::unexecute()
@@ -347,7 +349,7 @@ void DeleteNoteCommand::unexecute()
 	trk->sel = sel;
 	trk->c[x].a[y] = a;
 	trk->c[x].e[y] = e;
-	tv->repaintCurrentColumn();
+	tv->repaintCurrentCell();
 }
 
 AddColumnCommand::AddColumnCommand(TrackView *_tv, TabTrack *&_trk):

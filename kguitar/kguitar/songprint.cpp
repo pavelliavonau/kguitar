@@ -592,7 +592,7 @@ void SongPrint::drawBar(int bn, TabTrack *trk, int es)
 		// LVIFIX: indentation
 		if (stTab) {
 
-		// Draw the number column
+		// Draw the number column including effects
 		p->setFont(fTBar1);
 		int ew_2 = 0;			// used for positioning effects
 		QString note = "";
@@ -609,14 +609,15 @@ void SongPrint::drawBar(int bn, TabTrack *trk, int es)
 				// cell width is needed later
 				ew_2 = eraWidth(note) / 2;
 				if (ringing[i]) {
-					p->drawLine(xpos - ew_2,
-								ypostb - i * ysteptb,
-								xpos - ew_2 - ysteptb / 3,
-								ypostb - i * ysteptb - ysteptb / 3);
-					p->drawLine(xpos - ew_2,
-								ypostb - i * ysteptb,
-								xpos - ew_2 - ysteptb / 3,
-								ypostb - i * ysteptb + ysteptb / 3);
+					drawLetRing(xpos - ew_2, i);
+					ringing[i] = FALSE;
+				}
+			}
+			if ((curt->c[t].a[i] == -1)
+			     && (curt->c[t].e[i] == EFFECT_STOPRING)) {
+				if (ringing[i]) {
+					int ew_3 = eraWidth("0") / 4;
+					drawLetRing(xpos - ew_3, i);
 					ringing[i] = FALSE;
 				}
 			}
@@ -712,7 +713,7 @@ void SongPrint::drawBar(int bn, TabTrack *trk, int es)
 				p->drawLine(x, y + sz_2, x + sz_2, y - sz_2);
 			}
 			
-		} // end for (int i = 0 ...
+		} // end for (int i = 0 ... (end draw the number column ...)
 
 		} // end if (stTab ...
 		
@@ -725,7 +726,7 @@ void SongPrint::drawBar(int bn, TabTrack *trk, int es)
 		es -= extSpAftNote;
 		barExpWidthLeft -= colWidth(t, trk);
 
-	} // end for (uint t ...
+	} // end for (uint t ... (end loop t over all columns ...)
 
 	// draw beams
 	if (stNts) {
@@ -735,12 +736,22 @@ void SongPrint::drawBar(int bn, TabTrack *trk, int es)
 	// space after last note
 	xpos += ntlfw;
 
-	// end bar with vertical line
+	// end bar
 	if (stTab) {
+		// show notes still ringing at end of bar
+		for (int i = 0; i <= s; i++) {
+			if (ringing[i]) {
+				int ew_3 = eraWidth("0") / 4;
+				drawLetRing(xpos - ew_3, i);
+				ringing[i] = FALSE;
+			}
+		}
+		// draw vertical line
 		p->drawLine(xpos, ypostb,
 		            xpos, ypostb - (trk->string - 1) * ysteptb);
 	}
 	if (stNts) {
+		// draw vertical line
 		p->drawLine(xpos, yposst,
 		            xpos, yposst - 4 * ystepst);
 	}
@@ -884,6 +895,17 @@ void SongPrint::drawKey(int l, TabTrack *trk)
 			p->drawText(xpos + tabpp, y, "B");
 		}
 	}
+}
+
+// draw "let ring" with point of arrowhead at x on string y
+// LVIFIX: use xpos too ?
+
+void SongPrint::drawLetRing(int x, int y)
+{
+	p->drawLine(x,               ypostb - y * ysteptb,
+				x - ysteptb / 3, ypostb - y * ysteptb - ysteptb / 3);
+	p->drawLine(x,               ypostb - y * ysteptb,
+				x - ysteptb / 3, ypostb - y * ysteptb + ysteptb / 3);
 }
 
 // draw notehead of type t centered at x on staff line y

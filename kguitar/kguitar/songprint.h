@@ -64,6 +64,7 @@ public:
 	void drawBeam(int x1, int x2, int yh, char tp);
 	void drawBeams(int bn, TabTrack *trk);
 	void drawKey(int l, TabTrack *trk);
+	void drawLetRing(int x, int y);
 	void drawNtHdCntAt(int x, int y, int t, Accidentals::Accid a);
 	void drawNtStmCntAt(int x, int yl, int yh, int t);
 	void drawPageHdr(int n, TabSong *song);

@@ -201,6 +201,8 @@ void TrackView::addLetRing()
 {
 	if (curt->c[curt->x].a[curt->y] >= 0)
 		cmdHist->addCommand(new AddFXCommand(this, curt, EFFECT_LETRING));
+	else
+		cmdHist->addCommand(new AddFXCommand(this, curt, EFFECT_STOPRING));
 	lastnumber = -1;
 }
 
@@ -445,6 +447,13 @@ void TrackView::paintCell(QPainter *p, int row, int col)
 					ringing[i] = FALSE;
 				}
 			}
+			if ((curt->c[t].a[i] == -1)
+			     && (curt->c[t].e[i] == EFFECT_STOPRING)) {
+				if (ringing[i]) {
+					drawLetRing(p, xpos, VERTSPACE + (s - i) * VERTLINE);
+					ringing[i] = FALSE;
+				}
+			}
 
 			if (t == curt->x)
 				selxcoord = xpos;
@@ -510,6 +519,16 @@ void TrackView::paintCell(QPainter *p, int row, int col)
 		xpos += xdelta;
 	}
 
+	// Show notes still ringing at end of bar
+	for (int i = 0; i <= s; i++) {
+		if (ringing[i]) {
+			drawLetRing(p, xpos - HORCELL / 3, VERTSPACE + (s - i) * VERTLINE);
+			ringing[i] = FALSE;
+		}
+	}
+
+	// End bar with vertical line
+	p->setPen(SolidLine);
 	p->drawRect(xpos, VERTSPACE, 1, VERTLINE * s);
 
 	// DRAW SELECTION
