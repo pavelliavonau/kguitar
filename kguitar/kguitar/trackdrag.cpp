@@ -20,11 +20,9 @@ TrackDrag::TrackDrag(QWidget *dragSource, const char *name) :
 {
 }
 
-
 TrackDrag::~TrackDrag()
 {
 }
-
 
 void TrackDrag::setTrack(TabTrack *trk)
 {
@@ -53,74 +51,67 @@ void TrackDrag::setTrack(TabTrack *trk)
 	for (int i = 0; i<trk->string; i++)
 		s << (Q_UINT8) trk->tune[i];
 
-		// TRACK EVENTS
+	// TRACK EVENTS
 
-		Q_UINT8 tcsize = trk->string+2;
-		uint bar = 1;
-
-		s << (Q_UINT8) 'S';				// Time signature event
-		s << (Q_UINT8) 2;				// 2 byte event length
-		s << (Q_UINT8) trk->b[0].time1; // Time signature itself
-		s << (Q_UINT8) trk->b[0].time2;
-
-		for (uint x = 0; x < trk->c.size(); x++) {
-			if (bar+1 < trk->b.size()) {	// This bar's not last
-				if (trk->b[bar+1].start == x)
-					bar++;				// Time for next bar
+	Q_UINT8 tcsize = trk->string+2;
+	uint bar = 1;
+	
+	s << (Q_UINT8) 'S';				// Time signature event
+	s << (Q_UINT8) 2;				// 2 byte event length
+	s << (Q_UINT8) trk->b[0].time1; // Time signature itself
+	s << (Q_UINT8) trk->b[0].time2;
+	
+	for (uint x = 0; x < trk->c.size(); x++) {
+		if (bar+1 < trk->b.size()) {	// This bar's not last
+			if (trk->b[bar+1].start == x)
+				bar++;				// Time for next bar
+		}
+		
+		if ((bar < trk->b.size()) && (trk->b[bar].start == x)) {
+			s << (Q_UINT8) 'B';     // New bar event
+			s << (Q_UINT8) 0;
+		}
+		
+		if (trk->c[x].flags & FLAG_ARC) {
+			s << (Q_UINT8) 'L';		// Continue of previous event
+			s << (Q_UINT8) 2;		// Size of event
+			s << trk->c[x].fullDuration(); // Duration
+		} else {
+			s << (Q_UINT8) 'T';		// Tab column events
+			s << (Q_UINT8) tcsize;	// Size of event
+			needfx = FALSE;
+			for (int i = 0;i < trk->string; i++) {
+				s << (Q_INT8) trk->c[x].a[i];
+				if (trk->c[x].e[i])
+					needfx = TRUE;
 			}
-
-			if ((bar < trk->b.size()) && (trk->b[bar].start == x)) {
-				s << (Q_UINT8) 'B';     // New bar event
-				s << (Q_UINT8) 0;
+			s << trk->c[x].fullDuration(); // Duration
+			if (needfx) {
+				s << (Q_UINT8) 'E'; // Effect event
+				s << (Q_UINT8) trk->string; // Size of event
+				for (int i = 0; i < trk->string; i++)
+					s << (Q_UINT8) trk->c[x].e[i];
 			}
-
-			if (trk->c[x].flags & FLAG_ARC) {
-				s << (Q_UINT8) 'L';		// Continue of previous event
-				s << (Q_UINT8) 2;		// Size of event
-				s << dot2len(trk->c[x].l, trk->c[x].flags & FLAG_DOT); // Duration
-			} else {
-				s << (Q_UINT8) 'T';		// Tab column events
-				s << (Q_UINT8) tcsize;	// Size of event
-				needfx = FALSE;
-				for (int i = 0;i < trk->string; i++) {
-					s << (Q_INT8) trk->c[x].a[i];
-					if (trk->c[x].e[i])
-						needfx = TRUE;
-				}
-				s << dot2len(trk->c[x].l, trk->c[x].flags & FLAG_DOT); // Duration
-				if (needfx) {
-					s << (Q_UINT8) 'E'; // Effect event
-					s << (Q_UINT8) trk->string; // Size of event
-					for (int i = 0; i < trk->string; i++)
-						s << (Q_UINT8) trk->c[x].e[i];
-				}
-				if (trk->c[x].flags) {
-					s << (Q_UINT8) 'F'; // Flag event
-					s << (Q_UINT8) 1;   // Size of event
-					s << (Q_UINT8) trk->c[x].flags;
-				}
+			if (trk->c[x].flags) {
+				s << (Q_UINT8) 'F'; // Flag event
+				s << (Q_UINT8) 1;   // Size of event
+				s << (Q_UINT8) trk->c[x].flags;
 			}
 		}
-
-		s << (Q_UINT8) 'X';				// End of track marker
-		s << (Q_UINT8) 0;				// Length of end track event
-
-
-		//************End***********
-
-
+	}
+	
+	s << (Q_UINT8) 'X';				// End of track marker
+	s << (Q_UINT8) 0;				// Length of end track event
+	
 	buffer.close();
-
+	
 	setEncodedData(buffer.buffer());
 }
-
-
 
 bool TrackDrag::canDecode(const QMimeSource *e)
 {
 	return e->provides("application/x-kguitar-snippet");
 }
-
 
 bool TrackDrag::decode(const QMimeSource *e, TabTrack *&trk)
 {
@@ -177,8 +168,6 @@ bool TrackDrag::decode(const QMimeSource *e, TabTrack *&trk)
 	newtrk->b[0].time1 = 4;
 	newtrk->b[0].time2 = 4;
 
-	bool dot;
-	int dur;
 	kdDebug() << "TrackDrag::decode >> reading events" << endl;;
 	do {
 		s >> event;
@@ -201,9 +190,8 @@ bool TrackDrag::decode(const QMimeSource *e, TabTrack *&trk)
 				newtrk->c[x-1].e[k] = 0;
 			}
 			s >> i16;
-			len2dot(i16, &dur, &dot);
-			newtrk->c[x-1].l = dur;
-			newtrk->c[x-1].flags = (dot ? FLAG_DOT : 0);
+			newtrk->c[x-1].flags = 0;
+			newtrk->c[x-1].setFullDuration(i16);
 			break;
 		case 'E':                   // Effects of prev column
 			if (x == 0) {			// Ignore if there were no tab cols
@@ -228,9 +216,8 @@ bool TrackDrag::decode(const QMimeSource *e, TabTrack *&trk)
 			for (int k = 0; k < string; k++)
 				newtrk->c[x-1].a[k] = -1;
 			s >> i16;
-			len2dot(i16, &dur, &dot);
-			newtrk->c[x-1].l = dur;
-			newtrk->c[x-1].flags = (dot ? FLAG_ARC | FLAG_DOT : FLAG_ARC);
+			newtrk->c[x-1].flags = FLAG_ARC;
+			newtrk->c[x-1].setFullDuration(i16);
 			break;
 		case 'S':                   // New time signature
 			s >> cn; newtrk->b[bar-1].time1 = cn;
@@ -257,7 +244,4 @@ bool TrackDrag::decode(const QMimeSource *e, TabTrack *&trk)
 	buffer.close();
 	trk = newtrk;
 	return TRUE;
-
 }
-
-
