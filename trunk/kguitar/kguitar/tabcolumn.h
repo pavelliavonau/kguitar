@@ -44,10 +44,9 @@ struct StemInfo {
 	char l3;					// level 3 beam
 };
 
-/***************************************************************************
- * class TabColumn
- ***************************************************************************/
-
+/**
+ * Represents one column on tabulature song.
+ */
 class TabColumn {
 public:
 	int l;                              // Duration of note or chord
@@ -67,7 +66,16 @@ public:
 	StemInfo stu;						// Upper stems
 	// End of volatile data
 
+	/**
+	 * Calculates and returns full duration of this column,
+	 * i.e. multiplied by all necessary 2/3, 3/2 coffiecients.
+	 */
 	Q_UINT16 fullDuration();
+
+	/**
+	 * Sets full duration (i.e. "l" + determines automatically all
+	 * necessary flags for 2/3 and 3/2 coefficients.
+	 */
 	void setFullDuration(Q_UINT16 len);
 
 	uint effectFlags();
