@@ -24,44 +24,55 @@ bool TabSong::load_from_kg(const char* fileName)
     s >> comments;
     s >> tempo;
 
+    if (tempo<0) {
+	printf("Bad tempo");
+	return FALSE;
+    }
+
     printf("Read headers...\n");
 
     // TRACK DATA
     int cnt;
     s >> cnt;                           // Track count
+    
+    if (cnt<=0) {
+	printf("Bad track count");
+	return FALSE;
+    }
+
     t.clear();
 
     printf("Going to read %d track(s)...\n",cnt);
 
-    Q_UINT8 thetune[MAX_STRINGS];
     int ccnt;
     Q_UINT16 i16;
-    Q_UINT8 patch,string,tm;
+    Q_UINT8 patch,string,frets,tm;
     Q_INT8 cn;
+    QString tn;
 
     for (int i=0;i<cnt;i++) {
 	s >> tm;                        // Track properties (Track mode)
+	s >> tn;                        // Track name
 	s >> i16;                       // Bank
 	s >> patch;
 	s >> string;
+	s >> frets;
 
 	if (string>MAX_STRINGS)
 	    return FALSE;
 
 	printf("Read a track of %d strings, bank=%d, patch=%d...\n",string,i16,patch);
 
-	t.append(new TabTrack((TrackMode) tm,i16,patch,string));
+	t.append(new TabTrack((TrackMode) tm,tn,i16,patch,string,frets));
 
 	printf("Appended a track...\n");
 
-	for (int j=0;j<string;j++)
-	    s >> thetune[j];
+	for (int j=0;j<string;j++) {
+	    s >> cn;
+	    t.current()->tune[j] = cn;
+	}
 
 	printf("Read the tuning...\n");
-
-	t.current()->setTuning(thetune);
-
-	printf("Set the tuning...\n");
 	
 	s >> ccnt;
 
@@ -109,18 +120,20 @@ bool TabSong::save_to_kg(const char* fileName)
 	TabTrack *trk = it.current();
 
 	s << (Q_UINT8) trk->trackmode();// Track properties
+	s << trk->name;
 	s << (Q_UINT16) trk->bank;
 	s << (Q_UINT8) trk->patch;
-	s << (Q_UINT8) trk->string();
-	for (int i=0;i<trk->string();i++)
-	    s << (Q_UINT8) trk->tune(i);
+	s << (Q_UINT8) trk->string;
+	s << (Q_UINT8) trk->frets;
+	for (int i=0;i<trk->string;i++)
+	    s << (Q_UINT8) trk->tune[i];
 
 	s << trk->c.count();            // Track columns
 
  	QListIterator<TabColumn> ic(trk->c);
  	for (;ic.current();++ic) {
  	    TabColumn *col = ic.current();
-	    for (int i=0;i<trk->string();i++)
+	    for (int i=0;i<trk->string;i++)
 		s << (Q_INT8) col->a[i];
 	    s << (Q_INT16) col->l;      // Duration
  	}
