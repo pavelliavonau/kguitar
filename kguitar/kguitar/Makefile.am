@@ -27,14 +27,9 @@ lib_LTLIBRARIES = libkguitar.la
 libkguitar_la_SOURCES	= application.cpp chord.cpp fingers.cpp fingerlist.cpp \
  trackview.cpp setsong.cpp tabsong.cpp tabtrack.cpp settrack.cpp \
  settabfret.cpp radiustuner.cpp notespinbox.cpp options.cpp chordlistitem.cpp \
- chordlist.cpp timesig.cpp strumming.cpp filebrowser.cpp kguitar_shell.cpp\
- application.moc.cpp chord.moc.cpp fingers.moc.cpp fingerlist.moc.cpp \
- trackview.moc.cpp setsong.moc.cpp settrack.moc.cpp settabfret.moc.cpp \
- radiustuner.moc.cpp notespinbox.moc.cpp options.moc.cpp chordlist.moc.cpp \
- timesig.moc.cpp strumming.moc.cpp filebrowser.moc.cpp kguitar_shell.moc.cpp
+ chordlist.cpp timesig.cpp strumming.cpp filebrowser.cpp kguitar_shell.cpp
 
-# GREYFIX: todo automatic mocs
-# kguitar_METASOURCES = AUTO
+METASOURCES = AUTO
 
 # the library search path.
 kguitar_SOURCES = main.cpp
@@ -65,8 +60,15 @@ mime_DATA = x-kguitar.desktop
 servicesdir = $(kde_servicesdir)
 services_DATA = kguitar_component.desktop
 
-messages:
-	$(XGETTEXT) -C -ki18n $(kguitar_SOURCES) -o ../po/kguitar.pot
+#messages:
+#	$(XGETTEXT) -C -ki18n $(kguitar_SOURCES) -o ../po/kguitar.pot
+
+messages: rc.cpp
+	LIST=`find . -name \*.h -o -name \*.hh -o -name \*.H -o -name \*.hxx -o -name \*.hpp -o -name \*.cpp -o -name \*.cc -o -name \*.cxx -o -name \*.ecpp -o -name \*.C`; \
+	if test -n "$$LIST"; then \
+	 $(XGETTEXT) $$LIST -o ../po/kguitar.pot; \
+	fi
+
 
 KDE_ICON = AUTO
 
@@ -106,50 +108,4 @@ KDE_ICON = AUTO
 #	-rm -f $(kde_minidir)/kguitar.xpm
 #	-rm -f $(kde_icondir)/large/kguitar.xpm
 
-application.moc.cpp: application.h
-	$(MOC) application.h -o application.moc.cpp
 
-chord.moc.cpp: chord.h
-	$(MOC) chord.h -o chord.moc.cpp
-
-fingers.moc.cpp: fingers.h
-	$(MOC) fingers.h -o fingers.moc.cpp
-
-fingerlist.moc.cpp: fingerlist.h
-	$(MOC) fingerlist.h -o fingerlist.moc.cpp
-
-trackview.moc.cpp: trackview.h
-	$(MOC) trackview.h -o trackview.moc.cpp
-
-setsong.moc.cpp: setsong.h
-	$(MOC) setsong.h -o setsong.moc.cpp
-
-settrack.moc.cpp: settrack.h
-	$(MOC) settrack.h -o settrack.moc.cpp
-
-settabfret.moc.cpp: settabfret.h
-	$(MOC) settabfret.h -o settabfret.moc.cpp
-
-radiustuner.moc.cpp: radiustuner.h
-	$(MOC) radiustuner.h -o radiustuner.moc.cpp
-
-notespinbox.moc.cpp: notespinbox.h
-	$(MOC) notespinbox.h -o notespinbox.moc.cpp
-
-options.moc.cpp: options.h
-	$(MOC) options.h -o options.moc.cpp
-
-chordlist.moc.cpp: chordlist.h
-	$(MOC) chordlist.h -o chordlist.moc.cpp
-
-timesig.moc.cpp: timesig.h
-	$(MOC) timesig.h -o timesig.moc.cpp
-
-strumming.moc.cpp: strumming.h
-	$(MOC) strumming.h -o strumming.moc.cpp
-
-filebrowser.moc.cpp: filebrowser.h
-	$(MOC) filebrowser.h -o filebrowser.moc.cpp
-
-kguitar_shell.moc.cpp: kguitar_shell.h
-	$(MOC) kguitar_shell.h -o kguitar_shell.moc.cpp
