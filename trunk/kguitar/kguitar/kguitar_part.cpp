@@ -53,9 +53,6 @@
 #include <qradiobutton.h>
 #include <qfileinfo.h>
 
-#include <iostream>		// required for cout and friends
-using namespace std;		// required for cout and friends
-
 typedef KParts::GenericFactory<KGuitarPart> KGuitarPartFactory;
 K_EXPORT_COMPONENT_FACTORY(libkguitarpart, KGuitarPartFactory)
 
@@ -492,34 +489,30 @@ void KGuitarPart::setupActions()
 	KStdAction::save(this, SLOT(save()), actionCollection());
 
 	(void) KStdAction::print(this, SLOT(filePrint()), actionCollection());
+	(void) KStdAction::preferences(this, SLOT(options()), actionCollection());
 
-	preferencesAct = KStdAction::preferences(this, SLOT(options()),
-	                                         actionCollection(), "pref_options");
-
-	sngPropAct = new KAction(i18n("P&roperties..."), 0, sv, SLOT(songProperties()),
-	                         actionCollection(), "song_properties");
+	(void) new KAction(i18n("P&roperties..."), 0, sv, SLOT(songProperties()),
+	                   actionCollection(), "song_properties");
 
 	// EDIT CUT-N-PASTE ACTIONS
 	(void) KStdAction::cut(sv, SLOT(slotCut()), actionCollection());
 	(void) KStdAction::copy(sv, SLOT(slotCopy()), actionCollection());
-	pasteAct = KStdAction::paste(sv, SLOT(slotPaste()), actionCollection());
+	(void) KStdAction::paste(sv, SLOT(slotPaste()), actionCollection());
 	(void) KStdAction::selectAll(sv, SLOT(slotSelectAll()), actionCollection());
 
 	// VIEW ACTIONS
-	zoomInAct = new KAction(i18n("Zoom in"), "zoom_in", KKeySequence("Ctrl+="),
-	                        sv->tv, SLOT(zoomIn()), actionCollection(), "zoom_in");
-	zoomOutAct = new KAction(i18n("Zoom out"), "zoom_out", KAccel::stringToKey("Ctrl+-"),
-	                         sv->tv, SLOT(zoomOut()), actionCollection(), "zoom_out");
-	zoomLevelAct = new KAction(i18n("Zoom to..."), 0, sv->tv, SLOT(zoomLevelDialog()),
-	                         actionCollection(), "zoom_level");
+	(void) new KAction(i18n("Zoom in"), "viewmag+", CTRL + Key_Equal,
+	                   sv->tv, SLOT(zoomIn()), actionCollection(), "zoom_in");
+	(void) new KAction(i18n("Zoom out"), "viewmag-", CTRL + Key_Minus,
+	                   sv->tv, SLOT(zoomOut()), actionCollection(), "zoom_out");
+	(void) new KAction(i18n("Zoom to..."), "viewmag", sv->tv,
+	                   SLOT(zoomLevelDialog()), actionCollection(), "zoom_level");
 	viewMelodyEditorAct = new KToggleAction(i18n("Show Melody Editor"), "melodyeditor",
-	                                        KAccel::stringToKey("Shift+M"),
-	                                        this, SLOT(viewMelodyEditor()),
+	                                        SHIFT + Key_M, this, SLOT(viewMelodyEditor()),
 	                                        actionCollection(), "view_melodyEditor");
-	viewScoreAct = new KToggleAction(i18n("Show Score"), "score",
-	                                        KAccel::stringToKey("Shift+S"),
-	                                        this, SLOT(viewScore()),
-	                                        actionCollection(), "view_score");
+	viewScoreAct = new KToggleAction(i18n("Show Score"), "score", SHIFT + Key_S,
+	                                 this, SLOT(viewScore()),
+	                                 actionCollection(), "view_score");
 
 	// TRACK ACTIONS
 	trkNewAct = new KAction(i18n("&New..."), 0, sv, SLOT(trackNew()),
@@ -530,69 +523,74 @@ void KGuitarPart::setupActions()
 	                             actionCollection(), "track_bassline");
 	trkPropAct = new KAction(i18n("P&roperties..."), 0, sv, SLOT(trackProperties()),
 	                         actionCollection(), "track_properties");
-	rhythmerAct = new KAction(i18n("&Rhythm..."), "rhythmer", KAccel::stringToKey("Shift+R"),
+	rhythmerAct = new KAction(i18n("&Rhythm..."), "rhythmer", SHIFT + Key_R,
 	                          sv->tv, SLOT(rhythmer()), actionCollection(), "rhythmer");
-	insChordAct = new KAction(i18n("&Chord..."), "chord", KAccel::stringToKey("Shift+C"),
+	insChordAct = new KAction(i18n("&Chord..."), "chord", SHIFT + Key_C,
 	                          sv->tv, SLOT(insertChord()), actionCollection(), "insert_chord");
 
 	saveOptionAct = new KAction(i18n("&Save Options"), 0, this,
 	                            SLOT(saveOptions()), actionCollection(), "save_options");
 
-	arrTrkAct = new KAction(i18n("&Arrange Track"), KAccel::stringToKey("Shift+A"), sv->tv,
+	arrTrkAct = new KAction(i18n("&Arrange Track"), SHIFT + Key_A, sv->tv,
 	                        SLOT(arrangeTracks()), actionCollection(), "arrange_trk");
 
+	// LESS THAN TRIVIAL MOVING STUFF ACTIONS
+	(void) new KAction(i18n("Transpose up"), 0, CTRL + Key_Up,
+					   sv->tv, SLOT(transposeUp()), actionCollection(), "transpose_up");
+	(void) new KAction(i18n("Transpose down"), 0, CTRL + Key_Down,
+					   sv->tv, SLOT(transposeDown()), actionCollection(), "transpose_down");
+
 	// SET UP DURATION
-	len1Act = new KAction(i18n("Whole"), "note1", KAccel::stringToKey("Ctrl+1"),
-						  sv->tv, SLOT(setLength1()), actionCollection(), "set_len1");
-	len2Act = new KAction("1/2", "note2", KAccel::stringToKey("Ctrl+2"),
-						  sv->tv, SLOT(setLength2()), actionCollection(), "set_len2");
-	len4Act = new KAction("1/4", "note4", KAccel::stringToKey("Ctrl+3"),
-						  sv->tv, SLOT(setLength4()), actionCollection(), "set_len4");
-	len8Act = new KAction("1/8", "note8", KAccel::stringToKey("Ctrl+4"),
-						  sv->tv, SLOT(setLength8()), actionCollection(), "set_len8");
-	len16Act = new KAction("1/16", "note16", KAccel::stringToKey("Ctrl+5"),
-						   sv->tv, SLOT(setLength16()), actionCollection(), "set_len16");
-	len32Act = new KAction("1/32", "note32", KAccel::stringToKey("Ctrl+6"),
-						   sv->tv, SLOT(setLength32()), actionCollection(), "set_len32");
+	(void) new KAction(i18n("Whole"), "note1", CTRL + Key_1,
+	                   sv->tv, SLOT(setLength1()), actionCollection(), "set_len1");
+	(void) new KAction("1/2", "note2", CTRL + Key_2,
+	                   sv->tv, SLOT(setLength2()), actionCollection(), "set_len2");
+	(void) new KAction("1/4", "note4", CTRL + Key_3,
+	                   sv->tv, SLOT(setLength4()), actionCollection(), "set_len4");
+	(void) new KAction("1/8", "note8", CTRL + Key_4,
+	                   sv->tv, SLOT(setLength8()), actionCollection(), "set_len8");
+	(void) new KAction("1/16", "note16", CTRL + Key_5,
+	                   sv->tv, SLOT(setLength16()), actionCollection(), "set_len16");
+	(void) new KAction("1/32", "note32", CTRL + Key_6,
+	                   sv->tv, SLOT(setLength32()), actionCollection(), "set_len32");
+	(void) new KAction(i18n("Dotted note"), "dotted_note", Key_Period,
+	                   sv->tv, SLOT(dotNote()), actionCollection(), "dotted_note");
+	(void) new KAction(i18n("Triplet note"), "triplet", Key_T,
+	                   sv->tv, SLOT(tripletNote()), actionCollection(), "triplet");
+	(void) new KAction(i18n("More duration"), 0, Key_Equal,
+	                   sv->tv, SLOT(keyPlus()), actionCollection(), "more_duration");
+	(void) new KAction(i18n("Less duration"), 0, Key_Minus,
+	                   sv->tv, SLOT(keyMinus()), actionCollection(), "less_duration");
 
 	// SET UP EFFECTS
-	keySigAct = new KAction(i18n("Key signature"), "keysig",
-							 KAccel::stringToKey("Shift+K"), sv->tv, SLOT(keySig()),
-							 actionCollection(), "key_sig");
-	timeSigAct = new KAction(i18n("Time signature"), "timesig",
-							 KAccel::stringToKey("Shift+T"), sv->tv, SLOT(timeSig()),
-							 actionCollection(), "time_sig");
-	arcAct = new KAction(i18n("Link with previous column"), "arc",
-						 KAccel::stringToKey("L"), sv->tv, SLOT(linkPrev()),
-						 actionCollection(), "link_prev");
-	legatoAct = new KAction(i18n("Legato (hammer on/pull off)"), "fx_legato",
-							KAccel::stringToKey("P"), sv->tv, SLOT(addLegato()),
-							actionCollection(), "fx_legato");
-	slideAct = new KAction(i18n("Slide"), "fx_slide",
-	                       KAccel::stringToKey("S"), sv->tv, SLOT(addSlide()),
-	                       actionCollection(), "fx_slide");
-	letRingAct = new KAction(i18n("Let Ring"), "fx_let_ring",
-	                         KAccel::stringToKey("I"), sv->tv, SLOT(addLetRing()),
-	                         actionCollection(), "fx_let_ring");
-	natHarmAct = new KAction(i18n("Natural harmonic"), "fx_harmonic",
-	                         KAccel::stringToKey("H"), sv->tv, SLOT(addHarmonic()),
-	                         actionCollection(), "fx_nat_harm");
-	artHarmAct = new KAction(i18n("Artificial harmonic"), "fx_harmonic",
-	                         KAccel::stringToKey("R"), sv->tv, SLOT(addArtHarm()),
-	                         actionCollection(), "fx_art_harm");
-	palmMuteAct = new KAction(i18n("Palm muting"), "fx_palmmute",
-	                          KAccel::stringToKey("M"), sv->tv, SLOT(palmMute()),
-	                          actionCollection(), "fx_palmmute");
+	keySigAct = new KAction(i18n("Key signature"), "keysig", SHIFT + Key_K,
+	                        sv->tv, SLOT(keySig()), actionCollection(), "key_sig");
+	timeSigAct = new KAction(i18n("Time signature"), "timesig", SHIFT + Key_T,
+	                         sv->tv, SLOT(timeSig()), actionCollection(), "time_sig");
+	arcAct = new KAction(i18n("Link with previous column"), "arc", Key_L,
+	                     sv->tv, SLOT(linkPrev()), actionCollection(), "link_prev");
+	legatoAct = new KAction(i18n("Legato (hammer on/pull off)"), "fx_legato", Key_P,
+	                        sv->tv, SLOT(addLegato()), actionCollection(), "fx_legato");
+	slideAct = new KAction(i18n("Slide"), "fx_slide", Key_S,
+	                       sv->tv, SLOT(addSlide()), actionCollection(), "fx_slide");
+	letRingAct = new KAction(i18n("Let Ring"), "fx_let_ring", Key_I,
+	                         sv->tv, SLOT(addLetRing()), actionCollection(), "fx_let_ring");
+	natHarmAct = new KAction(i18n("Natural harmonic"), "fx_harmonic", Key_H,
+	                         sv->tv, SLOT(addHarmonic()), actionCollection(), "fx_nat_harm"); 
+	artHarmAct = new KAction(i18n("Artificial harmonic"), "fx_harmonic", Key_R,
+	                         sv->tv, SLOT(addArtHarm()), actionCollection(), "fx_art_harm");
+	palmMuteAct = new KAction(i18n("Palm muting"), "fx_palmmute", Key_M,
+	                          sv->tv, SLOT(palmMute()), actionCollection(), "fx_palmmute");
+	(void) new KAction(i18n("Dead note"), 0, Key_X,
+	                   sv->tv, SLOT(deadNote()), actionCollection(), "fx_palmmute");
 
 	// SET UP 'Note Names'
 
     // SET UP MIDI-PLAY
-	midiPlaySongAct = new KAction(i18n("&Play / stop"), "1rightarrow",
-								   KAccel::stringToKey("Space"), sv, SLOT(playSong()),
-								   actionCollection(), "midi_playsong");
-	midiStopPlayAct = new KAction(i18n("&Stop"), "player_stop",
-								  KAccel::stringToKey("Ctrl+Shift+P"), sv, SLOT(stopPlay()),
-								  actionCollection(), "midi_stopplay");
+	midiPlaySongAct = new KAction(i18n("&Play / stop"), "1rightarrow", Key_Space,
+	                              sv, SLOT(playSong()), actionCollection(), "midi_playsong");
+	midiStopPlayAct = new KAction(i18n("&Stop"), "player_stop", CTRL + SHIFT + Key_P,
+	                              sv, SLOT(stopPlay()), actionCollection(), "midi_stopplay");
 #ifndef WITH_TSE3
 	midiPlaySongAct->setEnabled(FALSE);
 	midiStopPlayAct->setEnabled(FALSE);
@@ -605,49 +603,38 @@ void KGuitarPart::setupAccels()
 	mainAccel = new KAccel(sv->tv);
 
 	// ...FOR CURSOR
-	mainAccel->insert("key_left", i18n("Move cursor left"), QString::null,
+	mainAccel->insert("prev_column", i18n("Move cursor left"), QString::null,
 	                  Key_Left, sv->tv, SLOT(keyLeft()));
-	mainAccel->insert("key_right", i18n("Move cursor right"), QString::null,
+	mainAccel->insert("next_column", i18n("Move cursor right"), QString::null,
 	                  Key_Right, sv->tv, SLOT(keyRight()));
-	mainAccel->insert("key_home", i18n("Move cursor to the beginning of bar"), QString::null,
+	mainAccel->insert("start_bar", i18n("Move cursor to the beginning of bar"), QString::null,
 	                  Key_Home, sv->tv, SLOT(keyHome()));
-	mainAccel->insert("key_end", i18n("Move cursor to the end of bar"), QString::null,
+	mainAccel->insert("end_bar", i18n("Move cursor to the end of bar"), QString::null,
 	                  Key_End, sv->tv, SLOT(keyEnd()));
-	mainAccel->insert("key_CtrlHome", i18n("Move cursor to the beginning of track"), QString::null,
-	                  Key_Control + Key_Home, sv->tv, SLOT(keyCtrlHome()));
-	mainAccel->insert("key_CtrlEnd", i18n("Move cursor to the end of track"), QString::null,
-	                  Key_Control + Key_End, sv->tv, SLOT(keyCtrlEnd()));
-	mainAccel->insert("key_ShiftLeft", i18n("Move and select left"), QString::null,
-	                  Key_Shift + Key_Left, sv->tv, SLOT(selectLeft()));
-	mainAccel->insert("key_ShiftRight", i18n("Move and select right"), QString::null,
-	                  Key_Shift + Key_Right, sv->tv, SLOT(selectRight()));
-
+	mainAccel->insert("prev_bar", i18n("Move cursor to the previous bar"), QString::null,
+	                  CTRL + Key_Left, sv->tv, SLOT(keyLeftBar()));
+	mainAccel->insert("next_bar", i18n("Move cursor to the next bar"), QString::null,
+	                  CTRL + Key_Right, sv->tv, SLOT(keyRightBar()));
+	mainAccel->insert("start_track", i18n("Move cursor to the beginning of track"), QString::null,
+	                  CTRL + Key_Home, sv->tv, SLOT(keyCtrlHome()));
+	mainAccel->insert("end_track", i18n("Move cursor to the end of track"), QString::null,
+	                  CTRL + Key_End, sv->tv, SLOT(keyCtrlEnd()));
+	mainAccel->insert("select_prev_column", i18n("Move and select left"), QString::null,
+	                  SHIFT + Key_Left, sv->tv, SLOT(selectLeft()));
+	mainAccel->insert("select_next_column", i18n("Move and select right"), QString::null,
+	                  SHIFT + Key_Right, sv->tv, SLOT(selectRight()));
 	mainAccel->insert("key_up", i18n("Move cursor up"), QString::null,
 	                  Key_Up, sv->tv, SLOT(moveUp()));
 	mainAccel->insert("key_down", i18n("Move cursor down"), QString::null,
 	                  Key_Down, sv->tv, SLOT(moveDown()));
-	mainAccel->insert("key_CtrlUp", i18n("Transpose up"), QString::null,
-	                  Key_Control + Key_Up, sv->tv, SLOT(transposeUp()));
-	mainAccel->insert("key_CtrlDown", i18n("Transpose down"), QString::null,
-	                  Key_Control + Key_Down, sv->tv, SLOT(transposeDown()));
 
     // ...FOR OTHER KEYS
-	mainAccel->insert("key_x", i18n("Dead note"), QString::null,
-	                  Key_X, sv->tv, SLOT(deadNote()));
 	mainAccel->insert("key_del", i18n("Delete note"), QString::null,
 	                  Key_Delete, sv->tv, SLOT(deleteNote()));
 	mainAccel->insert("key_CtrlDel", i18n("Delete column"), QString::null,
-	                  Key_Control + Key_Delete, sv->tv, SLOT(deleteColumn()));
+	                  CTRL + Key_Delete, sv->tv, SLOT(deleteColumn()));
 	mainAccel->insert("key_ins", i18n("Insert column"), QString::null,
 	                  Key_Insert, sv->tv, SLOT(insertColumn()));
-	mainAccel->insert("key_period", i18n("Dotted note"), QString::null,
-	                  Key_Period, sv->tv, SLOT(dotNote()));
-	mainAccel->insert("key_t", i18n("Triplet note"), QString::null,
-	                  Key_T, sv->tv, SLOT(tripletNote()));
-	mainAccel->insert("key_equal", i18n("More duration"), QString::null,
-	                  Key_Equal, sv->tv, SLOT(keyPlus()));
-	mainAccel->insert("key_minus", i18n("Less duration"), QString::null,
-	                  Key_Minus, sv->tv, SLOT(keyMinus()));
 
     // ...FOR KEY '0' - '9'
 	mainAccel->insert("key_1", i18n("Key 1"), QString::null, Key_1, sv->tv, SLOT(key1()));
@@ -664,7 +651,10 @@ void KGuitarPart::setupAccels()
 
 void KGuitarPart::clipboardDataChanged()
 {
-	pasteAct->setEnabled(TrackDrag::canDecode(QApplication::clipboard()->data()));
+	KAction *paste = actionCollection()->action(KStdAction::stdName(KStdAction::Paste));
+	if (!paste)
+		return;
+	paste->setEnabled(TrackDrag::canDecode(QApplication::clipboard()->data()));
 }
 
 void KGuitarPart::updateStatusBar()
