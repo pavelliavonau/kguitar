@@ -7,6 +7,8 @@
 #include "settabfret.h"
 #include "setsong.h"
 
+#include <klocale.h>
+
 #include <qsplitter.h>
 #include <qlayout.h>
 #include <qlineedit.h>
@@ -16,8 +18,8 @@
 
 SongView::SongView(QWidget *parent = 0, const char *name = 0): QWidget(parent, name)
 {
-	song = new TabSong("Unnamed", 120);
-	song->t.append(new TabTrack(FretTab, "Guitar", 1, 0, 25, 6, 24));
+	song = new TabSong(i18n("Unnamed"), 120);
+	song->t.append(new TabTrack(FretTab, i18n("Guitar"), 1, 0, 25, 6, 24));
 
  	split = new QSplitter(this);
  	split->setOrientation(QSplitter::Vertical);
@@ -25,7 +27,7 @@ SongView::SongView(QWidget *parent = 0, const char *name = 0): QWidget(parent, n
 	tv = new TrackView(song, split);
 	tl = new TrackList(song, split);
 
-	connect(tl, SIGNAL(clicked(QListViewItem*)), tv, SLOT(selectTrack(QListViewItem*)));
+	connect(tl, SIGNAL(selectionChanged(QListViewItem*)), tv, SLOT(selectTrack(QListViewItem*)));
 
 	QBoxLayout *l = new QVBoxLayout(this);
 	l->addWidget(split);
