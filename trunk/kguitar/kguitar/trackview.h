@@ -96,6 +96,8 @@ public slots:
 	void zoomOut();
 	void zoomLevelDialog();
 
+	void setMelodyClick(int num, int fret, ButtonState button);
+
 	void selectTrack(TabTrack *);
 	void selectBar(uint);
 	void ensureCurrentVisible();
@@ -103,7 +105,7 @@ public slots:
 signals:
 	void statusBarChanged();
 	void paneChanged();
-	void newTrackSelected();
+	void trackChanged(TabTrack *);
 
 protected:
 	void repaintCellNumber(int n);

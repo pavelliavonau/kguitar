@@ -62,9 +62,6 @@ TrackView::TrackView(TabSong *s, KXMLGUIClient *_XMLGUIClient, KCommandHistory *
 	song = s;
 	setCurrentTrack(s->t.first());
 
-	fretboard = new Fretboard(curt);
-	fretboard->show();
-
 	updateRows();
 
  	smallCaptionFont = new QFont(KGlobalSettings::generalFont());
@@ -117,7 +114,7 @@ void TrackView::selectBar(uint n)
 void TrackView::setCurrentTrack(TabTrack *trk)
 {
 	curt = trk;
-	emit newTrackSelected();
+	emit trackChanged(trk);
 }
 
 // Set new horizontal zoom level and update display accordingly
@@ -188,8 +185,33 @@ void TrackView::ensureCurrentVisible()
 	ensureCellVisible(curt->xb, 0);
 }
 
+// Set number of fret "fret" in current column on string
+// "num". Depending on given "button" mouse state flags, additional
+// things may happen.
+void TrackView::setMelodyClick(int num, int fret, ButtonState button = NoButton)
+{
+	setFinger(num, fret);
+	if (button & MidButton) {
+		setFinger(num + 1, fret + 2);
+		setFinger(num + 2, fret + 2);
+	}
+	if (button & RightButton || button & MidButton) {
+		if (curt->sel) {
+			curt->sel = FALSE;
+			repaintContents();
+		}
+		moveRight();
+	} else {
+		repaintCurrentColumn();
+	}
+}
+
 void TrackView::setFinger(int num, int fret)
 {
+	if (num < 0 || num >= curt->string)
+		return;
+	if (fret > curt->frets)
+		return;
 	curt->c[curt->x].a[num] = fret;
 }
 

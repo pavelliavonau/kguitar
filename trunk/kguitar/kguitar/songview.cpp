@@ -17,6 +17,7 @@
 #include "chordlist.h"
 #include "chordlistitem.h"
 #include "songprint.h"
+#include "melodyeditor.h"
 
 #include <kapp.h>
 #include <kstddirs.h>
@@ -49,6 +50,7 @@
 #include <tse3/Error.h>
 #endif
 
+// GREYFIX
 using namespace std;
 
 #include <iostream>
@@ -78,8 +80,11 @@ SongView::SongView(KXMLGUIClient *_XMLGUIClient, KCommandHistory *_cmdHist,
 	tl->setSelected(tl->firstChild(), TRUE);
 	tp = new TrackPane(song, tl->header()->height(), tl->firstChild()->height(), splitv);
 
-	connect(tl, SIGNAL(newTrackSelected(TabTrack *)), tv, SLOT(selectTrack(TabTrack *)));
-	connect(tp, SIGNAL(newTrackSelected(TabTrack *)), tv, SLOT(selectTrack(TabTrack *)));
+	me = new MelodyEditor(tv);
+	me->show();
+
+	connect(tl, SIGNAL(trackChanged(TabTrack *)), tv, SLOT(selectTrack(TabTrack *)));
+	connect(tp, SIGNAL(trackChanged(TabTrack *)), tv, SLOT(selectTrack(TabTrack *)));
 	connect(tp, SIGNAL(newBarSelected(uint)), tv, SLOT(selectBar(uint)));
 	connect(tv, SIGNAL(paneChanged()), tp, SLOT(update()));
 

@@ -112,7 +112,7 @@ void SetTrackPropCommand::execute()
 	for (int i = 0; i < newstring; i++)
 		trk->tune[i] = newtune[i];
 
-	tv->selectTrack(trk); // artificially needed to emit newTrackSelected()
+	tv->selectTrack(trk); // artificially needed to emit track selection
 	tl->updateList();
 	tp->updateList();
 }
@@ -136,7 +136,7 @@ void SetTrackPropCommand::unexecute()
 	for (int i = 0; i < oldstring; i++)
 		trk->tune[i] = oldtune[i];
 
-	tv->selectTrack(trk); // artificially needed to emit newTrackSelected()
+	tv->selectTrack(trk); // artificially needed to emit track selection
 	tl->updateList();
 	tp->updateList();
 }
