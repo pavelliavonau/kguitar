@@ -84,6 +84,7 @@ KGuitarPart::KGuitarPart(QWidget *parentWidget,
 
 	connect(sv->tv, SIGNAL(trackChanged(TabTrack *)), SLOT(updateToolbars(TabTrack *)));
 	connect(QApplication::clipboard(), SIGNAL(dataChanged()), SLOT(clipboardDataChanged()));
+	connect(sv->tv, SIGNAL(barChanged()), SLOT(updateStatusBar()));
 
 	setXMLFile("kguitar_part.rc");
 
@@ -106,11 +107,9 @@ void KGuitarPart::setReadWrite(bool rw)
 {
 	sv->setReadOnly(!rw);
 	if (rw)	{
-		connect(sv, SIGNAL(songChanged()),
-		        this, SLOT(setModified()));
+		connect(sv, SIGNAL(songChanged()), this, SLOT(setModified()));
 	} else {
-		disconnect(sv, SIGNAL(songChanged()),
-		           this, SLOT(setModified()));
+		disconnect(sv, SIGNAL(songChanged()), this, SLOT(setModified()));
 	}
 
 	ReadWritePart::setReadWrite(rw);
@@ -184,7 +183,7 @@ bool KGuitarPart::openFile()
 
 bool KGuitarPart::exportOptionsDialog(QString ext)
 {
-	// Skip dialog if user set appopriate option
+	// Skip dialog if user set appropriate option
 	if (!Settings::config->readBoolEntry("AlwaysShow", TRUE))
 		return TRUE;
 
@@ -494,19 +493,18 @@ void KGuitarPart::setupActions()
 	(void) new KAction(i18n("P&roperties..."), 0, sv, SLOT(songProperties()),
 	                   actionCollection(), "song_properties");
 
-	// EDIT CUT-N-PASTE ACTIONS
+	// EDIT ACTIONS
+	(void) KStdAction::undo(cmdHist, SLOT(undo()), actionCollection());
+	(void) KStdAction::redo(cmdHist, SLOT(redo()), actionCollection());
 	(void) KStdAction::cut(sv, SLOT(slotCut()), actionCollection());
 	(void) KStdAction::copy(sv, SLOT(slotCopy()), actionCollection());
 	(void) KStdAction::paste(sv, SLOT(slotPaste()), actionCollection());
 	(void) KStdAction::selectAll(sv, SLOT(slotSelectAll()), actionCollection());
 
 	// VIEW ACTIONS
-	(void) new KAction(i18n("Zoom in"), "viewmag+", CTRL + Key_Equal,
-	                   sv->tv, SLOT(zoomIn()), actionCollection(), "zoom_in");
-	(void) new KAction(i18n("Zoom out"), "viewmag-", CTRL + Key_Minus,
-	                   sv->tv, SLOT(zoomOut()), actionCollection(), "zoom_out");
-	(void) new KAction(i18n("Zoom to..."), "viewmag", sv->tv,
-	                   SLOT(zoomLevelDialog()), actionCollection(), "zoom_level");
+	(void) KStdAction::zoomIn(sv->tv, SLOT(zoomIn()), actionCollection());
+	(void) KStdAction::zoomOut(sv->tv, SLOT(zoomOut()), actionCollection());
+	(void) KStdAction::zoom(sv->tv, SLOT(zoomLevelDialog()), actionCollection());
 	viewMelodyEditorAct = new KToggleAction(i18n("Show Melody Editor"), "melodyeditor",
 	                                        SHIFT + Key_M, this, SLOT(viewMelodyEditor()),
 	                                        actionCollection(), "view_melodyEditor");
