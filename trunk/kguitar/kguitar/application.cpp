@@ -307,7 +307,7 @@ void ApplicationWindow::print()
 
 void ApplicationWindow::closeDoc()
 {
-	close( TRUE ); // close AND DELETE!
+	close(TRUE); // close AND DELETE!
 }
 
 void ApplicationWindow::inschord()
@@ -354,8 +354,8 @@ void ApplicationWindow::trackProperties()
 
 	st->fret->setString(tv->trk()->string);
 	st->fret->setFrets(tv->trk()->frets);
-	for (int i=0;i<tv->trk()->string;i++)
-		st->fret->setTune(i,tv->trk()->tune[i]);
+	for (int i = 0; i < tv->trk()->string; i++)
+		st->fret->setTune(i, tv->trk()->tune[i]);
 
 	if (st->exec()) {
 		tv->trk()->name = st->title->text();
@@ -365,7 +365,7 @@ void ApplicationWindow::trackProperties()
 		
 		tv->trk()->string = st->fret->string();
 		tv->trk()->frets = st->fret->frets();
-		for (int i=0;i<tv->trk()->string;i++)
+		for (int i = 0; i < tv->trk()->string; i++)
 			tv->trk()->tune[i] = st->fret->tune(i);
 	}
 
@@ -385,14 +385,16 @@ void ApplicationWindow::options()
 	op->showpagenumb->setChecked(global_showpagenumb);
 
 	if (op->exec()) {
-		if (op->maj7[0]->isChecked())  global_maj7=0;
-		if (op->maj7[1]->isChecked())  global_maj7=1;
-		if (op->maj7[2]->isChecked())  global_maj7=2;
-		if (op->flat[0]->isChecked())  global_flatplus=0;
-		if (op->flat[1]->isChecked())  global_flatplus=1;
+		if (op->maj7[0]->isChecked())  global_maj7 = 0;
+		if (op->maj7[1]->isChecked())  global_maj7 = 1;
+		if (op->maj7[2]->isChecked())  global_maj7 = 2;
 
-		for (int i=0;i<=3;i++)
+		if (op->flat[0]->isChecked())  global_flatplus = 0;
+		if (op->flat[1]->isChecked())  global_flatplus = 1;
+
+		for (int i = 0;i <= 3; i++)
 			if (op->tabsize[i]->isChecked()) global_tabsize = i;
+
 		global_showbarnumb = op->showbarnumb->isChecked();
 		global_showstr = op->showstr->isChecked();
 		global_showpagenumb = op->showpagenumb->isChecked();
@@ -404,24 +406,28 @@ void ApplicationWindow::options()
 
 void ApplicationWindow::readOptions()
 {
-	kapp->getConfig()->setGroup("GlobalOptions");
-	global_maj7 = kapp->getConfig()->readNumEntry("global_maj7", 0);
-	global_flatplus = kapp->getConfig()->readNumEntry("global_flatplus", 0);
-	global_notenames = kapp->getConfig()->readNumEntry("global_notenames", 0);
-	global_tabsize = kapp->getConfig()->readNumEntry("global_tabsize", 2);
-	global_showbarnumb = kapp->getConfig()->readBoolEntry("global_showbarnumb", TRUE);
-	global_showstr = kapp->getConfig()->readBoolEntry("global_showstr", TRUE);
-	global_showpagenumb = kapp->getConfig()->readBoolEntry("global_showpagenumb", TRUE);
+	kapp->getConfig()->setGroup("General");
+	global_maj7 = kapp->getConfig()->readNumEntry("maj7", 0);
+	global_flatplus = kapp->getConfig()->readNumEntry("flatplus", 0);
+	global_notenames = kapp->getConfig()->readNumEntry("notenames", 0);
+
+	kapp->getConfig()->setGroup("MusiXTeX");
+	global_tabsize = kapp->getConfig()->readNumEntry("tabsize", 2);
+	global_showbarnumb = kapp->getConfig()->readBoolEntry("showbarnumb", TRUE);
+	global_showstr = kapp->getConfig()->readBoolEntry("showstr", TRUE);
+	global_showpagenumb = kapp->getConfig()->readBoolEntry("showpagenumb", TRUE);
 }
 
 void ApplicationWindow::saveOptions()
 {
-	kapp->getConfig()->setGroup("GlobalOptions");
-	kapp->getConfig()->writeEntry("global_maj7", global_maj7);
-	kapp->getConfig()->writeEntry("global_flatplus", global_flatplus);
-	kapp->getConfig()->writeEntry("global_notenames", global_notenames);
-	kapp->getConfig()->writeEntry("global_tabsize", global_tabsize);
-	kapp->getConfig()->writeEntry("global_showbarnumb", global_showbarnumb);
-	kapp->getConfig()->writeEntry("global_showstr", global_showstr);
-	kapp->getConfig()->writeEntry("global_showpagenumb", global_showpagenumb);
+	kapp->getConfig()->setGroup("General");
+	kapp->getConfig()->writeEntry("maj7", global_maj7);
+	kapp->getConfig()->writeEntry("flatplus", global_flatplus);
+	kapp->getConfig()->writeEntry("notenames", global_notenames);
+
+	kapp->getConfig()->setGroup("MusiXTeX");
+	kapp->getConfig()->writeEntry("tabsize", global_tabsize);
+	kapp->getConfig()->writeEntry("showbarnumb", global_showbarnumb);
+	kapp->getConfig()->writeEntry("showstr", global_showstr);
+	kapp->getConfig()->writeEntry("showpagenumb", global_showpagenumb);
 }
