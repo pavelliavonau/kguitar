@@ -106,6 +106,7 @@ void TrackView::repaintCellNumber(int n)
 void TrackView::repaintCurrentCell()
 {
 	repaintCellNumber(curt->xb);
+	emit paneChanged();
 }
 
 void TrackView::repaintCurrentColumn()
@@ -115,6 +116,7 @@ void TrackView::repaintCurrentColumn()
 	int ycoord = 0;
 	if (rowYPos(curt->xb, &ycoord))
 		repaint(selxcoord, ycoord, VERTLINE + 1, cellHeight());
+	emit paneChanged();
 }
 
 // Checks is current bar is fully visible, and, if it's not, tries to
@@ -141,43 +143,35 @@ int TrackView::finger(int num)
 
 void TrackView::setLength(int l)
 {
-	if (curt->c[curt->x].l != l) {                       //only if needed
-		m_cmdHist->addCommand(new SetLengthCommand(l));
-
-		curt->c[curt->x].l = l; //ALINXFIX: remove this two lines if SetLengthCommand
-		repaintCurrentCell();   //          is implemented.
-	}
+	//only if needed
+	if (curt->c[curt->x].l != l)
+		m_cmdHist->addCommand(new SetLengthCommand(this, curt, l));
 }
 
 void TrackView::linkPrev()
 {
-	curt->c[curt->x].flags ^= FLAG_ARC;
-	for (uint i = 0; i < MAX_STRINGS; i++) {
-		curt->c[curt->x].a[i] = -1;
-		curt->c[curt->x].e[i] = 0;
-	}
-	repaintCurrentCell();
+	m_cmdHist->addCommand(new SetFlagCommand(this, curt, FLAG_ARC));
 	lastnumber = -1;
 }
 
 void TrackView::addHarmonic()
 {
-	curt->addFX(EFFECT_HARMONIC);
-	repaintCurrentCell();
+	if (curt->c[curt->x].a[curt->y] >= 0)
+		m_cmdHist->addCommand(new AddFXCommand(this, curt, EFFECT_HARMONIC));
 	lastnumber = -1;
 }
 
 void TrackView::addArtHarm()
 {
-	curt->addFX(EFFECT_ARTHARM);
-	repaintCurrentCell();
+	if (curt->c[curt->x].a[curt->y] >= 0)
+		m_cmdHist->addCommand(new AddFXCommand(this, curt, EFFECT_ARTHARM));
 	lastnumber = -1;
 }
 
 void TrackView::addLegato()
 {
-	curt->addFX(EFFECT_LEGATO);
-	repaintCurrentCell();
+	if (curt->c[curt->x].a[curt->y] >= 0)
+		m_cmdHist->addCommand(new AddFXCommand(this, curt, EFFECT_LEGATO));
 	lastnumber = -1;
 }
 
@@ -437,7 +431,7 @@ bool TrackView::moveFinger(int from, int dir)
 	int n0 = curt->c[curt->x].a[from];
 	int n = n0;
 	if (n < 0)
-	return FALSE;
+		return FALSE;
 
 	int to = from;
 
@@ -450,14 +444,8 @@ bool TrackView::moveFinger(int from, int dir)
 			return FALSE;
 	} while (curt->c[curt->x].a[to] != -1);
 
-	curt->c[curt->x].a[from] = -1;
-	curt->c[curt->x].a[to] = n;
+	m_cmdHist->addCommand(new MoveFingerCommand(this, curt, from, to, n));
 
-    // ...also for the effect parameter
-	curt->c[curt->x].e[to] = curt->c[curt->x].e[from];
-	curt->c[curt->x].e[from] = 0;
-
-	curt->y = to;
 	return TRUE;
 }
 
@@ -480,18 +468,10 @@ void TrackView::timeSig()
 		int time1 = sts->time1->value();
 		int time2 = ((QString) sts->time2->currentText()).toUInt();
 
-		// Sophisticated construction to mark all or only one bar with
-		// new sig, depending on user's selection of checkbox
-
-		for (uint i = curt->xb;
-			 i < (sts->toend->isChecked() ? curt->b.size() : curt->xb+1);
-			 i++) {
-			curt->b[i].time1 = time1;
-			curt->b[i].time2 = time2;
-		}
+		m_cmdHist->addCommand(new SetTimeSigCommand(this, curt, sts->toend->isChecked(),
+													time1, time2));
 	}
 
-	emit paneChanged();
 	lastnumber = -1;
 }
 
@@ -534,18 +514,9 @@ void TrackView::moveLeft()
 
 void TrackView::moveRight()
 {
-	if (curt->x + 1 == curt->c.size()) {
-		curt->c.resize(curt->c.size()+1);
-		curt->x++;
-		for (uint i = 0; i < MAX_STRINGS; i++) {  // Set it for all strings,
-			curt->c[curt->x].a[i] = -1;           // so we didn't get crazy
-			curt->c[curt->x].e[i] = 0;            // data - alinx
-		}
-		curt->c[curt->x].l = curt->c[curt->x - 1].l;
-		curt->c[curt->x].flags = 0;
-		updateRows();
-		repaintCurrentCell();
-	} else {
+	if (curt->x + 1 == curt->c.size())
+		m_cmdHist->addCommand(new AddColumnCommand(this, curt));
+	else {
 		if (curt->b.size() == curt->xb + 1)
 			curt->x++;
 		else {
@@ -600,8 +571,7 @@ void TrackView::moveUp()
 void TrackView::transposeUp()
 {
 	if (curt->y+1 < curt->string)
-		if (moveFinger(curt->y, 1))
-			repaintCurrentColumn();
+		moveFinger(curt->y, 1);
 	lastnumber = -1;
 }
 
@@ -619,103 +589,49 @@ void TrackView::moveDown()
 void TrackView::transposeDown()
 {
 	if (curt->y > 0)
-		if (moveFinger(curt->y, -1))
-			repaintCurrentColumn();
+		moveFinger(curt->y, -1);
 	lastnumber = -1;
 }
 
 void TrackView::deadNote()
 {
-	if (curt->c[curt->x].flags & FLAG_ARC)
-		curt->c[curt->x].flags -= FLAG_ARC;
-	curt->c[curt->x].a[curt->y] = DEAD_NOTE;
-
-	repaintCurrentCell();
-	emit paneChanged();
+	m_cmdHist->addCommand(new SetFlagCommand(this, curt, DEAD_NOTE));
 	lastnumber = -1;
 }
 
 void TrackView::deleteNote()
 {
-	if (curt->c[curt->x].a[curt->y] != -1) {
-		curt->c[curt->x].a[curt->y] = -1;
-		curt->c[curt->x].e[curt->y] = 0;
-		repaintCurrentColumn();
-		emit paneChanged();
-	}
+	if (curt->c[curt->x].a[curt->y] != -1)
+		m_cmdHist->addCommand(new DeleteNoteCommand(this, curt));
 	lastnumber = -1;
 }
 
 void TrackView::deleteColumn()
 {
-	bool p_all = FALSE;
-
-	if (curt->c.size() > 1) {
-
-		uint p_delta = 1;
-
-		//If we have some columns selected we have to delete
-		//these selected columns
-		if (curt->sel) {
-			if (curt->x <= curt->xsel)
-				p_delta = curt->xsel - curt->x;
-			else p_delta = curt->x - curt->xsel;
-
-			p_delta++;
-
-			//Check if all columns are selected
-			if (p_delta == curt->c.size()) {
-				p_delta--;
-				p_all = TRUE;
-			}
-		}
-
-		curt->removeColumn(p_delta);
-
-		if (curt->x == curt->c.size())
-			curt->x--;
-
-		curt->sel = FALSE;
-		curt->xsel = 0;
-
-		updateRows();
-	}
-
-	update();
-	emit paneChanged();
+	m_cmdHist->addCommand(new DeleteColumnCommand(this, curt));
 	lastnumber = -1;
+}
 
-	//If all of the track was selected then
-	//delete all notes of the first column
-	if (p_all) {
-		curt->x = 0;
-		for (int i = curt->string - 1; i >= 0; i--) {
-			curt->y = i;
-			deleteNote();
-		}
-	}
+void TrackView::deleteColumn(QString name)
+{
+	m_cmdHist->addCommand(new DeleteColumnCommand(name, this, curt));
 }
 
 void TrackView::insertColumn()
 {
-	curt->insertColumn(1);
-
-	update();
-	emit paneChanged();
+	m_cmdHist->addCommand(new InsertColumnCommand(this, curt));
 	lastnumber = -1;
 }
 
 void TrackView::palmMute()
 {
-	curt->c[curt->x].flags ^= FLAG_PM;
-	repaintCurrentCell();
+	m_cmdHist->addCommand(new SetFlagCommand(this, curt, FLAG_PM));
 	lastnumber = -1;
 }
 
 void TrackView::keyPeriod()
 {
-	curt->c[curt->x].flags ^= FLAG_DOT; // It's XOR :-)
-	repaintCurrentCell();
+	m_cmdHist->addCommand(new SetFlagCommand(this, curt, FLAG_DOT));
 	lastnumber = -1;
 }
 
@@ -758,11 +674,8 @@ void TrackView::insertTab(int num)
 		lastnumber = num;
 	}
 
-	if ((totab <= curt->frets) && (curt->c[curt->x].a[curt->y] != totab)) {
-		curt->c[curt->x].a[curt->y] = totab;
-		repaintCurrentColumn();
-		emit paneChanged();
-	}
+	if ((totab <= curt->frets) && (curt->c[curt->x].a[curt->y] != totab))
+		m_cmdHist->addCommand(new InsertTabCommand(this, curt, totab));
 }
 
 void TrackView::arrangeBars()

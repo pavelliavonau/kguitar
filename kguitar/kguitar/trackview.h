@@ -28,6 +28,9 @@ public:
 	void updateRows();
 	void arrangeBars();
 
+	void repaintCurrentCell();
+	void repaintCurrentColumn();
+
 public slots:
 	void setLength1() { setLength(480); };
 	void setLength2() { setLength(240); };
@@ -52,6 +55,7 @@ public slots:
 	void deadNote();
 	void deleteNote();
 	void deleteColumn();
+	void deleteColumn(QString name);
 	void insertColumn();
 	void palmMute();
 	void keyPeriod();
@@ -79,9 +83,7 @@ signals:
 	void newTrackSelected();
 
 protected:
-	void repaintCurrentCell();
 	void repaintCellNumber(int n);
-	void repaintCurrentColumn();
 
 	virtual void paintCell(QPainter *, int row, int col);
 	virtual void resizeEvent(QResizeEvent *e);
