@@ -3,14 +3,6 @@
 
 #include <qtableview.h>
 
-#define VERTSPACE 30
-#define VERTLINE 10
-#define HORDUR 4
-#define HORCELL 8
-#define TIMESIGSIZE 14
-
-#define BOTTOMDUR   VERTSPACE+VERTLINE*(s+1)
-
 class TabSong;
 class TabTrack;
 

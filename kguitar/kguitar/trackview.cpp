@@ -82,6 +82,15 @@ void TrackView::setLength(int l)
     repaint();
 }
 
+#define VERTSPACE 30
+#define VERTLINE 10
+#define HORDUR 4
+#define HORCELL 8
+#define TIMESIGSIZE 14
+#define HORSCALE 10
+
+#define BOTTOMDUR   VERTSPACE+VERTLINE*(s+1)
+
 void TrackView::paintCell(QPainter *p, int row, int col)
 {
     uint bn = row;                      // Drawing only this bar
@@ -174,7 +183,7 @@ void TrackView::paintCell(QPainter *p, int row, int col)
 	// Length of interval to next column - adjusted if dotted
 
 	xdelta = (curt->c[t].flags & FLAG_DOT ?
-		  curt->c[t].l*3/2 : curt->c[t].l) / 20 * HORCELL;
+		  curt->c[t].l*3/2 : curt->c[t].l) / HORSCALE * HORCELL;
 	if (xdelta<HORCELL)
 	    xdelta = HORCELL;
 
