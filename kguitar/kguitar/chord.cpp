@@ -11,6 +11,7 @@
 #include <klocale.h>
 #include <kmessagebox.h>
 #include <kdebug.h>
+#include <kapp.h>
 
 #include <qpushbutton.h>
 #include <qbuttongroup.h>
@@ -390,9 +391,10 @@ void ChordSelector::playMidi()
 
     // Play and wait for the end
 	transport.play(&tsong, 0);
-	while (transport.status() != TSE3::Transport::Resting) {
+	do {
+		kapp->processEvents();
 		transport.poll();
-	}
+	} while (transport.status() != TSE3::Transport::Resting);
 #endif
 }
 
