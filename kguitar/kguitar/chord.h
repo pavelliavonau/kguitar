@@ -6,6 +6,7 @@
 #include "globaloptions.h"
 
 #include "fingers.h"
+#include <qcombobox.h>
 
 #define STEPSIZE     40
 
@@ -25,7 +26,8 @@ class ChordSelector: public QDialog
 public:
     ChordSelector(TabTrack *p, QWidget *parent=0, const char *name=0);
     int  app(int x) { return fng->app(x); }
-    void setApp(int x, int fret) { fng->setApp(x,fret); }
+    void setApp(int x, int fret) { fng->setApp(x, fret); }
+	int  scheme() { return strum->currentItem(); }
 
 public slots:
     void detectChord();
@@ -38,9 +40,9 @@ private:
     TabTrack *parm;
 
     QLineEdit *chname; 
-    QListBox *tonic,*step3,*stephigh;
+    QListBox *tonic, *step3, *stephigh;
     ChordList *chords;
-    QComboBox *st[6],*inv;
+    QComboBox *st[6], *inv, *bassnote, *strum;
     QLabel *cnote[7];
     QButtonGroup *complexity;
     QRadioButton *complexer[3];
