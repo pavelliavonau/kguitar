@@ -130,8 +130,8 @@ void KGuitarPart::setModified(bool modified)
 
 KAboutData *KGuitarPart::createAboutData()
 {
-	KAboutData *aboutData = new KAboutData("kguitar", I18N_NOOP("KGuitarPart"), VERSION);
-	aboutData->addAuthor("KGuitar development team", 0, 0);
+	KAboutData *aboutData = new KAboutData("kguitar", "KGuitarPart", VERSION);
+	aboutData->addAuthor(i18n("KGuitar development team"), 0, 0);
 	return aboutData;
 }
 
@@ -531,7 +531,7 @@ void KGuitarPart::setupActions()
 	palmMuteAct = new KAction(i18n("Palm muting"), "fx_palmmute", Key_M,
 	                          sv->tv, SLOT(palmMute()), actionCollection(), "fx_palmmute");
 	(void) new KAction(i18n("Dead note"), 0, Key_X,
-	                   sv->tv, SLOT(deadNote()), actionCollection(), "fx_palmmute");
+	                   sv->tv, SLOT(deadNote()), actionCollection(), "deadnote");
 
 	// SET UP 'Note Names'
 
