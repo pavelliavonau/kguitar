@@ -15,6 +15,9 @@ extern int globalTexExpMode;
 // TSE3 MIDI port
 extern int globalMidiPort;
 
+// Printing
+extern int globalPrSty;
+
 // Features for global options
 
 extern QString maj7name[];

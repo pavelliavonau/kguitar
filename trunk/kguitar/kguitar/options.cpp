@@ -33,6 +33,8 @@ Options::Options(
 	setupMidiTab();
 #endif
 
+	setupPrintingTab();
+
 	resize(530, 300);
 	connect(this, SIGNAL(defaultClicked()), SLOT(defaultBtnClicked()));
 	connect(this, SIGNAL(okClicked()), SLOT(applyBtnClicked()));
@@ -159,6 +161,31 @@ void Options::setupMidiTab()
 }
 #endif
 
+void Options::setupPrintingTab()
+{
+	QFrame *prn = addPage(i18n("Printing"), 0,
+						  DesktopIcon("printmgr", KIcon::SizeMedium));
+
+    // Printing style group
+
+	prstygr = new QButtonGroup(i18n("Style"), prn);
+	prstygr->setMinimumSize(150, 110);
+	prsty[0] = new QRadioButton(i18n("tab"), prstygr);
+	prsty[1] = new QRadioButton(i18n("(not implemented) notes"), prstygr);
+	prsty[2] = new QRadioButton(i18n("(not implemented) notes + tab"), prstygr);
+	prsty[3] = new QRadioButton(i18n("(not implemented) notes + min tab"), prstygr);
+
+	QVBoxLayout *vb1 = new QVBoxLayout(prstygr, 15, 10);
+	vb1->addSpacing(5); // Cosmetic space
+	for (int i = 0; i < 4; i++)
+		vb1->addWidget(prsty[i]);
+	vb1->activate();
+
+	QHBoxLayout *vbcd = new QHBoxLayout(prn, 15, 10);
+	vbcd->addWidget(prstygr);
+	vbcd->activate();
+}
+
 void Options::fillMidiBox()
 {
 #ifdef WITH_TSE3
@@ -203,6 +230,11 @@ void Options::applyBtnClicked()
 	if (midiport->currentItem())
 		globalMidiPort = midiport->currentItem()->text(0).toInt();
 #endif
+
+	if (prsty[0]->isChecked())  globalPrSty = 0;
+	if (prsty[1]->isChecked())  globalPrSty = 1;
+	if (prsty[2]->isChecked())  globalPrSty = 2;
+	if (prsty[3]->isChecked())  globalPrSty = 3;
 }
 
 void Options::defaultBtnClicked()
@@ -215,4 +247,6 @@ void Options::defaultBtnClicked()
 	showstr->setChecked(TRUE);
 	showpagenumb->setChecked(TRUE);
 	texexpgr->setButton(0);
+
+	prstygr->setButton(0);
 }

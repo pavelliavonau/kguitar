@@ -25,14 +25,15 @@ public:
 			QWidget *parent = 0, char *name = 0,//##
 			bool modal = TRUE);
 
-    QButtonGroup *maj7gr,*flatgr, *texlygr, *texsizegr, *texexpgr;
-    QRadioButton *maj7[3],*flat[2], *tabsize[4], *expmode[2];
+    QButtonGroup *maj7gr,*flatgr, *texlygr, *texsizegr, *texexpgr, *prstygr;
+    QRadioButton *maj7[3],*flat[2], *tabsize[4], *expmode[2], *prsty[4];
     QCheckBox *showbarnumb, *showstr, *showpagenumb;
 
 protected:
 	void setupTheoryTab();
 	void setupMusixtexTab();
 	void setupMidiTab();
+	void setupPrintingTab();
 
 protected slots:
 	void fillMidiBox();

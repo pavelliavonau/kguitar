@@ -52,6 +52,9 @@ int globalTexExpMode;
 int globalMidiPort;
 bool globalHaveMidi;
 
+// Printing
+int globalPrSty;
+
 QString drum_abbr[128];
 
 bool isBrowserView;
@@ -593,6 +596,8 @@ void KGuitarPart::options()
 	op->showpagenumb->setChecked(globalShowPageNumb);
 	op->texexpgr->setButton(globalTexExpMode);
 
+	op->prstygr->setButton(globalPrSty);
+
 	op->exec();
 
 	delete op;
@@ -626,6 +631,9 @@ void KGuitarPart::readOptions()
 
  	config->setGroup("TSE3");
  	globalMidiPort = config->readNumEntry("Port", 64);
+
+	config->setGroup("Printing");
+	globalPrSty = config->readNumEntry("PrSty", 0);
 }
 
 void KGuitarPart::saveOptions()
@@ -653,6 +661,9 @@ void KGuitarPart::saveOptions()
 
  	config->setGroup("TSE3");
  	config->writeEntry("Port", globalMidiPort);
+
+	config->setGroup("Printing");
+	config->writeEntry("PrSty", globalPrSty);
 
 	config->sync();
 
