@@ -97,7 +97,7 @@ ChordSelector::ChordSelector(QWidget *parent=0, const char *name=0)
 	if (i>0) {
 	    st[i-1] = new QComboBox(FALSE,this);
 	    st[i-1]->setGeometry(230+i*STEPSIZE,190,STEPSIZE,20);
-	    st[i-1]->insertItem("");
+	    st[i-1]->insertItem("x");
 	    if ((i==2) || (i>=4)) {
 		st[i-1]->insertItem("-");
 		st[i-1]->insertItem("0");
@@ -445,7 +445,7 @@ void ChordSelector::findChords()
     int t = tonic->currentItem();
 
     notenum=1;
-    need[0]=0;
+    need[0]=t;
     cnote[0]->setText(note_name(t));
 
     switch (st[0]->currentItem()) {
