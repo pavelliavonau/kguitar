@@ -41,7 +41,7 @@ Remember, the tags look like "rel0-1".
 
 * Export everything from CVS, add the new ChangeLog
 
-	cvs -z9 -d username@cvs.kguitar.sourceforge.net:/cvsroot/kguitar/ export -r rel{version}-{number} kguitar
+	cvs -z9 -d username@cvs.sourceforge.net:/cvsroot/kguitar export -r rel{version}-{number} kguitar
 
 * Clean up CVS files and prepare a distribution:
 
