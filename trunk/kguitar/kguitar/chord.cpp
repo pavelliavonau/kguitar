@@ -31,7 +31,7 @@ QString note_name(int num)
 }
 
 ChordSelector::ChordSelector(QWidget *parent=0, const char *name=0)
-    :QDialog(parent,name,FALSE)
+    :QDialog(parent,name,TRUE)
 {
     QPushButton *ok, *cancel;
 
@@ -192,7 +192,7 @@ void ChordSelector::findChords()
 	min=maxfret+1;max=0;
 	for (j=0;j<=5;j++) {
 	  ok=FALSE;
-                if (app[j]!=0) {
+	        if (app[j]!=0) {
 		  if (app[j]<min)  min = app[j];
 		  if (app[j]>max)  max = app[j];
                 }
