@@ -6,7 +6,8 @@
 
 class QLineEdit;
 class QListBox;
-class QScrollBar;
+class QButtonGroup;
+class QRadioButton;
 class Fingering;
 class FingerList;
 
@@ -22,9 +23,10 @@ private:
     QLineEdit *chname; 
     QListBox *tonic,*step3; 
     QListBox *chords;
+    QButtonGroup *complexity;
+    QRadioButton *complexer[3];
     Fingering *fng;
     FingerList *fnglist;
 };
-
 
 #endif
