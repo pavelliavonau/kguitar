@@ -528,13 +528,12 @@ bool TabSong::save_to_tab(QString fileName)
 
 //////////////////////////////////////////////////////////////////////
 //
-// MusiXTeX/tabdefs.tex export - alinx
+// MusiXTeX/kgtabs.tex export - alinx
 //
 //
-// You need MusiTeX and the TeX-Macros tabdefs.tex by Roland Gelten
+// You need MusiTeX
 //
 // Download at ftp.dante.de/tex-archive/macros/musixtex/taupin
-//     and ftp.dante.de/tex-archive/macros/musixtex/taupin/add-ons
 //
 //                or http://www.gmd.de/Misc/Music
 //
@@ -546,7 +545,7 @@ QString TabSong::tab(bool chord, int string, int fret)
 	st.setNum(string);
 	fr.setNum(fret);
 	
-	if (chord==TRUE)
+	if (chord)
 		tmp="\\chotab";
 	else
 		tmp="\\tab";
@@ -556,6 +555,20 @@ QString TabSong::tab(bool chord, int string, int fret)
 	tmp += fr;
 	tmp += "}";
 	
+	return tmp;
+}
+
+QString TabSong::cleanString(QString str)  // insert control sequence
+{
+	QString tmp, toc;
+
+	for (uint i=0; i < str.size(); i++){
+		toc = str.mid(i, 1);
+		if ((toc == "<") || (toc == ">"))
+			tmp = tmp + "$" + toc + "$";
+		else
+			tmp = tmp + toc;
+	}
 	return tmp;
 }
 
@@ -625,8 +638,8 @@ bool TabSong::save_to_tex_tab(QString fileName)
 		tmp += "} \\quad \\tuning{3}{"+nn[1]+"} \\quad \\\\";
 		tmp += "\n";
 		tmp += "\\tuning{2}{"+nn[2];
-		tmp += "} \\quad \\tuning{4}{"+nn[0]+"}"; //ALFIX: Error at Bass (4 Strings) 
-		tmp += "\n";                              //standart: nn[0]="D" is not correct
+		tmp += "} \\quad \\tuning{4}{"+nn[0]+"}"; 
+		tmp += "\n";
 	}
 
 	if (trk->string==5){
@@ -653,7 +666,7 @@ bool TabSong::save_to_tex_tab(QString fileName)
 	}
 
 	if (trk->string>=7){
-		s << "Sorry, but MusiXTeX/tabdefs.tex has only 6 tablines" << "\n";
+		s << "Sorry, but MusiXTeX/kgtabs.tex has only 6 tablines" << "\n";
 		s << "\\end" << "\n";
 		f.close();
 		return FALSE;
@@ -665,9 +678,9 @@ bool TabSong::save_to_tex_tab(QString fileName)
 	if (trk->string<4)
 		tmp = "";
 
-	for (int i=(trk->string-1);i>=0;i--){       // ALFIX:   if it is an "D" you get an
-		showstr += " ";                          //         error from TeX
-		showstr += note_name(trk->tune[i]%12);   //         I have to fix it....
+	for (int i=(trk->string-1);i>=0;i--){
+		showstr += " ";
+		showstr += note_name(trk->tune[i]%12);
 	}
 
 	switch (trk->string){
@@ -695,11 +708,9 @@ bool TabSong::save_to_tex_tab(QString fileName)
 	s << "% You can download the latest version at:" << "\n";
 	s << "%          http://kguitar.sourceforge.net" << "\n";
 	s << "%" << "\n" << "%" << "\n";
-	s << "% You must have installed MusiXTeX and tabdefs.tex by R. Gelten" << "\n";
+	s << "% You must have installed MusiXTeX" << "\n";
 	s << "% This stuff you can download at:" << "\n" << "%" << "\n";
 	s << "%       ftp.dante.de/tex-archive/macros/musixtex/taupin" << "\n";
-	s << "%   and ftp.dante.de/tex-archive/macros/musixtex/taupin/add-ons" << "\n";
-	s << "%" << "\n";
 	s << "%    or http://www.gmd.de/Misc/Music" << "\n";
 	s << "%" << "\n" << "%" << "\n";
 	s << "% IMPORTANT: Note that this file should not be used with LaTeX" << "\n";
@@ -709,17 +720,17 @@ bool TabSong::save_to_tex_tab(QString fileName)
 	// TeX-File HEADER
 	s << "\\input musixtex" << "\n";
 	s << "\\input musixsty" << "\n";
-	s << "\\input tabdefs.tex" << "\n";
+	s << "\\input kgtabs.tex" << "\n";
 	
 	// SONG HEADER   
  
-	if (global_showpagenumb==FALSE)
+	if (!global_showpagenumb)
 		s << "\\nopagenumbers" << "\n";
  
-	s << "\\fulltitle{" << title << "}";
+	s << "\\fulltitle{" << cleanString(title) << "}";
 	s << "\n";
-	s << "\\subtitle{\\svtpoint\\bf Author: " << author << "}" << "\n";
-	s << "\\author{Transcribed by: " << transcriber;
+	s << "\\subtitle{\\svtpoint\\bf Author: " << cleanString(author) << "}" << "\n";
+	s << "\\author{Transcribed by: " << cleanString(transcriber);
 	s << "\\\\%" << "\n";
 	s << "        Tempo: " << tempo << "}";
 	s << "\n";
@@ -740,8 +751,8 @@ bool TabSong::save_to_tex_tab(QString fileName)
 	// TRACK DATA
 	int n = 1;       // Trackcounter
 	int cho;         // more than one string in this column
-	uint trksize;
 	int width;
+	uint trksize;
 	uint bbar;       // who are bars?
 	
 	for (; it.current(); ++it) { // For every track
@@ -754,7 +765,7 @@ bool TabSong::save_to_tex_tab(QString fileName)
 		s << "\n" << "\n"; // the 2nd LF is very important!!
 		s << tsize;
 		
-		if (global_showstr && (flatnote==FALSE))
+		if (global_showstr && (!flatnote))
 			s << showstr;
 		
 		s << "\\startextract" << "\n";

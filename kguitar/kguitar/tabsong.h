@@ -38,6 +38,7 @@ private:
     void len2dot(int l, int *len, bool *dot);
     QString tab(bool chord, int string, int fret);
 	QString getNote(QString note, int duration, bool dot);
+	QString cleanString( QString str);
 };
 
 #endif
