@@ -1,0 +1,9 @@
+[KDE Desktop Entry]
+Type=Application
+Exec=kguitar -caption "%c" %i %m
+Icon=kguitar
+Name=KGuitar
+DocPath=kguitar/index.html
+Comment=Tabulature editor for music instruments
+Comment[ru]=Редактор табулатур для музыкальных инструментов
+Terminal=0
