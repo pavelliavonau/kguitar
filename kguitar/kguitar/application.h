@@ -8,6 +8,7 @@ class KToolBar;
 class QPopupMenu;
 
 class ChordSelector;
+class TrackView;
 
 class ApplicationWindow: public KTMainWindow
 {
@@ -31,7 +32,7 @@ private slots:
 
 private:
     QPrinter *printer;
-    QMultiLineEdit *e;
+    TrackView *tv;
     KToolBar *fileTools;
     ChordSelector *cs;
     int mb, tb, sb;
