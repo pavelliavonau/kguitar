@@ -1,6 +1,8 @@
 #ifndef TABCOLUMN_H
 #define TABCOLUMN_H
 
+#include <qpoint.h>
+
 #include "global.h"
 #include "accidentals.h"
 
@@ -27,6 +29,25 @@
 #define NULL_NOTE       -1
 #define DEAD_NOTE       -2
 
+/***************************************************************************
+ * struct StemInfo
+ ***************************************************************************/
+
+// this struct holds info about a note stem:
+// - where it is attached
+// - if it has beams
+
+struct StemInfo {
+	QPoint bp;					// attach point
+	char l1;					// level 1 beam
+	char l2;					// level 2 beam
+	char l3;					// level 3 beam
+};
+
+/***************************************************************************
+ * class TabColumn
+ ***************************************************************************/
+
 class TabColumn {
 public:
 	int l;                              // Duration of note or chord
@@ -34,13 +55,16 @@ public:
 	char e[MAX_STRINGS];                // Effect parameter
 	uint flags;                         // Various flags
 
-	// TabColumn "volatile" data is calculated when needed, see tabtrack.cpp.
+	// TabColumn "volatile" data is calculated when needed,
+	// see musicxml.cpp, songprint.cpp and tabtrack.cpp.
 	// Used by MusicXML export and PostScript output.
 	char v[MAX_STRINGS];				// Voice assigned to note
 	char stp[MAX_STRINGS];				// Step
 	char alt[MAX_STRINGS];				// Alter
 	char oct[MAX_STRINGS];				// Octave
 	Accidentals::Accid acc[MAX_STRINGS];// Acidental
+	StemInfo stl;						// Lower stems
+	StemInfo stu;						// Upper stems
 	// End of volatile data
 
 	Q_UINT16 fullDuration();

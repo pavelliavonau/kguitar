@@ -35,8 +35,6 @@
 // accidentals and flags/beams. Therefore accidentals and beams need to be
 // determined before calculating horizontal note spacing.
 
-// LVIFIX: fix horizontal spacing
-
 // LVIFIX: check width of lower part note stems (seems a bit too thin)
 
 // LVIFIX: "link with previous" doesn't work well
@@ -69,6 +67,12 @@ using namespace std;
 
 static const QString notes[7] = {"C", "D", "E", "F", "G", "A", "B"};
 
+// local functions
+static char beamL1(int t, int v, int bn, TabTrack *trk);
+static char beamL2plus(int t, int v, int bn, int lvl, TabTrack *trk);
+static bool isRest(int t, TabTrack *trk);
+static bool mustBreakBeam(int t, int bn, TabTrack *trk);
+static int tStart(int t, int bn, TabTrack *trk);
 
 /***************************************************************************
  * class SongPrint
@@ -110,9 +114,43 @@ int SongPrint::barWidth(int bn, TabTrack *trk)
 	if (trk->showBarSig(bn))
 		w += tsgfw;				// space for timesig
 	w += nt0fw;					// space before first note
+	int cl = trk->b[bn].start;	// first column of bar
+	int wacc = 0;				// width accidental
+	// LVIFIX: replace by hasAccidental(int cl)
+	for (int i = 0; i < trk->string; i++) {
+		// if first column has note with accidental, add space
+		if ((trk->c[cl].a[i] > -1)
+			&& (trk->c[cl].acc[i] != Accidentals::None)) {
+			wacc = (int) (0.9 * wNote);
+		}
+	}
+	w += wacc;					// space for accidental
 	w += ntlfw;					// space after last note
 	w += 1;						// LVIFIX: the trailing vertical line
 	return w;
+}
+
+// calculate beams for track trk
+// LVIFIX: move to tabtrack.cpp ??
+
+void SongPrint::calcBeams(TabTrack *trk)
+{
+	// loop bn over all bars in this track
+	for (uint bn = 0; bn < trk->b.size(); bn++) {
+		// loop t over all columns in this bar and calculate beams
+		for (uint t = trk->b[bn].start; (int) t <= trk->lastColumn(bn); t++) {
+			trk->c[t].stl.bp.setX(0);
+			trk->c[t].stl.bp.setY(0);
+			trk->c[t].stl.l1 = beamL1(t, 0,bn, trk);
+			trk->c[t].stl.l2 = beamL2plus(t, 0, bn, 2, trk);
+			trk->c[t].stl.l3 = beamL2plus(t, 0, bn, 3, trk);
+			trk->c[t].stu.bp.setX(0);
+			trk->c[t].stu.bp.setY(0);
+			trk->c[t].stu.l1 = beamL1(t, 1,bn, trk);
+			trk->c[t].stu.l2 = beamL2plus(t, 1, bn, 2, trk);
+			trk->c[t].stu.l3 = beamL2plus(t, 1, bn, 3, trk);
+		}
+	}
 }
 
 // return width in pixels of column cl in track trk
@@ -122,8 +160,13 @@ int SongPrint::barWidth(int bn, TabTrack *trk)
 
 int SongPrint::colWidth(int cl, TabTrack *trk)
 {
+	// cout << "colWidth(" << cl << ")";
 	int w;
 	w = trk->c[cl].l;
+	// cout << " xpos=" << xpos;
+	// cout << " br8w=" << br8w;
+	// cout << " wNote=" << wNote;
+	// cout << " l=" << w;
 	w *= br8w;
 	w /= 21;
 	// adjust for dots and triplets
@@ -148,6 +191,47 @@ int SongPrint::colWidth(int cl, TabTrack *trk)
 			if (w < 2 * ysteptb)
 				w = 2 * ysteptb;
 	}
+
+	// corrections that apply only when printing notes
+	if (stNts) {
+		int emsa = 0;			// extra minimum space between notes due to acc.
+		int emsf = 0;			// extra minimum space between notes due to flag
+		// not the last column in a track
+		// and not the last column in a bar
+		if ((cl < (trk->c.size() - 1))
+			&& (cl != trk->lastColumn(trk->barNr(cl)))) {
+			for (int i = 0; i < trk->string; i++) {
+				// if next column has note with accidental, add space
+				if ((trk->c[cl + 1].a[i] > -1)
+					&& (trk->c[cl + 1].acc[i] != Accidentals::None)) {
+					emsa = (int) (0.6 * wNote);
+					// if note in voice 0 or 1 in this column has a flag
+					// and it is not beamed, add space
+					// LVIFIX: fix test
+					int dt;
+					bool res0;
+					bool res1;
+					int tp0;
+					int tp1;
+					bool tr;
+					res0 = trk->getNoteTypeAndDots(cl, 0, tp0, dt, tr);
+					res1 = trk->getNoteTypeAndDots(cl, 1, tp1, dt, tr);
+					if ((res0 && (tp0<=60) && (trk->c[cl].stl.l1 == 'n'))
+						|| (res1 && (tp1<=60) && (trk->c[cl].stu.l1 == 'n'))) {
+						emsf = (int) (0.6 * wNote);
+					}
+				}
+			}
+		}
+		int ms = (int) (1.5 * wNote);	// minimum space between notes
+		ms += emsa;
+		ms += emsf;
+		if (w < ms) {
+			w = ms;
+		}
+		// cout << " emsa=" << emsa;
+	}
+	// cout << " w=" << w << endl;
 	return w;
 }
 
@@ -440,23 +524,21 @@ void SongPrint::drawBar(int bn, TabTrack *trk, int es)
 
 	// space before first note
 	xpos += nt0fw;
+	int cl = trk->b[bn].start;	// first column of bar
+	int wacc = 0;				// width accidental
+	// LVIFIX: replace by hasAccidental(int cl)
+	for (int i = 0; i < trk->string; i++) {
+		// if first column has note with accidental, add space
+		if ((trk->c[cl].a[i] > -1)
+			&& (trk->c[cl].acc[i] != Accidentals::None)) {
+			// LVIFIX: make global const, used twice
+			wacc = (int) (0.9 * wNote);
+		}
+	}
+	xpos += wacc;
 
 	// init expandable space left for space distribution calculation
 	int barExpWidthLeft = barExpWidth(bn, trk);
-
-	// loop t over all columns in this bar and calculate beams
-	for (uint t = trk->b[bn].start; (int) t <= trk->lastColumn(bn); t++) {
-		stl[t].bp.setX(0);
-		stl[t].bp.setY(0);
-		stl[t].l1 = beamL1(t, 0,bn, trk);
-		stl[t].l2 = beamL2plus(t, 0, bn, 2, trk);
-		stl[t].l3 = beamL2plus(t, 0, bn, 3, trk);
-		stu[t].bp.setX(0);
-		stu[t].bp.setY(0);
-		stu[t].l1 = beamL1(t, 1,bn, trk);
-		stu[t].l2 = beamL2plus(t, 1, bn, 2, trk);
-		stu[t].l3 = beamL2plus(t, 1, bn, 3, trk);
-	}
 
 	// loop t over all columns in this bar and print them
 	for (uint t = trk->b[bn].start; (int) t <= trk->lastColumn(bn); t++) {
@@ -635,13 +717,13 @@ void SongPrint::drawBar(int bn, TabTrack *trk, int es)
 						}
 					}
 				}
-				if (stl[t].l1 != 'n') {
+				if (trk->c[t].stl.l1 != 'n') {
 					// note is beamed, don't draw lower stem and flag
 					drawNtStmCntAt(xpos, yl, yh, 0, 'd');
 					// remember position
-					stl[t].bp.setX((int) (xpos - 0.45 * wNote));
+					trk->c[t].stl.bp.setX((int) (xpos - 0.45 * wNote));
 					int yhd = yposst - (int) (ystepst * ((-0.4 + yl) / 2));
-					stl[t].bp.setY(yhd);
+					trk->c[t].stl.bp.setY(yhd);
 				} else {
 					drawNtStmCntAt(xpos, yl, yh, tp, 'd');
 				}
@@ -668,13 +750,13 @@ void SongPrint::drawBar(int bn, TabTrack *trk, int es)
 						}
 					}
 				}
-				if (stu[t].l1 != 'n') {
+				if (trk->c[t].stu.l1 != 'n') {
 					// note is beamed, don't draw upper stem and flag
 					drawNtStmCntAt(xpos, yl, yh, 0, 'u');
 					// remember position
-					stu[t].bp.setX((int) (xpos + 0.45 * wNote));
+					trk->c[t].stu.bp.setX((int) (xpos + 0.45 * wNote));
 					int yhd = yposst - (int) (ystepst * ((0.4 + yh) / 2));
-					stu[t].bp.setY(yhd);
+					trk->c[t].stu.bp.setY(yhd);
 				} else {
 					drawNtStmCntAt(xpos, yl, yh, tp, 'u');
 				}
@@ -861,8 +943,8 @@ void SongPrint::drawBar(int bn, TabTrack *trk, int es)
 
 	// draw beams
 	if (stNts) {
-		drawBeams(bn, stl, 'd', trk);
-		drawBeams(bn, stu, 'u', trk);
+		drawBeams(bn, 'd', trk);
+		drawBeams(bn, 'u', trk);
 	}
 
 	// space after last note
@@ -945,49 +1027,70 @@ void SongPrint::drawBeam(int x1, int x2, int y, char tp, char dir)
 	p->drawPolygon(a);
 }
 
-// draw beams of bar bn, all other info to be found in StemInfo std/stu
+// draw beams of bar bn, all other info to be found in StemInfo stl/stu
 
-void SongPrint::drawBeams(int bn, QMemArray<StemInfo> & stx, char dir,
-							TabTrack *trk)
+void SongPrint::drawBeams(int bn, char dir,	TabTrack *trk)
 {
-	// cout << "SongPrint::drawBeams(" << bn << ")" << endl;
+	// cout << "SongPrint::drawBeams(" << bn << ", " << dir << ")" << endl;
+	StemInfo * stxt = 0;
 	for (uint t = trk->b[bn].start; (int) t <= trk->lastColumn(bn); t++) {
 		/*
+		if (dir != 'd') {
+			stxt = & trk->c[t].stu;
+		} else {
+			stxt = & trk->c[t].stl;
+		}
 		cout
 			<< "t=" << t
-			<< " l1..3=" << stx[t].l1 << stx[t].l2 << stx[t].l3 << endl;
+			<< " l1..3=" << stxt->l1 << stxt->l2 << stxt->l3 << endl;
 		*/
 	}
 	int yextr = 0;
 	for (uint t = trk->b[bn].start; (int) t <= trk->lastColumn(bn); t++) {
-		if (stx[t].l1 == 's') {
+		if (dir != 'd') {
+			stxt = & trk->c[t].stu;
+		} else {
+			stxt = & trk->c[t].stl;
+		}
+		if (stxt->l1 == 's') {
 			// determine beam height: depends on highest/lowest note
 			// LVIFIX: support angled beams
 			uint i = t;
-			yextr = stx[i].bp.y();
+			if (dir != 'd') {
+				yextr = trk->c[i].stu.bp.y();
+			} else {
+				yextr = trk->c[i].stl.bp.y();
+			}
 			i++;
 			while ((int) i <= trk->lastColumn(bn)) {
 				if (dir != 'd') {
-					if (stx[i].bp.y() < yextr) {
-						yextr = stx[i].bp.y();
+					if (trk->c[i].stu.bp.y() < yextr) {
+						yextr = trk->c[i].stu.bp.y();
+					}
+					if (trk->c[i].stu.l1 == 'e') {
+						break;
 					}
 				} else {
-					if (stx[i].bp.y() > yextr) {
-						yextr = stx[i].bp.y();
+					if (trk->c[i].stl.bp.y() > yextr) {
+						yextr = trk->c[i].stl.bp.y();
 					}
-				}
-				if (stx[i].l1 == 'e') {
-					break;
+					if (trk->c[i].stl.l1 == 'e') {
+						break;
+					}
 				}
 				i++;
 			}
 		}
-		if (stx[t].l1 != 'n') {
+		if (stxt->l1 != 'n') {
 			// draw stem
-			int x1 = stx[t].bp.x();
+			int x1 = stxt->bp.x();
 			int x2 = 0;
 			if ((int) t < trk->lastColumn(bn)) {
-				x2 = stx[t+1].bp.x();
+				if (dir != 'd') {
+					x2 = trk->c[t+1].stu.bp.x();
+				} else {
+					x2 = trk->c[t+1].stl.bp.x();
+				}
 			}
 			int ydir;
 			int yh;
@@ -995,27 +1098,27 @@ void SongPrint::drawBeams(int bn, QMemArray<StemInfo> & stx, char dir,
 			if (dir != 'd') {
 				ydir = 1;
 				yh = yextr - ydir * (int) (3.5 * ystepst);
-				yl = stx[t].bp.y();
+				yl = stxt->bp.y();
 			} else {
 				ydir = -1;
-				yh = stx[t].bp.y();
+				yh = stxt->bp.y();
 				yl = yextr - ydir * (int) (3.5 * ystepst);
 			}
 			p->setPen(pLnBl);
 			p->drawLine(x1, yl, x1, yh);
 			// draw beams
 			if (dir != 'd') {
-				drawBeam(x1, x2, yh, stx[t].l1, dir);
+				drawBeam(x1, x2, yh, stxt->l1, dir);
 				yh = yh + (int) (0.8 * ystepst);
-				drawBeam(x1, x2, yh, stx[t].l2, dir);
+				drawBeam(x1, x2, yh, stxt->l2, dir);
 				yh = yh + (int) (0.8 * ystepst);
-				drawBeam(x1, x2, yh, stx[t].l3, dir);
+				drawBeam(x1, x2, yh, stxt->l3, dir);
 			} else {
-				drawBeam(x1, x2, yl, stx[t].l1, dir);
+				drawBeam(x1, x2, yl, stxt->l1, dir);
 				yl = yl - (int) (0.8 * ystepst);
-				drawBeam(x1, x2, yl, stx[t].l2, dir);
+				drawBeam(x1, x2, yl, stxt->l2, dir);
 				yl = yl - (int) (0.8 * ystepst);
-				drawBeam(x1, x2, yl, stx[t].l3, dir);
+				drawBeam(x1, x2, yl, stxt->l3, dir);
 			}
 		}
 	}
@@ -1081,7 +1184,7 @@ void SongPrint::drawLetRing(int x, int y)
 				x - ysteptb / 3, ypostb - y * ysteptb + ysteptb / 3);
 }
 
-// draw notehead of type t centered at x on staff line y
+// draw notehead of type t with accidental a centered at x on staff line y
 // note: lowest = 0, highest = 8
 // uses yposst but ignores xpos
 // LVIFIX: use xpos too ?
@@ -1122,17 +1225,20 @@ void SongPrint::drawNtHdCntAt(int x, int y, int t, Accidentals::Accid a)
 	p->setFont(fFeta);
 	p->drawText(x - wNote / 2, yposst - ystepst * y / 2, s);
 	// draw accidentals
-	int acc = 0;
+	int acc = 0;				// accidental char code
+	int accxposcor = 0;			// accidental xpos correction
 	if (a == Accidentals::Sharp) {
 		acc = 0x201c;
 	} else if (a == Accidentals::Flat) {
 		acc = 0x201e;
+		accxposcor = (int) (0.35 * wNote);
 	} else if (a == Accidentals::Natural) {
 		acc = 0x201d;
+		accxposcor = (int) (0.35 * wNote);
 	}
 	s = QChar(acc);
-	// LVIFIX: optimize position accidental
-	p->drawText((int) (x - 1.4 * wNote), yposst - ystepst * y / 2, s);
+	p->drawText((int) (x - 1.4 * wNote) + accxposcor,
+				yposst - ystepst * y / 2, s);
 }
 
 // draw notestem and flag of type t and direction dir centered at x
@@ -1242,6 +1348,10 @@ void SongPrint::drawPageHdr(int n, TabSong *song)
 
 void SongPrint::drawRstCntAt(int x, int y, int t)
 {
+//	cout << "drawRstCntAt("
+//		<< x << ", "
+//		<< y << ", "
+//		<< t << ")";
 	int restSym = 0;
 	int yoffset = 0;
 	switch (t) {
@@ -1267,6 +1377,7 @@ void SongPrint::drawRstCntAt(int x, int y, int t)
 	default:
 		return; // do nothing
 	} // end switch (t)
+//	cout << " restSym=" << restSym << endl;
 	QString s;
 	s = QChar(restSym);
 	p->setFont(fFeta);
@@ -1569,15 +1680,14 @@ void SongPrint::printSong(KPrinter *printer, TabSong *song)
 
 		TabTrack *trk = (song->t).at(trkPr);
 
-		// LVIFIX: may fail on out of memory
-		(void) stl.resize(trk->c.size());
-		(void) stu.resize(trk->c.size());
-
 		// Determine voices for each note
 		trk->calcVoices();
 
 		// Determine step/alter/octave/accidental for each note
 		trk->calcStepAltOct();
+
+		// Determine beams for this track
+		calcBeams(trk);
 
 	// LVIFIX: start debug only, remove
 	/*
