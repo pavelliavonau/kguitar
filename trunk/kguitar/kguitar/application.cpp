@@ -1,6 +1,7 @@
 #include "application.h"
 #include "chord.h"
 #include "global.h"
+#include "trackview.h"
 
 #include <qpopupmenu.h>
 
@@ -74,8 +75,10 @@ ApplicationWindow::ApplicationWindow(): KTMainWindow()
     menuBar()->insertSeparator();
     menuBar()->insertItem(i18n("&Help"), p);
 
-//     e = new QMultiLineEdit( this, "editor" );
-//     e->setFocus();
+    // MAIN WIDGET
+
+    tv = new TrackView(this);
+    setView(tv);
 
     cs = new ChordSelector();
 
@@ -89,6 +92,7 @@ ApplicationWindow::ApplicationWindow(): KTMainWindow()
 
 ApplicationWindow::~ApplicationWindow()
 {
+    delete tv;
     delete printer;
 }
 
@@ -114,18 +118,12 @@ void ApplicationWindow::load( const char *fileName )
     if ( !f.open( IO_ReadOnly ) )
 	return;
 
-    e->setAutoUpdate( FALSE );
-    e->clear();
-
     QTextStream t(&f);
     while ( !t.eof() ) {
 	QString s = t.readLine();
-	e->append( s );
     }
     f.close();
 
-    e->setAutoUpdate( TRUE );
-    e->repaint();
     setCaption( fileName );
     QString s;
     s.sprintf( "Loaded document %s", fileName );
@@ -139,37 +137,37 @@ void ApplicationWindow::save()
 
 void ApplicationWindow::print()
 {
-    const int MARGIN = 10;
-    int pageNo = 1;
+//     const int MARGIN = 10;
+//     int pageNo = 1;
 
-    if ( printer->setup(this) ) {		// printer dialog
-	statusBar()->message( "Printing..." );
-	QPainter p;
-	p.begin( printer );			// paint on printer
-	p.setFont( e->font() );
-	int yPos        = 0;			// y position for each line
-	QFontMetrics fm = p.fontMetrics();
-	QPaintDeviceMetrics metrics( printer ); // need width/height
-	                                         // of printer surface
-	for( int i = 0 ; i < e->numLines() ; i++ ) {
-	    if ( MARGIN + yPos > metrics.height() - MARGIN ) {
-		QString msg;
-		msg.sprintf( "Printing (page %d)...", ++pageNo );
-		statusBar()->message( msg );
-		printer->newPage();		// no more room on this page
-		yPos = 0;			// back to top of page
-	    }
-	    p.drawText( MARGIN, MARGIN + yPos,
-			metrics.width(), fm.lineSpacing(),
-			ExpandTabs | DontClip,
-			e->textLine( i ) );
-	    yPos = yPos + fm.lineSpacing();
-	}
-	p.end();				// send job to printer
-	statusBar()->message( "Printing completed", 2000 );
-    } else {
-	statusBar()->message( "Printing aborted", 2000 );
-    }
+//     if ( printer->setup(this) ) {		// printer dialog
+// 	statusBar()->message( "Printing..." );
+// 	QPainter p;
+// 	p.begin( printer );			// paint on printer
+// 	p.setFont( e->font() );
+// 	int yPos        = 0;			// y position for each line
+// 	QFontMetrics fm = p.fontMetrics();
+// 	QPaintDeviceMetrics metrics( printer ); // need width/height
+// 	                                         // of printer surface
+// 	for( int i = 0 ; i < e->numLines() ; i++ ) {
+// 	    if ( MARGIN + yPos > metrics.height() - MARGIN ) {
+// 		QString msg;
+// 		msg.sprintf( "Printing (page %d)...", ++pageNo );
+// 		statusBar()->message( msg );
+// 		printer->newPage();		// no more room on this page
+// 		yPos = 0;			// back to top of page
+// 	    }
+// 	    p.drawText( MARGIN, MARGIN + yPos,
+// 			metrics.width(), fm.lineSpacing(),
+// 			ExpandTabs | DontClip,
+// 			e->textLine( i ) );
+// 	    yPos = yPos + fm.lineSpacing();
+// 	}
+// 	p.end();				// send job to printer
+// 	statusBar()->message( "Printing completed", 2000 );
+//     } else {
+// 	statusBar()->message( "Printing aborted", 2000 );
+//     }
 
 }
 
