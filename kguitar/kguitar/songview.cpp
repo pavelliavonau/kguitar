@@ -34,15 +34,15 @@ SongView::SongView(KXMLGUIClient *_XMLGUIClient, QWidget *parent = 0, const char
 	song = new TabSong(i18n("Unnamed"), 120);
 	song->t.append(new TabTrack(FretTab, i18n("Guitar"), 1, 0, 25, 6, 24));
 
- 	split = new QSplitter(this);
- 	split->setOrientation(QSplitter::Vertical);
+	split = new QSplitter(this);
+	split->setOrientation(QSplitter::Vertical);
 
 	tv = new TrackView(song, _XMLGUIClient, split);
 	splitv = new QSplitter(split);
  	splitv->setOrientation(QSplitter::Horizontal);
 
 	tl = new TrackList(song, _XMLGUIClient, splitv);
-    tl->setSelected(tl->firstChild(), TRUE);
+	tl->setSelected(tl->firstChild(), TRUE);
 	tp = new TrackPane(song, tl->header()->height(), tl->firstChild()->height(), splitv);
 
 	connect(tl, SIGNAL(newTrackSelected(TabTrack *)), tv, SLOT(selectTrack(TabTrack *)));
@@ -68,7 +68,7 @@ void SongView::refreshView()
 	tv->updateRows();
 	tv->repaint();
 	tl->updateList();
-    tl->setSelected(tl->firstChild(), TRUE);
+	tl->setSelected(tl->firstChild(), TRUE);
 	tp->updateList();
 }
 
@@ -135,7 +135,7 @@ void SongView::trackBassLine()
 		ChordSelector cs(tv->devMan(), origtrk);
 
 		int note;
-        bool havenote;
+		bool havenote;
 
 		for (uint i = 0; i < origtrk->c.size(); i++) {
 			for (uint k = 0; k < origtrk->string; k++) {
@@ -143,7 +143,7 @@ void SongView::trackBassLine()
 			}
 
 			cs.detectChord();
-            havenote = ((ChordListItem *) cs.chords->item(0));
+			havenote = ((ChordListItem *) cs.chords->item(0));
 
 			if (havenote) {
 				note = ((ChordListItem *) cs.chords->item(0))->tonic();
@@ -162,14 +162,14 @@ void SongView::trackBassLine()
 
 			// GREYFIX: make a better way of choosing a fret. This way
 			// it can, for example, be over max frets number.
-            if (havenote) {
-                newtrk->c[i].a[0] = note - newtrk->tune[0] % 12;
-                if (newtrk->c[i].a[0] < 0)  newtrk->c[i].a[0] += 12;
-            }
+			if (havenote) {
+				newtrk->c[i].a[0] = note - newtrk->tune[0] % 12;
+				if (newtrk->c[i].a[0] < 0)  newtrk->c[i].a[0] += 12;
+			}
 		}
 	};
 
-    tv->arrangeTracks();
+	tv->arrangeTracks();
 }
 
 // Sets current track's properties
