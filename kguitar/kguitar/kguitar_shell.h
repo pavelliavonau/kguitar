@@ -20,7 +20,7 @@ public:
 public slots:
     bool openURL(const KURL& url);
     void saveURL(const KURL& url);
- 
+
 protected slots:
     void slotFileOpen();
     void slotFileSave();
@@ -34,6 +34,7 @@ protected slots:
     void updateStatusBar();
     void openBrowser();
     void openBrowserURL(const KURL& url);
+	void slotClipboardDataChanged();
 
 protected:
     void readSettings();
@@ -42,7 +43,7 @@ protected:
 private:
     KGuitarPart *m_kgpart;
     FileBrowser *fb;
-	KAction *browserAct;
+	KAction *browserAct, *pasteAct;
     KRecentFilesAction *openRecentAct;
     KToggleAction *showMainTBAct, *showEditTBAct, *showStatusbarAct;
 };
