@@ -4,10 +4,14 @@
 #include <qdialog.h>
 #include "global.h"
 
+#define STEPSIZE     40
+
 class QLineEdit;
 class QListBox;
 class QButtonGroup;
 class QRadioButton;
+class QComboBox;
+class QLabel;
 class Fingering;
 class FingerList;
 
@@ -18,11 +22,16 @@ public:
     ChordSelector(QWidget *parent=0, const char *name=0);
 public slots:
     void detectChord();
+    void setStep3();
+    void setHighSteps();
+    void findSelection();
     void findChords(); 
 private:
     QLineEdit *chname; 
     QListBox *tonic,*step3,*stephigh;
     QListBox *chords;
+    QComboBox *st[6];
+    QLabel *cnote[7];
     QButtonGroup *complexity;
     QRadioButton *complexer[3];
     Fingering *fng;
