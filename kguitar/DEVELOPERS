@@ -76,7 +76,5 @@ Update translations
 * Do "make -f admin/Makefile.common package-messages" (use VERBOSE=1
   environment variable if you're interested in verbose report)
 * Change to 'po' directory
-* Fix Makefile by searching for "PACKAGE = kguitar-VERSION" and
-  replacing it with "PACKAGE = kguitar"
 * Do "make merge"
 * Update xx.po
