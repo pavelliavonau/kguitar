@@ -8,8 +8,10 @@
 #include "global.h"
 
 class KAction;
+class KToggleAction;
 class KCommandHistory;
 class KAccel;
+class KAboutData;
 
 /**
  * KGuitar KPart - main class of application, uses everything else.
