@@ -32,7 +32,6 @@ typedef struct {
 typedef struct {
     uint start;                         // Starting column
     uchar time1,time2;                  // Time signature
-    bool showsig;                       // Show time signature
 } TabBar;
 
 class TabTrack
@@ -62,8 +61,10 @@ public:
     uint xb;                            // Current tab bar
     uint y;                             // Current tab string
 
-    void removeColumn(uint x);
-    void insertColumn(uint x);
+    bool showBarSig(uint n);
+
+    void removeColumn(uint n);
+    void insertColumn(uint n);
     void arrangeBars();
 
 private:
