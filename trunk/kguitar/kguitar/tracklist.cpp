@@ -12,8 +12,8 @@
 #include <kxmlgui.h>
 #include <kxmlguiclient.h>
 
-TrackList::TrackList(TabSong *s, KXMLGUIClient *_XMLGUIClient, QWidget *parent, const char *name):
-	QListView(parent, name)
+TrackList::TrackList(TabSong *s, KXMLGUIClient *_XMLGUIClient, QWidget *parent, const char *name)
+	: QListView(parent, name)
 {
 	song = s;
 	xmlGUIClient = _XMLGUIClient;
