@@ -39,6 +39,15 @@
 
 // LVIFIX: check width of lower part note stems (seems a bit too thin)
 
+// LVIFIX: "link with previous" doesn't work well
+//         - prints rest instead of note
+//         - if at start of bar, links to left margin
+
+// LVIFIX: "ringing" and "link with previous" don't work well together
+//         doesn't work in midi export either
+
+// LVIFIX: rests in lower voice are not supported
+
 #include <qstring.h>			// required for globaloptions.h :-(
 #include "globaloptions.h"
 
