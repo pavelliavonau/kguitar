@@ -98,7 +98,7 @@ void Fretboard::paintEvent(QPaintEvent *)
 	p.setBrush(FINGER_COLOR);
 	int y = height() - STRING_HEIGHT / 2 - FINGER_RADIUS;
 	for (int i = 0; i < trk->string; i++) {
-		char a = trk->c[trk->x].a[i];
+		int a = trk->c[trk->x].a[i];
 		if ((a >= 0) && (a <= trk->frets)) {
 			int x = (a == 0) ? (int) fr[0] / 2 : (int) (fr[a] + fr[a - 1]) / 2;
 			p.drawEllipse(x - FINGER_RADIUS, y, FINGER_RADIUS * 2, FINGER_RADIUS * 2);
