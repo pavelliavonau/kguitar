@@ -82,6 +82,7 @@ void MelodyEditor::optionsDialog()
 	                     KDialogBase::Apply|KDialogBase::Cancel, KDialogBase::Ok);
 	OptionsMelodyEditor op;
 	opDialog.setMainWidget(&op);
+    op.show();
 	connect(&opDialog, SIGNAL(defaultClicked()), &op, SLOT(defaultBtnClicked()));
 	connect(&opDialog, SIGNAL(okClicked()), &op, SLOT(applyBtnClicked()));
 	connect(&opDialog, SIGNAL(applyClicked()), &op, SLOT(applyBtnClicked()));
