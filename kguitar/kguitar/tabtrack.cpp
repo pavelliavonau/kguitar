@@ -2,6 +2,10 @@
 #include "globaloptions.h"
 #include "tabtrack.h"
 
+// using namespace std;
+
+// #include <iostream>
+
 TabTrack::TabTrack(TrackMode _tm, QString _name, int _channel,
 				   int _bank, uchar _patch, char _string, char _frets)
 {
@@ -355,19 +359,32 @@ TSE3::PhraseEdit *TabTrack::midiTrack()
 	TSE3::PhraseEdit *midi = new TSE3::PhraseEdit();
 
 	// Initial setup, patches, midi volumes, choruses, etc.
-	midi->insert(TSE3::MidiEvent(TSE3::MidiCommand(TSE3::MidiCommand_ProgramChange,
-												   channel - 1, globalMidiPort, patch), 0));
+	midi->insert(TSE3::MidiEvent(TSE3::MidiCommand(
+										TSE3::MidiCommand_ProgramChange,
+										channel - 1, globalMidiPort, patch),
+								 0)
+				 );
 
-	long timer = 0;
-	int midilen = 0, duration;
-	uchar pitch;
+	long timer = 0;				// midi timestamp for each note
+	int midilen = 0;			// midi ticks until start of next note
+	int duration;				// note duration (dead note: less than midilen)
+	uchar pitch;				// note pitch
+	const int velocity = 0x60;	// note velocity
 
 	for (uint x = 0; x < c.size(); x++) {
+
 		// Calculate real duration (including all the linked beats)
-		midilen = c[x].fullDuration();
-		while ((x + 1 < c.size()) && (c[x + 1].flags & FLAG_ARC)) {
-			x++;
-			midilen += c[x].fullDuration();
+		// for the non-ringing notes, which determines midilen
+		// note: need to keep x unchanged, because pitch and effects are stored
+		// in the first column of a set linked beats
+		// remember x of the last linked beat, though
+
+		int xl;					// x last linked note
+		xl = x;
+		midilen = c[xl].fullDuration();
+		while ((xl + 1 < c.size()) && (c[xl + 1].flags & FLAG_ARC)) {
+			xl++;
+			midilen += c[xl].fullDuration();
 		}
 
 		// Note on/off events
@@ -385,6 +402,13 @@ TSE3::PhraseEdit *TabTrack::midiTrack()
 			if (c[x].flags & FLAG_PM)
 				duration = duration / 2;
 
+			// ringing overrides the duration
+			if (c[x].e[i] == EFFECT_LETRING) {
+				// LVIFIX: add support for notes linked to ringing note
+				// LVIFIX: the linked note should be able to be ringing itself
+				duration = noteDuration(x, i);
+			}
+
 			if (c[x].e[i] == EFFECT_ARTHARM)
 				pitch += 12;
 			if (c[x].e[i] == EFFECT_HARMONIC) {
@@ -401,13 +425,23 @@ TSE3::PhraseEdit *TabTrack::midiTrack()
 				}
 			}
 
-			midi->insert(TSE3::MidiEvent(TSE3::MidiCommand(TSE3::MidiCommand_NoteOn, channel - 1,
-			                                               globalMidiPort, pitch, 0x60),
-			                             timer, 0x60, timer + duration));
-//			cout << "Inserted note pitch " << (int) pitch << ", start " << timer << ", duration " << duration << "\n";
-		}
+			midi->insert(
+				TSE3::MidiEvent(TSE3::MidiCommand(
+										TSE3::MidiCommand_NoteOn,
+										channel - 1, globalMidiPort,
+										pitch, velocity),
+								timer, velocity, timer + duration)
+						 );
+//			cout << "Inserted note pitch " << (int) pitch
+//				 << ", start " << timer << ", duration " << duration << "\n";
+				 
+		} // for (int i = 0; i < string ...
+
 		timer += midilen;
-	}
+		x = xl;					// step over linked notes
+
+	} // for (uint x = 0; x < c.size() ...
+
 	return midi;
 }
 #endif
