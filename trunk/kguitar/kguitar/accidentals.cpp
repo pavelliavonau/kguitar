@@ -212,6 +212,10 @@ int Accidentals::getKeySig()
 }
 
 // get note info for given pitch
+// note pitch=40 returns stp=E, alt=0, oct=2
+// MusicXML tutorial 0.7a:
+// guitar tuning is E2 A2 D3 G3 B3 E4
+// which corresponds to midi note numbers 40 45 50 55 59 64
 
 bool Accidentals::getNote(int pitch, QString& stp,
 							int& alt, int& oct, Accid& acc)
@@ -224,6 +228,7 @@ bool Accidentals::getNote(int pitch, QString& stp,
 	oct = pitch / stPerOct;
 	alt = pitch - (oct * stPerOct + out_root_note[noteNumber]);
 	acc = out_accidental[noteNumber];
+	oct--;						// correct oct (as 40 / stPerOct = 3 i.s.o. 2)
 	if ((acc != None) && (!mustPrntAllAcc(noteNumber))) {
 		naReset(stp, oct);
 	}
@@ -367,6 +372,7 @@ void Accidentals::resetToKeySig()
 
 // convert step (note name), alter (flat/sharp) and octave to pitch
 // return -1 on failure
+// note: MusicXML tutorial 0.7a: A-string = A2 = pitch 45
 
 int Accidentals::sao2Pitch(const QString& stp, int alt = 0, int oct = 0)
 {
@@ -384,7 +390,7 @@ int Accidentals::sao2Pitch(const QString& stp, int alt = 0, int oct = 0)
 	if (cn == -1) {
 		return -1;
 	}
-	return oct * 12 + cn + alt;
+	return (oct + 1) * 12 + cn + alt;
 }
 
 // set the key signature

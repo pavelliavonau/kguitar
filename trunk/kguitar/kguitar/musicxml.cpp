@@ -31,6 +31,7 @@
 // MusicXML 0.6 common.dtd:
 // bank numbers range from 1 to 16,384.
 // channel numbers range from 1 to 16.
+// note numbers range from 1 to 128.
 // program numbers range from 1 to 128.
 // MIDI spec:
 // channel 0..15
@@ -45,6 +46,20 @@
 // reading an xml file with size 0 results in sig 11
 // reading an xml file without part-list results in sig 11
 // reading an xml file without midi-instrument results in chn=bank=patch=0
+
+// LVIFIX:
+// all tracks are written in the guitar-specific format using two staves:
+// - standard notation with clef-octave-change = -1
+// - TAB (in alternate staff)
+
+// LVIFIX:
+// clef-octave-change, although present in the MusicXML file written,
+// is not really supported:
+// it is ignored when reading the file
+// it is not used throughout KGuitar
+
+// LVIFIX:
+// accidentals are ignored in staff-tuning
 
 #include "global.h"
 #include "accidentals.h"
@@ -389,9 +404,11 @@ bool MusicXMLParser::endElement( const QString&, const QString&,
 		}
 	} else if (qName == "staff-tuning") {
 		if (trk) {
+			int iPtl = stPtl.toInt();
+			int iPto = stPto.toInt();
 			// LVIFIX: Check max_strings
-			trk->tune[mxmlStr2Kg(stPtl.toInt(), trk->string)]
-				= accSt.sao2Pitch(stPts, 0 /* LVIFIX */, stPto.toInt());
+			trk->tune[iPtl - 1]
+				= accSt.sao2Pitch(stPts, 0 /* LVIFIX */, iPto);
 		}
 	} else if (qName == "step") {
 	    stStp = stCha;
@@ -627,7 +644,7 @@ void MusicXMLWriter::write(QTextStream& os)
 	os << "<?xml version=\"1.0\" encoding=\"UTF-8\" standalone=\"no\"?>"
 	   << endl;
 	os << "<!DOCTYPE score-partwise PUBLIC" << endl;
-	os << "    \"-//Recordare//DTD MusicXML 0.7 Partwise//EN\"" << endl;
+	os << "    \"-//Recordare//DTD MusicXML 0.7a Partwise//EN\"" << endl;
 	os << "    \"http://www.musicxml.org/dtds/partwise.dtd\">" << endl;
 	os << endl;
 	os << "<score-partwise>\n";
@@ -652,14 +669,15 @@ void MusicXMLWriter::write(QTextStream& os)
 	for (unsigned int it = 0; it < ts->t.count(); it++) {
 		os << "\t\t<score-part id=\"P" << it+1 << "\">\n";
 		os << "\t\t\t<part-name>" << ts->t.at(it)->name << "</part-name>\n";
-		// LVIFIX: add score-instrument if instrument-name is known
+		// LVIFIX: fill-in real instrument-name instead of "Guitar"
 		// note: in DTD 0.6 score-instrument may appear zero or more times
 		//       within a score-part
-		// os << "\t\t\t<score-instrument id=\"P" << it+1
-		//    << "-I" << it+1 << "\">\n";
-		// os << "\t\t\t\t<instrument-name>" << "TBD"
-		//    << "</instrument-name>\n";
-		// os << "\t\t\t</score-instrument>\n";
+		// note: in DTD 0.7a score-instrument apparently is required
+		os << "\t\t\t<score-instrument id=\"P" << it+1
+		   << "-I" << it+1 << "\">\n";
+		os << "\t\t\t\t<instrument-name>" << "Guitar"
+		   << "</instrument-name>\n";
+		os << "\t\t\t</score-instrument>\n";
 		os << "\t\t\t<midi-instrument id=\"P" << it+1
 		   << "-I" << it+1 << "\">\n";
 		os << "\t\t\t\t<midi-channel>" << ts->t.at(it)->channel
@@ -696,9 +714,15 @@ void MusicXMLWriter::write(QTextStream& os)
 				// os << "\t\t\t\t\t<mode>major</mode>\n";
 				os << "\t\t\t\t</key>\n";
 				writeTime(os, trk->b[0].time1, trk->b[0].time2);
-				os << "\t\t\t\t<clef>\n";
+				os << "\t\t\t\t<staves>2</staves>\n";
+				os << "\t\t\t\t<clef number=\"1\">\n";
 				os << "\t\t\t\t\t<sign>G</sign>\n";
 				os << "\t\t\t\t\t<line>2</line>\n";
+				os << "\t\t\t\t\t<clef-octave-change>-1</clef-octave-change>\n";
+				os << "\t\t\t\t</clef>\n";
+				os << "\t\t\t\t<clef number=\"2\">\n";
+				os << "\t\t\t\t\t<sign>TAB</sign>\n";
+				os << "\t\t\t\t\t<line>5</line>\n";
 				os << "\t\t\t\t</clef>\n";
 				writeStaffDetails(os, trk);
 				os << "\t\t\t</attributes>\n";
@@ -1085,11 +1109,12 @@ void MusicXMLWriter::writeStaffDetails(QTextStream& os, TabTrack * trk)
 		accSt.addPitch(trk->tune[i]);
 	}
 	accSt.calcChord();
-	os << "\t\t\t\t<staff-details>\n";
+	os << "\t\t\t\t<staff-details number=\"2\">\n";
+	os << "\t\t\t\t\t<staff-type>alternate</staff-type>\n";
 	os << "\t\t\t\t\t<staff-lines>" << (int) trk->string << "</staff-lines>\n";
 	for (int i = 0; i < trk->string; i++) {
 		os << "\t\t\t\t\t<staff-tuning line=\""
-		   << mxmlStr2Kg(i, trk->string) << "\">\n";
+		   << i + 1 << "\">\n";
 		writePitch(os, trk->tune[i], "\t\t\t\t\t\t", "tuning-");
 		os << "\t\t\t\t\t</staff-tuning>\n";
 	}
