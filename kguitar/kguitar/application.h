@@ -24,20 +24,20 @@ public:
     void addRecentFile(const char *fn);
 
 private slots:
-    void newDoc();
-    void load();
+    void fileNew();
+    void fileOpen();
     void recentLoad(int _id);
     void openBrowser();
-    void save();
-    void saveAs();
-	void importMID();
-    void exportMID();
-    void exportTAB();
-    void exportTEXTAB();
-	void exportTEXNOTES();
-    void print();
-    void closeDoc();
-    void appQuit();
+    void fileSave();
+    void fileSaveAs();
+	void fileImportMid();
+    void fileExportMid();
+    void fileExportTab();
+    void fileExportTexTab();
+	void fileExportTexNotes();
+    void filePrint();
+    void fileClose();
+    void fileQuit();
     void insertChord();
     void songProperties();
     void trackProperties();
