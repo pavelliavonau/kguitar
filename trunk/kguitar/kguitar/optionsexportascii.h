@@ -7,8 +7,15 @@
 class KConfig;
 class QVButtonGroup;
 class QRadioButton;
+class QSpinBox;
 class QCheckBox;
 
+/**
+ * Options page for ASCII tabulature export setup.
+ *
+ * Allows to set duration display (number of spaces in ASCII
+ * tabulature rendering) and page width.
+ */
 class OptionsExportAscii: public OptionsPage {
 	Q_OBJECT
 public:
@@ -19,6 +26,7 @@ public:
 private:
 	QVButtonGroup *durationGroup;
 	QRadioButton *duration[5];
+	QSpinBox *pageWidth;
 	QCheckBox *always;
 };
 
