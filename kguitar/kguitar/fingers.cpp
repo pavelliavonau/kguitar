@@ -16,7 +16,7 @@ Fingering::Fingering(int strings,QWidget *parent,const char *name): QFrame(paren
   setFrameStyle(Panel | Sunken);
   setBackgroundMode(PaletteBase);
 
-  ff = new QScrollBar(1,24-NUMFRETS,1,5,1,QScrollBar::Vertical,this);
+  ff = new QScrollBar(1,24-NUMFRETS+1,1,5,1,QScrollBar::Vertical,this);
   ff->setGeometry(width()-SCROLLER,0,SCROLLER,height());
   connect(ff,SIGNAL(valueChanged(int)),SLOT(setFirstFret(int)));
   
