@@ -7,6 +7,7 @@
 
 class QButtonGroup;
 class QRadioButton;
+class QListBox;
 
 class Options: public QTabDialog
 {
@@ -18,7 +19,11 @@ public:
     QRadioButton *maj7[3],*flat[2], *tabsize[4];
     QCheckBox *showbarnumb, *showstr, *showpagenumb;
 
+// Though these aren't used in any compilation, they're here
+
 private:
+	void fillAlsaBox();
+	QListBox *alsaport;
 };
 
 #endif
