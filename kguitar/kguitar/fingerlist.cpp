@@ -47,7 +47,7 @@ void FingerList::resizeEvent(QResizeEvent *e)
 void FingerList::mousePressEvent(QMouseEvent *e)
 {
   int col = e->x()/ICONCHORD;
-  int row = e->y()/ICONCHORD;
+  int row = (e->y()+yOffset())/ICONCHORD;
 
   int n = row*perRow+col;
 
