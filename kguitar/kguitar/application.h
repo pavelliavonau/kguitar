@@ -42,6 +42,7 @@ private slots:
     void options();
     void saveOptions();
     void configToolBars();
+    void configKeys();
 
     void updateStatusBar();
 
@@ -72,11 +73,12 @@ private:
             *quitAct, *preferencesAct, *confTBAct, *browserAct, *sngPropAct,
             *trkPropAct, *insChordAct, *len1Act, *len2Act, *len4Act, *len8Act, 
             *len16Act, *len32Act, *timeSigAct, *arcAct, *legatoAct, *natHarmAct, 
-            *artHarmAct, *saveOptionAct;
+            *artHarmAct, *saveOptionAct, *confKeyAct, *arrTrkAct;
     KToggleAction *showMainTBAct, *showEditTBAct, *usSharpAct, *usFlatAct, 
                   *usMixAct, *euSharpAct, *euFlatAct, *euMixAct, *jazzSharpAct, 
                   *jazzFlatAct, *jazzMixAct;
     KRecentFilesAction *openRecentAct;
+	KAccel *mainAccel;
 
     // Status bar labels
     QLabel *s_bar;
