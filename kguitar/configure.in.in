@@ -1,5 +1,8 @@
 #MIN_CONFIG
 
+AM_INIT_AUTOMAKE(kguitar, 0.3-pre)
+AC_CHECK_BOOL
+CXXFLAGS="$CXXFLAGS -DQT_CLEAN_NAMESPACE -DQT_NO_COMPAT"
 
 AC_ARG_WITH(midisupport,[  --with-midisupport	  compile KGuitar with MIDI-Output])
 
@@ -35,6 +38,26 @@ else
 fi
 
 
-AM_INIT_AUTOMAKE(kguitar, 0.3-pre)
-AC_CHECK_BOOL
-CXXFLAGS="$CXXFLAGS -DQT_CLEAN_NAMESPACE -DQT_NO_COMPAT"
+AC_PATH_PROG(TETEX, kpsetool, no)
+TETEXDIR=$datadir
+
+if test "$TETEX" = no
+then
+	AC_MSG_WARN(*** No TeTeX found! kgtabs.tex will not be installed. ***)
+    AC_MSG_WARN(*** You can install it later with \"install-kgtabs.sh\" ***)
+else
+    AC_MSG_CHECKING(for TeTeX directory)
+    TEXMF="`kpsetool -v '$TEXMF' | sed 's/!//g'`"
+    AC_MSG_RESULT(found in $TEXMF)
+    INSTALLKGTABS="install-kgtabs"
+    UNINSTALLKGTABS="uninstall-kgtabs"
+fi
+
+INSTALL_KGTABS="install-kgtabs"
+UNINSTALL_KGTABS="uninstall-kgtabs"
+
+AC_SUBST(TEXMF)
+AC_SUBST(INSTALLKGTABS)
+AC_SUBST(INSTALL_KGTABS)
+AC_SUBST(UNINSTALLKGTABS)
+AC_SUBST(UNINSTALL_KGTABS)
