@@ -62,6 +62,9 @@ private:
 
     // Status bar labels
     QLabel *s_bar;
+
+	void readOptions();
+	void saveOptions();
 };
 
 
