@@ -40,6 +40,7 @@ private:
 	void readTabs();
 	void readNote(TabTrack *trk, int x, int y);
 	void readChromaticGraph();
+	void readChord();
 
 	/**
 	 * Reads Delphi string in GPro format. Delphi string looks pretty
