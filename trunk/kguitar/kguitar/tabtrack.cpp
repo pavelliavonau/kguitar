@@ -42,14 +42,32 @@ void TabTrack::insertStrum(int sch, int *chord)
 		for (int i = 0; i < string; i++)
 			c[x].a[i] = chord[i];
 	} else { // Normal strum pattern scheme
+		int mask, r;
 		for (int j = 0; lib_strum[sch].len[j]; j++) {
 			if (x + j + 1 > c.size())
 				c.resize(c.size() + 1);
 			c[x + j].flags = 0;
 			c[x + j].l = lib_strum[sch].len[j];
-			for (int i = 0; i < string; i++) {
-				c[x + j].a[i] = (lib_strum[sch].mask[j] & (1 << i)) ? chord[i] : -1;
-				c[x + j].e[i] = 0;
+
+			mask = lib_strum[sch].mask[j];
+
+			if (mask > 0) { // Treble notation
+				r = 0; // "Real" string counter
+				for (int i = string - 1; i >= 0; i--) {
+					c[x + j].a[i] = (mask & (1 << r)) ? chord[i] : -1;
+					c[x + j].e[i] = 0;
+					if (chord[i] != -1)
+						r++;
+				}
+			} else { // Bass notation
+				mask = -mask;
+				r = 0; // "Real" string counter
+				for (int i = 0; i < string; i++) {
+					c[x + j].a[i] = (mask & (1 << r)) ? chord[i] : -1;
+					c[x + j].e[i] = 0;
+					if (chord[i] != -1)
+						r++;
+				}
 			}
 		}
 	}
