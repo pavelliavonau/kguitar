@@ -53,17 +53,25 @@ public:
 	bool sel;                           // Selection mode enabled
 	int xsel;                           // If yes, then selection start column
 
+	int barNr(int c);
 	int lastColumn(int n);
 	bool showBarSig(int n);
 	bool barStatus(int n);
 	Q_UINT16 currentBarDuration();
 	Q_UINT16 maxCurrentBarDuration();
+	Q_UINT16 noteDuration(uint t, int i);
+	int noteNrCols(uint t, int i);
 
 	void removeColumn(int n);
 	void insertColumn(int n);
 	void arrangeBars();
 	void addFX(char fx);
 	void updateXB();
+	void calcStepAltOct();
+	void calcVoices();
+	bool hasMultiVoices();
+	bool isExactNoteDur(int d);
+	bool getNoteTypeAndDots(int t, int v, int & tp, int & dt);
 
 #ifdef WITH_TSE3
 	TSE3::PhraseEdit *midiTrack();

@@ -167,6 +167,7 @@ static int tStart(int t, int bn, TabTrack *trk)
 // determine if beam needs to be broken at note t in track trk for bar bn
 // break beam if t does not end in the beat where it started
 // results in drawing three beams for six 1/8 notes in a 3/4 measure
+// this is independent of voice allocation
 
 static bool mustBreakBeam(int t, int bn, TabTrack *trk)
 {
@@ -187,29 +188,48 @@ static bool mustBreakBeam(int t, int bn, TabTrack *trk)
 	return (bs != be);
 }
 
-// determine L1 beam for note t in bar bn of track trk
+// determine L1 beam for note t in voice v in bar bn of track trk
 // returns: c (continue) e (end) n (none) s (start)
 // LVIFIX: save results ?
 
-static char beamL1(int t, int bn, TabTrack *trk)
+static char beamL1(int t, int v, int bn, TabTrack *trk)
 {
 	// if column is a rest, then no beam
 	if (isRest(t, trk)) {
 		return 'n';
 	}
-	// if note is 1/4 or longer, then no beam
-	if (trk->c[t].l >= 120) {
+	// if no note in this voice, then no beam
+	int tp;						// note type
+	int dt;						// dots (not used)
+	if (!trk->getNoteTypeAndDots(t, v, tp, dt)) {
 		return 'n';
 	}
+	// if note is 1/4 or longer, then no beam
+	if (tp >= 120) {
+		return 'n';
+	}
+
 	int f = trk->b[bn].start;	// first note of bar
 	int l = trk->lastColumn(bn);// last note of bar
 	int p = 0;					// previous note
-	int n = 0;					// next next
+	int n = 0;					// next nnote
 	p = (t == f) ? -1 : (t - 1);
 	n = (t == l) ? -1 : (t + 1);
+	int ptp = 480;				// previous note type, default to 1/1
+	int ntp = 480;				// next note type, default to 1/1
+	if ((p == -1) || !trk->getNoteTypeAndDots(p, v, ptp, dt)) {
+		// no previous note (or not in this voice),
+		// therefore pretend 1/1 (which has no stem)
+		ptp = 480;
+	}
+	if ((n == -1) || !trk->getNoteTypeAndDots(n, v, ntp, dt)) {
+		// no previous note (or not in this voice),
+		// therefore pretend 1/1 (which has no stem)
+		ntp = 480;
+	}
 	if (mustBreakBeam(t, bn, trk)) {
 		// note ends at n * divisor
-		if ((p != -1) && (trk->c[p].l <= 60) && !mustBreakBeam(p, bn, trk)
+		if ((p != -1) && (ptp <= 60) && !mustBreakBeam(p, bn, trk)
 			&& !isRest(p, trk)) {
 			// previous note exists which has beam to this one
 			return 'e';
@@ -220,12 +240,12 @@ static char beamL1(int t, int bn, TabTrack *trk)
 		// note does not end at n * divisor
 		bool left = false;		// beam at left side ?
 		bool right = false;		// beam at right side ?
-		if ((p != -1) && (trk->c[p].l <= 60) && !mustBreakBeam(p, bn, trk)
+		if ((p != -1) && (ptp <= 60) && !mustBreakBeam(p, bn, trk)
 			&& !isRest(p, trk)) {
 			// previous note exists which has beam to this one
 			left = true;
 		}
-		if ((n != -1) && (trk->c[n].l <= 60) && !isRest(n, trk)) {
+		if ((n != -1) && (ntp <= 60) && !isRest(n, trk)) {
 			// next note exists to draw beam to
 			right = true;
 		}
@@ -246,25 +266,32 @@ static char beamL1(int t, int bn, TabTrack *trk)
 	return 'n';
 }
 
-// determine beam for note t in bar bn in track trk at beam level lvl
+// determine beam for note t in voice v in bar bn in track trk
+// at beam level lvl
 // returns: b (backward) c (continue) e (end) f (forward) n (none) s (start)
 // note: no need to check for rests (done in beamL1)
 // LVIFIX: save results ?
 
-static char beamL2plus(int t, int bn, int lvl, TabTrack *trk)
+static char beamL2plus(int t, int v, int bn, int lvl, TabTrack *trk)
 {
+	// if no note in this voice, then no beam
+	int tp;						// note type
+	int dt;						// dots (not used)
+	if (!trk->getNoteTypeAndDots(t, v, tp, dt)) {
+		return 'n';
+	}
 	// determine duration for this level
 	int dur = 0;
 	if (lvl == 2) {
 		// if note is 1/8 or longer, then no beam
-		if (trk->c[t].l >= 60) {
+		if (tp >= 60) {
 			return 'n';
 		} else {
 			dur = 30;
 		}
 	} else if (lvl == 3) {
 		// if note is 1/16 or longer, then no beam
-		if (trk->c[t].l >= 30) {
+		if (tp >= 30) {
 			return 'n';
 		} else {
 			dur = 15;
@@ -278,9 +305,21 @@ static char beamL2plus(int t, int bn, int lvl, TabTrack *trk)
 	int n = 0;					// next next
 	p = (t == f) ? -1 : (t - 1);
 	n = (t == l) ? -1 : (t + 1);
-	char L1 = beamL1(t, bn, trk);
+	int ptp = 480;				// previous note type, default to 1/1
+	int ntp = 480;				// next note type, default to 1/1
+	if ((p == -1) || !trk->getNoteTypeAndDots(p, v, ptp, dt)) {
+		// no previous note (or not in this voice),
+		// therefore pretend 1/1 (which has no stem)
+		ptp = 480;
+	}
+	if ((n == -1) || !trk->getNoteTypeAndDots(n, v, ntp, dt)) {
+		// no previous note (or not in this voice),
+		// therefore pretend 1/1 (which has no stem)
+		ntp = 480;
+	}
+	char L1 = beamL1(t, v, bn, trk);
 	if (L1 == 's') {
-		if ((n != -1) && (trk->c[n].l <= dur)) {
+		if ((n != -1) && (ntp <= dur)) {
 			return 's';
 		} else {
 			return 'f';
@@ -288,11 +327,11 @@ static char beamL2plus(int t, int bn, int lvl, TabTrack *trk)
 	} else if (L1 == 'c') {
 		bool left = false;		// beam at left side ?
 		bool right = false;		// beam at right side ?
-		if ((p != -1) && (trk->c[p].l <= dur) && !(mustBreakBeam(p, bn, trk))) {
+		if ((p != -1) && (ptp <= dur) && !(mustBreakBeam(p, bn, trk))) {
 			// previous note exists which has beam to this one
 			left = true;
 		}
-		if ((n != -1) && (trk->c[n].l <= dur)) {
+		if ((n != -1) && (ntp <= dur)) {
 			// next note exists to draw beam to
 			right = true;
 		}
@@ -310,7 +349,7 @@ static char beamL2plus(int t, int bn, int lvl, TabTrack *trk)
 			return 'f';
 		}
 	} else if (L1 == 'e') {
-		if ((p != -1) && (trk->c[p].l <= dur)) {
+		if ((p != -1) && (ptp <= dur)) {
 			// previous note exists which has beam to this one
 			return 'e';
 		} else {
@@ -334,10 +373,6 @@ void SongPrint::drawBar(int bn, TabTrack *trk, int es)
 	bool ringing[MAX_STRINGS];
 	uint s = curt->string - 1;
 	int i = 0;
-	Accidentals accSt;			// accidental state
-
-	// Initialize the accidentals, needed at start of bar
-	accSt.resetToKeySig();
 	
 	for (uint i = 0; i <= s; i++) {
 		ringing[i] = FALSE;
@@ -398,11 +433,16 @@ void SongPrint::drawBar(int bn, TabTrack *trk, int es)
 
 	// loop t over all columns in this bar and calculate beams
 	for (uint t = trk->b[bn].start; (int) t <= trk->lastColumn(bn); t++) {
-		st[t].bp.setX(0);
-		st[t].bp.setY(0);
-		st[t].l1 = beamL1(t, bn, trk);
-		st[t].l2 = beamL2plus(t, bn, 2, trk);
-		st[t].l3 = beamL2plus(t, bn, 3, trk);
+		stl[t].bp.setX(0);
+		stl[t].bp.setY(0);
+		stl[t].l1 = beamL1(t, 0,bn, trk);
+		stl[t].l2 = beamL2plus(t, 0, bn, 2, trk);
+		stl[t].l3 = beamL2plus(t, 0, bn, 3, trk);
+		stu[t].bp.setX(0);
+		stu[t].bp.setY(0);
+		stu[t].l1 = beamL1(t, 1,bn, trk);
+		stu[t].l2 = beamL2plus(t, 1, bn, 2, trk);
+		stu[t].l3 = beamL2plus(t, 1, bn, 3, trk);
 	}
 
 	// loop t over all columns in this bar and print them
@@ -520,30 +560,116 @@ void SongPrint::drawBar(int bn, TabTrack *trk, int es)
 
 		if (stNts) {
 	
-			// calculate accidentals
-			accSt.startChord();
-			for (int i = 0; i < trk->string; i++) {
-				if (trk->c[t].a[i] > -1) {
-					accSt.addPitch(trk->tune[i] + trk->c[t].a[i]);
-				}
-			}
-			accSt.calcChord();
-	
 			// print notes
 			int ln = 0;				// line where note is printed
 			int nhPrinted = 0;		// # note heads printed
-			int yl = 0;				// ypos lowest note head
-			int yh = 0;				// ypos highest note head
+			int yl = 0;				// ypos (line) lowest note head
+			int yh = 0;				// ypos (line) highest note head
+			// cout << "SongPrint::drawBar() draw column" << endl;
+			for (int i = 0; i < 2; i++) {
+				int dt;
+				int tp;
+				bool res;
+				res = trk->getNoteTypeAndDots(t, i, tp, dt);
+				/*
+				cout
+					<< "getNoteTypeAndDots()"
+					<< " i=" << i
+					<< " res=" << res
+					<< " tp=" << tp
+					<< " dt=" << dt
+					<< endl;
+				*/
+			}
+			for (int i = 0; i < 2; i++) {
+				bool res;
+				res = findHiLo(t, i, trk, yh, yl);
+				/*
+				cout
+					<< "findHiLo()"
+					<< " i=" << i
+					<< " res=" << res
+					<< " yh=" << yh
+					<< " yl=" << yl
+					<< endl;
+				*/
+			}
+			int dt;
+			bool res1;
+			bool res2;
+			int tp;
+			// print voice 0
+			res1 = trk->getNoteTypeAndDots(t, 0, tp, dt);
+			res2 = findHiLo(t, 0, trk, yh, yl);
+			if (res1 && res2) {
+				// voice 0 found
+				for (int i = 0; i < trk->string; i++) {
+					if ((trk->c[t].a[i] > -1) && (trk->c[t].v[i] == 0)) {
+						ln = line((QChar) trk->c[t].stp[i], trk->c[t].oct[i]);
+						drawNtHdCntAt(xpos, ln, tp, trk->c[t].acc[i]);
+						nhPrinted++;
+						// Draw dot, must be at odd line -> set lsbit
+						// LVIFIX: add support for double dot
+						if (dt) {
+							QString s;
+							s = QChar(0xA7);
+							int y = ln | 1;
+							p->setFont(fFeta);
+							p->drawText((int) (xpos + 0.8 * wNote),
+										yposst - ystepst * y / 2, s);
+						}
+					}
+				}
+				if (stl[t].l1 != 'n') {
+					// note is beamed, don't draw lower stem and flag
+					drawNtStmCntAt(xpos, yl, yh, 0, 'd');
+					// remember position
+					stl[t].bp.setX((int) (xpos - 0.45 * wNote));
+					int yhd = yposst - (int) (ystepst * ((-0.4 + yl) / 2));
+					stl[t].bp.setY(yhd);
+				} else {
+					drawNtStmCntAt(xpos, yl, yh, tp, 'd');
+				}
+			}
+			// print voice 1
+			res1 = trk->getNoteTypeAndDots(t, 1, tp, dt);
+			res2 = findHiLo(t, 1, trk, yh, yl);
+			if (res1 && res2) {
+				// voice 1 found
+				for (int i = 0; i < trk->string; i++) {
+					if ((trk->c[t].a[i] > -1) && (trk->c[t].v[i] == 1)) {
+						ln = line((QChar) trk->c[t].stp[i], trk->c[t].oct[i]);
+						drawNtHdCntAt(xpos, ln, tp, trk->c[t].acc[i]);
+						nhPrinted++;
+						// Draw dot, must be at odd line -> set lsbit
+						// LVIFIX: add support for double dot
+						if (dt) {
+							QString s;
+							s = QChar(0xA7);
+							int y = ln | 1;
+							p->setFont(fFeta);
+							p->drawText((int) (xpos + 0.8 * wNote),
+										yposst - ystepst * y / 2, s);
+						}
+					}
+				}
+				if (stu[t].l1 != 'n') {
+					// note is beamed, don't draw upper stem and flag
+					drawNtStmCntAt(xpos, yl, yh, 0, 'u');
+					// remember position
+					stu[t].bp.setX((int) (xpos + 0.45 * wNote));
+					int yhd = yposst - (int) (ystepst * ((0.4 + yh) / 2));
+					stu[t].bp.setY(yhd);
+				} else {
+					drawNtStmCntAt(xpos, yl, yh, tp, 'u');
+				}
+			}
+			/*
+			// original print code
 			for (int i = 0; i < trk->string; i++) {
 				if (trk->c[t].a[i] > -1) {
-					int alt = 0;
-					int oct = 0;
-					Accidentals::Accid acc = Accidentals::None;
-					QString nam = "";
-					accSt.getNote(trk->tune[i] + trk->c[t].a[i],
-									nam, alt, oct, acc);
-					ln = line(nam, oct);
-					drawNtHdCntAt(xpos, ln, trk->c[t].l, acc);
+					ln = line((QChar) trk->c[t].stp[i], trk->c[t].oct[i]);
+					drawNtHdCntAt(xpos, ln, trk->c[t].l, trk->c[t].acc[i]);
 					// Draw dot, must be at odd line -> set lsbit
 					if (curt->c[t].flags & FLAG_DOT) {
 						QString s;
@@ -568,21 +694,11 @@ void SongPrint::drawBar(int bn, TabTrack *trk, int es)
 					}
 				} // end if (trk->c[t].a[i] > -1) {
 			} // end for (int i = 0; i < trk->string; i++) {
+			*/
 	
 			// if no note printed, print rest
 			if (nhPrinted == 0) {
 				drawRstCntAt(xpos, 4, trk->c[t].l);
-			} else {
-				if (st[t].l1 != 'n') {
-					// note is beamed, don't draw upper stem and flag
-					drawNtStmCntAt(xpos, yl, yh, 0);
-					// remember position
-					st[t].bp.setX((int) (xpos + 0.45 * wNote));
-					int yhd = yposst - (int) (ystepst * ((0.4 + yh) / 2));
-					st[t].bp.setY(yhd);
-				} else {
-					drawNtStmCntAt(xpos, yl, yh, trk->c[t].l);
-				}
 			}
 
 		} // end if (stNts ...
@@ -730,7 +846,8 @@ void SongPrint::drawBar(int bn, TabTrack *trk, int es)
 
 	// draw beams
 	if (stNts) {
-		drawBeams(bn, trk);
+		drawBeams(bn, stl, 'd', trk);
+		drawBeams(bn, stu, 'u', trk);
 	}
 
 	// space after last note
@@ -775,9 +892,17 @@ void SongPrint::drawBarLns(int w, TabTrack *trk)
 	}
 }
 
-void SongPrint::drawBeam(int x1, int x2, int yh, char tp)
+void SongPrint::drawBeam(int x1, int x2, int y, char tp, char dir)
 {
-	int yl = yh - (int) (0.4 * ystepst);
+	int yh;
+	int yl;
+	if (dir != 'd') {
+		yh = y;
+		yl = y - (int) (0.4 * ystepst);
+	} else {
+		yh = y + (int) (0.4 * ystepst);
+		yl = y;
+	}
 	QPointArray a;
 	QBrush brush(Qt::black, Qt::SolidPattern);
 	p->setBrush(brush);
@@ -805,45 +930,78 @@ void SongPrint::drawBeam(int x1, int x2, int yh, char tp)
 	p->drawPolygon(a);
 }
 
-// draw beams of bar bn, all other info to be found in StemInfo st
+// draw beams of bar bn, all other info to be found in StemInfo std/stu
 
-void SongPrint::drawBeams(int bn, TabTrack *trk)
+void SongPrint::drawBeams(int bn, QMemArray<StemInfo> & stx, char dir,
+							TabTrack *trk)
 {
-	int ymin = 0;
+	// cout << "SongPrint::drawBeams(" << bn << ")" << endl;
 	for (uint t = trk->b[bn].start; (int) t <= trk->lastColumn(bn); t++) {
-		if (st[t].l1 == 's') {
-			// determine beam height: depends on highest note
+		/*
+		cout
+			<< "t=" << t
+			<< " l1..3=" << stx[t].l1 << stx[t].l2 << stx[t].l3 << endl;
+		*/
+	}
+	int yextr = 0;
+	for (uint t = trk->b[bn].start; (int) t <= trk->lastColumn(bn); t++) {
+		if (stx[t].l1 == 's') {
+			// determine beam height: depends on highest/lowest note
 			// LVIFIX: support angled beams
 			uint i = t;
-			ymin = st[i].bp.y();
+			yextr = stx[i].bp.y();
 			i++;
 			while ((int) i <= trk->lastColumn(bn)) {
-				if (st[i].bp.y() < ymin) {
-					ymin = st[i].bp.y();
+				if (dir != 'd') {
+					if (stx[i].bp.y() < yextr) {
+						yextr = stx[i].bp.y();
+					}
+				} else {
+					if (stx[i].bp.y() > yextr) {
+						yextr = stx[i].bp.y();
+					}
 				}
-				if (st[i].l1 == 'e') {
+				if (stx[i].l1 == 'e') {
 					break;
 				}
 				i++;
 			}
 		}
-		if (st[t].l1 != 'n') {
+		if (stx[t].l1 != 'n') {
 			// draw stem
-			int x1 = st[t].bp.x();
+			int x1 = stx[t].bp.x();
 			int x2 = 0;
 			if ((int) t < trk->lastColumn(bn)) {
-				x2 = st[t+1].bp.x();
+				x2 = stx[t+1].bp.x();
 			}
-			int yl = st[t].bp.y();
-			int yh = ymin - (int) (3.5 * ystepst);
+			int ydir;
+			int yh;
+			int yl;
+			if (dir != 'd') {
+				ydir = 1;
+				yh = yextr - ydir * (int) (3.5 * ystepst);
+				yl = stx[t].bp.y();
+			} else {
+				ydir = -1;
+				yh = stx[t].bp.y();
+				yl = yextr - ydir * (int) (3.5 * ystepst);
+			}
 			p->setPen(pLnBl);
 			p->drawLine(x1, yl, x1, yh);
 			// draw beams
-			drawBeam(x1, x2, yh, st[t].l1);
-			yh = yh + (int) (0.8 * ystepst);
-			drawBeam(x1, x2, yh, st[t].l2);
-			yh = yh + (int) (0.8 * ystepst);
-			drawBeam(x1, x2, yh, st[t].l3);
+			if (dir != 'd') {
+				drawBeam(x1, x2, yh, stx[t].l1, dir);
+				yh = yh + (int) (0.8 * ystepst);
+				drawBeam(x1, x2, yh, stx[t].l2, dir);
+				yh = yh + (int) (0.8 * ystepst);
+				drawBeam(x1, x2, yh, stx[t].l3, dir);
+			} else {
+				drawBeam(x1, x2, yl, stx[t].l1, dir);
+				yl = yl - (int) (0.8 * ystepst);
+				drawBeam(x1, x2, yl, stx[t].l2, dir);
+				yl = yl - (int) (0.8 * ystepst);
+				drawBeam(x1, x2, yl, stx[t].l3, dir);
+			}
 		}
 	}
 }
@@ -962,7 +1120,7 @@ void SongPrint::drawNtHdCntAt(int x, int y, int t, Accidentals::Accid a)
 	p->drawText((int) (x - 1.4 * wNote), yposst - ystepst * y / 2, s);
 }
 
-// draw notestem and flag of type t centered at x
+// draw notestem and flag of type t and direction dir centered at x
 // for notes on staff lines yl .. yh
 // note: lowest = 0, highest = 8
 // uses yposst but ignores xpos
@@ -972,25 +1130,24 @@ void SongPrint::drawNtHdCntAt(int x, int y, int t, Accidentals::Accid a)
 // LVIFIX: lower stem doesn't touch upper stem
 // LVIFIX: draw stem "a little bit" more to the left
 
-void SongPrint::drawNtStmCntAt(int x, int yl, int yh, int t)
+void SongPrint::drawNtStmCntAt(int x, int yl, int yh, int t, char dir)
 {
 	int flagCh = 0;
 	int w = 0;
-	int xs = (int) (x + 0.45 * wNote);		// x pos stem
 	int yoffset = 0;						// y offset flags
 	switch (t) {
 	case 0:   // none
 		break;
 	case 15:  // 1/32
-		flagCh = 0x5C;
+		flagCh = (dir != 'd') ? 0x5C :   0x61;
 		yoffset = (int) (-1.3 * ystepst);
 		break;
 	case 30:  // 1/16
-		flagCh = 0x5B;
+		flagCh = (dir != 'd') ? 0x5B : 0x2018;
 		yoffset = (int) (-0.5 * ystepst);
 		break;
 	case 60:  // 1/8
-		flagCh = 0x5A;
+		flagCh = (dir != 'd') ? 0x5A :   0x5F;
 		break;
 	case 120: // 1/4
 		break;
@@ -1003,23 +1160,46 @@ void SongPrint::drawNtStmCntAt(int x, int yl, int yh, int t)
 	} // end switch (t)
 	p->setPen(pLnBl);
 	// draw stem (lower part)
+	int xs;
+	if (dir != 'd') {
+		xs = (int) (x + 0.45 * wNote);		// x pos stem
+	} else {
+		xs = (int) (x - 0.45 * wNote);		// x pos stem
+	}
 	if (yl != yh) {
 		int yld = yposst - (int) (ystepst * ((0.2 + yl) / 2));
 		int yhd = yposst - (int) (ystepst * ((0.4 + yh) / 2));
 		p->drawLine(xs, yld,
 					xs, yhd);
 	}
-	if (t != 0) {
-		QString s;
-		// draw stem (upper part)
-		s = QChar(0x64);
-		p->drawText(xs, yposst - ystepst * yh / 2, s);
-		// draw flag(s)
-		s = QChar(flagCh);
-		int yFlag = yposst - ystepst * yh / 2
-					- (int) (3.5 * ystepst)
-					+ yoffset;
-		p->drawText(xs, yFlag, s);
+	if (dir != 'd') {
+		// up
+		if (t != 0) {
+			QString s;
+			// draw stem (upper part)
+			s = QChar(0x64);
+			p->drawText(xs, yposst - ystepst * yh / 2, s);
+			// draw flag(s)
+			s = QChar(flagCh);
+			int yFlag = yposst - ystepst * yh / 2
+						- (int) (3.5 * ystepst)
+						+ yoffset;
+			p->drawText(xs, yFlag, s);
+		}
+	} else {
+		// down
+		if (t != 0) {
+			QString s;
+			// draw stem (lower part)
+			s = QChar(0x65);
+			p->drawText(xs, yposst - ystepst * yl / 2, s);
+			// draw flag(s)
+			s = QChar(flagCh);
+			int yFlag = yposst - ystepst * yl / 2
+						+ (int) (3.5 * ystepst)
+						+ yoffset;
+			p->drawText(xs, yFlag, s);
+		}
 	}
 }
 
@@ -1167,6 +1347,43 @@ static bool initExactFont(const QString fn, int fs, QFont & fnt)
 	// cout << "rn='" << rn << "'" << endl;
 	// cout << "an='" << an << "'" << endl;
 	return (rn == an);
+}
+
+// find line of highest/lowest note in column cl for voice v in tabtrack trk
+// returns false if not found
+// precondition: calcStepAltOct() and calcVoices() must have been called
+
+bool SongPrint::findHiLo(int cl, int v, TabTrack *trk, int & hi, int & lo)
+{
+	bool found = false;
+	hi = 0;						// prevent uninitialized variable
+	lo = 0;						// prevent uninitialized variable
+	// loop over all strings
+	/*
+	cout << "v=" << v;
+	*/
+	for (int i = 0; i < trk->string; i++) {
+	/*
+		cout
+			<< " i=" << i
+			<< " v[i]=" << (int) trk->c[cl].v[i]
+			<< endl;
+	*/
+		if (trk->c[cl].v[i] == v) {
+			int ln = line((QChar) trk->c[cl].stp[i], trk->c[cl].oct[i]);
+			if (found) {
+				// found note in this voice, but not the first
+				if (ln < lo) lo = ln;
+				if (ln > hi) hi = ln;
+			} else {
+				// found first note in this voice
+				lo = ln;
+				hi = ln;
+			}
+			found = true;
+		}
+	}
+	return found;
 }
 
 // initialize fonts
@@ -1332,13 +1549,49 @@ void SongPrint::printSong(KPrinter *printer, TabSong *song)
 	
 	uint trkPr = 0;				// tracks printed
 
-	// loop while bars left in the track
+	// loop while tracks left in the song
 	while (trkPr < (song->t).count()) {
 
 		TabTrack *trk = (song->t).at(trkPr);
 
 		// LVIFIX: may fail on out of memory
-		(void) st.resize(trk->c.size());
+		(void) stl.resize(trk->c.size());
+		(void) stu.resize(trk->c.size());
+
+		// Determine voices for each note
+		trk->calcVoices();
+
+		// Determine step/alter/octave/accidental for each note
+		trk->calcStepAltOct();
+
+	// LVIFIX: start debug only, remove
+	/*
+	{
+		cout << "SongPrint::printSong()" << endl;
+		uint bn = 0;						// Drawing only this bar
+		int s = trk->string - 1;
+		for (int t = 0; t < trk->c.size(); t++) {
+			cout << "t=" << t;
+			cout << " b=" << trk->barNr(t);
+			cout << " l=" << trk->c[t].l;
+			cout << " a[i]=";
+			for (int i=0; i<=s; i++) cout << (int) trk->c[t].a[i] << " ";
+			cout << "e[i]=";
+			for (int i=0; i<=s; i++) cout << (int) trk->c[t].e[i] << " ";
+			cout << "ncols[i]=";
+			for (int i=0; i<=s; i++)
+				cout << trk->noteNrCols(t, i) << " ";
+			cout << "l[i]=";
+			for (int i=0; i<=s; i++)
+				cout << trk->noteDuration(t, i) << " ";
+			cout << " v[i]=";
+			for (int i=0; i<=s; i++) cout << (int) trk->c[t].v[i] << " ";
+			cout << "flags=" << trk->c[t].flags;
+			cout << endl;
+		}
+	}
+	*/
+	// LVIFIX: end debug only, remove
 
 		// print the track header
 		if ((song->t).count() > 1)

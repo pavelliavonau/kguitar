@@ -647,6 +647,8 @@ void MusicXMLWriter::write(QTextStream& os)
 	TabTrack *trk;
 	for (unsigned int it = 0; it < ts->t.count(); it++) {
 		trk = ts->t.at(it);
+		trk->calcVoices();
+		trk->calcStepAltOct();
 		uint bar = 0;
 		os << "\n";
 		os << "\t<part id=\"P" << it+1 << "\">\n";
@@ -687,8 +689,6 @@ void MusicXMLWriter::write(QTextStream& os)
 				} else {
 					// LVIFIX write time sig if changed
 				}
-				// Initialize the accidentals
-				accSt.resetToKeySig();
 			}
 			writeCol(os, trk, x, trp);
 		}
@@ -702,24 +702,16 @@ void MusicXMLWriter::write(QTextStream& os)
 
 // write accidental of midi note n to QTextStream os
 
-void MusicXMLWriter::writeAccid(QTextStream& os, int n, QString tabs)
+QString MusicXMLWriter::strAccid(Accidentals::Accid acc)
 {
-	int alt = 0;
-	int oct = 0;
-	Accidentals::Accid acc = Accidentals::None;
-	QString nam = "";
-
-	accSt.getNote(n, nam, alt, oct, acc);
-	if (acc != Accidentals::None) {
-		QString s;
-		switch (acc) {
-			case Accidentals::Natural: s = "natural"; break;
-			case Accidentals::Sharp:   s = "sharp";   break;
-			case Accidentals::Flat:    s = "flat";    break;
-			default:                   s = "unknown"; break;
-		}
-		os << tabs << "<accidental>" << s << "</accidental>\n";
+	QString s;
+	switch (acc) {
+		case Accidentals::Natural: s = "natural"; break;
+		case Accidentals::Sharp:   s = "sharp";   break;
+		case Accidentals::Flat:    s = "flat";    break;
+		default:                   s = "unknown"; break;
 	}
+	return s;
 }
 
 // write column x of TabTrack trk to QTextStream os
@@ -782,15 +774,6 @@ void MusicXMLWriter::writeCol(QTextStream& os, TabTrack * trk, int x, int& trp)
 	if (trk->c[x].flags & FLAG_TRIPLET) {
 		trp++;
 	}
-	// calculate accidentals
-	accSt.startChord();
-	for (int i = trk->string - 1; i >= 0 ; i--) {
-		if (trk->c[xt].a[i] > -1) {
-			fret = trk->c[xt].a[i];
-			accSt.addPitch(trk->tune[i] + fret);
-		}
-	}
-	accSt.calcChord();
 	// print all notes
 	for (int i = trk->string - 1; i >= 0 ; i--) {
 		if (trk->c[xt].a[i] > -1) {
@@ -830,7 +813,12 @@ void MusicXMLWriter::writeCol(QTextStream& os, TabTrack * trk, int x, int& trp)
 				os << "\t\t\t\t<chord/>\n";
 			}
 			os << "\t\t\t\t<pitch>\n";
-			writePitch(os, trk->tune[i] + fret, "\t\t\t\t\t", "");
+			os << "\t\t\t\t\t<step>" << trk->c[x].stp[i] << "</step>\n";
+			if (trk->c[x].alt[i] != '\0')
+				os << "\t\t\t\t\t<alter>" << (int) trk->c[x].alt[i]
+					<< "</alter>\n";
+			os << "\t\t\t\t\t<octave>" << (int) trk->c[x].oct[i]
+				<< "</octave>\n";
 			os << "\t\t\t\t</pitch>\n";
 			os << "\t\t\t\t<duration>" << duration << "</duration>\n";
 			if (tieStart) {
@@ -849,7 +837,9 @@ void MusicXMLWriter::writeCol(QTextStream& os, TabTrack * trk, int x, int& trp)
 				os << "\t\t\t\t\t<normal-notes>2</normal-notes>\n";
 				os << "\t\t\t\t</time-modification>\n";
 			}
-			writeAccid(os, trk->tune[i] + fret, "\t\t\t\t");
+			if (trk->c[x].acc[i] != Accidentals::None)
+				os << "\t\t\t\t<accidental>" << strAccid(trk->c[x].acc[i])
+					<< "</accidental>\n";
 			os << "\t\t\t\t<notations>\n";
 			if (legStop) {
 				os << "\t\t\t\t\t<slur type=\"stop\"/>\n";

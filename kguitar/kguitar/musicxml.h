@@ -98,7 +98,7 @@ public:
 	MusicXMLWriter(TabSong *);
 	void write(QTextStream&);
 private:
-	void writeAccid(QTextStream&, int, QString);
+	QString strAccid(Accidentals::Accid);
 	void writeCol(QTextStream&, TabTrack *, int, int&);
 	void writePitch(QTextStream&, int, QString, QString);
 	void writeStaffDetails(QTextStream&, TabTrack *);
