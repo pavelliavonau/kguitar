@@ -57,10 +57,8 @@ using namespace std;
 SongView::SongView(KXMLGUIClient *_XMLGUIClient, KCommandHistory *_cmdHist,
 				   QWidget *parent, const char *name): QWidget(parent, name)
 {
-#ifdef WITH_TSE3
 	scheduler = 0L;
 	initScheduler();
-#endif
 
 	midiInUse = FALSE;
 	midiStopPlay = FALSE;
@@ -71,11 +69,7 @@ SongView::SongView(KXMLGUIClient *_XMLGUIClient, KCommandHistory *_cmdHist,
 	split = new QSplitter(this);
 	split->setOrientation(QSplitter::Vertical);
 
-#ifdef WITH_TSE3
 	tv = new TrackView(song, _XMLGUIClient, _cmdHist, scheduler, split);
-#else
-	tv = new TrackView(song, _XMLGUIClient, _cmdHist, split);
-#endif
 
 	splitv = new QSplitter(split);
  	splitv->setOrientation(QSplitter::Horizontal);

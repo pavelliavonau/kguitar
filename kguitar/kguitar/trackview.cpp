@@ -583,10 +583,12 @@ void TrackView::paintCell(QPainter *p, int row, int col)
 
 	p->setRasterOp(Qt::XorROP);
 // 	p->setBrush(KGlobalSettings::highlightColor());
+
+	// Draw selection between selxcoord and selx2coord (if it exists)
 	if (curt->sel) {
 		if ((selxcoord != -1) && (selx2coord != -1)) {
 			int x1 = KMIN(selxcoord, selx2coord);
-			int wid = abs(selx2coord - selxcoord) + VERTLINE + 1;
+			int wid = abs(selx2coord - selxcoord) + HORCELL + 1;
 			p->drawRect(x1, 0, wid, cellHeight());
 		} else if ((selxcoord == -1) && (selx2coord != -1)) {
 			if (curt->x > curt->lastColumn(bn))
@@ -606,9 +608,10 @@ void TrackView::paintCell(QPainter *p, int row, int col)
 		}
 	}
 
+	// Draw original cursor (still inverted)
 	if (selxcoord != -1) {
-		p->drawRect(selxcoord - 1, VERTSPACE + (s - curt->y) * VERTLINE - VERTLINE / 2 - 1,
-					HORCELL + 2, VERTLINE + 2);
+		p->drawRect(selxcoord, VERTSPACE + (s - curt->y) * VERTLINE - VERTLINE / 2 - 1,
+					HORCELL + 1, VERTLINE + 2);
 	}
 
 // 	p->setBrush(KGlobalSettings::baseColor());
@@ -801,7 +804,8 @@ void TrackView::moveDown()
 		curt->y--;
 		if (curt->sel)
 			repaintCurrentCell();
-		else repaintCurrentColumn();
+		else
+			repaintCurrentColumn();
 	}
 	lastnumber = -1;
 }
@@ -987,5 +991,3 @@ void TrackView::mousePressEvent(QMouseEvent *e)
 			repaintContents();
 	}
 }
-
-
