@@ -219,21 +219,7 @@ void SongView::trackBassLine()
 bool SongView::trackProperties()
 {
 	bool res = FALSE;
-	TabTrack *newtrk = new TabTrack(FretTab, "", song->freeChannel(), 0, 25, 6, 24);
-
-	newtrk->name = tv->trk()->name;
-	newtrk->channel = tv->trk()->channel;
-	newtrk->bank = tv->trk()->bank;
-	newtrk->patch = tv->trk()->patch;
-	newtrk->setTrackMode(tv->trk()->trackMode());
-
-	newtrk->string= tv->trk()->string;
-	newtrk->frets = tv->trk()->frets;
-
-	for (int i = 0; i < tv->trk()->string; i++)
-		newtrk->tune[i] = tv->trk()->tune[i];
-
-
+	TabTrack *newtrk = new TabTrack(*(tv->trk()));
 	SetTrack *st = new SetTrack(newtrk);
 
 	if (st->exec()) {
@@ -260,6 +246,10 @@ bool SongView::trackProperties()
 			for (int i = 0; i < newtrk->string; i++)
 				newtrk->tune[i] = drum->tune(i);
 		}
+
+		// Check that cursor position won't fall over the track limits
+		if (newtrk->y >= newtrk->string)
+			newtrk->y = newtrk->string - 1;
 
 		m_cmdHist->addCommand(new SetTrackPropCommand(tv, tl, tp, tv->trk(), newtrk));
 		res = TRUE;
@@ -619,4 +609,3 @@ void SongView::insertTabs(TabTrack* trk)
 
 	m_cmdHist->addCommand(new InsertTabsCommand(tv, tv->trk(), trk));
 }
-
