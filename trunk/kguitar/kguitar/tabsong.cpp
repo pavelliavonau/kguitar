@@ -664,7 +664,7 @@ bool TabSong::save_to_mid(QString fileName)
 
 		ml.clear();
 
-        MidiData::getMidiList(trk, ml);
+		MidiData::getMidiList((TabTrack *) trk, ml);
 
 		MidiEvent *e;
 		Q_UINT8 lastevent = 0;

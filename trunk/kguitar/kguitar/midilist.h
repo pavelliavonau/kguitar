@@ -58,8 +58,7 @@ protected:
 
 class MidiData {
 public:
-    static void getMidiList(TabTrack *&trk, MidiList &ml);
-
+	static void getMidiList(TabTrack *trk, MidiList &ml);
 };
 
 
