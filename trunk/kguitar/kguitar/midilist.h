@@ -16,11 +16,18 @@ enum {
 };
 
 enum {
+	META_SEQUENCE_NUMBER	= 0x00,
+	META_TEXT				= 0x01,
 	META_COPYRIGHT			= 0x02,
 	META_SEQUENCE_NAME		= 0x03,
+	META_INSTRUMENT_NAME	= 0x04,
+	META_LYRIC				= 0x05,
+	META_MARKER				= 0x06,
+	META_CUE_POINT			= 0x07,
 	META_END_TRACK     		= 0x2f,
 	META_TEMPO				= 0x51,
-	META_TIMESIG			= 0x58
+	META_TIMESIG			= 0x58,
+	META_KEYSIG				= 0x59
 };
 
 class MidiEvent
@@ -33,7 +40,7 @@ public:
 		data2 = _data2;
 	};
 	long timestamp;
-	uchar type, data1, data2;
+	Q_UINT8 type, data1, data2;
 };
 
 class MidiList: public QList<MidiEvent>
