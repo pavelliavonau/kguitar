@@ -3,10 +3,10 @@
 #include "songview.h"
 #include "trackview.h"
 #include "tracklist.h"
-#include "chord.h"
 #include "tabsong.h"
 #include "setsong.h"
 #include "options.h"
+#include "global.h"
 
 #include <qpopupmenu.h>
 

@@ -15,7 +15,6 @@
 class KToolBar;
 class QPopupMenu;
 class QLabel;
-class ChordSelector;
 
 class KGuitarBrowserExtension;
 
@@ -51,7 +50,6 @@ private slots:
 	void fileNew();
 	bool slotOpenFile(QString fn);
 	bool fileSave(QString fn);
-	void insertChord();
 	void options();
 	void saveOptions();
 	void slotConfigToolBars();
@@ -93,9 +91,6 @@ private:
 
     // parentWidget
     QWidget *p;
-
-    //BrowserView
-    bool isBrowserView;
 
 	void readOptions();
 
