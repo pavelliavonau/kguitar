@@ -454,6 +454,18 @@ bool KGuitarPart::slotOpenFile(QString fn)
 				return FALSE;
 			}
 		}
+
+		if (ext == "XML") {
+			if (sv->sng()->load_from_xml(fn)) {
+				setWinCaption(fn);
+				sv->sng()->filename = fn;
+				sv->refreshView();
+				ret = TRUE;
+			} else {
+				KMessageBox::sorry(p, i18n("Can't load the song!"));
+				return FALSE;
+			}
+		}
 	}
 	return ret;
 }
@@ -508,6 +520,14 @@ bool KGuitarPart::fileSave(QString fn)
 		default: ret = FALSE; break;
 		}
 		if (!ret) {
+			KMessageBox::sorry(p, i18n("Can't export the song!"));
+			return FALSE;
+		}
+	}
+	if (ext == "XML") {
+		if (sv->sng()->save_to_xml(fn)) {
+			ret = TRUE;
+		} else {
 			KMessageBox::sorry(p, i18n("Can't export the song!"));
 			return FALSE;
 		}

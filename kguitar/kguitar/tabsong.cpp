@@ -4,6 +4,9 @@
 
 #include "midilist.h"
 
+#include "musicxml.h"
+
+#include <qxml.h>
 #include <qfile.h>
 #include <qdatastream.h>
 
@@ -612,6 +615,33 @@ bool TabSong::save_to_gtp(QString fileName)
 {
     // Saving to Guitar Pro format here
     return FALSE;
+}
+
+bool TabSong::load_from_xml(QString fileName)
+{
+	MusicXMLParser handler(this);
+	QFile xmlFile(fileName);
+	QXmlInputSource source(xmlFile);
+	QXmlSimpleReader reader;
+	reader.setContentHandler(&handler);
+	reader.parse(source);
+
+    return TRUE;
+}
+
+bool TabSong::save_to_xml(QString fileName)
+{
+    QFile f(fileName);
+    if (!f.open(IO_WriteOnly))
+		return FALSE;
+
+    QTextStream s(&f);
+
+	MusicXMLWriter handler(this);
+	handler.write(s);
+
+    f.close();
+    return TRUE;
 }
 
 Q_UINT32 TabSong::readVarLen(QDataStream *s)
