@@ -94,21 +94,26 @@ VER_MIN = 1
 HEADERS =	application.h \
 		fingers.h \
 		global.h \
-		chord.h
+		chord.h \
+		fingerlist.h
 SOURCES =	application.cpp \
 		chord.cpp \
 		fingers.cpp \
+		fingerlist.cpp \
 		main.cpp
 OBJECTS =	application.o \
 		chord.o \
 		fingers.o \
+		fingerlist.o \
 		main.o
 SRCMOC	=	application.moc.cpp \
 		chord.moc.cpp \
-		fingers.moc.cpp
+		fingers.moc.cpp \
+		fingerlist.moc.cpp
 OBJMOC	=	application.moc.o \
 		chord.moc.o \
-		fingers.moc.o
+		fingers.moc.o \
+		fingerlist.moc.o
 
 ####### Implicit rules
 
@@ -152,6 +157,12 @@ application.o: application.cpp \
 		filesave.xpm \
 		fileopen.xpm \
 		fileprint.xpm
+
+chord.o: chord.cpp chord.h
+
+fingers.o: fingers.cpp fingers.h
+
+fingerlist.o: fingerlist.cpp fingerlist.h
 
 %.moc.o: %.moc %.h
 	$(CXX) $(CXXFLAGS) $(INCPATH) -o $@ $<
