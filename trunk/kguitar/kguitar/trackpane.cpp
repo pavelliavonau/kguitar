@@ -29,7 +29,8 @@ TrackPane::TrackPane(TabSong *s, int hh, int rh, QWidget *parent = 0, const char
 void TrackPane::updateList()
 {
 	setNumRows(song->t.count() + 1); // plus 1 header row
-	setNumCols(20);
+	setNumCols(song->maxLen());
+	update();
 }
 
 TrackPane::~TrackPane()
@@ -48,6 +49,19 @@ int TrackPane::cellHeight(int n)
 // header, all other rows are for track squares.
 void TrackPane::paintCell(QPainter *p, int row, int col)
 {
-	if (row != 0) 
-		qDrawWinButton(p, 0, 0, cellWidth(), cellWidth(), colorGroup(), FALSE);
+	if ((row != 0) && (song->t.at(row - 1)->barStatus(col)))
+		style().drawButton(p, 0, 0, cellWidth(), cellWidth(), colorGroup());
+}
+
+void TrackPane::mousePressEvent(QMouseEvent *e)
+{
+	if (e->button() == LeftButton) {
+		int barnum = findCol(e->pos().x());
+		int tracknum = findRow(e->pos().y()) - 1;
+
+		if (tracknum >= song->t.count())
+			return;
+		emit newTrackSelected(song->t.at(tracknum));
+		emit newBarSelected(barnum);
+	}
 }

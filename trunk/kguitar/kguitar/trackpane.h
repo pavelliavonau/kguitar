@@ -4,6 +4,7 @@
 #include <qtableview.h>
 
 class TabSong;
+class TabTrack;
 
 class TrackPane: public QTableView {
 	Q_OBJECT
@@ -13,9 +14,14 @@ public:
 	~TrackPane();
 	void updateList();
 
+signals:
+	void newTrackSelected(TabTrack *);
+	void newBarSelected(int);
+
 protected:
 	virtual int cellHeight(int n);
 	virtual void paintCell(QPainter *, int row, int col);
+	virtual void mousePressEvent(QMouseEvent *e);
 
 private:
 	TabSong *song;
