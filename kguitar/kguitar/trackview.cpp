@@ -20,13 +20,15 @@ TrackView::TrackView(QWidget *parent,const char *name): QTableView(parent,name)
     setFocusPolicy(QWidget::StrongFocus);
 
     song = new TabSong("Unnamed",120);
-    song->t.append(new TabTrack(GuitarTab,0,25,6));
+    song->t.append(new TabTrack(GuitarTab,"Guitar",0,25,6,24));
 
     curt = song->t.first();
-    
+
     uchar standtune[6]={40,45,50,55,59,64};
 
-    curt->setTuning(standtune);
+    for (int i=0;i<6;i++)
+	curt->tune[i]=standtune[i];
+
 //    curt->xi=QListIterator<TabColumn>(curt->c);
     curt->x=0;
     curt->y=0;
@@ -52,9 +54,9 @@ void TrackView::paintCell(QPainter *p, int row, int col)
     TabColumn *tc;
     QString tmp;
 
-    int s = curt->string()-1;
+    int s = curt->string-1;
 
-    for (int i=0;i<curt->string();i++)
+    for (int i=0;i<curt->string;i++)
 	p->drawLine(0,VERTSPACE+(s-i)*VERTLINE,width(),VERTSPACE+(s-i)*VERTLINE);
 
     p->setFont(QFont("helvetica",VERTLINE));
@@ -64,7 +66,7 @@ void TrackView::paintCell(QPainter *p, int row, int col)
 
     for (tc=curt->c.first();tc!=0;tc=song->t.getFirst()->c.next()) {
 	p->setPen(NoPen);
-	for (int i=0;i<curt->string();i++) {
+	for (int i=0;i<curt->string;i++) {
 	    if ((curt->c.at()==curt->x) && 
 		(curt->y==i)) {
 		p->setBrush(KApplication::getKApplication()->selectColor);
@@ -126,7 +128,7 @@ void TrackView::resizeEvent(QResizeEvent *e)
 {
     QTableView::resizeEvent(e); // GREYFIX ? Is it C++-correct?
     setCellWidth(width());
-    setCellHeight(VERTSPACE*2+VERTLINE*(curt->string()-1));
+    setCellHeight(VERTSPACE*2+VERTLINE*(curt->string-1));
 }
 
 bool TrackView::moveFinger(int from, int dir)
@@ -140,9 +142,9 @@ bool TrackView::moveFinger(int from, int dir)
 
     do {
 	to+=dir;
-	if ((to<0) || (to>=curt->string()))
+	if ((to<0) || (to>=curt->string))
 	    return FALSE;
-	n=n0+curt->tune(from)-curt->tune(to);
+	n=n0+curt->tune[from]-curt->tune[to];
 	if (n<0)
 	    return FALSE;
     } while (curt->c.at(curt->x)->a[to]!=-1);
@@ -177,7 +179,7 @@ void TrackView::keyPressEvent(QKeyEvent *e)
 	}
 	break;
     case Key_Up:
-	if (curt->y<curt->string()-1) {
+	if (curt->y<curt->string-1) {
 	    if (e->state()==ControlButton)
 		moveFinger(curt->y,1);
 	    else
