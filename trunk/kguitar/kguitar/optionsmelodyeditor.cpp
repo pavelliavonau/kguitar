@@ -1,16 +1,16 @@
 #include "optionsmelodyeditor.h"
 #include "globaloptions.h"
 
-#include <qbuttongroup.h>
 #include <qradiobutton.h>
 #include <qcombobox.h>
 #include <qlabel.h>
 #include <qcheckbox.h>
 #include <qhgroupbox.h>
-#include <qvbox.h>
 #include <qlayout.h>
 
 #include <klocale.h>
+#include <qvbuttongroup.h>
+#include <qgroupbox.h>
 
 int globalMelodyEditorInlay;
 int globalMelodyEditorWood;
@@ -18,13 +18,13 @@ int globalMelodyEditorAction[3];
 bool globalMelodyEditorAdvance[3];
 
 OptionsMelodyEditor::OptionsMelodyEditor(QWidget *parent, const char *name)
-	: QWidget(parent, name)
+	: OptionsPage(parent, name)
 {
-	QVBox *vbox = new QVBox(this);
+    QVBoxLayout *l = new QVBoxLayout(this, 0, -1, "main");
 
-	QHGroupBox *designGroup = new QHGroupBox(i18n("Design"), vbox);
+	QHGroupBox *designGroup = new QHGroupBox(i18n("Design"), this, "designbox");
 
-	inlayGroup = new QButtonGroup(i18n("Inlays"), designGroup);
+	inlayGroup = new QVButtonGroup(i18n("Inlays"), designGroup, "inlaygroup");
 	inlay[0] = new QRadioButton(i18n("None"), inlayGroup);
 	inlay[1] = new QRadioButton(i18n("Center dots"), inlayGroup);
 	inlay[2] = new QRadioButton(i18n("Side dots"), inlayGroup);
@@ -33,17 +33,17 @@ OptionsMelodyEditor::OptionsMelodyEditor(QWidget *parent, const char *name)
 
 	inlayGroup->setButton(globalMelodyEditorInlay);
 
-	woodGroup = new QButtonGroup(i18n("Texture"), designGroup);
-	wood[0] = new QRadioButton(i18n("Schematic"), inlayGroup);
-	wood[1] = new QRadioButton(i18n("Maple"), inlayGroup);
-	wood[2] = new QRadioButton(i18n("Rosewood"), inlayGroup);
-	wood[3] = new QRadioButton(i18n("Ebony"), inlayGroup);
+	woodGroup = new QVButtonGroup(i18n("Texture"), designGroup, "texturegroup");
+	wood[0] = new QRadioButton(i18n("Schematic"), woodGroup);
+	wood[1] = new QRadioButton(i18n("Maple"), woodGroup);
+	wood[2] = new QRadioButton(i18n("Rosewood"), woodGroup);
+	wood[3] = new QRadioButton(i18n("Ebony"), woodGroup);
 
 	woodGroup->setButton(globalMelodyEditorWood);
 
-	QHGroupBox *actionGroup = new QHGroupBox(i18n("Mouse actions"), vbox);
+    l->addWidget(designGroup);
 
-	QGridLayout *gl = new QGridLayout(actionGroup, 3, 3, 15, 10);
+	QGridLayout *gl = new QGridLayout(this, 3, 3);
 
 	for (int i = 0; i < 3; i++) {
 		mouseAction[i] = new QComboBox(FALSE, this);
@@ -67,6 +67,9 @@ OptionsMelodyEditor::OptionsMelodyEditor(QWidget *parent, const char *name)
 	gl->addWidget(new QLabel(mouseAction[0], i18n("Left button:"), this), 0, 0);
 	gl->addWidget(new QLabel(mouseAction[1], i18n("Middle button:"), this), 1, 0);
 	gl->addWidget(new QLabel(mouseAction[2], i18n("Right button:"), this), 2, 0);
+
+	l->addLayout(gl);
+
 	resize(300, 300);
 }
 
@@ -79,9 +82,9 @@ void OptionsMelodyEditor::defaultBtnClicked()
 	mouseAction[1]->setCurrentItem(3);
 	mouseAction[2]->setCurrentItem(1);
 
-	mouseAdvance[0]->setChecked(false);
-	mouseAdvance[1]->setChecked(true);
-	mouseAdvance[2]->setChecked(true);
+	mouseAdvance[0]->setChecked(FALSE);
+	mouseAdvance[1]->setChecked(TRUE);
+	mouseAdvance[2]->setChecked(TRUE);
 }
 
 void OptionsMelodyEditor::applyBtnClicked()

@@ -3,53 +3,36 @@
 
 #include <kdialogbase.h>
 #include "global.h"
-#include "qcheckbox.h"
 
 class QButtonGroup;
 class QRadioButton;
 class QListView;
 class QListBox;
 class QSlider;
-
-class OptionsMusicTheory;
-class OptionsMelodyEditor;
+class QCheckBox;
+class OptionsPage;
 
 #ifdef WITH_TSE3
 #include <tse3/MidiScheduler.h>
 #endif
+
+#define OPTIONS_PAGES_NUM 5
 
 class Options: public KDialogBase {
 	Q_OBJECT
 public:
 	Options(
 #ifdef WITH_TSE3
-			TSE3::MidiScheduler *_sch,
+			TSE3::MidiScheduler *sch,
 #endif
 			QWidget *parent = 0, char *name = 0,//##
 			bool modal = TRUE);
 
-    QButtonGroup *texLyGroup, *texSizeGroup, *texExpGroup, *prStyGroup;
-    QRadioButton *tabsize[4], *expmode[2], *prsty[4];
-    QCheckBox *showbarnumb, *showstr, *showpagenumb;
-
-	OptionsMusicTheory *mt;
-	OptionsMelodyEditor *me;
-
-protected:
-	void setupMusixtexTab();
-	void setupMidiTab();
-	void setupPrintingTab();
+    OptionsPage *optWidget[OPTIONS_PAGES_NUM];
 
 protected slots:
-	void fillMidiBox();
 	void applyBtnClicked();
 	void defaultBtnClicked();
-
-private:
-#ifdef WITH_TSE3
-	QListView *midiport;
-	TSE3::MidiScheduler *sch;
-#endif
 };
 
 #endif

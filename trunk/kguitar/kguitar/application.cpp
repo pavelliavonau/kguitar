@@ -6,7 +6,7 @@
 #include "tabsong.h"
 #include "setsong.h"
 #include "options.h"
-#include "global.h"
+#include "melodyeditor.h"
 
 #include <kapp.h>
 #include <kmenubar.h>
@@ -427,7 +427,7 @@ bool KGuitarPart::saveFile()
 	} else {
 		KMessageBox::sorry(p, i18n("Can't save song in %1 format").arg(ext));
 	}
-	
+
 	return success;
 }
 
@@ -499,26 +499,13 @@ void KGuitarPart::filePrint()
 
 void KGuitarPart::options()
 {
-	Options *op = new Options(
+	Options op(
 #ifdef WITH_TSE3
-							  sv->midiScheduler()
+		sv->midiScheduler()
 #endif
-							  );
-
-	op->maj7gr->setButton(globalMaj7);
-	op->flatgr->setButton(globalFlatPlus);
-
-	op->texsizegr->setButton(globalTabSize);
-	op->showbarnumb->setChecked(globalShowBarNumb);
-	op->showstr->setChecked(globalShowStr);
-	op->showpagenumb->setChecked(globalShowPageNumb);
-	op->texexpgr->setButton(globalTexExpMode);
-
-	op->prstygr->setButton(globalPrSty);
-
-	op->exec();
-
-	delete op;
+		);
+	op.exec();
+	sv->me->drawBackground();
 }
 
 void KGuitarPart::slotConfigToolBars()
@@ -552,6 +539,16 @@ void KGuitarPart::readOptions()
 
 	config->setGroup("Printing");
 	globalPrSty = config->readNumEntry("PrSty", 0);
+
+	config->setGroup("MelodyEditor");
+	globalMelodyEditorInlay = config->readNumEntry("Inlay", 1);
+	globalMelodyEditorWood = config->readNumEntry("Wood",  2);
+	globalMelodyEditorAction[0] = config->readNumEntry("Action0", 1);
+	globalMelodyEditorAdvance[0] = config->readBoolEntry("Advance0", FALSE);
+	globalMelodyEditorAction[1] = config->readNumEntry("Action1", 3);
+	globalMelodyEditorAdvance[1] = config->readBoolEntry("Advance1", TRUE);
+	globalMelodyEditorAction[2] = config->readNumEntry("Action2", 1);
+	globalMelodyEditorAdvance[2] = config->readBoolEntry("Advance2", TRUE);
 }
 
 void KGuitarPart::saveOptions()
@@ -582,6 +579,16 @@ void KGuitarPart::saveOptions()
 
 	config->setGroup("Printing");
 	config->writeEntry("PrSty", globalPrSty);
+
+	config->setGroup("MelodyEditor");
+	config->writeEntry("Inlay", globalMelodyEditorInlay);
+	config->writeEntry("Wood", globalMelodyEditorWood);
+	config->writeEntry("Action0", globalMelodyEditorAction[0]);
+	config->writeEntry("Advance0", globalMelodyEditorAdvance[0]);
+	config->writeEntry("Action1", globalMelodyEditorAction[1]);
+	config->writeEntry("Advance1", globalMelodyEditorAdvance[1]);
+	config->writeEntry("Action2", globalMelodyEditorAction[2]);
+	config->writeEntry("Advance2", globalMelodyEditorAdvance[2]);
 
 	config->sync();
 
