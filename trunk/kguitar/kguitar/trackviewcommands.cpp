@@ -192,6 +192,10 @@ AddFXCommand::AddFXCommand(TrackView *_tv, TabTrack *&_trk, char _fx):
 		break;
 	case EFFECT_LEGATO: p_fx = i18n("legato");
 		break;
+	case EFFECT_SLIDE: p_fx = i18n("slide");
+		break;
+	case EFFECT_LETRING: p_fx = i18n("let ring");
+		break;
 	default:
 		break;
 	}
@@ -249,6 +253,8 @@ SetFlagCommand::SetFlagCommand(TrackView *_tv, TabTrack *&_trk, int _flag):
 		break;
 	case DEAD_NOTE: cmd = i18n("Dead note");
 		oldtab = trk->c[x].a[y];
+		break;
+	case FLAG_TRIPLET: cmd = i18n("Triplet");
 		break;
 	}
 
