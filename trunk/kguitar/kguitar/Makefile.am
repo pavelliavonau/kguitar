@@ -31,13 +31,13 @@ libkguitar_la_SOURCES = application.cpp songview.cpp chord.cpp \
  options.cpp chordlistitem.cpp chordlist.cpp timesig.cpp strumming.cpp \
  filebrowser.cpp tracklist.cpp trackpane.cpp trackdrag.cpp \
  trackviewcommands.cpp songviewcommands.cpp kguitar_shell.cpp songprint.cpp \
- musicxml.cpp accidentals.cpp
+ musicxml.cpp rhythmer.cpp accidentals.cpp
 
 METASOURCES = AUTO
 
 # the library search path.
 kguitar_SOURCES = main.cpp
-kguitar_LDFLAGS = $(all_libraries) $(KDE_RPATH)
+kguitar_LDFLAGS = $(KDE_RPATH) $(all_libraries)
 
 # the libraries to link against. Be aware of the order. First the libraries,
 # that depend on the following ones.
@@ -49,7 +49,7 @@ noinst_HEADERS = application.h songview.h chord.h fingers.h fingerlist.h \
  settabfret.h settabdrum.h radiustuner.h notespinbox.h options.h chordlistitem.h \
  chordlist.h timesig.h strumming.h filebrowser.h tracklist.h \
  trackpane.h trackdrag.h trackviewcommands.h songviewcommands.h \
- kguitar_shell.h songprint.h musicxml.h accidentals.h
+ kguitar_shell.h songprint.h musicxml.h rhythmer.h accidentals.h
 
 libkguitar_la_LDFLAGS = $(all_libraries) -module -no-undefined
 libkguitar_la_LIBADD = $(LIB_KFILE) $(LIBTSE3) -lkparts -lkdeprint
@@ -70,11 +70,13 @@ services_DATA = kguitar_component.desktop
 #    $(XGETTEXT) -C -ki18n $(kguitar_SOURCES) -o ../po/kguitar.pot
 
 messages:
-    LIST=`find . -name \*.h -o -name \*.cpp`; \
-    if test -n "$$LIST"; then \
-     $(XGETTEXT) -ki18n $$LIST -o ../po/kguitar.pot; \
-    fi
+	LIST=`find . -name \*.h -o -name \*.cpp`; \
+	if test -n "$$LIST"; then \
+		$(XGETTEXT) -ki18n $$LIST -o ../po/kguitar.pot; \
+	fi
 
+#messages: rc.cpp
+#	$(XGETTEXT) *.cpp -o $(podir)/kguitar.pot
 
 KDE_ICON = AUTO
 
