@@ -6,7 +6,6 @@
  * LVIFIX:
  * A more advanced implementation would (also) show the key name
  * and the graphical representation  (e.g. A major = F#,C#,G#).
- * It would also return the key number instead of an index in a list.
  *
  * This file is part of KGuitar, a KDE tabulature editor
  *
@@ -26,76 +25,52 @@
 
 #include <klocale.h>
 
-#include <qspinbox.h>
 #include <qcombobox.h>
-#include <qcheckbox.h>
 #include <qlabel.h>
-#include <qpushbutton.h>
 #include <qlayout.h>
 
-// list of item names for sig->insertStrList()
+SetKeySig::SetKeySig(int keySig, QWidget *parent, const char *name)
+	: KDialogBase(parent, name, TRUE, i18n("Key signature"),
+				  Ok | Cancel, Ok, TRUE)
+{
+	QWidget *page = new QWidget(this);
+	setMainWidget(page);
+
+	QStringList signatures;
+	signatures
+		<< i18n("7 sharps") + " (C#/A#m)"
+		<< i18n("6 sharps") + " (F/D#m)"
+		<< i18n("5 sharps") + " (B/G#m)"
+		<< i18n("4 sharps") + " (E/C#m)"
+		<< i18n("3 sharps") + " (A/F#m)"
+		<< i18n("2 sharps") + " (D/Bm)"
+		<< i18n("1 sharp")  + " (G/Em)"
+		<< i18n("none")     + " (C/Am)"
+		<< i18n("1 flat")   + " (F/Dm)"
+		<< i18n("2 flats")  + " (Bb/Gm)"
+		<< i18n("3 flats")  + " (Eb/Cm)"
+		<< i18n("4 flats")  + " (Ab/Fm)"
+		<< i18n("5 flats")  + " (Db/Bbm)"
+		<< i18n("6 flats")  + " (Gb/Ebm)"
+		<< i18n("7 flats")  + " (Cb/Abm)";
+
+	sig = new QComboBox(TRUE, page);
+	sig->setEditable(false);
+	sig->setInsertionPolicy(QComboBox::NoInsertion);
+	sig->insertStringList(signatures);
+	sig->setCurrentItem(7 - keySig);
+
+	QLabel *sig_l = new QLabel(sig, i18n("Flats / sharps:"), page);
+
+	QHBoxLayout *l = new QHBoxLayout(page, 0, spacingHint());
+    l->addWidget(sig_l);
+	l->addWidget(sig);
+    l->activate();
+}
+
 // note that sig->currentItem() return 0 for "7 sharps", 1 for "6 sharps" etc.
 // use 7 - sig->currentItem() to get the key number
-
-static const char * items[] = {
-	"7 sharps",
-	"6 sharps",
-	"5 sharps",
-	"4 sharps",
-	"3 sharps",
-	"2 sharps",
-	"1 sharp",
-	"none",
-	"1 flat",
-	"2 flats",
-	"3 flats",
-	"4 flats",
-	"5 flats",
-	"6 flats",
-	"7 flats",
-	0
-};
-
-SetKeySig::SetKeySig(QWidget *parent, const char *name):
-    QDialog(parent, name, TRUE)
+int SetKeySig::keySignature()
 {
-    sig = new QComboBox(TRUE,this);
-	sig->setEditable(false);
-    sig->setInsertionPolicy(QComboBox::NoInsertion);
-    sig->insertStrList(items);
-
-    QLabel *sig_l = new QLabel(sig,i18n("Flats/sharps:"),this);
-
-    QPushButton *ok = new QPushButton(i18n("OK"),this);
-    connect(ok,SIGNAL(clicked()),SLOT(accept()));
-    QPushButton *cancel = new QPushButton(i18n("Cancel"),this);
-    connect(cancel,SIGNAL(clicked()),SLOT(reject()));
-
-    QVBoxLayout *l = new QVBoxLayout(this,10);
-
-    QGridLayout *g = new QGridLayout(2,2,5);
-    l->addLayout(g,1);
-    g->addWidget(sig_l,1,0);
-    g->addWidget(sig,1,1);
-    g->setColStretch(0,2);
-    g->setColStretch(1,1);
-    g->addColSpacing(0,150);
-    g->addColSpacing(1,50);
-    g->addRowSpacing(0,25); g->addRowSpacing(1,25);
-
-// LVIFIX: may need this later
-//    toend = new QCheckBox(i18n("Apply till the &end"),this);
-//    toend->setMinimumSize(100,25);
-//    l->addWidget(toend,1);
-
-    QHBoxLayout *b = new QHBoxLayout(10);
-    l->addLayout(b);
-    b->addWidget(ok);
-    b->addWidget(cancel);
-    b->addStrut(30);
-
-    l->activate();
-
-    resize(0,0);
-    setCaption(i18n("Key signature"));
+	return 7 - sig->currentItem();
 }
