@@ -4,18 +4,17 @@
 #include "global.h"
 
 #include <qmemarray.h>
-#include <qstring.h>
 #include <qrect.h>
 
 #ifdef WITH_TSE3
 #include <tse3/PhraseEdit.h>
 #endif
 
-typedef enum {
-	FretTab,
-	DrumTab
-} TrackMode;
-
+/**
+ * Represents one bar of a song.
+ *
+ * Stores start column index, time and key signatures.
+ */
 typedef struct {
 	int start;                          // Starting column
 	uchar time1,time2;                  // Time signature
@@ -24,17 +23,50 @@ typedef struct {
 
 #include "tabcolumn.h"
 
+/**
+ * Represents one track of a song.
+ *
+ * Includes a collection of columns (array c), bars that organize them
+ * (array b), MIDI settings (channel/bank/patch), and lots of other
+ * necessary stuff.
+ */
 class TabTrack {
 public:
+	/**
+	 * Enum to designate various track modes.
+	 */
+	typedef enum {
+		FretTab,
+		DrumTab
+	} TrackMode;
+
 	TabTrack(TrackMode _tm, QString _name, int _channel,
 			 int _bank, uchar _patch, char _string, char _frets);
 
-	QMemArray<TabColumn> c;             // Array of columns
-	QMemArray<TabBar> b;                // Array of bars
+	/**
+	 * Array of columns.
+	 */
+	QMemArray<TabColumn> c;
 
-	uchar string;                       // Number of strings
-	uchar frets;                        // Number of frets
-	uchar tune[MAX_STRINGS];            // Tuning, if applicable
+	/**
+	 * Array of bars.
+	 */
+	QMemArray<TabBar> b;
+
+	/**
+	 * Number of strings
+	 */
+	uchar string;
+
+	/**
+	 * Number of frets.
+	 */
+	uchar frets;
+
+	/**
+	 * Tuning, if applicable.
+	 */
+	uchar tune[MAX_STRINGS];
 
 	TrackMode trackMode() { return tm; }
 	void setTrackMode(TrackMode t) { tm = t; }

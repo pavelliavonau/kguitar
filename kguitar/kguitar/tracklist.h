@@ -9,6 +9,13 @@ class QListViewItem;
 class QMouseEvent;
 class KXMLGUIClient;
 
+/**
+ * Part of main editor window, shows a list of tracks in a song.
+ *
+ * Has signals and slots to change display on selecting a new track
+ * and mouse event handlers to make selection of tracks by mouse
+ * possible.
+ */
 class TrackList: public QListView {
 	Q_OBJECT
 

@@ -6,6 +6,13 @@
 class KConfig;
 class QString;
 
+/**
+ * Pure static class to manage configuration stuff.
+ *
+ * Has static storage place (instead of global variable) for
+ * application-wide configuration variable and methods to quickly
+ * access necessary configuration properties.
+ */
 class Settings {
 public:
 	/**
