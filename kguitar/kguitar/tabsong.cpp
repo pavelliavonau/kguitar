@@ -67,6 +67,8 @@ int TabSong::freeChannel()
 
 	if (res > 16)
 		res = 1;
+
+	return res;
 }
 
 // KG format specs
