@@ -46,7 +46,6 @@ ChordSelector::ChordSelector(QWidget *parent=0, const char *name=0)
     for(int i=0;i<12;i++)
       tonic->insertItem(note_name(i));
     tonic->setGeometry(10,40,50,200);
-//    tonic->setGeometry(10,40,40,12*tonic->itemHeight()+6);  // GREYFIX
     connect(tonic,SIGNAL(highlighted(int)),SLOT(findChords()));
 
     step3 = new QListBox(this);
@@ -186,7 +185,7 @@ void ChordSelector::detectChord()
 
 void ChordSelector::findChords()
 {
-    int i,j,k,min,max;
+    int i,j,k,min,max,bass,muted;
     int app[MAX_STRINGS];
 
     int maxfret=24,notenum=3,numstr=6; // GREYFIX!!
@@ -206,7 +205,7 @@ void ChordSelector::findChords()
     case 2: need[1]=2;break;              // Sus2,  Csus2
     case 3: need[1]=5;break;	          // Sus4,  Csus4
     }
-
+    
     need[2]=7;
 
     switch (stephigh->currentItem()) {
@@ -218,28 +217,27 @@ void ChordSelector::findChords()
     }
 
     for (i=0;i<notenum;i++)
-	 need[i]=(need[i]+tonic->currentItem())%12;
+	need[i]=(need[i]+tonic->currentItem())%12;
     
     int span=3; // maximal fingerspan
     
     if (complexer[1]->isChecked())
-	 span=4;
+	span=4;
     if (complexer[2]->isChecked())
-	 span=5;    
+	span=5;    
     
     // PREPARING FOR FINGERING CALCULATION
     
     for (i=0;i<numstr;i++) {
-	 for (j=0;j<=maxfret;j++) {
-	      fb[i][j]=-1;
-	 }
-	 for (k=0;k<notenum;k++) {
-	      j=(need[k]-tune[i]%12+12)%12;
-	      while (j<=maxfret) {
-		   fb[i][j]=k;
-		   j+=12;
-	      }
-	 }
+	for (j=0;j<=maxfret;j++)
+	    fb[i][j]=-1;
+	for (k=0;k<notenum;k++) {
+	    j=(need[k]-tune[i]%12+12)%12;
+	    while (j<=maxfret) {
+		fb[i][j]=k;
+		j+=12;
+	    }
+	}
     }
     
     for (i=0;i<numstr;i++)
@@ -252,45 +250,51 @@ void ChordSelector::findChords()
 
     i=0;
     do {
-	 if (app[i]<=maxfret) {
-	      min=maxfret+1;max=0;
-	      for (k=0;k<notenum;k++)
-		   got[k]=0;
-	      k=0;
-	      for (j=0;j<numstr;j++) {
-		   if (app[j]>0) {
-			if (app[j]<min)  min=app[j];
-			if (app[j]>max)  max=app[j];
-		   }
-		   if (max-min>=span)
-			break;
-		   if (app[j]>=0) {
-			if (!got[fb[j][app[j]]]) {
-			     got[fb[j][app[j]]]=1;
-			     k++;
-			}
-		   }
-	      }
-	      
-	      if ((k==notenum) && (max-min<span)) {
-		   k=255; // finding lowest note in a chord
-		   for (j=0;j<numstr;j++) {
-			if ((app[j]!=-1) && (tune[j]+app[j]<k))
-			     k=tune[j]+app[j];
-		   }
-		   if (k % 12 == need[0])
+	if (app[i]<=maxfret) {
+	    min=maxfret+1;max=0;
+	    for (k=0;k<notenum;k++)
+		got[k]=0;
+	    k=0;bass=255;muted=0;
+	    for (j=0;j<numstr;j++) {
+		if (app[j]>0) {
+		    if (app[j]<min)  min=app[j];
+		    if (app[j]>max)  max=app[j];
+		}
+		if (max-min>=span)
+		    break;
+		if (app[j]>=0) {
+		    if (tune[j]+app[j]<bass)
+			bass=tune[j]+app[j];
+		    if (!got[fb[j][app[j]]]) {
+			got[fb[j][app[j]]]=1;
+			k++;
+		    }
+		} else {
+		    muted++;
+		}
+	    }
+	    
+	    if ((k==notenum) && (max-min<span) && (bass % 12 == need[0])) {
+		if (complexer[0]->isChecked()) {
+		    if ((muted==0) ||                                       // No muted strings
+			((muted==1) && (app[0]==-1)) ||                     // Last string muted
+			((muted==2) && (app[0]==-1) && (app[1]==-1))) {     // Last and pre-last muted
 			fnglist->addFingering(app,TRUE);
-	      }
-	      
-	      i=0;
-	 } else {
-	      app[i]=-1;i++;
-	      if (i>=numstr)
-		   break;
-	 }
-	 app[i]++;
-	 while ((fb[i][app[i]]==-1) && (app[i]<=maxfret))
-	      app[i]++;
+		    }
+		} else {
+		    fnglist->addFingering(app,TRUE);
+		}
+	    }
+	    
+	    i=0;
+	} else {
+	    app[i]=-1;i++;
+	    if (i>=numstr)
+		break;
+	}
+	app[i]++;
+	while ((fb[i][app[i]]==-1) && (app[i]<=maxfret))
+	    app[i]++;
     } while (TRUE);
     
     fnglist->switchAuto(TRUE);
