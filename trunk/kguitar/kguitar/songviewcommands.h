@@ -44,7 +44,7 @@ public:
 	virtual void unexecute();
 
 private:
-	int x, y, xsel, oldbank, newbank;
+	int x, oldy, newy, xsel, oldbank, newbank;
 	bool sel;
 	uchar oldstring, oldfrets, oldchannel, oldpatch,
 		newstring, newfrets, newchannel, newpatch;
