@@ -278,7 +278,7 @@ void FileBrowser::scanDir()
 	if (lv == 0){
 		msg = i18n("Please select a directory!");
 		messagelabel->setText(msg);
-		KMessageBox::information(this, i18n("KGuitar - File browser"), msg);
+		KMessageBox::information(this, msg, i18n("File browser"));
 		return;
 	}
 
@@ -293,8 +293,8 @@ void FileBrowser::scanDir()
 	if (dir.isReadable())
 		scanSubDirs(getFullPath(lv));
 	else
-		KMessageBox::sorry(this, i18n("KGuitar - File browser"),
-						   i18n("You have no permission to read this directory!"));
+		KMessageBox::sorry(this, i18n("You have no permission to read this directory!"), 
+						   i18n("File browser"));
 
 #ifdef HAVE_MIDI
 	btnplay->setEnabled(TRUE);
@@ -319,8 +319,8 @@ void FileBrowser::fillFileView(QListViewItem* item)
 	fileview->clear();
 	QDir dir(getFullPath(item));
 	if (!dir.isReadable()){
-		KMessageBox::sorry(this, i18n("KGuitar - File browser"),
-						   i18n("You have no permission to read this directory!"));
+		KMessageBox::sorry(this, i18n("You have no permission to read this directory!"), 
+						   i18n("File browser"));
 		return;
 	}
 
@@ -373,6 +373,5 @@ void FileBrowser::loadSong(QListViewItem* item)
 		tslabel->setText(p->tv->sng()->transcriber);
 		p->addRecentFile(fname);
 	} else
-		KMessageBox::sorry(this, i18n("KGuitar - File browser"),
-						   i18n("Can't load the song!"));
+		KMessageBox::error(this,  i18n("Can't load the song!"), i18n("File browser"));
 }
