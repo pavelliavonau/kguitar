@@ -23,6 +23,8 @@ typedef enum {
 #define FLAG_DOT        2
 
 #define EFFECT_HARMONIC 1
+#define EFFECT_ARTHARM  2
+#define EFFECT_LEGATO   3
 
 #define DEAD_NOTE       -2
 
@@ -70,6 +72,7 @@ public:
     void removeColumn(uint n);
     void insertColumn(uint n);
     void arrangeBars();
+    void addFX(char fx);
 
 private:
     TrackMode tm;                       // Track mode
