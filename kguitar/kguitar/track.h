@@ -13,17 +13,17 @@ typedef enum {
 } TrackMode;
 
 // Durations as in MIDI:
-// 480 = whole    = 1
-// 240 = half     = 2
-// 120 = quarter  = 3
-// 60  = eighth   = 4
-// 30  = 16th     = 5
-// 15  = 32nd     = 6
+// 480 = whole
+// 240 = half
+// 120 = quarter
+// 60  = eighth
+// 30  = 16th
+// 15  = 32nd
 
 class TabColumn
 {
 public:
-    TabColumn() { for (int i=0;i<MAX_STRINGS;i++) {a[i]=-1;e[i]=0;};l=3; };
+    TabColumn() { for (int i=0;i<MAX_STRINGS;i++) {a[i]=-1;e[i]=0;};l=120; };
 
     uint l;                             // Duration of note or chord
     char a[MAX_STRINGS];                // Number of fret
