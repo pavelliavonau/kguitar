@@ -33,6 +33,7 @@ public:
 	int  scheme() { return strum_scheme; }
 
     Fingering *fng;
+    ChordList *chords;
 
 public slots:
     void detectChord();
@@ -52,7 +53,6 @@ private:
 
     QLineEdit *chname;
     QListBox *tonic, *step3, *stephigh;
-    ChordList *chords;
     QComboBox *st[6], *inv, *bassnote;
     QLabel *cnote[7];
     QButtonGroup *complexity;
