@@ -8,8 +8,8 @@ msgid ""
 msgstr ""
 "Project-Id-Version: ru\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2005-03-27 01:48+0300\n"
-"PO-Revision-Date: 2005-03-27 01:56+0300\n"
+"POT-Creation-Date: 2005-03-28 01:16+0400\n"
+"PO-Revision-Date: 2005-03-28 01:19+0400\n"
 "Last-Translator: Mikhail Yakshin <greycat@altlinux.ru>\n"
 "Language-Team: Russian <ru@li.org>\n"
 "MIME-Version: 1.0\n"
@@ -21,13 +21,13 @@ msgstr ""
 msgid ""
 "_: NAME OF TRANSLATORS\n"
 "Your names"
-msgstr ""
+msgstr "Mikhail \"GreyCat\"Yakshin"
 
 #: _translatorinfo.cpp:3
 msgid ""
 "_: EMAIL OF TRANSLATORS\n"
 "Your emails"
-msgstr ""
+msgstr "greycat@altlinux.org"
 
 #: chord.cpp:169
 msgid "Root"
@@ -108,31 +108,91 @@ msgstr ""
 "Модификатор \"%1\" не может использоваться здесь из-за предыдущих символов в "
 "названии аккорда"
 
-#: keysig.cpp:67
-msgid "Flats/sharps:"
-msgstr "Бемоли/диезы:"
-
-#: keysig.cpp:100 kguitar_part.cpp:566
+#: keysig.cpp:33 kguitar_part.cpp:564
 msgid "Key signature"
 msgstr "Тональность"
 
-#: kguitar_part.cpp:134
+#: keysig.cpp:41
+msgid "7 sharps"
+msgstr "7 диезов"
+
+#: keysig.cpp:42
+msgid "6 sharps"
+msgstr "6 диезов"
+
+#: keysig.cpp:43
+msgid "5 sharps"
+msgstr "5 диезов"
+
+#: keysig.cpp:44
+msgid "4 sharps"
+msgstr "4 диеза"
+
+#: keysig.cpp:45
+msgid "3 sharps"
+msgstr "3 диеза"
+
+#: keysig.cpp:46
+msgid "2 sharps"
+msgstr "2 диеза"
+
+#: keysig.cpp:47
+msgid "1 sharp"
+msgstr "1 диез"
+
+#: keysig.cpp:48
+msgid "none"
+msgstr "нет"
+
+#: keysig.cpp:49
+msgid "1 flat"
+msgstr "1 бемоль"
+
+#: keysig.cpp:50
+msgid "2 flats"
+msgstr "2 бемоля"
+
+#: keysig.cpp:51
+msgid "3 flats"
+msgstr "3 бемоля"
+
+#: keysig.cpp:52
+msgid "4 flats"
+msgstr "4 бемоля"
+
+#: keysig.cpp:53
+msgid "5 flats"
+msgstr "5 бемолей"
+
+#: keysig.cpp:54
+msgid "6 flats"
+msgstr "6 бемолей"
+
+#: keysig.cpp:55
+msgid "7 flats"
+msgstr "7 бемолей"
+
+#: keysig.cpp:63
+msgid "Flats / sharps:"
+msgstr "Бемоли / диезы:"
+
+#: kguitar_part.cpp:133
 msgid "KGuitarPart"
 msgstr "KGuitarPart"
 
-#: kguitar_part.cpp:145
+#: kguitar_part.cpp:144
 msgid "No file specified, please select a file."
 msgstr "Файл не выбран, выберите файл."
 
-#: kguitar_part.cpp:149
+#: kguitar_part.cpp:148
 msgid "You have no permission to read this file."
 msgstr "У вас нет прав на чтение этого файла."
 
-#: kguitar_part.cpp:175 songview.cpp:67 kguitar.cpp:60
+#: kguitar_part.cpp:174 songview.cpp:67 kguitar.cpp:60
 msgid "Unnamed"
 msgstr "Без названия"
 
-#: kguitar_part.cpp:176
+#: kguitar_part.cpp:175
 msgid ""
 "Can't load or import song!It may be a damaged/wrong file format or, if "
 "you're trying experimental importers it may be a flaw with the import code."
@@ -141,271 +201,259 @@ msgstr ""
 "что файл поврежден или выбран неправильный формат или, если вы пробуете "
 "экспериментальные модули импорта, это может быть ошибка в его коде."
 
-#: kguitar_part.cpp:191
+#: kguitar_part.cpp:190
 msgid "Additional Export Options"
 msgstr "Дополнительные настройки экспорта"
 
-#: kguitar_part.cpp:284
+#: kguitar_part.cpp:283
 msgid "Can't save song in %1 format"
 msgstr "Не могу сохранить композицию в формате %1"
 
-#: kguitar_part.cpp:293 kguitar.cpp:128
+#: kguitar_part.cpp:292 kguitar.cpp:117
 msgid "KGuitar files"
 msgstr "Файлы KGuitar"
 
-#: kguitar_part.cpp:294 kguitar.cpp:129
+#: kguitar_part.cpp:293 kguitar.cpp:118
 msgid "ASCII files"
 msgstr "Файлы ASCII"
 
-#: kguitar_part.cpp:295 kguitar.cpp:130
+#: kguitar_part.cpp:294 kguitar.cpp:119
 msgid "MIDI files"
 msgstr "Файлы MIDI"
 
-#: kguitar_part.cpp:296
+#: kguitar_part.cpp:295
 msgid "TSE3MDL files"
 msgstr "Файлы TSE3MDL"
 
-#: kguitar_part.cpp:297 kguitar.cpp:131
+#: kguitar_part.cpp:296 kguitar.cpp:120
 msgid "Guitar Pro 4 files"
 msgstr "Файлы Guitar Pro 4"
 
-#: kguitar_part.cpp:298 kguitar.cpp:132
+#: kguitar_part.cpp:297 kguitar.cpp:121
 msgid "Guitar Pro 3 files"
 msgstr "Файлы Guitar Pro 3"
 
-#: kguitar_part.cpp:299 kguitar.cpp:133
+#: kguitar_part.cpp:298 kguitar.cpp:122
 msgid "MusicXML files"
 msgstr "Файлы MusicXML"
 
-#: kguitar_part.cpp:300 options.cpp:34
+#: kguitar_part.cpp:299 options.cpp:32
 msgid "MusiXTeX"
 msgstr "MusiXTeX"
 
-#: kguitar_part.cpp:301 kguitar.cpp:134
+#: kguitar_part.cpp:300 kguitar.cpp:123
 msgid "All files"
 msgstr "Все файлы"
 
-#: kguitar_part.cpp:494 kguitar_part.cpp:524
+#: kguitar_part.cpp:493 kguitar_part.cpp:522
 msgid "P&roperties..."
 msgstr "С&войства..."
 
-#: kguitar_part.cpp:504
-msgid "Zoom in"
-msgstr ""
-
-#: kguitar_part.cpp:506
-msgid "Zoom out"
-msgstr ""
-
 #: kguitar_part.cpp:508
-msgid "Zoom to..."
-msgstr ""
-
-#: kguitar_part.cpp:510
 msgid "Show Melody Editor"
 msgstr "Показать редактор мелодий"
 
-#: kguitar_part.cpp:513
+#: kguitar_part.cpp:511
 msgid "Show Score"
 msgstr "Показать нотный стан"
 
-#: kguitar_part.cpp:518
+#: kguitar_part.cpp:516
 msgid "&New..."
 msgstr "&Создать..."
 
-#: kguitar_part.cpp:522
+#: kguitar_part.cpp:520
 msgid "&Generate Bass Line"
 msgstr "&Генерировать бас-партию"
 
-#: kguitar_part.cpp:526
+#: kguitar_part.cpp:524
 msgid "&Rhythm..."
 msgstr "&Ритм..."
 
-#: kguitar_part.cpp:528
+#: kguitar_part.cpp:526
 msgid "&Chord..."
 msgstr "&Аккорд..."
 
-#: kguitar_part.cpp:531
+#: kguitar_part.cpp:529
 msgid "&Save Options"
 msgstr "&Сохранить настройки"
 
-#: kguitar_part.cpp:534
+#: kguitar_part.cpp:532
 msgid "&Arrange Track"
 msgstr "&Собрать такты"
 
-#: kguitar_part.cpp:538 trackviewcommands.cpp:128
+#: kguitar_part.cpp:536 trackviewcommands.cpp:128
 msgid "Transpose up"
 msgstr "Транспонировать вверх"
 
-#: kguitar_part.cpp:540 trackviewcommands.cpp:126
+#: kguitar_part.cpp:538 trackviewcommands.cpp:126
 msgid "Transpose down"
 msgstr "Транспонировать вниз"
 
-#: kguitar_part.cpp:544
+#: kguitar_part.cpp:542
 msgid "Whole"
 msgstr "Целая"
 
-#: kguitar_part.cpp:556 trackviewcommands.cpp:237
+#: kguitar_part.cpp:554 trackviewcommands.cpp:237
 msgid "Dotted note"
 msgstr "Нота с точкой"
 
-#: kguitar_part.cpp:558
+#: kguitar_part.cpp:556
 msgid "Triplet note"
 msgstr "Триоль"
 
-#: kguitar_part.cpp:560
+#: kguitar_part.cpp:558
 msgid "More duration"
 msgstr "Больше длительность"
 
-#: kguitar_part.cpp:562
+#: kguitar_part.cpp:560
 msgid "Less duration"
 msgstr "Меньше длительность"
 
-#: kguitar_part.cpp:568 timesig.cpp:60
+#: kguitar_part.cpp:566 timesig.cpp:12
 msgid "Time signature"
 msgstr "Размеp"
 
-#: kguitar_part.cpp:570 trackviewcommands.cpp:239
+#: kguitar_part.cpp:568 trackviewcommands.cpp:239
 msgid "Link with previous column"
 msgstr "Лига на предыдущую"
 
-#: kguitar_part.cpp:572
+#: kguitar_part.cpp:570
 msgid "Legato (hammer on/pull off)"
 msgstr "Легато (hammer on/pull off)"
 
-#: kguitar_part.cpp:574
+#: kguitar_part.cpp:572
 msgid "Slide"
 msgstr "Слайд"
 
-#: kguitar_part.cpp:576
+#: kguitar_part.cpp:574
 msgid "Let Ring"
 msgstr "Оставить звучать"
 
-#: kguitar_part.cpp:578
+#: kguitar_part.cpp:576
 msgid "Natural harmonic"
 msgstr "Натуральный флажолет"
 
-#: kguitar_part.cpp:580
+#: kguitar_part.cpp:578
 msgid "Artificial harmonic"
 msgstr "Искусственный флажолет"
 
-#: kguitar_part.cpp:582 trackviewcommands.cpp:235
+#: kguitar_part.cpp:580 trackviewcommands.cpp:235
 msgid "Palm muting"
 msgstr "Глушение ладонью"
 
-#: kguitar_part.cpp:584 trackviewcommands.cpp:245
+#: kguitar_part.cpp:582 trackviewcommands.cpp:245
 msgid "Dead note"
 msgstr "Глухая нота"
 
-#: kguitar_part.cpp:590
+#: kguitar_part.cpp:588
 msgid "&Play / stop"
 msgstr "&Играть / стоп"
 
-#: kguitar_part.cpp:592
+#: kguitar_part.cpp:590
 msgid "&Stop"
 msgstr "&Стоп"
 
-#: kguitar_part.cpp:606
+#: kguitar_part.cpp:604
 msgid "Move cursor left"
 msgstr "Двигать курсор влево"
 
-#: kguitar_part.cpp:608
+#: kguitar_part.cpp:606
 msgid "Move cursor right"
 msgstr "Двигать курсор вправо"
 
-#: kguitar_part.cpp:610
+#: kguitar_part.cpp:608
 msgid "Move cursor to the beginning of bar"
 msgstr "Передвинуть курсор к началу такта"
 
-#: kguitar_part.cpp:612
+#: kguitar_part.cpp:610
 msgid "Move cursor to the end of bar"
 msgstr "Передвинуть курсор к концу такта"
 
-#: kguitar_part.cpp:614
+#: kguitar_part.cpp:612
 msgid "Move cursor to the previous bar"
 msgstr "Передвинуть курсор на предыдущий такт"
 
-#: kguitar_part.cpp:616
+#: kguitar_part.cpp:614
 msgid "Move cursor to the next bar"
 msgstr "Передвинуть курсор на следующий такт"
 
-#: kguitar_part.cpp:618
+#: kguitar_part.cpp:616
 msgid "Move cursor to the beginning of track"
 msgstr "Передвинуть курсор к началу трека"
 
-#: kguitar_part.cpp:620
+#: kguitar_part.cpp:618
 msgid "Move cursor to the end of track"
 msgstr "Передвинуть курсор к концу трека"
 
-#: kguitar_part.cpp:622
+#: kguitar_part.cpp:620
 msgid "Move and select left"
 msgstr "Двигать и выбирать влево"
 
-#: kguitar_part.cpp:624
+#: kguitar_part.cpp:622
 msgid "Move and select right"
 msgstr "Двигать и выбирать вправо"
 
-#: kguitar_part.cpp:626
+#: kguitar_part.cpp:624
 msgid "Move cursor up"
 msgstr "Двигать курсор вверх"
 
-#: kguitar_part.cpp:628
+#: kguitar_part.cpp:626
 msgid "Move cursor down"
 msgstr "Двигать курсор вниз"
 
-#: kguitar_part.cpp:632 optionsmelodyeditor.cpp:67 trackviewcommands.cpp:301
+#: kguitar_part.cpp:630 optionsmelodyeditor.cpp:71 trackviewcommands.cpp:301
 msgid "Delete note"
 msgstr "Удалить ноту"
 
-#: kguitar_part.cpp:634 trackviewcommands.cpp:393
+#: kguitar_part.cpp:632 trackviewcommands.cpp:394
 msgid "Delete column"
 msgstr "Удалить колонку"
 
-#: kguitar_part.cpp:636 trackviewcommands.cpp:645
+#: kguitar_part.cpp:634 trackviewcommands.cpp:646
 msgid "Insert column"
 msgstr "Вставить колонку"
 
-#: kguitar_part.cpp:640
+#: kguitar_part.cpp:638
 msgid "Key 1"
 msgstr "Клавиша 1"
 
-#: kguitar_part.cpp:641
+#: kguitar_part.cpp:639
 msgid "Key 2"
 msgstr "Клавиша 2"
 
-#: kguitar_part.cpp:642
+#: kguitar_part.cpp:640
 msgid "Key 3"
 msgstr "Клавиша 3"
 
-#: kguitar_part.cpp:643
+#: kguitar_part.cpp:641
 msgid "Key 4"
 msgstr "Клавиша 4"
 
-#: kguitar_part.cpp:644
+#: kguitar_part.cpp:642
 msgid "Key 5"
 msgstr "Клавиша 5"
 
-#: kguitar_part.cpp:645
+#: kguitar_part.cpp:643
 msgid "Key 6"
 msgstr "Клавиша 6"
 
-#: kguitar_part.cpp:646
+#: kguitar_part.cpp:644
 msgid "Key 7"
 msgstr "Клавиша 7"
 
-#: kguitar_part.cpp:647
+#: kguitar_part.cpp:645
 msgid "Key 8"
 msgstr "Клавиша 8"
 
-#: kguitar_part.cpp:648
+#: kguitar_part.cpp:646
 msgid "Key 9"
 msgstr "Клавиша 9"
 
-#: kguitar_part.cpp:649
+#: kguitar_part.cpp:647
 msgid "Key 0"
 msgstr "Клавиша 0"
 
-#: kguitar_part.cpp:664 kguitar.cpp:30
+#: kguitar_part.cpp:662 kguitar.cpp:30
 msgid "Bar: "
 msgstr "Такт: "
 
@@ -473,27 +521,23 @@ msgstr "&Тоника:"
 msgid "&Mode:"
 msgstr "&Лад:"
 
-#: melodyeditor.cpp:76 melodyeditor.cpp:86 options.cpp:33
+#: melodyeditor.cpp:76 melodyeditor.cpp:86 options.cpp:31
 msgid "Melody Constructor"
 msgstr "Конструктор мелодий"
 
-#: options.cpp:25
-msgid "Preferences"
-msgstr ""
-
-#: options.cpp:32
+#: options.cpp:30
 msgid "Music Theory"
 msgstr "Музыкальная теория"
 
-#: options.cpp:37
+#: options.cpp:35
 msgid "MIDI Devices"
 msgstr "MIDI-устройства"
 
-#: options.cpp:39
+#: options.cpp:37
 msgid "Printing"
 msgstr "Печать"
 
-#: options.cpp:40
+#: options.cpp:38
 msgid "ASCII"
 msgstr "ASCII"
 
@@ -614,45 +658,49 @@ msgstr "Палисандр"
 msgid "Ebony"
 msgstr "Черное дерево"
 
-#: optionsmelodyeditor.cpp:61
+#: optionsmelodyeditor.cpp:56
+msgid "Mouse button actions"
+msgstr "Действия кнопок мыши"
+
+#: optionsmelodyeditor.cpp:59
+msgid "Left:"
+msgstr "Левая:"
+
+#: optionsmelodyeditor.cpp:59
+msgid "Middle:"
+msgstr "Средняя:"
+
+#: optionsmelodyeditor.cpp:59
+msgid "Right:"
+msgstr "Правая:"
+
+#: optionsmelodyeditor.cpp:65
 msgid "No action"
 msgstr "Нет действия"
 
-#: optionsmelodyeditor.cpp:62
+#: optionsmelodyeditor.cpp:66
 msgid "Set note"
 msgstr "Установить ноту"
 
-#: optionsmelodyeditor.cpp:63
+#: optionsmelodyeditor.cpp:67
 msgid "Set 02 power chord"
 msgstr "Установить аккорд 02"
 
-#: optionsmelodyeditor.cpp:64
+#: optionsmelodyeditor.cpp:68
 msgid "Set 022 power chord"
 msgstr "Установить аккорд 022"
 
-#: optionsmelodyeditor.cpp:65
+#: optionsmelodyeditor.cpp:69
 msgid "Set 00 power chord"
 msgstr "Установить аккорд 00"
 
-#: optionsmelodyeditor.cpp:66
+#: optionsmelodyeditor.cpp:70
 msgid "Set 0022 power chord"
 msgstr "Установить аккорд 0022"
 
-#: optionsmelodyeditor.cpp:71
+#: optionsmelodyeditor.cpp:75
 msgid "Advance to next column"
 msgstr "Перейти к следующей колонке"
-
-#: optionsmelodyeditor.cpp:77
-msgid "Left button:"
-msgstr "Левая кнопка:"
-
-#: optionsmelodyeditor.cpp:78
-msgid "Middle button:"
-msgstr "Средняя кнопка:"
-
-#: optionsmelodyeditor.cpp:79
-msgid "Right button:"
-msgstr "Правая кнопка:"
 
 #: optionsmidi.cpp:28
 msgid "Port"
@@ -728,17 +776,13 @@ msgstr "Джазовые, смешанные"
 
 #: optionsmusictheory.cpp:82
 msgid ""
-"Jazz note names are very special and should be\n"
-"used only if really know what you do. Usage of jazz\n"
-"note names without a purpose would confuse or mislead\n"
-"anyone reading the music who did not have a knowledge\n"
-"of jazz note naming.\n"
+"Jazz note names are very special and should be used only if really know what "
+"you do. Usage of jazz note names without a purpose would confuse or mislead "
+"anyone reading the music who did not have a knowledge of jazz note naming.\n"
 "\n"
 "Are you sure you want to use jazz notes?"
 msgstr ""
-"Джазовые названия нот - очень особенные и должны\n"
-"использоваться только если вы точно знаете, что делаете.\n"
-"Бесцельное использование джазовых нот может запутать\n"
+"Джазовые названия нот - очень особенные и должны использоваться только если вы точно знаете, что делаете. Бесцельное использование джазовых нот может запутать "
 "тех, кто не знаком с этими названиями.\n"
 "\n"
 "Вы увеpены, что хотите использовать джазовые ноты?"
@@ -775,37 +819,37 @@ msgstr "&Длительность"
 msgid "&Effects"
 msgstr "&Эффекты"
 
-#: rc.cpp:22 kguitar.cpp:63 kguitar.cpp:92
+#: rc.cpp:24 kguitar.cpp:63
 #, no-c-format
 msgid "Edit Toolbar"
 msgstr "Панель редактирования"
 
-#: rc.cpp:24 settabmidibase.cpp:146
+#: rc.cpp:26 settabmidibase.cpp:146
 #, no-c-format
 msgid "SetTabMidi"
 msgstr "SetTabMidi"
 
-#: rc.cpp:26 settabmidibase.cpp:147
+#: rc.cpp:28 settabmidibase.cpp:147
 #, no-c-format
 msgid "Transpose:"
 msgstr "Транспонирование:"
 
-#: rc.cpp:28 settabmidibase.cpp:148
+#: rc.cpp:30 settabmidibase.cpp:148
 #, no-c-format
 msgid "Chorus:"
 msgstr "Хорус:"
 
-#: rc.cpp:30 settabmidibase.cpp:149
+#: rc.cpp:32 settabmidibase.cpp:149
 #, no-c-format
 msgid "Volume:"
 msgstr "Громкость:"
 
-#: rc.cpp:32 settabmidibase.cpp:150
+#: rc.cpp:34 settabmidibase.cpp:150
 #, no-c-format
 msgid "Pan:"
 msgstr "Панорама:"
 
-#: rc.cpp:34 settabmidibase.cpp:151
+#: rc.cpp:36 settabmidibase.cpp:151
 #, no-c-format
 msgid "Reverb:"
 msgstr "Реверб:"
@@ -942,19 +986,19 @@ msgstr "Гитара"
 msgid "Can't generate a bass line from drum track"
 msgstr "Невозможно сгенерировать партию баса из партии барабанной установки"
 
-#: songview.cpp:367
+#: songview.cpp:366
 msgid "Error opening MIDI device!"
 msgstr "Ошибка открытия MIDI устройства!"
 
-#: songview.cpp:464 songview.cpp:475
+#: songview.cpp:463 songview.cpp:474
 msgid "There is no selection!"
 msgstr "Нет выбранного фрагмента!"
 
-#: songview.cpp:469
+#: songview.cpp:468
 msgid "Cut to clipboard"
 msgstr "Вырезка в буфер обмена"
 
-#: songview.cpp:556
+#: songview.cpp:555
 msgid ""
 "There are some problems:\n"
 "\n"
@@ -962,23 +1006,23 @@ msgstr ""
 "Есть некоторые проблемы:\n"
 "\n"
 
-#: songview.cpp:561
+#: songview.cpp:560
 msgid "The clipboard data hasn't the same track mode.\n"
 msgstr "Данные в буфере обмена отличаются режимом трека.\n"
 
-#: songview.cpp:565
+#: songview.cpp:564
 msgid "The clipboard data hasn't the same number of strings.\n"
 msgstr "Данные в буфере обмена отличаются числом струн.\n"
 
-#: songview.cpp:574
+#: songview.cpp:573
 msgid "The clipboard data hasn't the same tuneing.\n"
 msgstr "Данные в буфере обмена отличаются настройкой инструмента.\n"
 
-#: songview.cpp:579
+#: songview.cpp:578
 msgid "The clipboard data hasn't the same number of frets.\n"
 msgstr "Данные в буфере обмена отличаются числом ладов.\n"
 
-#: songview.cpp:585
+#: songview.cpp:584
 msgid ""
 "\n"
 "\n"
@@ -988,7 +1032,7 @@ msgstr ""
 "\n"
 "Я улучшу этот код. Так что некоторые проблемы\n"
 
-#: songview.cpp:586
+#: songview.cpp:585
 msgid "will be solved in the future."
 msgstr "решатся в будущем."
 
@@ -1012,15 +1056,15 @@ msgstr "&Рисунок:"
 msgid "Strumming pattern"
 msgstr "Ритмический pисунок"
 
-#: timesig.cpp:25
+#: timesig.cpp:39
 msgid "&Beats per measure:"
 msgstr "&Долей в такте:"
 
-#: timesig.cpp:26
+#: timesig.cpp:40
 msgid "Beat &value:"
 msgstr "&Значение доли:"
 
-#: timesig.cpp:47
+#: timesig.cpp:42
 msgid "Apply till the &end"
 msgstr "Установить до &конца"
 
@@ -1112,23 +1156,23 @@ msgstr "Удаление ноты %1"
 msgid "Add column"
 msgstr "Добавление колонки"
 
-#: trackviewcommands.cpp:419
+#: trackviewcommands.cpp:420
 msgid "Delete %1 columns"
 msgstr "Удаление %1 колонок"
 
-#: trackviewcommands.cpp:591
+#: trackviewcommands.cpp:592
 msgid "Set time signature"
 msgstr "Установить размер"
 
-#: trackviewcommands.cpp:679
+#: trackviewcommands.cpp:680
 msgid "Insert strum"
 msgstr "Вставка ритмического рисунка"
 
-#: trackviewcommands.cpp:706
+#: trackviewcommands.cpp:707
 msgid "Insert Chord"
 msgstr "Вставка аккорда"
 
-#: trackviewcommands.cpp:813
+#: trackviewcommands.cpp:814
 msgid "Insert rhythm"
 msgstr "Вставка ритма"
 
@@ -1136,7 +1180,7 @@ msgstr "Вставка ритма"
 msgid "Could not find KGuitar KPart! Check your installation!"
 msgstr "Невозможно найти KPart для KGuitar! Проверьте корректность установки!"
 
-#: kguitar.cpp:127
+#: kguitar.cpp:116
 msgid "All music files"
 msgstr "Все музыкальные файлы"
 
@@ -1169,10 +1213,11 @@ msgstr ""
 msgid "&KGuitar"
 msgstr "&KGuitar"
 
-#: rc.cpp:8
-#, no-c-format
-msgid "Show Toolbars"
-msgstr "Показать панели инструментов"
+#~ msgid "Left button:"
+#~ msgstr "Левая кнопка:"
+
+#~ msgid "Show Toolbars"
+#~ msgstr "Показать панели инструментов"
 
 #~ msgid "Set time sig."
 #~ msgstr "Установка размера"
