@@ -798,18 +798,16 @@ TSE3::PhraseEdit *TabTrack::midiTrack(bool tracking, int tracknum)
 {
 	TSE3::PhraseEdit *midi = new TSE3::PhraseEdit();
 
-	// Initial setup, patches, midi volumes, choruses, etc.
-	midi->insert(TSE3::MidiEvent(TSE3::MidiCommand(
-										TSE3::MidiCommand_ProgramChange,
-										channel - 1, globalMidiPort, patch),
-								 0)
-				 );
-
 	long timer = 0;				// midi timestamp for each note
 	int midilen = 0;			// midi ticks until start of next note
 	int duration;				// note duration (dead note: less than midilen)
 	uchar pitch;				// note pitch
 	const int velocity = 0x60;	// note velocity
+
+	// Ugly MIDI shift between real start of notes and things like
+	// patch/bank changes, etc. Required for stupid MIDI devices that
+	// can't handle patch/bank change and note on event on the same tick.
+	int midiShift = tracking ? 5 : 0;
 
 	cursortimer = -1;
 
@@ -870,11 +868,22 @@ TSE3::PhraseEdit *TabTrack::midiTrack(bool tracking, int tracknum)
 				}
 			}
 
+// 			midi->insert(
+// 				TSE3::MidiEvent(TSE3::MidiCommand(TSE3::MidiCommand_NoteOn,
+// 				                                  channel - 1, globalMidiPort,
+// 				                                  pitch, velocity),
+// 				                timer + midiShift, velocity, timer + duration));
+
 			midi->insert(
 				TSE3::MidiEvent(TSE3::MidiCommand(TSE3::MidiCommand_NoteOn,
 				                                  channel - 1, globalMidiPort,
 				                                  pitch, velocity),
-				                timer, velocity, timer + duration));
+				                timer + midiShift));
+			midi->insert(
+				TSE3::MidiEvent(TSE3::MidiCommand(TSE3::MidiCommand_NoteOff,
+				                                  channel - 1, globalMidiPort,
+				                                  pitch, velocity),
+				                timer + midiShift + duration - 1));
 
 //			cout << "Inserted note pitch " << (int) pitch
 //				 << ", start " << timer << ", duration " << duration << "\n";
@@ -894,9 +903,16 @@ TSE3::PhraseEdit *TabTrack::midiTrack(bool tracking, int tracknum)
 		midi->insert(
 			TSE3::MidiEvent(TSE3::MidiCommand(TSE3::MidiCommand_NoteOff,
 											  0, globalMidiPort,
-											  0, 0), timer)
+											  0, 0), timer + 120)
 			);
 	}
+
+	// Initial setup, patches, midi volumes, choruses, etc.
+	midi->insert(TSE3::MidiEvent(TSE3::MidiCommand(
+										TSE3::MidiCommand_ProgramChange,
+										channel - 1, globalMidiPort, patch),
+								 tracking ? cursortimer : 0)
+				 );
 
 	return midi;
 }
