@@ -19,6 +19,7 @@ class QLabel;
 class ChordList;
 class FingerList;
 class TabTrack;
+class Strumming;
 
 class ChordSelector: public QDialog
 {
@@ -27,7 +28,7 @@ public:
     ChordSelector(TabTrack *p, QWidget *parent=0, const char *name=0);
     int  app(int x) { return fng->app(x); }
     void setApp(int x, int fret) { fng->setApp(x, fret); }
-	int  scheme() { return strum->currentItem(); }
+	int  scheme() { return strum_scheme; }
 
 public slots:
     void detectChord();
@@ -35,19 +36,22 @@ public slots:
     void setHighSteps();
     void setStepsFromChord();
     void findSelection();
-    void findChords(); 
+    void findChords();
+	void askStrum();
 private:
     TabTrack *parm;
 
     QLineEdit *chname; 
     QListBox *tonic, *step3, *stephigh;
     ChordList *chords;
-    QComboBox *st[6], *inv, *bassnote, *strum;
+    QComboBox *st[6], *inv, *bassnote;
     QLabel *cnote[7];
     QButtonGroup *complexity;
     QRadioButton *complexer[3];
     Fingering *fng;
     FingerList *fnglist;
+
+	int strum_scheme;
 };
 
 #endif
