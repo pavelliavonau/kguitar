@@ -452,12 +452,13 @@ void SongView::slotPaste()
 	if (TrackDrag::decode(QApplication::clipboard()->data(), trk))
         insertTabs(trk);
 
+	tv->update();
 }
 
 void SongView::slotSelectAll()
 {
 	tv->trk()->xsel = 0;
-	tv->trk()->x =  tv->trk()->c.size() - 1;
+	tv->trk()->x = tv->trk()->c.size() - 1;
 	tv->trk()->sel = TRUE;
 
 	tv->update();
@@ -563,16 +564,9 @@ void SongView::print(KPrinter *printer)
 
 // Advances to the next column to monitor playback when event comes
 // thru PlaybackTracker
-void SongView::playbackNextColumn(int track, int advance)
+void SongView::playbackColumn(int track, int x)
 {
  	TabTrack *trk = song->t.at(track);
-	if (tv->trk() == trk) {
-		for (int i = 0; i < advance; i++)
-			tv->keyRight();
-	} else {
-		if (trk->x == trk->lastColumn(trk->xb))
-			trk->xb++;
-		trk->x += advance;
-	}
-// 	tv->repaintContents();
+	if (tv->trk() == trk)
+		tv->setX(x);
 }
