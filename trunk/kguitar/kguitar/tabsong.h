@@ -22,6 +22,7 @@ public:
 	QString filename;					// File name to save under
 
 	int freeChannel();
+	int maxLen();
 	void arrangeBars();
 	bool load_from_kg(QString fileName);		// Native format - kg
 	bool save_to_kg(QString fileName);

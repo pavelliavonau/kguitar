@@ -54,21 +54,28 @@ int TabSong::freeChannel()
 		fc[i] = TRUE;
 
 	QListIterator<TabTrack> it(t);
-	for (; it.current(); ++it) {
-		TabTrack *trk = it.current();
-		fc[trk->channel] = FALSE;
-	}
+	for (; it.current(); ++it)
+		fc[it.current()->channel] = FALSE;
 
 	int res;
-	for (res = 1; res <= 16; res++) {
+	for (res = 1; res <= 16; res++)
 		if (fc[res])
 			break;
-	}
 
 	if (res > 16)
 		res = 1;
 
 	return res;
+}
+
+// Returns length of longest track in bars
+int TabSong::maxLen()
+{
+	int res = 0;
+
+	QListIterator<TabTrack> it(t);
+	for (; it.current(); ++it)
+		res = it.current()->b.size() > res ? it.current()->b.size() : res;
 }
 
 // KG format specs
@@ -350,8 +357,8 @@ bool TabSong::save_to_kg(QString fileName)
 					bar++;				// Time for next bar
 			}
 
-			if (trk->b[bar].start == x) { // New bar event
-				s << (Q_UINT8) 'B';
+			if ((bar < trk->b.size()) && (trk->b[bar].start == x)) {
+				s << (Q_UINT8) 'B';     // New bar event
 				s << (Q_UINT8) 0;
 			}
 
