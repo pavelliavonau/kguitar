@@ -165,6 +165,7 @@ private:
 
 	void drawLetRing(QPainter *p, int x, int y);
 
+	QFont *normalFont;
 	QFont *timeSigFont;
 	QFont *smallCaptionFont;
 
