@@ -61,17 +61,18 @@ public:
 	int colWidth(int cl, TabTrack *trk);
 	void drawBar(int bn, TabTrack *trk, int es);
 	void drawBarLns(int w, TabTrack *trk);
-	void drawBeam(int x1, int x2, int yh, char tp);
-	void drawBeams(int bn, TabTrack *trk);
+	void drawBeam(int x1, int x2, int y, char tp, char dir);
+	void drawBeams(int bn, QMemArray<StemInfo> & stx, char dir, TabTrack *trk);
 	void drawKey(int l, TabTrack *trk);
 	void drawLetRing(int x, int y);
 	void drawNtHdCntAt(int x, int y, int t, Accidentals::Accid a);
-	void drawNtStmCntAt(int x, int yl, int yh, int t);
+	void drawNtStmCntAt(int x, int yl, int yh, int t, char dir);
 	void drawPageHdr(int n, TabSong *song);
 	void drawRstCntAt(int x, int y, int t);
 	void drawStLns(int w);
 	void drawStrCntAt(int x, int y, const QString s);
 	int eraWidth(const QString s);
+	bool findHiLo(int cl, int v, TabTrack *trk, int & hi, int & lo);
 	void initFonts();
 	void initMetrics(KPrinter *printer);
 	void initPens();
@@ -132,7 +133,8 @@ private:
 	bool stTab;					// print tab
 	// Description of all stems in a track
 	// LVIFIX: should this be part of TabColumn ?
-	QMemArray<StemInfo> st;
+	QMemArray<StemInfo> stl;	// lower stems
+	QMemArray<StemInfo> stu;	// upper stems
 };
 
 #endif // SONGPRINT_H

@@ -1,5 +1,6 @@
-#include "tabtrack.h"
+#include "accidentals.h"
 #include "globaloptions.h"
+#include "tabtrack.h"
 
 TabTrack::TabTrack(TrackMode _tm, QString _name, int _channel,
 				   int _bank, uchar _patch, char _string, char _frets)
@@ -48,6 +49,29 @@ bool TabTrack::showBarSig(int n)
 	return !((n > 0) &&
 			 (b[n - 1].time1 == b[n].time1) &&
 			 (b[n - 1].time2 == b[n].time2));
+}
+
+// Returns the bar number for column c
+int TabTrack::barNr(int c)
+{
+	int i = 0;
+	int res = -1;
+	while (i < b.size()) {
+		if (i + 1 >= b.size()) {
+			if (b[i].start <= c)
+				break;
+		} else {
+			if ((b[i].start <= c) && (c < b[i+1].start))
+				break;
+		}
+		i++;
+	}
+	// LVIFIX: what to do if c < 0 ?
+	if (c < 0)
+		res = -1;
+	else
+		res = i;
+	return res;
 }
 
 // Returns the column that ends bar <n>. Thus bar <n> is all columns
@@ -100,6 +124,54 @@ Q_UINT16 TabTrack::currentBarDuration()
 Q_UINT16 TabTrack::maxCurrentBarDuration()
 {
 	return 4 * 120 * b[xb].time1 / b[xb].time2;
+}
+
+// Returns the duration of the note in column t and string i
+// Ringing and bar end are taken into account
+Q_UINT16 TabTrack::noteDuration(uint t, int i)
+{
+	Q_UINT16 dur = 0;
+	for (int j = 0; j < noteNrCols(t, i); j++)
+		dur += c[t + j].fullDuration();
+	return dur;
+}
+
+// Returns the number of columns used by the note in column t and string i
+// Ringing and bar end are taken into account
+// LVIFIX: returns 0 for a "rest" column
+int TabTrack::noteNrCols(uint t, int i)
+{
+	if ((t >= c.size()) || (i < 0) || (i >= string)) {
+		return 0;
+	}
+	if (c[t].a[i] == NULL_NOTE) {
+		return 0;
+	}
+	if (c[t].e[i] == EFFECT_LETRING) {
+		int b  = barNr(t);
+		int lc = lastColumn(b);	// last column of current bar
+		// ringing: find next note, stop ringing or end of bar
+		if (t == lc) {
+			// note is in last column of bar
+			return 1;
+		}
+		int cc = t + 1;			// current column
+		while ((cc < lc)
+				&& (c[cc].a[i] == NULL_NOTE)
+				&& (c[cc].e[i] != EFFECT_STOPRING))
+			cc++;
+		int res = cc - t;
+		// if necessary, add last column of bar
+		if ((cc == lc)
+			&& (c[cc].a[i] == NULL_NOTE)
+			&& (c[cc].e[i] != EFFECT_STOPRING))
+				res++;
+		return res;
+	} else {
+		// not ringing: length is one column
+		return 1;
+	}
+	return 0;
 }
 
 // Inserts n columns at current cursor position
@@ -339,3 +411,229 @@ TSE3::PhraseEdit *TabTrack::midiTrack()
 	return midi;
 }
 #endif
+
+// Functions used to calculate TabColumn "volatile" data, that need access
+// to more than one column.
+// Used by MusicXML export and PostScript output.
+
+// Determine step/alter/octave/accidental for each note
+
+void  TabTrack::calcStepAltOct()
+{
+	int t;
+	// initialize all data
+	for (t = 0; t < c.size(); t++) {
+		for (int i = 0; i < string; i++) {
+			c[t].stp[i] = ' ';
+			c[t].alt[i] = 0;
+			c[t].oct[i] = 0;
+			c[t].acc[i] = Accidentals::None;
+		}
+	}
+	// calculate data for each bar
+	for (uint bn = 0; bn < b.size(); bn++) {
+		Accidentals accSt;
+		accSt.resetToKeySig();
+		// loop t over all columns in this bar and calculate saoa
+		for (t = b[bn].start; (int) t <= lastColumn(bn); t++) {
+			accSt.startChord();
+			for (int i = 0; i < string; i++) {
+				if (c[t].a[i] > -1) {
+					accSt.addPitch(tune[i] + c[t].a[i]);
+				}
+			}
+			accSt.calcChord();
+			for (int i = 0; i < string; i++) {
+				if (c[t].a[i] > -1) {
+					Accidentals::Accid tmpacc = Accidentals::None;
+					int tmpalt = 0;
+					int tmpoct = 0;
+					QString tmpnam = " ";
+					accSt.getNote(tune[i] + c[t].a[i],
+									tmpnam, tmpalt, tmpoct, tmpacc);
+					c[t].stp[i] = tmpnam.at(0).latin1();
+					c[t].alt[i] = tmpalt;
+					c[t].oct[i] = tmpoct;
+					c[t].acc[i] = tmpacc;
+				}
+			}
+		}
+	}
+}
+
+// Determine voices for each note
+
+void  TabTrack::calcVoices()
+{
+	int t;
+	// initialize all data
+	for (t = 0; t < c.size(); t++) {
+		for (int i = 0; i < string; i++) {
+			c[t].v[i] = -1;
+		}
+	}
+
+	// if only one single voice, allocate all notes to voice 1
+	if (!hasMultiVoices()) {
+		t = 0;
+		while (t < c.size()) {
+			for (int i = 0; i < string; i++) {
+				if (c[t].a[i] != NULL_NOTE) {
+					c[t].v[i] = 1;
+				}
+			}
+			t++;
+		}
+		return;
+	}
+
+	// loop through track and allocate voice 0
+	t = 0;
+	while (t < c.size()) {
+		// find all lowest notes of equal length in this column
+		int  lntlen = 0;		// lowest note length
+		for (int i = 0; i < string; i++) {
+			if (c[t].a[i] != NULL_NOTE) {
+				if (lntlen == 0) {
+					// lowest note in this column, allocate to voice 0
+					c[t].v[i] = 0;
+					lntlen = noteNrCols(t, i);
+				} else {
+					if (lntlen == noteNrCols(t, i)) {
+						// same length as lowest note in this column,
+						// allocate to voice 0
+						c[t].v[i] = 0;
+					}
+				}
+			}
+		}
+		// move to next note
+		if (lntlen == 0) {
+			t++;
+		} else {
+			t += lntlen;
+		}
+	}
+	// loop through track again and allocate remaining notes to voice 1
+	// LVIFIX: cannot handle more than two voices:
+	// print error when more voices are found
+	t = 0;
+	while (t < c.size()) {
+		for (int i = 0; i < string; i++) {
+			if ((c[t].a[i] != NULL_NOTE) && (c[t].v[i] == -1)) {
+				c[t].v[i] = 1;
+			}
+		}
+		t++;
+	}
+	// in multiple voice mode, if a column contains more than one notes
+	// in voice 0, but none in voice 1, then allocate all but lowest note
+	// to voice 1
+	if (hasMultiVoices()) {
+		t = 0;
+		while (t < c.size()) {
+			int v0 = 0;			// number of notes in voice 1
+			int v1 = 0;			// number of notes in voice 1
+			for (int i = 0; i < string; i++) {
+				if (c[t].v[i] == 0) {
+					v0++;
+				}
+				if (c[t].v[i] == 1) {
+					v1++;
+				}
+			}
+			if ((v0 > 1) && (v1 == 0)) {
+				int na = 0;		// number of allocated notes
+				for (int i = 0; i < string; i++) {
+					if (c[t].a[i] != NULL_NOTE) {
+						if (na == 0) {
+							c[t].v[i] = 0;
+						} else {
+							c[t].v[i] = 1;
+						}
+						na++;
+					}
+				}
+			}
+			t++;
+		} // while (t ...
+	}
+}
+
+// return true if track has multiple voices
+// i.e. at least one note is ringing
+
+bool TabTrack::hasMultiVoices()
+{
+	for (int t = 0; t < c.size(); t++) {
+		for (int i = 0; i < string; i++) {
+			if (c[t].e[i] == EFFECT_LETRING) {
+				return true;
+			}
+		}
+	}
+	return false;
+}
+
+// determine if d equals an exact note duration
+
+bool TabTrack::isExactNoteDur(int d)
+{
+	switch (d) {
+	case  15: return true;
+	case  30: return true;
+	case  60: return true;
+	case 120: return true;
+	case 240: return true;
+	case 480: return true;
+	}
+	return false;
+}
+
+// get note head type tp and number of dots dt for column t in voice v
+// if no note in voice v, then return false
+// if note found but no valid type/dot combination, then return true,
+// but tp = dt = 0;
+
+bool TabTrack::getNoteTypeAndDots(int t, int v, int & tp, int & dt)
+{
+	// defaults: no note, no dots
+	tp = 0;
+	dt = 0;
+	// find a note in voice v
+	int i;
+	for (i = string-1; i >= 0; i--) {
+		if ((c[t].a[i] != NULL_NOTE)
+			&& (c[t].v[i] == v)) {
+			break;
+		}
+	}
+	if (i == -1) {
+		// no note in this voice
+		return false;
+	}
+	int dur = noteDuration(t, i);
+	// try no dots
+	tp = dur;
+	dt = 0;
+	if (isExactNoteDur(tp)) {
+		return true;
+	}
+	// try one dot (duration = type * 3 / 2)
+	tp = dur * 2 / 3;
+	dt = 1;
+	if (isExactNoteDur(tp)) {
+		return true;
+	}
+	// try two dots (duration = type * 7 / 4)
+	tp = dur * 4 / 7;
+	dt = 2;
+	if (isExactNoteDur(tp)) {
+		return true;
+	}
+
+	// no valid note type / dot combination found
+	tp = 0;
+	dt = 0;
+	return true;
+}
