@@ -129,6 +129,7 @@ ChordSelector::ChordSelector(TabTrack *p, QWidget *parent=0, const char *name=0)
     inv->insertItem(i18n("Inv #3"));
     inv->insertItem(i18n("Inv #4"));
     inv->insertItem(i18n("Inv #5"));
+    inv->insertItem(i18n("Inv #6"));
     inv->setGeometry(70,120,80,20);
     connect(inv,SIGNAL(activated(int)),SLOT(findChords()));
 
@@ -472,6 +473,8 @@ void ChordSelector::findChords()
     int i,j,k,min,max,bass,muted;
     int app[MAX_STRINGS];               // raw fingering itself
     int ind[MAX_STRINGS];               // indexes in hfret array
+
+    //                1 5 7 9 11 13 
     int toneshift[6]={0,7,10,2,5,9};
 
     int fb[MAX_STRINGS][parm->frets];  // array with an either -1 or number of note from a chord
@@ -483,7 +486,7 @@ void ChordSelector::findChords()
 
     // CALCULATION OF REQUIRED NOTES FOR A CHORD FROM USER STEP INPUT
 
-    int need[6],got[6];
+    int need[7],got[7];
 
     int t = tonic->currentItem();
 
