@@ -57,11 +57,18 @@ TrackView::TrackView(TabSong *s, KXMLGUIClient *_XMLGUIClient, KCommandHistory* 
 
 	updateRows();
 
+// 	smallCaptionFont = new QFont(KGlobalSettings::generalFont());
+// 	smallCaptionFont.setPointSizeFloat(smallCaptionFont.pointSizeFloat() * 0.7);
+// 	timeSigFont = KGlobalSettings::generalFont();
+// 	timeSigFont.setPointSizeFloat(timeSigFont.pointSizeFloat() * 1.4);
+// 	timeSigFont.setBold(TRUE);
+
 	lastnumber = -1;
 }
 
 TrackView::~TrackView()
 {
+// 	delete smallCaptionFont;
 }
 
 void TrackView::selectTrack(TabTrack *trk)
@@ -175,6 +182,13 @@ void TrackView::addLegato()
 	lastnumber = -1;
 }
 
+void TrackView::addSlide()
+{
+	if (curt->c[curt->x].a[curt->y] >= 0)
+		m_cmdHist->addCommand(new AddFXCommand(this, curt, EFFECT_SLIDE));
+	lastnumber = -1;
+}
+
 void TrackView::insertChord()
 {
 	int a[MAX_STRINGS];
@@ -248,7 +262,7 @@ void TrackView::paintCell(QPainter *p, int row, int col)
 	// Time signature
 
 	if (curt->showBarSig(bn)) {
-		p->setFont(QFont("helvetica", TIMESIGSIZE, QFont::Bold));
+// 		p->setFont(timeSigFont);
 		tmp.setNum(curt->b[bn].time1);
 		p->drawText(20, VERTSPACE + VERTLINE * s / 4 - TIMESIGSIZE / 2,
 					TIMESIGSIZE, TIMESIGSIZE, AlignCenter, tmp);
@@ -257,7 +271,7 @@ void TrackView::paintCell(QPainter *p, int row, int col)
 					 TIMESIGSIZE, TIMESIGSIZE, AlignCenter, tmp);
 	}
 
-	p->setFont(QFont("helvetica", VERTLINE));
+	p->setFont(KGlobalSettings::generalFont());
 	p->setBrush(KGlobalSettings::baseColor());
 
 	// Drum abbreviations markings
@@ -355,19 +369,45 @@ void TrackView::paintCell(QPainter *p, int row, int col)
 			// Draw effects
 			switch (curt->c[t].e[i]) {
 			case EFFECT_HARMONIC:
+// 				p->setFont(smallCaptionFont);
 				p->drawText(xpos + VERTLINE + 2, VERTSPACE + (s - i) * VERTLINE - VERTLINE / 2,
 							VERTLINE, VERTLINE, AlignCenter, "H");
+// 				p->setFont(KGlobalSettings::generalFont());
 				break;
 			case EFFECT_ARTHARM:
+// 				p->setFont(smallCaptionFont);
 				p->drawText(xpos + VERTLINE + 2, VERTSPACE + (s - i) * VERTLINE - VERTLINE / 2,
 							VERTLINE * 2, VERTLINE, AlignCenter, "AH");
+// 				p->setFont(KGlobalSettings::generalFont());
 				break;
 			case EFFECT_LEGATO:
-				p->setPen(SolidLine);
+ 				p->setPen(SolidLine);
 				p->drawArc(xpos + VERTLINE, VERTSPACE + (s - i) * VERTLINE - VERTLINE / 2,
 						   xdelta - VERTLINE, 10, 0, 180 * 16);
-				p->drawText(xpos + VERTLINE + 2, VERTSPACE + (s - i) * VERTLINE - VERTLINE / 2,
-							VERTLINE * 2, VERTLINE, AlignCenter, "PO");
+				if ((t < curt->c.size() - 1) && (curt->c[t + 1].a[i] >= 0)) {
+// 					p->setFont(smallCaptionFont);
+					if (curt->c[t + 1].a[i] > curt->c[t].a[i]) {
+						p->drawText(xpos + xdelta / 2, VERTSPACE + (s - i) * VERTLINE - VERTLINE / 2,
+									VERTLINE * 2, VERTLINE, AlignCenter, "HO");
+					} else if (curt->c[t + 1].a[i] < curt->c[t].a[i]) {
+						p->drawText(xpos + xdelta / 2, VERTSPACE + (s - i) * VERTLINE - VERTLINE / 2,
+									VERTLINE * 2, VERTLINE, AlignCenter, "PO");
+					}
+// 					p->setFont(KGlobalSettings::generalFont());
+				}
+				p->setPen(NoPen);
+				break;
+			case EFFECT_SLIDE:
+				p->setPen(SolidLine);
+				if ((t < curt->c.size() - 1) && (curt->c[t + 1].a[i] >= 0)) {
+					if (curt->c[t + 1].a[i] > curt->c[t].a[i]) {
+						p->drawLine(xpos + VERTLINE + 2, VERTSPACE + (s - i) * VERTLINE + VERTLINE / 2,
+									xpos + xdelta, VERTSPACE + (s - i) * VERTLINE - VERTLINE / 2);
+					} else {
+						p->drawLine(xpos + VERTLINE + 2, VERTSPACE + (s - i) * VERTLINE - VERTLINE / 2,
+									xpos + xdelta, VERTSPACE + (s - i) * VERTLINE + VERTLINE / 2);
+					}
+				}
 				p->setPen(NoPen);
 				break;
 			}

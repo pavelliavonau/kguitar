@@ -32,6 +32,7 @@
    <Menu name="effects" >
     <text>&amp;Effects</text>
     <Action name="fx_legato" />
+    <Action name="fx_slide" />
     <Action name="fx_nat_harm" />
     <Action name="fx_art_harm" />
     <Separator/>
@@ -96,6 +97,7 @@
   <Action name="time_sig" />
   <Action name="link_prev" />
   <Action name="fx_legato" />
+  <Action name="fx_slide" />
   <Action name="fx_nat_harm" />
   <Action name="fx_art_harm" />
   <Action name="fx_palmmute" />
