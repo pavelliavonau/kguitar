@@ -14,8 +14,11 @@ static KCmdLineOptions options[] = {
 	{ 0, 0, 0 }
 };
 
+#ifdef WITH_TSE3
+static const char *DESCRIPTION = I18N_NOOP("A stringed instrument tabulature editor (with MIDI support via TSE3)");
+#else
 static const char *DESCRIPTION = I18N_NOOP("A stringed instrument tabulature editor");
-
+#endif
 
 int main(int argc, char **argv)
 {
@@ -25,7 +28,7 @@ int main(int argc, char **argv)
 						 "http://kguitar.sourceforge.net");
 
 	aboutData.addAuthor("Mikhail Yakshin AKA GreyCat", I18N_NOOP("Maintainer and main coder"),
-						"GreyCat@users.sourceforge.net");
+						"greycat@users.sourceforge.net");
 	aboutData.addAuthor("Alex Brand AKA alinx", 0, "alinx@users.sourceforge.net");
 	aboutData.addCredit("Stephan Borchert", 0, "sborchert@users.sourceforge.net");
 	aboutData.addCredit("Juan Pablo Sousa Bravo AKA gotem", 0, "gotem@users.sourceforge.net");
