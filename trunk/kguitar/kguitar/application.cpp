@@ -496,6 +496,14 @@ bool KGuitarPart::fileSave(QString fn)
 			return FALSE;
 		}
 	}
+	if (ext == "TSE3") {
+		if (sv->sng()->save_to_tse3(fn)) {
+			ret = TRUE;
+		} else {
+			KMessageBox::sorry(p, i18n("Can't export the song!"));
+			return FALSE;
+		}
+	}
 	if (ext == "GTP") {
 		if (sv->sng()->save_to_gtp(fn)) {
 			ret = TRUE;
@@ -523,6 +531,7 @@ bool KGuitarPart::fileSave(QString fn)
 			return FALSE;
 		}
 	}
+
 	return ret;
 }
 
