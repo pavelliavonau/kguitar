@@ -1,17 +1,24 @@
 #ifndef CHORD_H
 #define CHORD_H
 
-#include <qdialog.h>
+#include "config.h"
+
 #include "global.h"
 #include "globaloptions.h"
-
 #include "fingers.h"
+
 #include <qcombobox.h>
+#include <qdialog.h>
+
+#ifdef WITH_TSE3
+#include <tse3/MidiScheduler.h>
+#endif
 
 #define STEPSIZE     40
 
 class QLineEdit;
 class QListBox;
+class QPushButton;
 class QButtonGroup;
 class QRadioButton;
 class QComboBox;
@@ -21,14 +28,19 @@ class FingerList;
 class TabTrack;
 class Strumming;
 
-//##class DeviceManager;
 
 class ChordSelector: public QDialog {
     Q_OBJECT
 public:
-    ChordSelector(/*DeviceManager *_dm,*/ TabTrack *p, QWidget *parent = 0, //##
+	ChordSelector(TabTrack *p, QWidget *parent = 0, const char *name = 0);
+#ifdef WITH_TSE3
+    ChordSelector(TSE3::MidiScheduler *_scheduler, TabTrack *p, QWidget *parent = 0,
 				  const char *name = 0);
-    int  app(int x) { return fng->app(x); }
+#endif
+
+	void initChordSelector(TabTrack *p);
+
+	int  app(int x) { return fng->app(x); }
     void setApp(int x, int fret) { fng->setApp(x, fret); }
 	int  scheme() { return strum_scheme; }
 
@@ -54,10 +66,14 @@ private:
     QLabel *cnote[7];
     QButtonGroup *complexity;
     QRadioButton *complexer[3];
+	QPushButton *play;
     FingerList *fnglist;
 
 	int strum_scheme;
-//##	DeviceManager *dm;
+
+#ifdef WITH_TSE3
+	TSE3::MidiScheduler *scheduler;
+#endif
 };
 
 #endif
