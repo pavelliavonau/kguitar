@@ -16,7 +16,12 @@ class TabTrack
 public:
     TabTrack(int bank, int patch, int str) { mbank=bank;mpatch=patch;_string=str; };
     QList<TabColumn> c;                 // Tab columns
+
+    void setTuning(const int t[MAX_STRINGS]) { for (int i=0;i<_string;i++)  tune[i]=t[i]; };
     int string() { return _string; }
+
+    int x;                              // Current tab col
+    int y;                              // Current tab row
 private:
     int mbank;                          // MIDI bank
     int mpatch;                         // MIDI patch
