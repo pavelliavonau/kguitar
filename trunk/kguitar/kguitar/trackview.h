@@ -38,7 +38,6 @@ public slots:
     void setLength8() { setLength(60); };
     void setLength16() { setLength(30); };
     void setLength32() { setLength(15); };
-    void arrangeBars();
     void timeSig();
 
 protected:
@@ -49,7 +48,6 @@ protected:
 private:
     bool moveFinger(int from, int to);
     void setLength(int l);
-    void insertColumn(int x);
 
     TabSong *song;
     TabTrack *curt;
