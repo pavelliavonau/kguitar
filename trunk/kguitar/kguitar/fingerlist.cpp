@@ -79,7 +79,7 @@ void FingerList::paintCell(QPainter *p, int row, int col)
     
     // Beginning fret number
     
-    int firstFret=24;
+    int firstFret=24; // GREYFIX
     bool noff=TRUE;
 
     for (int i=0;i<numstr;i++) {
