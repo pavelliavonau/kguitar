@@ -3,7 +3,7 @@
 
 #include <qtableview.h>
 
-#define VERTSPACE 20
+#define VERTSPACE 25
 #define VERTLINE 10
 #define HORDUR 4
 
@@ -18,6 +18,8 @@ class TrackView: public QTableView
 public:
     TrackView(QWidget *parent=0, const char *name=0);
     ~TrackView();
+
+    TabSong* sng() { return song; }
 
 protected:
     virtual void paintCell(QPainter *, int row, int col);    

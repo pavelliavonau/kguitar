@@ -45,7 +45,6 @@ public:
     TabSong(QString _title, int _tempo) { tempo=_tempo; title=_title; };
     int tempo;
     QList<TabTrack> t;                  // Track data
-private:
     QString title;                      // Title of the song
     QString author;                     // Author of the tune
     QString transcriber;                // Who made the tab
