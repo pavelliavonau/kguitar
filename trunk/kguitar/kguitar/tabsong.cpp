@@ -40,6 +40,7 @@
 
 // et='X' - end of track, no more reading track chunks
 // et='T' - tab column: x bytes - raw tab data, 2 bytes - duration of column
+// et='C' - continuation of prev column: 2 bytes - duration addition
 // et='B' - new bar start
 // et='S' - new time signature: 2 bytes - time1:time2
 
@@ -126,7 +127,7 @@ bool TabSong::load_from_kg(QString fileName)
 	bool finished=FALSE;
 
 	int x=0,bar=1;
-	uchar tcsize=t.current()->string+2;
+//	uchar tcsize=t.current()->string+2;
 	t.current()->b.resize(1);
 	t.current()->b[0].start=0;
 	t.current()->b[0].time1=4;
@@ -141,6 +142,8 @@ bool TabSong::load_from_kg(QString fileName)
 		bar++;
 		t.current()->b.resize(bar);
 		t.current()->b[bar-1].start=x;
+		t.current()->b[bar-1].time1=t.current()->b[bar-2].time1;
+		t.current()->b[bar-1].time2=t.current()->b[bar-2].time2;
 		break;
 	    case 'T':                   // Tab column
 		x++;
@@ -152,6 +155,15 @@ bool TabSong::load_from_kg(QString fileName)
 		s >> i16;
 		t.current()->c[x-1].l = i16;
 		t.current()->c[x-1].flags = 0;
+		break;
+	    case 'L':                   // Continuation of previous column
+		x++;
+		t.current()->c.resize(x);
+		for (int k=0;k<string;k++)
+		    t.current()->c[x-1].a[k] = -1;
+		s >> i16;
+		t.current()->c[x-1].l = i16;
+		t.current()->c[x-1].flags = FLAG_ARC;
 		break;
 	    case 'S':
 		s >> cn; t.current()->b[bar-1].time1 = cn;
@@ -166,7 +178,7 @@ bool TabSong::load_from_kg(QString fileName)
 		    s >> cn;
 		break;
 	    }
-	} while (!finished);
+	} while ((!finished) && (!s.eof()));
 
 	t.current()->x=0;
 	t.current()->xb=0;
@@ -237,13 +249,19 @@ bool TabSong::save_to_kg(QString fileName)
 		s << (Q_UINT8) 0;
 	    }
 
-	    s << (Q_UINT8) 'T';         // Tab column events
-	    s << (Q_UINT8) tcsize;      // Size of event
-	    for (int i=0;i<trk->string;i++)
-		s << (Q_INT8) trk->c[x].a[i];
-	    s << (Q_INT16) trk->c[x].l; // Duration
- 	}
-
+	    if (trk->c[x].flags & FLAG_ARC) {
+		s << (Q_UINT8) 'L';     // Continue of previous event
+		s << (Q_UINT8) 2;       // Size of event
+		s << (Q_UINT16) trk->c[x].l; // Duration
+	    } else {
+		s << (Q_UINT8) 'T';     // Tab column events
+		s << (Q_UINT8) tcsize;  // Size of event
+		for (int i=0;i<trk->string;i++)
+		    s << (Q_INT8) trk->c[x].a[i];
+		s << (Q_UINT16) trk->c[x].l; // Duration
+	    }
+	}
+	
 	s << (Q_UINT8) 'X';             // End of track marker
 	s << (Q_UINT8) 0;               // Length of end track event        
     }
