@@ -10,7 +10,8 @@
 
 TrackView::TrackView(QWidget *parent,const char *name): QTableView(parent,name)
 {
-    setTableFlags(Tbl_autoVScrollBar | Tbl_smoothScrolling);
+//    setTableFlags(Tbl_autoVScrollBar | Tbl_smoothScrolling);
+    setTableFlags(Tbl_autoVScrollBar | Tbl_autoHScrollBar | Tbl_smoothScrolling);
     setFrameStyle(Panel | Sunken);
     setBackgroundMode(PaletteBase);
 
@@ -29,14 +30,10 @@ TrackView::TrackView(QWidget *parent,const char *name): QTableView(parent,name)
     for (int i=0;i<6;i++)
 	curt->tune[i]=standtune[i];
 
-//    curt->xi=QListIterator<TabColumn>(curt->c);
-//    curt->x=0;
-    curt->y=0;
+    curt->c.append(new TabColumn());
 
-    curt->c.append(new TabColumn());
-    curt->c.append(new TabColumn());
-    curt->c.append(new TabColumn());
-    curt->c.append(new TabColumn());
+    curt->y=0;
+    lastnumber=0;
 }
 
 TrackView::~TrackView()
@@ -53,10 +50,14 @@ void TrackView::paintCell(QPainter *p, int row, int col)
 {
     QListIterator<TabColumn> it(curt->c);
 
+    int start = row*10;
     QString tmp;
 
     int s = curt->string-1;
-    int i;
+    int i,cnt=0;
+
+    for (i=0;i<start;i++)
+	++it;
 
     for (i=0;i<=s;i++)
 	p->drawLine(0,VERTSPACE+(s-i)*VERTLINE,width(),VERTSPACE+(s-i)*VERTLINE);
@@ -66,7 +67,7 @@ void TrackView::paintCell(QPainter *p, int row, int col)
 
     int xpos=10,xdelta;
     
-    for (;it.current();++it) {
+    for (;(it.current()) && (cnt<10);++it) {
 	TabColumn *tc = it.current();
 	p->setPen(NoPen);
 	for (i=0;i<=s;i++) {
@@ -127,6 +128,7 @@ void TrackView::paintCell(QPainter *p, int row, int col)
 	if (xdelta<HORCELL)
 	    xdelta=HORCELL;
 	xpos+=xdelta;
+	cnt++;
     }
 
     p->setBrush(SolidPattern);
@@ -135,7 +137,8 @@ void TrackView::paintCell(QPainter *p, int row, int col)
 void TrackView::resizeEvent(QResizeEvent *e)
 {
     QTableView::resizeEvent(e); // GREYFIX ? Is it C++-correct?
-    setCellWidth(width());
+//    setCellWidth(width());
+    setCellWidth(30000);
     setCellHeight(VERTSPACE*2+VERTLINE*(curt->string-1));
 }
 
@@ -153,7 +156,7 @@ bool TrackView::moveFinger(int from, int dir)
 	if ((to<0) || (to>=curt->string))
 	    return FALSE;
 	n=n0+curt->tune[from]-curt->tune[to];
-	if (n<0)
+	if ((n<0) || (n>curt->frets))
 	    return FALSE;
     } while (curt->c.current()->a[to]!=-1);
 
@@ -167,6 +170,22 @@ bool TrackView::moveFinger(int from, int dir)
 void TrackView::keyPressEvent(QKeyEvent *e)
 {
     int num = e->ascii();
+
+    switch (e->key()) {
+    case Key_1:
+    case Key_2:
+    case Key_3:
+    case Key_4:
+    case Key_5:
+    case Key_6:
+    case Key_7:
+    case Key_8:
+    case Key_9:
+    case Key_0:
+	break;
+    default:
+	lastnumber=0;
+    }
 
     switch (e->key()) {
     case Key_Left:
@@ -206,7 +225,13 @@ void TrackView::keyPressEvent(QKeyEvent *e)
     case Key_9:
     case Key_0:
 	num=num-'0'; // GREYFIX - may be a bad thing to do
+
+	// Allow making two-digit fret numbers pressing two keys sequentally
+	if (lastnumber*10+num<=curt->frets)
+	    num=lastnumber*10+num;
+
 	curt->c.current()->a[curt->y]=num;
+	lastnumber=num;
 	break;
     case Key_Delete:
 	curt->c.current()->a[curt->y]=-1;
@@ -223,8 +248,6 @@ void TrackView::keyPressEvent(QKeyEvent *e)
 	e->ignore();
 	return;
     }
-
-    printf("Current item %d. curt->c.current()->a[0]=%d\n",curt->c.at(),curt->c.current()->a[0]);
 
     update();
     e->accept();

@@ -36,6 +36,8 @@ private:
 
     TabSong *song;
     TabTrack *curt;
+
+    uchar lastnumber;
 };
 
 #endif
