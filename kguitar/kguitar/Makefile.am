@@ -25,9 +25,9 @@ bin_PROGRAMS = kguitar
 
 # Which sources should be compiled for kguitar.
 kguitar_SOURCES	= application.cpp chord.cpp fingers.cpp fingerlist.cpp \
- main.cpp trackview.cpp \
+ main.cpp trackview.cpp setsong.cpp \
  application.moc.cpp chord.moc.cpp fingers.moc.cpp fingerlist.moc.cpp \
- trackview.moc.cpp
+ trackview.moc.cpp setsong.moc.cpp
 
 # the library search path
 kguitar_LDFLAGS = @all_libraries@ @KDE_RPATH@
@@ -37,11 +37,12 @@ kguitar_LDFLAGS = @all_libraries@ @KDE_RPATH@
 kguitar_LDADD  = -lkdeui -lkdecore -lqt -lX11 -lXext @LIBSOCKET@
 
 # this option you can leave out. Just, if you use "make dist", you need it
-noinst_HEADERS = application.h chord.h fingers.h fingerlist.h trackview.h
+noinst_HEADERS = application.h chord.h fingers.h fingerlist.h trackview.h \
+ setsong.h
 
 # just to make sure, automake makes them 
 BUILTSOURCES =	application.moc.cpp chord.moc.cpp fingers.moc.cpp \
- fingerlist.moc.cpp trackview.moc.cpp
+ fingerlist.moc.cpp trackview.moc.cpp setsong.moc.cpp
 
 EXTRA_DIST = kguitar.kdelnk kguitar.xpm kguitar-large.xpm
 
@@ -90,3 +91,6 @@ fingerlist.moc.cpp: fingerlist.h
 
 trackview.moc.cpp: trackview.h
 	$(MOC) trackview.h -o trackview.moc.cpp
+
+setsong.moc.cpp: setsong.h
+	$(MOC) setsong.h -o setsong.moc.cpp
