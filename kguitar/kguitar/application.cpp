@@ -55,6 +55,8 @@ int globalAlsaPort;
 
 bool globalHaveMidi;
 
+QString drum_abbr[128];
+
 bool isBrowserView;
 
 extern "C" {
@@ -282,6 +284,8 @@ KGuitarPart::KGuitarPart(bool bBrowserView, QWidget *parentWidget,
 
 	// READ CONFIGS
 	readOptions();
+
+	readMidiNames();
 
 	updateMenu();
 }
@@ -593,6 +597,36 @@ void KGuitarPart::saveOptions()
 	config->sync();
 
 	kdDebug() << "KGuitarPart::saveOptions() => all things saved..." << endl;
+}
+
+void KGuitarPart::readMidiNames()
+{
+	drum_abbr[35] = QString("BD1");
+	drum_abbr[36] = QString("BD2");
+	drum_abbr[38] = QString("SD1");
+	drum_abbr[40] = QString("SD2");
+
+	drum_abbr[39] = QString("HCL"); // Hand clap
+
+	drum_abbr[42] = QString("CHH");
+	drum_abbr[44] = QString("PHH");
+	drum_abbr[46] = QString("OHH");
+
+	drum_abbr[49] = QString("CR1"); // Crash cymbal
+	drum_abbr[57] = QString("CR2");
+
+	drum_abbr[51] = QString("RI1"); // Ride cymbal
+	drum_abbr[59] = QString("RI2");
+
+	drum_abbr[54] = QString("TBR"); // Tamborine
+	drum_abbr[55] = QString("SPL"); // Splash cymbal
+
+	drum_abbr[41] = QString("TL2");
+	drum_abbr[43] = QString("TL1");
+	drum_abbr[45] = QString("TM2");
+	drum_abbr[47] = QString("TM1");
+	drum_abbr[48] = QString("TH2");
+	drum_abbr[50] = QString("TH1");
 }
 
 void KGuitarPart::setWinCaption(const QString& caption)

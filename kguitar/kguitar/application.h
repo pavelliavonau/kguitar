@@ -71,6 +71,8 @@ private:
 	void updateMenu();
 	void setWinCaption(const QString& caption);
 	bool jazzWarning();
+	void readOptions();
+	void readMidiNames();
 
 	KGuitarBrowserExtension *m_extension;
 
@@ -92,8 +94,6 @@ private:
 
     // parentWidget
     QWidget *p;
-
-	void readOptions();
 
 protected:
     // reimplemented from ReadWritePart
