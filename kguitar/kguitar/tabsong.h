@@ -22,6 +22,7 @@ public:
 
     QString filename;                   // File name to save under
 
+    void arrangeBars();
     bool load_from_kg(QString fileName);        // Native format - kg
     bool save_to_kg(QString fileName);
     bool load_from_gtp(QString fileName);       // Guitar Pro format
