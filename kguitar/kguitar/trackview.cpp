@@ -25,36 +25,36 @@ TrackView::TrackView(QWidget *parent,const char *name): QTableView(parent,name)
 
 	setFocusPolicy(QWidget::StrongFocus);
 
-	song = new TabSong("Unnamed",120);
-	song->t.append(new TabTrack(GuitarTab,"Guitar",1,0,25,6,24));
+	song = new TabSong("Unnamed", 120);
+	song->t.append(new TabTrack(GuitarTab ,"Guitar" ,1 ,0 ,25 ,6 ,24));
 
 	curt = song->t.first();
 
 	uchar standtune[6] = {40, 45, 50, 55, 59, 64};
 
-	for (int i=0;i<6;i++)
+	for (int i = 0; i < 6; i++)
 		curt->tune[i] = standtune[i];
 
 	curt->c.resize(1);
 	curt->b.resize(1);
 
-	for (int i=0;i<MAX_STRINGS;i++) {
+	for (int i = 0; i < MAX_STRINGS; i++) {
 		curt->c[0].a[i] = -1;
 		curt->c[0].e[i] = 0;
 	}
 	curt->c[0].l = 120;
 	curt->c[0].flags = 0;
 
-	curt->b[0].start=0;
-	curt->b[0].time1=4;
-	curt->b[0].time2=4;
+	curt->b[0].start = 0;
+	curt->b[0].time1 = 4;
+	curt->b[0].time2 = 4;
 	
 	updateRows();
 
-	curt->x=0;
-	curt->xb=0;
-	curt->y=0;
-	lastnumber=0;
+	curt->x = 0;
+	curt->xb = 0;
+	curt->y = 0;
+	lastnumber = 0;
 }
 
 TrackView::~TrackView()
@@ -86,7 +86,7 @@ void TrackView::setLength(int l)
 void TrackView::linkPrev()
 {
 	curt->c[curt->x].flags ^= FLAG_ARC;
-	for (uint i=0;i<MAX_STRINGS;i++) {
+	for (uint i = 0; i < MAX_STRINGS; i++) {
 		curt->c[curt->x].a[i] = -1;
 		curt->c[curt->x].e[i] = 0;
 	}
@@ -135,48 +135,49 @@ void TrackView::paintCell(QPainter *p, int row, int col)
 	uint bn = row;						// Drawing only this bar
 
 	int last;
-	if (curt->b.size()==bn+1)           // Current bar is the last one
-		last = curt->c.size()-1;		// Draw till the last note
-	else								// Else draw till the end of this bar
-		last = curt->b[bn+1].start-1;
-	if(last==-1) last=0;//gotemfix: avoid overflow
+	if (curt->b.size() == bn + 1)        // Current bar is the last one
+		last = curt->c.size() - 1;       // Draw till the last note
+	else							     // Else draw till the end of this bar
+		last = curt->b[bn+1].start - 1;
+	if(last == -1) last = 0;             // gotemfix: avoid overflow
 	QString tmp;
 
-	uint s = curt->string-1;
+	uint s = curt->string - 1;
 	uint i;
 
-	for (i=0;i<=s;i++)
-		p->drawLine(0,VERTSPACE+(s-i)*VERTLINE,width(),VERTSPACE+(s-i)*VERTLINE);
+	for (i = 0; i <= s; i++)
+		p->drawLine(0, VERTSPACE + (s - i) * VERTLINE, width(), 
+					VERTSPACE +(s - i) * VERTLINE);
 	
 	int xpos=40, lastxpos=20, xdelta;
 
 	// Starting bars - very thick and thick one
 
-	if (bn==0) {
+	if (bn == 0) {
 		p->setBrush(SolidPattern);
-		p->drawRect(0,VERTSPACE,5,VERTLINE*s);
-		p->drawRect(8,VERTSPACE,2,VERTLINE*s);
+		p->drawRect(0, VERTSPACE, 5, VERTLINE * s);
+		p->drawRect(8, VERTSPACE, 2, VERTLINE * s);
 	}
 
 	// Time signature
 
 	if (curt->showBarSig(bn)) {
-		p->setFont(QFont("helvetica",TIMESIGSIZE,QFont::Bold));
+		p->setFont(QFont("helvetica", TIMESIGSIZE, QFont::Bold));
 		tmp.setNum(curt->b[bn].time1);
-		p->drawText(20,VERTSPACE+VERTLINE*s/3-TIMESIGSIZE/2,
-					TIMESIGSIZE,TIMESIGSIZE,AlignCenter,tmp);
+		p->drawText(20, VERTSPACE + VERTLINE * s / 3 - TIMESIGSIZE / 2,
+					TIMESIGSIZE, TIMESIGSIZE, AlignCenter, tmp);
 		tmp.setNum(curt->b[bn].time2);
-		p->drawText(20,VERTSPACE+VERTLINE*s*2/3-TIMESIGSIZE/2,
-					TIMESIGSIZE,TIMESIGSIZE,AlignCenter,tmp);
+		p->drawText(20, VERTSPACE + VERTLINE * s * 2 / 3 - TIMESIGSIZE / 2,
+					 TIMESIGSIZE, TIMESIGSIZE, AlignCenter, tmp);
 	}
 
-	p->setFont(QFont("helvetica",VERTLINE));
+	p->setFont(QFont("helvetica", VERTLINE));
 	p->setBrush(KGlobalSettings::baseColor());
 	for (uint t = curt->b[bn].start; t <= last; t++) {
 		// Drawing duration marks
 		
 		// Draw connection with previous, if applicable
-		if ((t>0) && (t>curt->b[bn].start) && (curt->c[t-1].l == curt->c[t].l))
+		if ((t > 0) && (t>curt->b[bn].start) && (curt->c[t-1].l == curt->c[t].l))
 			xdelta = lastxpos + VERTLINE / 2;
 		else
 			xdelta = xpos + VERTLINE / 2 + HORDUR;
@@ -192,16 +193,16 @@ void TrackView::paintCell(QPainter *p, int row, int col)
 			p->drawLine(xpos + VERTLINE / 2, BOTTOMDUR + VERTLINE,
 						xdelta, BOTTOMDUR + VERTLINE);
 		case 120: // 1/4 - a long vertical line, so we need to find the highest note
-			for (i=s;((i>=0) && (curt->c[t].a[i]==-1));i--);
+			for (i = s;((i >= 0) && (curt->c[t].a[i] == -1)); i--);
 			
 			// If it's an empty measure at all - draw the vertical line from bottom
-			if (i<0)  i=1;
+			if (i < 0)  i = 1;
 			
-			p->drawLine(xpos+VERTLINE/2,VERTSPACE+VERTLINE*(s-i)+VERTLINE/2,
-						xpos+VERTLINE/2,BOTTOMDUR+VERTLINE);
+			p->drawLine(xpos + VERTLINE / 2, VERTSPACE + VERTLINE * (s - i) + VERTLINE / 2,
+						xpos + VERTLINE / 2, BOTTOMDUR + VERTLINE);
 		case 240: // 1/2
-			p->drawLine(xpos+VERTLINE/2,BOTTOMDUR+3,
-						xpos+VERTLINE/2,BOTTOMDUR+VERTLINE);
+			p->drawLine(xpos + VERTLINE / 2, BOTTOMDUR + 3,
+						xpos + VERTLINE / 2, BOTTOMDUR + VERTLINE);
 		case 480: // whole
 			break;
 		}
@@ -209,14 +210,13 @@ void TrackView::paintCell(QPainter *p, int row, int col)
 		// Draw dot
 		
 		if (curt->c[t].flags & FLAG_DOT)
-			p->drawRect(xpos+VERTLINE/2+3, BOTTOMDUR+5, 2, 2);
+			p->drawRect(xpos + VERTLINE / 2 + 3, BOTTOMDUR + 5, 2, 2);
 		
 		// Draw arcs to backward note
 		
 		if (curt->c[t].flags & FLAG_ARC)
-			p->drawArc(lastxpos+VERTLINE/2, BOTTOMDUR+9,
-					   xpos-lastxpos, 10,
-					   0, -180 * 16);
+			p->drawArc(lastxpos + VERTLINE / 2, BOTTOMDUR + 9,
+					   xpos-lastxpos, 10, 0, -180 * 16);
 		
 		// Draw palm muting
 
@@ -238,7 +238,7 @@ void TrackView::paintCell(QPainter *p, int row, int col)
 							VERTLINE, VERTLINE + 1);
 				p->setBrush(KGlobalSettings::baseColor());
 				if (curt->c[t].a[i] != -1) {
-					if (curt->c[t].a[i]==DEAD_NOTE)
+					if (curt->c[t].a[i] == DEAD_NOTE)
 						tmp = "X";
 					else
 						tmp.setNum(curt->c[t].a[i]);
@@ -263,19 +263,19 @@ void TrackView::paintCell(QPainter *p, int row, int col)
 			// Draw effects
 			switch (curt->c[t].e[i]) {
 			case EFFECT_HARMONIC:
-				p->drawText(xpos+VERTLINE+2,VERTSPACE+(s-i)*VERTLINE-VERTLINE/2,
-							VERTLINE,VERTLINE,AlignCenter,"H");
+				p->drawText(xpos + VERTLINE + 2, VERTSPACE + (s - i) * VERTLINE - VERTLINE / 2,
+							VERTLINE, VERTLINE, AlignCenter, "H");
 				break;
 			case EFFECT_ARTHARM:
-				p->drawText(xpos+VERTLINE+2,VERTSPACE+(s-i)*VERTLINE-VERTLINE/2,
-							VERTLINE*2,VERTLINE,AlignCenter,"AH");
+				p->drawText(xpos + VERTLINE + 2, VERTSPACE + (s - i) * VERTLINE - VERTLINE / 2,
+							VERTLINE * 2, VERTLINE, AlignCenter, "AH");
 				break;
 			case EFFECT_LEGATO:
 				p->setPen(SolidLine);
-				p->drawArc(xpos+VERTLINE,VERTSPACE+(s-i)*VERTLINE-VERTLINE/2,
-						   xdelta-VERTLINE, 10, 0, 180*16);
-				p->drawText(xpos+VERTLINE+2,VERTSPACE+(s-i)*VERTLINE-VERTLINE/2,
-							VERTLINE*2,VERTLINE,AlignCenter,"PO");
+				p->drawArc(xpos + VERTLINE, VERTSPACE + (s - i) * VERTLINE - VERTLINE / 2,
+						   xdelta - VERTLINE, 10, 0, 180 * 16);
+				p->drawText(xpos + VERTLINE + 2, VERTSPACE + (s - i) * VERTLINE - VERTLINE / 2,
+							VERTLINE * 2, VERTLINE, AlignCenter, "PO");
 				p->setPen(NoPen);
 				break;
 			}
@@ -287,7 +287,7 @@ void TrackView::paintCell(QPainter *p, int row, int col)
 		xpos += xdelta;
 	}
 	
-	p->drawRect(xpos,VERTSPACE,1,VERTLINE*s);
+	p->drawRect(xpos, VERTSPACE, 1, VERTLINE * s);
 	
 	p->setBrush(SolidPattern);
 }
@@ -295,27 +295,27 @@ void TrackView::paintCell(QPainter *p, int row, int col)
 void TrackView::resizeEvent(QResizeEvent *e)
 {
 	QTableView::resizeEvent(e); // GREYFIX ? Is it C++-correct?
-	setCellWidth(width()-2);
-	setCellHeight(VERTSPACE*2+VERTLINE*(curt->string-1));
+	setCellWidth(width() - 2);
+	setCellHeight(VERTSPACE * 2 + VERTLINE * (curt->string - 1));
 }
 
 bool TrackView::moveFinger(int from, int dir)
 {
 	int n0 = curt->c[curt->x].a[from];
 	int n = n0;
-	if (n<0)
+	if (n < 0)
 	return FALSE;
 
 	int to = from;
 	
 	do {
 		to += dir;
-		if ((to<0) || (to>=curt->string))
+		if ((to < 0) || (to >= curt->string))
 			return FALSE;
-		n=n0+curt->tune[from]-curt->tune[to];
-		if ((n<0) || (n>curt->frets))
+		n = n0 + curt->tune[from] - curt->tune[to];
+		if ((n < 0) || (n > curt->frets))
 			return FALSE;
-	} while (curt->c[curt->x].a[to]!=-1);
+	} while (curt->c[curt->x].a[to] != -1);
 	
 	curt->c[curt->x].a[from] = -1;
 	curt->c[curt->x].a[to] = n;
@@ -331,12 +331,12 @@ void TrackView::timeSig()
 	sts->time1->setValue(curt->b[curt->xb].time1);
 	
 	switch (curt->b[curt->xb].time2) {
-	case 1:	 sts->time2->setCurrentItem(0);break;
-	case 2:	 sts->time2->setCurrentItem(1);break;
-	case 4:	 sts->time2->setCurrentItem(2);break;
-	case 8:	 sts->time2->setCurrentItem(3);break;
-	case 16: sts->time2->setCurrentItem(4);break;
-	case 32: sts->time2->setCurrentItem(5);break;
+	case 1:	 sts->time2->setCurrentItem(0); break;
+	case 2:	 sts->time2->setCurrentItem(1); break;
+	case 4:	 sts->time2->setCurrentItem(2); break;
+	case 8:	 sts->time2->setCurrentItem(3); break;
+	case 16: sts->time2->setCurrentItem(4); break;
+	case 32: sts->time2->setCurrentItem(5); break;
 	}
 
 	if (sts->exec()) {
@@ -346,8 +346,8 @@ void TrackView::timeSig()
 		// Sophisticated construction to mark all or only one bar with
 		// new sig, depending on user's selection of checkbox
 		
-		for (uint i=curt->xb;
-			 i<(sts->toend->isChecked() ? curt->b.size() : curt->xb+1);
+		for (uint i = curt->xb;
+			 i < (sts->toend->isChecked() ? curt->b.size() : curt->xb+1);
 			 i++) {
 			curt->b[i].time1 = time1;
 			curt->b[i].time2 = time2;
@@ -355,156 +355,206 @@ void TrackView::timeSig()
 	}
 }
 
-void TrackView::keyPressEvent(QKeyEvent *e)
+void TrackView::keyLeft()
 {
-	int num = e->ascii();
-
-	switch (e->key()) {
-	case Key_1:
-	case Key_2:
-	case Key_3:
-	case Key_4:
-	case Key_5:
-	case Key_6:
-	case Key_7:
-	case Key_8:
-	case Key_9:
-	case Key_0:
-		break;
-	default:
-		lastnumber=0;
-	}
-
-	switch (e->key()) {
-	case Key_Left:
-		if (curt->x>0) {
-			if (curt->b[curt->xb].start==curt->x) {
-				curt->xb--;
-				emit statusBarChanged();
-			}
-			curt->x--;
+	if (curt->x > 0) {
+		if (curt->b[curt->xb].start == curt->x) {
+			curt->xb--;
+			emit statusBarChanged();
 		}
-		break;
-	case Key_Right:
-		if (curt->x+1==curt->c.size()) {
-			curt->c.resize(curt->c.size()+1);
-			curt->x++;
-			for (uint i=0;i<curt->string;i++) {
-				curt->c[curt->x].a[i] = -1;
-				curt->c[curt->x].e[i] = 0;
-			}
-			curt->c[curt->x].l = curt->c[curt->x-1].l;
-			curt->c[curt->x].flags = 0;
-			updateRows();
-		} else {
-			if (curt->b.size()==curt->xb+1)
-				curt->x++;
-			else {
-				if (curt->b[curt->xb+1].start==curt->x+1) {
-					curt->xb++;
-					emit statusBarChanged();
-				}
-				curt->x++;
-			}
-		}
-		break;
-	case Key_Down:
-		if (curt->y>0) {
-			if (e->state()==ControlButton)
-				moveFinger(curt->y,-1);
-			else 
-				curt->y--;
-		}
-		break;
-	case Key_Up:
-		if (curt->y+1<curt->string) {
-			if (e->state()==ControlButton)
-				moveFinger(curt->y,1);
-			else
-				curt->y++;
-		}
-		break;
-	case Key_1:
-	case Key_2:
-	case Key_3:
-	case Key_4:
-	case Key_5:
-	case Key_6:
-	case Key_7:
-	case Key_8:
-	case Key_9:
-	case Key_0:
-		if (curt->c[curt->x].flags & FLAG_ARC)
-			curt->c[curt->x].flags -= FLAG_ARC;
-		
-		num=num-'0'; // GREYFIX - may be a bad thing to do
-		
-		// Allow making two-digit fret numbers pressing two keys sequentally
-		if (lastnumber*10+num<=curt->frets)
-			num=lastnumber*10+num;
-		
-		curt->c[curt->x].a[curt->y]=num;
-		lastnumber=num;
-		break;
-	case Key_X:
-		if (curt->c[curt->x].flags & FLAG_ARC)
-			curt->c[curt->x].flags -= FLAG_ARC;
-		curt->c[curt->x].a[curt->y] = DEAD_NOTE;
-		break;
-	case Key_H:
-		addHarmonic();
-		break;
-	case Key_R:
-		addArtHarm();
-		break;
-	case Key_P:
-		addLegato();
-		break;
-	case Key_M:
-		curt->c[curt->x].flags ^= FLAG_PM;
-		break;
-	case Key_Delete:
-		if (e->state()==ControlButton) {
-			if (curt->c.size()>1) {
-				curt->removeColumn(1);
-				if (curt->x==curt->c.size())
-					curt->x--;
-				updateRows();
-			}
-		} else {
-			curt->c[curt->x].a[curt->y] = -1;
-			curt->c[curt->x].e[curt->y] = 0;
-		}
-		break;
-	case Key_Insert:
-		curt->insertColumn(1);
-		break;
-	case Key_Plus:
-		if (curt->c[curt->x].l<480)
-			curt->c[curt->x].l*=2;
-		break;
-	case Key_Minus:
-		if (curt->c[curt->x].l>15)
-			curt->c[curt->x].l/=2;
-		break;
-	case Key_A:
-		curt->arrangeBars();
-		emit statusBarChanged();
-		updateRows();
-		break;
-	case Key_Period:
-		curt->c[curt->x].flags ^= FLAG_DOT; // It's XOR :-)
-		break;
-	case Key_L:
-		linkPrev();
-		break;
-	default:
-		e->ignore();
-		return;
+		curt->x--;
 	}
 	update();
-	e->accept();
 }
+
+void TrackView::keyRight()
+{
+	if (curt->x+1 == curt->c.size()) {
+		curt->c.resize(curt->c.size()+1);
+		curt->x++;
+		for (uint i=0; i<curt->string; i++) {
+			curt->c[curt->x].a[i] = -1;
+			curt->c[curt->x].e[i] = 0;
+		}
+		curt->c[curt->x].l = curt->c[curt->x-1].l;
+		curt->c[curt->x].flags = 0;
+		updateRows();
+	} else {
+		if (curt->b.size() == curt->xb+1)
+			curt->x++;
+		else {
+			if (curt->b[curt->xb+1].start == curt->x+1) {
+				curt->xb++;
+				emit statusBarChanged();
+			}
+			curt->x++;
+		}
+	}
+	update();
+}
+
+void TrackView::keyUp()
+{
+	if (curt->y+1 < curt->string)
+		curt->y++;
+	update();
+}
+
+void TrackView::keyCtrlUp()
+{
+	if (curt->y+1 < curt->string)
+		moveFinger(curt->y, 1);
+	update();
+}
+
+void TrackView::keyDown()
+{
+	if (curt->y > 0) 
+		curt->y--;
+	update();
+}
+
+void TrackView::keyCtrlDown()
+{
+	if (curt->y > 0)
+		moveFinger(curt->y, -1);
+	update();
+}
+
+void TrackView::deadNote()
+{
+	if (curt->c[curt->x].flags & FLAG_ARC)
+		curt->c[curt->x].flags -= FLAG_ARC;
+	curt->c[curt->x].a[curt->y] = DEAD_NOTE;
+	update();
+}
+
+void TrackView::keyDelete()
+{
+	curt->c[curt->x].a[curt->y] = -1;
+	curt->c[curt->x].e[curt->y] = 0;
+	update();
+}
+
+void TrackView::keyCtrlDelete()
+{
+	if (curt->c.size() > 1) {
+		curt->removeColumn(1);
+		if (curt->x == curt->c.size())
+			curt->x--;
+		updateRows();
+	}
+	update();
+}
+
+void TrackView::keyInsert()
+{
+	curt->insertColumn(1);
+	update();
+}
+
+void TrackView::keyM()
+{
+	curt->c[curt->x].flags ^= FLAG_PM;
+	update();
+}
+
+void TrackView::keyPeriod()
+{
+	curt->c[curt->x].flags ^= FLAG_DOT; // It's XOR :-)
+	update();
+}
+
+void TrackView::keyPlus()
+{
+	if (curt->c[curt->x].l < 480)
+		curt->c[curt->x].l *= 2;
+	update();
+}
+
+void TrackView::keyMinus()
+{
+	if (curt->c[curt->x].l > 15)
+		curt->c[curt->x].l /= 2;
+	update();
+}
+
+void TrackView::arrangeTracks()
+{
+	curt->arrangeBars();
+	emit statusBarChanged();
+	updateRows();
+	update();
+}
+
+void TrackView::key1()
+{
+	insertTab(1);
+}
+
+void TrackView::key2()
+{
+	insertTab(2);
+}
+
+void TrackView::key3()
+{
+	insertTab(3);
+}
+
+void TrackView::key4()
+{
+	insertTab(4);
+}
+
+void TrackView::key5()
+{
+	insertTab(5);
+}
+
+void TrackView::key6()
+{
+	insertTab(6);
+}
+
+void TrackView::key7()
+{
+	insertTab(7);
+}
+
+void TrackView::key8()
+{
+	insertTab(8);
+}
+
+void TrackView::key9()
+{
+	insertTab(9);
+}
+
+void TrackView::key0()
+{
+	insertTab(0);
+}
+
+void TrackView::insertTab(int num)
+{
+	lastnumber = curt->c[curt->x].a[curt->y];
+
+	if (curt->c[curt->x].flags & FLAG_ARC)
+		curt->c[curt->x].flags -= FLAG_ARC;
+	
+    // Allow making two-digit fret numbers pressing two keys sequentally
+	if (lastnumber * 10 + num <= curt->frets)
+		num = lastnumber * 10 + num;
+
+	// If frets < 10
+	if (num <= curt->frets)		
+		curt->c[curt->x].a[curt->y] = num;
+
+	update();
+}
+
 void TrackView::arrangeBars()
 {
 	song->arrangeBars();
