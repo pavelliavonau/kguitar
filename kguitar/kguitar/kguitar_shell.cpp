@@ -167,7 +167,7 @@ void KGuitarShell::slotFileSaveAs()
 	                "*.gtp|" + i18n("Guitar Pro files") + " (*.gtp)\n"
 	                "*.gp3|" + i18n("Guitar Pro 3 files") + " (*.gp3)\n"
 	                "*.xml|" + i18n("MusicXML files") + " (*.xml)\n"
-	                "*.tex|" + i18n("MusiXTeX") + " (*.tex)\n")
+	                "*.tex|" + i18n("MusiXTeX") + " (*.tex)\n"
 	                "*|" + i18n("All files"), this, 0, TRUE);
 	dlg.setCaption(i18n("Save as..."));
 
