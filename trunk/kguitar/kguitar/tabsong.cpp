@@ -12,6 +12,7 @@
 #include <tse3/Part.h>
 #include <tse3/MidiFile.h>
 #include <tse3/TSE3MDL.h>
+#include <tse3/TempoTrack.h>
 #include <string>
 #endif
 
@@ -104,7 +105,7 @@ uint TabSong::maxLen()
 // et='B' - new bar start
 // et='S' - new time signature: 2 or 3 bytes - time1:time2 + (optional) key
 
-bool TabSong::load_from_kg(QString fileName)
+bool TabSong::loadFromKg(QString fileName)
 {
 	QFile f(fileName);
 	if (!f.open(IO_ReadOnly))
@@ -284,7 +285,7 @@ void TabSong::arrangeBars()
 	}
 }
 
-bool TabSong::save_to_kg(QString fileName)
+bool TabSong::saveToKg(QString fileName)
 {
 	QFile f(fileName);
 	if (!f.open(IO_WriteOnly))
@@ -417,7 +418,7 @@ int TabSong::readDelphiInteger(QDataStream *s)
 	return r;
 }
 
-bool TabSong::load_from_gtp(QString fileName)
+bool TabSong::loadFromGtp(QString fileName)
 {
 	QFile f(fileName);
 	if (!f.open(IO_ReadOnly))
@@ -644,7 +645,7 @@ bool TabSong::load_from_gtp(QString fileName)
     return TRUE;
 }
 
-bool TabSong::save_to_gtp(QString fileName)
+bool TabSong::saveToGtp(QString fileName)
 {
     // Saving to Guitar Pro format here
     return FALSE;
@@ -703,7 +704,7 @@ inline int get_string(unsigned char *buf) {
 	return string;	//1-6
 }
 
-bool TabSong::load_from_gp3(QString fileName)
+bool TabSong::loadFromGp3(QString fileName)
 {
 	unsigned char *buffer;
 	unsigned char *buf;
@@ -1123,7 +1124,7 @@ WHEREAMI("fin bar");
 	return TRUE;
 }
 
-bool TabSong::save_to_gp3(QString fileName)
+bool TabSong::saveToGp3(QString fileName)
 {
     // Saving to Guitar Pro 3 format here
     // From Sly: "In your dreams"
@@ -1133,7 +1134,7 @@ bool TabSong::save_to_gp3(QString fileName)
 /* End of Sly's dirty piece of code
  */
 
-bool TabSong::load_from_xml(QString fileName)
+bool TabSong::loadFromXml(QString fileName)
 {
 	MusicXMLParser handler(this);
 	QFile xmlFile(fileName);
@@ -1145,7 +1146,7 @@ bool TabSong::load_from_xml(QString fileName)
     return TRUE;
 }
 
-bool TabSong::save_to_xml(QString fileName)
+bool TabSong::saveToXml(QString fileName)
 {
     QFile f(fileName);
     if (!f.open(IO_WriteOnly))
@@ -1179,7 +1180,7 @@ Q_UINT32 TabSong::readVarLen(QDataStream *s)
 	return value;
 }
 
-bool TabSong::load_from_mid(QString fileName)
+bool TabSong::loadFromMid(QString fileName)
 {
 	return FALSE; // DISABLED
 
@@ -1290,7 +1291,7 @@ void TabSong::writeTempo(QDataStream *s, uint value)
 }
 
 #ifdef WITH_TSE3
-bool TabSong::save_to_mid(QString filename)
+bool TabSong::saveToMid(QString filename)
 {
 	TSE3::MidiFileExport exp;
 	exp.save((const char *) filename.local8Bit(), midiSong());
@@ -1298,7 +1299,7 @@ bool TabSong::save_to_mid(QString filename)
 	return TRUE;
 }
 
-bool TabSong::save_to_tse3(QString filename)
+bool TabSong::saveToTse3(QString filename)
 {
 	TSE3::TSE3MDL mdl("KGuitar", 2);
 	mdl.save((const char *) filename.local8Bit(), midiSong());
@@ -1306,11 +1307,11 @@ bool TabSong::save_to_tse3(QString filename)
 	return TRUE;
 }
 #else
-bool TabSong::save_to_mid(QString filename)
+bool TabSong::saveToMid(QString filename)
 {
 	return FALSE;
 }
-bool TabSong::save_to_tse3(QString filename)
+bool TabSong::saveToTse3(QString filename)
 {
 	return FALSE;
 }
@@ -1329,12 +1330,12 @@ void TabSong::writeCentered(QTextStream *s, QString l)
     (*s) << l << '\n';
 }
 
-bool TabSong::load_from_tab(QString fileName)
+bool TabSong::loadFromTab(QString fileName)
 {
     return FALSE;
 }
 
-bool TabSong::save_to_tab(QString fileName)
+bool TabSong::saveToTab(QString fileName)
 {
     QFile f(fileName);
     if (!f.open(IO_WriteOnly))
@@ -1491,7 +1492,7 @@ QString TabSong::getNote(QString note, int duration, bool dot)
 	return "";
 }
 
-bool TabSong::save_to_tex_tab(QString fileName)
+bool TabSong::saveToTexTab(QString fileName)
 {
 	QFile f(fileName);
     if (!f.open(IO_WriteOnly))
@@ -1743,7 +1744,7 @@ bool TabSong::save_to_tex_tab(QString fileName)
 	return TRUE;
 }
 
-bool TabSong::save_to_tex_notes(QString fileName)
+bool TabSong::saveToTexNotes(QString fileName)
 {
 	return FALSE; //ALINXFIX: disabled
 
@@ -1821,12 +1822,17 @@ TSE3::Song *TabSong::midiSong(bool tracking)
 {
 	TSE3::Song *song = new TSE3::Song(0);
 
+	// Create tempo track
+	TSE3::Event<TSE3::Tempo> tempoEvent(tempo, TSE3::Clock(0));
+	song->tempoTrack()->insert(tempoEvent);
+
+	// Create data tracks
 	int tn = 0;
 	QListIterator<TabTrack> it(t);
 	for (; it.current(); ++it) {
 		TSE3::PhraseEdit *trackData = it.current()->midiTrack(tracking, tn);
 		TSE3::Phrase *phrase = trackData->createPhrase(song->phraseList());
-		TSE3::Part *part = new TSE3::Part(0, trackData->lastClock()); // GREYFIX: this may be why last event got clipped?
+		TSE3::Part *part = new TSE3::Part(0, trackData->lastClock() + 1); // GREYFIX: this may be why last event got clipped?
 		part->setPhrase(phrase);
 		TSE3::Track *trk = new TSE3::Track();
 		trk->insert(part);
