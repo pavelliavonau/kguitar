@@ -8,7 +8,7 @@
 #include <qpushbutton.h>
 #include <qlayout.h>
 
-SetSong::SetSong(QWidget *parent = 0, const char *name = 0): QDialog(parent, name, TRUE)
+SetSong::SetSong(QWidget *parent, const char *name): QDialog(parent, name, TRUE)
 {
 	title = new QLineEdit(this);
 	author = new QLineEdit(this);

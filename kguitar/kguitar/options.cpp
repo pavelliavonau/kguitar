@@ -20,7 +20,7 @@ Options::Options(
 #ifdef WITH_TSE3
 				 TSE3::MidiScheduler *_sch,
 #endif
-				 QWidget *parent = 0, char *name = 0, bool modal)
+				 QWidget *parent, char *name, bool modal)
 	: KDialogBase(IconList, i18n("Preferences"), Help|Default|Ok|Apply|Cancel,
 				  Ok, parent, name, modal, TRUE)
 {

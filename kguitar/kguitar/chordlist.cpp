@@ -1,6 +1,6 @@
 #include "chordlist.h"
 
-ChordList::ChordList(QWidget *parent = 0, const char *name = 0)
+ChordList::ChordList(QWidget *parent, const char *name)
 	: QListBox(parent, name)
 {
 }

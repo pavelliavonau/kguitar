@@ -35,7 +35,7 @@ QValidator::State NoteValidator::validate(QString &input, int &pos) const
     return res;
 }
 
-NoteSpinBox::NoteSpinBox(QWidget *parent = 0, const char *name = 0):
+NoteSpinBox::NoteSpinBox(QWidget *parent, const char *name):
     QSpinBox(0, 255, 1, parent, name)
 {
     nv = new NoteValidator(this);

@@ -26,7 +26,7 @@ int defaultByString[MAX_STRINGS] =
 	  0,
 	  0 };
 
-SetTabFret::SetTabFret(QWidget *parent=0, const char *name=0)
+SetTabFret::SetTabFret(QWidget *parent, const char *name)
 	: QWidget(parent, name)
 {
     // Controls

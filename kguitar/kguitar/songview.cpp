@@ -49,11 +49,13 @@
 #include <tse3/Error.h>
 #endif
 
+using namespace std;
+
 #include <iostream>
 #define kdDebug()	cout
 
 SongView::SongView(KXMLGUIClient *_XMLGUIClient, KCommandHistory *_cmdHist,
-				   QWidget *parent = 0, const char *name = 0): QWidget(parent, name)
+				   QWidget *parent, const char *name): QWidget(parent, name)
 {
 #ifdef WITH_TSE3
 	scheduler = 0L;

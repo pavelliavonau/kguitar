@@ -3,7 +3,7 @@
 #include <klocale.h>
 #include <qlabel.h>
 
-SetTabDrum::SetTabDrum(QWidget *parent=0, const char *name=0)
+SetTabDrum::SetTabDrum(QWidget *parent, const char *name)
 	: QWidget(parent, name)
 {
     // Controls
