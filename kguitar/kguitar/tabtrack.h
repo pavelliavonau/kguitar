@@ -22,6 +22,7 @@ typedef enum {
 
 #define FLAG_ARC        1
 #define FLAG_DOT        2
+#define FLAG_PM			4
 
 #define EFFECT_HARMONIC 1
 #define EFFECT_ARTHARM  2

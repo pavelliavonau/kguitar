@@ -216,8 +216,14 @@ void TrackView::paintCell(QPainter *p, int row, int col)
 		if (curt->c[t].flags & FLAG_ARC)
 			p->drawArc(lastxpos+VERTLINE/2, BOTTOMDUR+9,
 					   xpos-lastxpos, 10,
-					   0, -180*16);
+					   0, -180 * 16);
 		
+		// Draw palm muting
+
+		if (curt->c[t].flags & FLAG_PM)
+			p->drawText(xpos + VERTLINE / 2, 0, VERTLINE * 2, VERTLINE,
+						AlignCenter, "P.M.");
+
 		// Length of interval to next column - adjusted if dotted
 		
 		xdelta = horizDelta(t);
@@ -443,7 +449,7 @@ void TrackView::keyPressEvent(QKeyEvent *e)
 	case Key_X:
 		if (curt->c[curt->x].flags & FLAG_ARC)
 			curt->c[curt->x].flags -= FLAG_ARC;
-		curt->c[curt->x].a[curt->y]=DEAD_NOTE;
+		curt->c[curt->x].a[curt->y] = DEAD_NOTE;
 		break;
 	case Key_H:
 		addHarmonic();
@@ -453,6 +459,9 @@ void TrackView::keyPressEvent(QKeyEvent *e)
 		break;
 	case Key_P:
 		addLegato();
+		break;
+	case Key_M:
+		curt->c[curt->x].flags ^= FLAG_PM;
 		break;
 	case Key_Delete:
 		if (e->state()==ControlButton) {
@@ -485,7 +494,7 @@ void TrackView::keyPressEvent(QKeyEvent *e)
 		break;
 	case Key_Period:
 		curt->c[curt->x].flags ^= FLAG_DOT; // It's XOR :-)
-		break;		
+		break;
 	case Key_L:
 		linkPrev();
 		break;
