@@ -43,6 +43,7 @@ public slots:
 	void addHarmonic();
 	void addArtHarm();
 	void addLegato();
+	void addSlide();
 	void insertChord();
 	void keyLeft();
 	void keyRight();
@@ -104,9 +105,10 @@ private:
 	KXMLGUIClient *m_XMLGUIClient;
 	KCommandHistory *m_cmdHist;
 
+	// 	QFont *timeSigFont, *smallCaptionFont;
+
 	char lastnumber;
 	int selxcoord;
-
 };
 
 #endif

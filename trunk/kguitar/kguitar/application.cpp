@@ -181,6 +181,9 @@ KGuitarPart::KGuitarPart(bool bBrowserView, KCommandHistory *_cmdHist, QWidget *
 	legatoAct = new KAction(i18n("Legato (hammer on/pull off)"), "fx_legato",
 							KAccel::stringToKey("P"), sv->tv, SLOT(addLegato()),
 							actionCollection(), "fx_legato");
+	slideAct = new KAction(i18n("Slide"), "fx_slide",
+						   KAccel::stringToKey("S"), sv->tv, SLOT(addSlide()),
+						   actionCollection(), "fx_slide");
 	natHarmAct = new KAction(i18n("Natural harmonic"), "fx_harmonic",
 							 KAccel::stringToKey("H"), sv->tv, SLOT(addHarmonic()),
 							 actionCollection(), "fx_nat_harm");
