@@ -6,6 +6,7 @@
 #include <qxml.h>
 #include <qfile.h>
 #include <qdatastream.h>
+#include <kconfig.h>
 
 #ifdef WITH_TSE3
 #include <tse3/Track.h>
@@ -172,7 +173,7 @@ bool TabSong::loadFromKg(QString fileName)
 		kdDebug() << "Read a track of " << string << " strings," << endl;
 		kdDebug() << "       bank = " << i16 << ", patch = " << patch << " ..." << endl;
 
-		t.append(new TabTrack((TrackMode) tm,tn,channel,i16,patch,string,frets));
+		t.append(new TabTrack((TabTrack::TrackMode) tm, tn, channel, i16, patch, string, frets));
 
 		kdDebug() << "Appended a track..." << endl;;
 
@@ -462,7 +463,7 @@ bool TabSong::loadFromGtp(QString fileName)
 
 	for (int i = 0; i < 8; i++) {
 		num = readDelphiInteger(&s);           // Number of strings
-		t.append(new TabTrack(FretTab, 0, 0, 0, 0, num, 24));
+		t.append(new TabTrack(TabTrack::FretTab, 0, 0, 0, 0, num, 24));
 		for (int j = 0; j < num; j++)
 			t.current()->tune[j] = readDelphiInteger(&s);
 	}
@@ -776,7 +777,7 @@ bool TabSong::loadFromGp3(QString fileName)
 	do {
 		GET_STR_NO_INCBUF;
 		printf("Track %s\n",str);fflush(stdout);
-		t.append( new TabTrack(FretTab, 0, 0, 0, 0, 6, 24) );	//First 24: 24 frets, cos don't know the exact number
+		t.append( new TabTrack(TabTrack::FretTab, 0, 0, 0, 0, 6, 24) );	//First 24: 24 frets, cos don't know the exact number
 		t.current()->name = QString::fromLocal8Bit(str);
 		t.current()->b.resize(0);
 		t.current()->c.resize(0);
@@ -1310,132 +1311,6 @@ bool TabSong::saveToTse3(QString filename)
 	return FALSE;
 }
 #endif
-
-//////////////////////////////////////////////////////////////////////
-// ASCII TAB loading/saving stuff
-
-#define twidth          70
-
-// Quick & easy centered text writing function
-void TabSong::writeCentered(QTextStream *s, QString l)
-{
-    for (int i=0;i<(twidth-(int) l.length())/2;i++)
-	(*s) << ' ';
-    (*s) << l << '\n';
-}
-
-bool TabSong::loadFromTab(QString)
-{
-    return FALSE;
-}
-
-bool TabSong::saveToTab(QString fileName)
-{
-    QFile f(fileName);
-    if (!f.open(IO_WriteOnly))
-		return FALSE;
-
-    QTextStream s(&f);
-
-    // SONG HEADER
-
-    writeCentered(&s,title);
-    s << '\n';
-    writeCentered(&s,"Author: "+author);
-    writeCentered(&s,"Transcribed by: "+transcriber);
-
-    // GREYFIX - comments?
-
-    s << "Tempo: " << tempo << "\n\n";
-
-    // TRACK DATA
-
-    QListIterator<TabTrack> it(t);
-
-    int n = 1;
-
-    QString lin[MAX_STRINGS];
-    QString tmp;
-
-    for (;it.current();++it) {          // For every track
-		TabTrack *trk = it.current();
-
-		s << "Track " << n << ": " << trk->name << "\n\n";
-
-		// GREYFIX - channel, bank, patch, string, frets data
-
-		int minstart = 1;
-		for (int i = 0; i < trk->string; i++)
-			if (Settings::noteName(trk->tune[i] % 12).length() > 1)
-				minstart = 2;
-
-		for (int i = 0; i < trk->string; i++) {
-			lin[i] = Settings::noteName(trk->tune[i] % 12);
-			if ((lin[i].length() == 1) && (minstart > 1))
-				lin[i] = lin[i]+' ';
-			lin[i] = lin[i] + " |-";
-		}
-
-		bool lng = FALSE;
-		uint bar = 1;
-
-		for (uint x = 0; x < trk->c.size(); x++) {
-			if (bar + 1 < trk->b.size()) {  // This bar's not last
-				if ((uint)trk->b[bar+1].start == x)
-					bar++;              // Time for next bar
-			}
-
-			if ((uint)trk->b[bar].start == x)   // Add a bar
-				for (int i = 0; i < trk->string; i++)
-					lin[i] = lin[i] + "|";
-
-			lng = FALSE;
-
-			for (int i = 0; i < trk->string; i++)
-				if (trk->c[x].a[i] >= 10)
-					lng = TRUE;
-
-			for (int i = 0; i < trk->string; i++) {
-				if (trk->c[x].a[i] == -1) {
-					if (lng)
-						lin[i] = lin[i] + "--";
-					else
-						lin[i] = lin[i] + '-';
-				} else {
-					tmp.setNum(trk->c[x].a[i]);
-					if ((lng) && (trk->c[x].a[i] < 10))
-						tmp = '-' + tmp;
-					lin[i] = lin[i] + tmp;
-				}
-				for (uint j = 0; j < (uint)(trk->c[x].l / 48); j++)
-					lin[i] = lin[i] + '-';
-			}
-
-			if (lin[0].length() > twidth) {
-				for (int i = trk->string-1; i >= 0; i--)
-					s << lin[i] << '\n';
-				s << '\n';
-				for (int i = 0; i < trk->string; i++) {
-					lin[i] = Settings::noteName(trk->tune[i] % 12);
-					if ((lin[i].length() == 1) && (minstart > 1))
-						lin[i] = lin[i] + ' ';
-					lin[i] = lin[i] + " |-";
-				}
-			}
-		}
-
-		for (int i = trk->string-1; i >= 0; i--)
-			s << lin[i] << '\n';
-		s << '\n';
-
-		n++;   // Numerical track counter
-    }
-
-    f.close();
-
-    return TRUE;
-}
-
 
 //////////////////////////////////////////////////////////////////////
 //
