@@ -367,6 +367,7 @@ void TrackView::AddColumnCommand::execute()
 		trk->b[trk->xb].start = trk->x;
 		trk->b[trk->xb].time1 = trk->b[trk->xb-1].time1;
 		trk->b[trk->xb].time2 = trk->b[trk->xb-1].time2;
+		emit tv->barChanged();
 	}
 
 	tv->updateRows();
@@ -588,7 +589,7 @@ void TrackView::DeleteColumnCommand::unexecute()
 
 TrackView::SetTimeSigCommand::SetTimeSigCommand(TrackView *_tv, TabTrack *&_trk,
                                                 bool _toend, int _time1, int _time2)
-	: KNamedCommand(i18n("Set time sig."))
+	: KNamedCommand(i18n("Set time signature"))
 {
 	trk = _trk;
 	tv = _tv;
