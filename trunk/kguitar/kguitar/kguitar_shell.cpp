@@ -202,14 +202,15 @@ void KGuitarShell::slotFileSaveAs()
 
 void KGuitarShell::slotFileSave()
 {
-	m_kgpart->save();
-// 	QString fn = m_kgpart->m_file;
-// 	if (!fn.isEmpty()) {
-// 		KURL url = KURL(fn);
-// 		saveURL(url);
-// 	} else {
-// 		slotFileSaveAs();
-// 	}
+	slotFileSaveAs();
+//	m_kgpart->save();
+//  	QString fn = m_kgpart->m_file;
+//  	if (!fn.isEmpty()) {
+//  		KURL url = KURL(fn);
+//  		saveURL(url);
+//  	} else {
+//  		slotFileSaveAs();
+//  	}
 }
 
 void KGuitarShell::openBrowser()

@@ -123,7 +123,7 @@ KGuitarPart::KGuitarPart(bool bBrowserView, KCommandHistory *_cmdHist, QWidget *
 
 	// SET UP STANDARD ACTIONS
 	newAct = KStdAction::openNew(this, SLOT(fileNew()),
-								 actionCollection(), "file_new");
+	                             actionCollection(), "file_new");
 
 	preferencesAct = KStdAction::preferences(this, SLOT(options()),
 	                                         actionCollection(), "pref_options");
