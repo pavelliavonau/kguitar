@@ -22,8 +22,25 @@ FingerList::FingerList(TabTrack *p, QWidget *parent, const char *name)
     setCellHeight(ICONCHORD);
 
 	setMinimumSize(ICONCHORD + 2, ICONCHORD + 2);
+	resize(width(), 3 * ICONCHORD + 2);
 
     repaint();
+}
+
+void FingerList::beginSession()
+{
+	setAutoUpdate(FALSE);
+	clear();
+}
+
+void FingerList::endSession()
+{
+    // num is overral number of chord fingerings. If it's 0 - then there are no
+    // fingerings. In the appl array, indexes should be ranged from 0 to (num-1)
+    setNumRows((num - 1) / perRow + 1);
+
+	setAutoUpdate(TRUE);
+	repaint();
 }
 
 void FingerList::clear()
@@ -33,12 +50,7 @@ void FingerList::clear()
     oldCol = 0; oldRow = 0;
 }
 
-void FingerList::switchAuto(bool update)
-{
-    setAutoUpdate(update);
-}
-
-void FingerList::addFingering(const int a[MAX_STRINGS], bool update)
+void FingerList::addFingering(const int a[MAX_STRINGS])
 {
     appl.resize((num + 1) * MAX_STRINGS);
 
@@ -46,12 +58,6 @@ void FingerList::addFingering(const int a[MAX_STRINGS], bool update)
 		appl[num].f[i] = a[i];
 
     num++;
-
-    // num is overral number of chord fingerings. If it's 0 - then there are no
-    // fingerings. In the appl array, indexes should be ranged from 0 to (num-1)
-    setNumRows((num - 1) / perRow + 1);
-    // GREYFIX: it's wrong to update number of rows every added fingering. It
-    // should be updated only in the end of add session (e.g. chord calucation)
 }
 
 void FingerList::resizeEvent(QResizeEvent *e)
@@ -102,11 +108,7 @@ void FingerList::paintCell(QPainter *p, int row, int col)
 			if (hasFocus()) {
 				p->setBrush(NoBrush);
 				p->setPen(fore);
-				// GREYFIX - assumes only 2 styles - fix as to KDE2!
-// 				if (KGlobalSettings::applicationStyle == WindowsStyle)
-// 					p->drawWinFocusRect(0,0,ICONCHORD-1,ICONCHORD-1);
-// 				else
-					p->drawRect(1,1,ICONCHORD-3,ICONCHORD-3);
+				style().drawFocusRect(p, QRect(0, 0, ICONCHORD - 1, ICONCHORD - 1), colorGroup(), 0, TRUE);
 			}
 		}
 		

@@ -18,9 +18,10 @@ class FingerList: public QTableView
 public:
     FingerList(TabTrack *p, QWidget *parent=0, const char *name=0);
 
-    void addFingering(const int a[MAX_STRINGS], bool update);
+    void addFingering(const int a[MAX_STRINGS]);
     void clear();
-    void switchAuto(bool update);
+	void beginSession();
+	void endSession();
 
 signals:
     void chordSelected(const int *);
