@@ -24,3 +24,106 @@ programs' format, such as Guitar Pro's or TablEdit;
 * Highly customizable to suit a lot of possible instruments (not only
 6-stringed guitars, and even not only guitars), including drum tracks,
 lyrics and other MIDI events.
+
+
+Well, right now KGuitar is in very alpha state and doesn't support
+everything stated. However, it already features a nice tabulature
+editor, though not ultimately powerful, loading/saving its own format (kg
+files) and all the chord construction tools.
+
+As the KDE style docs aren't available, I'd try to give some
+directions on usage of KGuitar here:
+
+MAIN WINDOW
+===========
+
+It's a generic KDE application that you're familiar with. All the
+File/Edit/etc menus are here. The most interesting thing is what is
+below the menus :) It's a tab editor area.
+
+Right now the tab editor understands only keyboard operations. So,
+the keys are:
+
+Left, Right - move the cursor on previous/next column;
+
+Up, Down - move the cursor on previous/next string;
+
+W - reWind the cursor to the first column (cakewalk-style);
+
+Number keys - edit the fret number in cursor position. To enter simple
+one-digited fret number just press the apropriate key. To enter
+2-digit fret number (such as 12, for example), press keys "1" and "2"
+consequentally - they'll add up to the 12 fret number. Note that
+you'll be unable to enter invalid fret numbers - for example 36th fret
+on the 24 fret guitar.
+
+Delete - deletes the current fret number in cursor position.
+
+Ctrl+Up, Ctrl+Down - if there is a fret number in cursor postion, move
+the cursor up or down taking the number with it, trying to maintain
+the tone frequency. Thus, on a normal 6-string guitar tuning, if
+you'll pull the "0" from the 1st string down, it will become "5" on the
+2nd string (it will still sound as E note). This way you can manually
+optimize the fret fingerings without changing the sounding.
+
+"+" and "-" keys (recommended to use keypad ones) - doubles or halves
+the note length. Note lengths are shown as that familiar note-style
+lines. That is:
+
+       No note line			whole
+       Short note line			1/2
+       Long note line			1/4
+       Long line+1 horizontal bar	1/8
+       Long line+2 horizontal bars	1/16
+       Long line+3 horizontal bars	1/32
+
+That were the basic editing tools. That's enough to create pretty
+complex tabs.
+
+CHORD CONSTRUCTION
+==================
+
+For the guitarist's convenience, there is a fast chord construction
+tool - a chord finder & analyzer. Just use "Insert/Chord" menu or
+chord toolbar button to run it. It's pretty self-explanatory for
+anybody who knows music theory, but I still want to do some notes.
+
+To find a chord by name, just build its name in the left selection
+boxes. This way, if you want to enter, for example, "Esus2/7" chord,
+select "E" in the first box, "sus2" in the second and "7" in the
+third.
+
+For more complex tasks, such as chord with step alterations, like
+Bm/5+, use step diagram. If you want to raise or lower a particular
+step - just select a "+" or "-" there. If you want to mute a
+particulat step - select "x" there. Everything's simple.
+
+When you've got your chord entered, you'll get a lot of fingering
+methods in the bottom box. Select one with a mouse there and press the
+OK button - this chord would be automatically entered in the tab
+editor.
+
+Using chord analyzer is even simplier. Just set the fingering using
+the big chord diagram and instantly get the result in the box near
+it. It would read all somewhat reasonable naming of a given chord.
+
+SONG PROPERTIES
+===============
+
+Each song should have some properties - title, author name, etc. All
+these things can be set up in File/Properties dialog.
+
+Each track also has some properties. These can be accessed via
+Edit/Track menu. The things that could be set up there include:
+
+Title - title of the track; would be used in MIDI;
+MIDI Channel, Bank and Patch numbers - self-explanatory;
+
+For guitar track:
+
+Number of string and frets - parameters of used guitar;
+Tuning - the note of open string sounding. Tuning could be set up
+manually or quickly selected from a library. 
+
+Moreover, one can save and load current song in the .kg files. All
+properties are also saved into the files.
