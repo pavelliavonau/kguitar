@@ -62,6 +62,7 @@ void FingerList::addFingering(const int a[MAX_STRINGS])
 
 void FingerList::resizeEvent(QResizeEvent *e)
 {
+	QTableView::resizeEvent(e);
     perRow = width() / ICONCHORD;
     setNumCols(perRow);
     setNumRows((num - 1) / perRow + 1);
@@ -71,9 +72,9 @@ void FingerList::mousePressEvent(QMouseEvent *e)
 {
     int col = e->x() / ICONCHORD;
     int row = (e->y() + yOffset()) / ICONCHORD;
-    
+
     int n = row * perRow + col;
-    
+
     if ((n >= 0) && (n < num)) {
 		curSel = row * perRow + col;
 		repaint(oldCol * ICONCHORD, oldRow * ICONCHORD - yOffset(),
@@ -89,62 +90,62 @@ void FingerList::mousePressEvent(QMouseEvent *e)
 void FingerList::paintCell(QPainter *p, int row, int col)
 {
     int n = row*perRow+col;
-    
+
     if (n<num) {
 		int barre, eff;
 		QColor back = KGlobalSettings::baseColor();
 		QColor fore = KGlobalSettings::textColor();
-		
+
 		// Selection painting
-		
+
 		if (curSel == n) {
 			back = KGlobalSettings::highlightColor();
 			fore = KGlobalSettings::highlightedTextColor();
-			
+
 			p->setBrush(back);
 			p->setPen(NoPen);
 			p->drawRect(0,0,ICONCHORD-1,ICONCHORD-1);
-			
+
 			if (hasFocus()) {
 				p->setBrush(NoBrush);
 				p->setPen(fore);
 				style().drawFocusRect(p, QRect(0, 0, ICONCHORD - 1, ICONCHORD - 1), colorGroup(), 0, TRUE);
 			}
 		}
-		
+
 		p->setPen(fore);
-		
+
 		// Horizontal lines
-		
+
 		for (int i = 0; i <= NUMFRETS; i++)
 			p->drawLine(SCALE/2+BORDER+FRETTEXT,BORDER+SCALE+2*SPACER+i*SCALE,
 						SCALE/2+BORDER+parm->string*SCALE-SCALE+FRETTEXT,
 						BORDER+SCALE+2*SPACER+i*SCALE);
-		
+
 		// Beginning fret number
-		
+
 		int firstFret = parm->frets;
 		bool noff = TRUE;
-		
+
 		for (int i = 0; i < parm->string; i++) {
 			if ((appl[n].f[i] < firstFret) && (appl[n].f[i] > 0))
 				firstFret = appl[n].f[i];
 			if (appl[n].f[i] > 5)
 				noff = FALSE;
 		}
-		
+
 		if (noff)
 			firstFret = 1;
-		
+
 		if (firstFret > 1) {
 			QString fs;
 			fs.setNum(firstFret);
 			p->drawText(BORDER, BORDER + SCALE + 2 * SPACER, 50, 50,
 						AlignLeft | AlignTop, fs);
 		}
-		
+
 		// Vertical lines and fingering
-		
+
 		for (int i = 0; i < parm->string; i++) {
 			p->drawLine(i * SCALE + BORDER + SCALE / 2 + FRETTEXT,
 						BORDER + SCALE + 2 * SPACER,
@@ -167,11 +168,11 @@ void FingerList::paintCell(QPainter *p, int row, int col)
 							   CIRCBORD,CIRCLE,CIRCLE);
 			}
 		}
-		
+
 		// Analyze & draw barre
-		
+
 		p->setBrush(fore);
-		
+
 		for (int i=0;i<NUMFRETS;i++) {
 			barre=0;
 			while ((appl[n].f[parm->string-barre-1]>=(i+firstFret)) ||
@@ -180,24 +181,24 @@ void FingerList::paintCell(QPainter *p, int row, int col)
 				if (barre>parm->string-1)
 					break;
 			}
-			
+
 			while ((appl[n].f[parm->string-barre]!=(i+firstFret)) && (barre>1))
 				barre--;
-			
+
 			eff = 0;
 			for (int j = parm->string-barre; j < parm->string; j++) {
 				if (appl[n].f[j] != -1)
 					eff++;
 			}
-			
+
 			if (eff > 2) {
 				p->drawRect((parm->string-barre) * SCALE + SCALE / 2 +
 							BORDER + FRETTEXT,
 							BORDER + SCALE + 2 * SPACER + i * SCALE + CIRCBORD,
 							(barre - 1) * SCALE, CIRCLE);
 			}
-		}  
-		
+		}
+
 		p->setBrush(NoBrush);
 		p->setPen(SolidLine);
     }

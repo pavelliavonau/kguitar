@@ -695,8 +695,3 @@ void ChordSelector::findChords()
 	fnglist->endSession();
 }
 
-void ChordSelector::resizeEvent(QResizeEvent *e)
-{
-	QDialog::resizeEvent(e);
-	findChords();
-}
