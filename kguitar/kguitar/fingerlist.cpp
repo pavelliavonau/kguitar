@@ -23,9 +23,12 @@ void FingerList::addFingering(const int a[MAX_STRINGS])
 {
   for (int i=0;i<MAX_STRINGS;i++)
     appl[num][i]=a[i];
-  num++;
+  num++; 
   // num is overral number of chord applicatures. If it's 0 - then there are no applicatures.
   // In the appl array, indexes should be ranged from 0 to (num-1)
+  setNumRows(num/perRow+1);
+  // GREYFIX: it's wrong to update number of rows every added fingering. It should be updated only
+  // in the end of add session (e.g. chord calucation)
 }
 
 void FingerList::resizeEvent(QResizeEvent *e)
