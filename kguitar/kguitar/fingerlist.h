@@ -8,6 +8,10 @@
 
 class TabTrack;
 
+typedef struct {
+    int f[MAX_STRINGS];
+} fingering;
+
 class FingerList: public QTableView
 {
     Q_OBJECT
@@ -30,9 +34,9 @@ private:
     enum { SCALE=6, CIRCLE=4, CIRCBORD=1, BORDER=1, SPACER=1, FRETTEXT=5 };
     
     int num,perRow;
-    int appl[5000][MAX_STRINGS]; // GREYFIX!!!
+    QArray<fingering> appl;
 
-    int curSel;
+    int curSel,oldCol,oldRow;
     TabTrack *parm;
 };
 
