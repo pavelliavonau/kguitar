@@ -6,6 +6,7 @@
 #include <qlist.h>
 #include <qstring.h>
 #include <qtextstream.h>
+#include <qmap.h>
 
 #ifdef WITH_TSE3
 #include <tse3/Song.h>
@@ -23,11 +24,19 @@ class TabSong {
 public:
 	TabSong(QString _title, int _tempo);
 	int tempo;
-	QList<TabTrack> t;					// Track data
-	QString title;						// Title of the song
-	QString author;						// Author of the tune
-	QString transcriber;				// Who made the tab
-	QString comments;					// Comments
+
+	/**
+	 * Holds a list of tracks that the song consists of.
+	 */
+	QList<TabTrack> t;
+
+	/**
+	 * Map of metainformation. Can hold lots of strings, referenced by
+	 * another lot of strings as a key. Generally, we follow Ogg
+	 * Vorbis comment recommendations for key names, for example,
+	 * info["TITLE"] should return title of the song.
+	 */
+	QMap<QString, QString> info;
 
 	/**
 	 * Find the minimal free channel, for example, to use for new

@@ -1,7 +1,3 @@
-/*
-  Undo/Redo commands for SongView
-*/
-
 #include "songviewcommands.h"
 #include "tabsong.h"
 #include "tabtrack.h"
@@ -11,42 +7,29 @@
 
 #include <klocale.h>
 
-SongView::SetSongPropCommand::SetSongPropCommand(SongView *_sv, QString _title, QString _author,
-                                       QString _trans, QString _com, int _tempo)
+SongView::SetSongPropCommand::SetSongPropCommand(SongView *_sv, QMap<QString, QString> _info, int _tempo)
 	: KNamedCommand(i18n("Set song properties"))
 {
-    sv          = _sv;
-	title       = _title;
-	author      = _author;
-	transcriber = _trans;
-	comments    = _com;
-	tempo       = _tempo;
+    sv       = _sv;
+	info     = _info;
+	tempo    = _tempo;
 
-	oldtitle       = sv->song()->title;
-	oldauthor      = sv->song()->author;
-	oldtranscriber = sv->song()->transcriber;
-	oldcomments    = sv->song()->comments;
-	oldtempo       = sv->song()->tempo;
+	oldinfo  = sv->song()->info;
+	oldtempo = sv->song()->tempo;
 }
 
 void SongView::SetSongPropCommand::execute()
 {
-	sv->song()->title       = title;
-	sv->song()->author      = author;
-	sv->song()->transcriber = transcriber;
-	sv->song()->comments    = comments;
-	sv->song()->tempo       = tempo;
-
+	sv->song()->info  = info;
+	sv->song()->tempo = tempo;
 	emit sv->songChanged();
 }
 
 void SongView::SetSongPropCommand::unexecute()
 {
-	sv->song()->title       = oldtitle;
-	sv->song()->author      = oldauthor;
-	sv->song()->transcriber = oldtranscriber;
-	sv->song()->comments    = oldcomments;
-	sv->song()->tempo       = oldtempo;
+	sv->song()->info  = oldinfo;
+	sv->song()->tempo = oldtempo;
+	emit sv->songChanged();
 }
 
 SongView::SetTrackPropCommand::SetTrackPropCommand(TrackView *_tv, TrackList *_tl, TrackPane *_tp,
