@@ -397,7 +397,7 @@ bool KGuitarPart::saveFile()
 		default: success = FALSE; break;
 		}
 	}
-	if (ext == "XML")
+	if (ext == "xml")
 		success = sv->sng()->save_to_xml(m_file);
 
 	if (success) {
