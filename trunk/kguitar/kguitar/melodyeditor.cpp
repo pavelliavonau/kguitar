@@ -9,9 +9,13 @@
 #include <qlabel.h>
 #include <qlayout.h>
 #include <klocale.h>
+#include <qapplication.h>
 
 MelodyEditor::MelodyEditor(TrackView *_tv, QWidget *parent, const char *name)
 	:QWidget(parent, name)
+// 			 WType_TopLevel | WStyle_Customize |
+// 	         WStyle_StaysOnTop | WStyle_NormalBorder |
+// 	         WStyle_Title | WStyle_MinMax | WStyle_SysMenu)
 {
 	tv = _tv;
 
@@ -53,8 +57,27 @@ MelodyEditor::MelodyEditor(TrackView *_tv, QWidget *parent, const char *name)
 	// Fretboard box
 	l->addWidget(fb);
 
-	connect(fb, SIGNAL(buttonClicked(int, int, ButtonState)), tv, SLOT(setMelodyClick(int, int, ButtonState)));
+	connect(fb, SIGNAL(buttonPress(int, int, ButtonState)), tv, SLOT(melodyEditorPress(int, int, ButtonState)));
+	connect(fb, SIGNAL(buttonRelease(ButtonState)), tv, SLOT(melodyEditorRelease(ButtonState)));
 	connect(tv, SIGNAL(trackChanged(TabTrack *)), fb, SLOT(setTrack(TabTrack *)));
+	connect(tv, SIGNAL(columnChanged()), fb, SLOT(update()));
+
+	installEventFilter(this);
 
 	setCaption(i18n("Melody Constructor"));
 }
+
+// Special event filter that translates all keypresses to main widget,
+// i.e. TrackView
+// bool MelodyEditor::eventFilter(QObject *o, QEvent *e)
+// {
+// 	if (e->type() == QEvent::KeyPress) {
+// 		QKeyEvent *k = (QKeyEvent *) e;
+// 		printf("Ate key press %d\n", k->key());
+// 		QEvent ce(*e);
+// 		QApplication::sendEvent(tv, &ce);
+// 		return TRUE;
+// 	} else {
+// 		return FALSE;
+// 	}
+// }
