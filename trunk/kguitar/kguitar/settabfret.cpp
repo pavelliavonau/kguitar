@@ -63,11 +63,11 @@ void SetTabFret::stringChanged(int n)
 	return;
 
     if (oldst<n) {       // Need to add
-	for (int i=oldst;i<n;i++)
-	    tuner[i]->show();
+		for (int i=oldst;i<n;i++)
+			tuner[i]->show();
     } else {             // Need to delete
-	for (int i=n;i<oldst;i++)
-	    tuner[i]->hide();
+		for (int i=n;i<oldst;i++)
+			tuner[i]->hide();
     }
     oldst=n;
 
@@ -79,27 +79,27 @@ void SetTabFret::tuneChanged()
 {
     int found = 0;
 
-    for (int i=1;lib_tuning[i].strings;i++) {
-	if (lib_tuning[i].strings!=st->value())
-	    continue;
-	bool ok = TRUE;
-	for (int j=0;j<lib_tuning[i].strings;j++)
-	    if (tuner[j]->value()!=lib_tuning[i].shift[j]) {
-		ok = FALSE;
-		break;
-	    }
-	if (ok) {
-	    found = i;
-	    break;
-	}
+    for (int i = 1; lib_tuning[i].strings; i++) {
+		if (lib_tuning[i].strings != st->value())
+			continue;
+		bool ok = TRUE;
+		for (int j = 0; j < lib_tuning[i].strings; j++)
+			if (tuner[j]->value() != lib_tuning[i].shift[j]) {
+				ok = FALSE;
+				break;
+			}
+		if (ok) {
+			found = i;
+			break;
+		}
     }
-
+	
     lib->setCurrentItem(found);
 }
 
 void SetTabFret::resizeEvent(QResizeEvent *e)
 {
-    lib->setGeometry(90,20,width()-110,20);
+    lib->setGeometry(90, 20, width() - 110, 20);
     reposTuners();
 }
 
@@ -107,9 +107,9 @@ void SetTabFret::reposTuners()
 {
     int s = st->value();                // Current number of tuners
 
-    int tw = (width()-20)/s;            // Width of one tuner
-    int th = height()-90;               // Height of one tuner
+    int tw = (width() - 20) / s;        // Width of one tuner
+    int th = height() - 90;             // Height of one tuner
 
-    for (int i=0;i<s;i++)
-	tuner[i]->setGeometry(10+i*tw,80,tw,th);
+    for (int i = 0; i < s; i++)
+		tuner[i]->setGeometry(10 + i * tw, 80, tw, th);
 }
