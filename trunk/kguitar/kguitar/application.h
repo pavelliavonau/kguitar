@@ -22,6 +22,7 @@ private slots:
     void save();
     void saveAs();
     void exportMID();
+    void exportTAB();
     void print();
     void closeDoc();
     void inschord();
