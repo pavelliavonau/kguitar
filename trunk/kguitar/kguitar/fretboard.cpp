@@ -55,7 +55,9 @@ int steptemplate[][12] = {
 Fretboard::Fretboard(TabTrack *_trk, QWidget *parent, const char *name)
 	: QWidget(parent, name)
 {
-	resize(600, 128);
+	tonic = 0;
+	mode = 0;
+
 	setTrack(_trk);
 
 	scaleback = new QPixmap(width(), height());
@@ -65,9 +67,6 @@ Fretboard::Fretboard(TabTrack *_trk, QWidget *parent, const char *name)
 	zeroFret = new QImage(locate("data", "kguitar/pics/zerofret.png"));
 	drawBackground();
 
-	tonic = 0;
-	mode = 0;
-
 	setFocusPolicy(WheelFocus); // the strongest focus gainer
 }
 
@@ -76,6 +75,8 @@ Fretboard::~Fretboard()
 	delete scaleback;
 	delete back;
 	delete wood;
+	delete fret;
+	delete zeroFret;
 }
 
 QSizePolicy Fretboard::sizePolicy()
