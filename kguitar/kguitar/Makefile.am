@@ -76,5 +76,25 @@ messages: rc.cpp
 KDE_ICON = AUTO
 
 
+#
+# Install kgtabs.tex if configure found TeTeX
+#
+install-data-local: $(INSTALLKGTABS)
 
+
+uninstall-local: $(UNINSTALLKGTABS)
+
+
+$(INSTALL_KGTABS):
+	@echo "Copy kgtabs.tex to $(TEXMF)/tex/generic/kgtabs"
+	$(mkinstalldirs) $(TEXMF)/tex/generic/kgtabs
+	$(INSTALL_DATA) $(srcdir)/kgtabs.tex $(TEXMF)/tex/generic/kgtabs/kgtabs.tex
+	@echo "Running texhash..."
+	texhash
+
+$(UNINSTALL_KGTABS):
+	@echo "Delete kgtabs.tex"
+	-rm -f $(TEXMF)/tex/generic/kgtabs/kgtabs.tex
+	@echo "Running texhash..."
+	texhash
 
