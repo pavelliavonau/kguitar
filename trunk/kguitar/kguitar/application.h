@@ -27,7 +27,7 @@ public:
 private slots:
     void fileNew();
     void fileOpen();
-    void recentLoad(int _id);
+    void recentLoad(const KURL &_url);
     void openBrowser();
     void fileSave();
     void fileSaveAs();
@@ -83,6 +83,7 @@ private:
     KRecentFilesAction *openRecentAct;
 
 	QStrList recentFiles;
+	QPopupMenu *recMenu;
 
     // Status bar labels
     QLabel *s_bar;

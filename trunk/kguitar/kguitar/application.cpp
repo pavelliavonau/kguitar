@@ -23,6 +23,7 @@
 #include <kmessagebox.h>
 #include <knuminput.h>
 #include <kedittoolbar.h>
+#include <kurl.h>
 
 #include <qpixmap.h>
 #include <qkeycode.h>
@@ -61,7 +62,6 @@ ApplicationWindow::ApplicationWindow(): KMainWindow()
 // 	printer = new QPrinter;
 // 	printer->setMinMax(1,10);
 
-
 	// MAIN WIDGET
 	tv = new TrackView(this);
 	setCentralWidget(tv);
@@ -73,7 +73,7 @@ ApplicationWindow::ApplicationWindow(): KMainWindow()
 								 actionCollection(), "file_new");
 	openAct = KStdAction::open(this, SLOT(fileOpen()), 
 							   actionCollection(), "file_open");
-	openRecentAct = KStdAction::openRecent(this, SLOT(recentLoad()),
+	openRecentAct = KStdAction::openRecent(this, SLOT(recentLoad(const KURL&)),
 										   actionCollection(), "file_recent");
 	saveAct = KStdAction::save(this, SLOT(fileSave()), actionCollection(), "file_save");
 	saveAsAct = KStdAction::saveAs(this, SLOT(fileSaveAs()), 
@@ -170,6 +170,8 @@ ApplicationWindow::ApplicationWindow(): KMainWindow()
 	// READ CONFIGS
 	readOptions();
 
+	openRecentAct->setMaxItems(5);
+
 	updateMenu();
 	updateTbMenu();
 
@@ -257,45 +259,34 @@ void ApplicationWindow::fileOpen()
 			tv->sng()->t.first()->y = 0;
 			tv->sng()->filename = fn;
 			tv->updateRows();
-			addRecentFile(fn.latin1());
+			addRecentFile(fn);
 		}
 	}
 }
 
-void ApplicationWindow::recentLoad(int _id)
+void ApplicationWindow::recentLoad(const KURL& _url)
 {
-// 	QString fn = recentFiles.at(_id);
+	QString fn = _url.path();
 
-// 	if (!fn.isEmpty()) {
-// 		if (tv->sng()->load_from_kg(fn)) {
-// 			setCaption(fn);
-// 			tv->setCurt(tv->sng()->t.first());
-// 			tv->sng()->t.first()->x = 0;
-// 			tv->sng()->t.first()->y = 0;
-// 			tv->sng()->filename = fn;
-// 			tv->updateRows();
-// 			addRecentFile(fn.latin1());
-// 		} else {
-// 			recentFiles.remove(_id);
-// //			recMenu->clear();
-// 			for (int i = 0; i < (int) recentFiles.count(); i++)
-// //				recMenu->insertItem(recentFiles.at(i));
-// 			KMessageBox::sorry(this, "KGuitar",
-// 							   i18n("Can't load the song!"));
-// 		}
-// 	}
+	if (!fn.isEmpty()) {
+		if (tv->sng()->load_from_kg(fn)) {
+			setCaption(fn);
+			tv->setCurt(tv->sng()->t.first());
+			tv->sng()->t.first()->x = 0;
+			tv->sng()->t.first()->y = 0;
+			tv->sng()->filename = fn;
+			tv->updateRows();
+			addRecentFile(fn);
+		} else
+			KMessageBox::sorry(this, i18n("Can't load the song!"));
+	}
 }
 
 void ApplicationWindow::addRecentFile(const char *fn)
 {
-// 	if (recentFiles.find(fn) == -1) {
-// 		if (recentFiles.count() == 5)
-// 			recentFiles.remove(4);
-// 		recentFiles.insert(0, fn);
-// //		recMenu->clear();
-// 		for (uint i = 0 ; i < recentFiles.count(); i++)
-// 			recMenu->insertItem(recentFiles.at(i));
-// 	}
+	KURL _url(fn);
+	openRecentAct->addURL(_url);
+	openRecentAct->saveEntries(kapp->config());
 }
 
 void ApplicationWindow::openBrowser()
@@ -317,7 +308,7 @@ void ApplicationWindow::fileSave()
 		tv->sng()->save_to_kg(fn);
 		tv->sng()->filename = fn;
 		setCaption(fn);
-		addRecentFile(fn.latin1());
+		addRecentFile(fn);
 	}
 }
 
@@ -328,7 +319,7 @@ void ApplicationWindow::fileSaveAs()
 		tv->sng()->save_to_kg(fn);
 		tv->sng()->filename = fn;
 		setCaption(fn);
-		addRecentFile(fn.latin1());
+		addRecentFile(fn);
 	}
 }
 
@@ -539,7 +530,8 @@ void ApplicationWindow::readOptions()
 	QSize size = config->readSizeEntry("Geometry");
 	if (!size.isEmpty())
 		resize(size);
-	config->readListEntry("RecentFiles", recentFiles);
+
+	openRecentAct->loadEntries(config);
 
 	toolBar("mainToolBar")->applySettings(config, "MainToolBar");
 	toolBar("editToolBar")->applySettings(config, "EditToolBar");
@@ -569,7 +561,8 @@ void ApplicationWindow::saveOptions()
 	config->writeEntry("ShowMainTB", globalShowMainTB);
 	config->writeEntry("ShowEditTB", globalShowEditTB);
 	config->writeEntry("Geometry", size());
-	config->writeEntry("RecentFiles", recentFiles);
+
+	openRecentAct->saveEntries(config);
 
 	toolBar("mainToolBar")->saveSettings(config, "MainToolBar");
 	toolBar("editToolBar")->saveSettings(config, "EditToolBar");
