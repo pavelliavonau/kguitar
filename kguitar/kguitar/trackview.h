@@ -32,7 +32,7 @@ public:
 	TabTrack* trk() { return curt; }
 	void setCurrentTrack(TabTrack *);
 
-	void setFinger(int num, int fret);
+ 	void setFinger(int num, int fret);
 	int finger(int num);
 
 	void updateRows();
@@ -96,7 +96,8 @@ public slots:
 	void zoomOut();
 	void zoomLevelDialog();
 
-	void setMelodyClick(int num, int fret, ButtonState button);
+	void melodyEditorPress(int num, int fret, ButtonState button);
+	void melodyEditorRelease(ButtonState button);
 
 	void selectTrack(TabTrack *);
 	void selectBar(uint);
@@ -106,6 +107,7 @@ signals:
 	void statusBarChanged();
 	void paneChanged();
 	void trackChanged(TabTrack *);
+	void columnChanged();
 
 protected:
 	void repaintCellNumber(int n);
