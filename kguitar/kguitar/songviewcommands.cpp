@@ -14,7 +14,7 @@
 
 
 SetSongPropCommand::SetSongPropCommand(TabSong* _song, QString _title, QString _author,
-									   QString _trans, QString _com):
+                                       QString _trans, QString _com):
 	KNamedCommand(i18n("Set song properties"))
 {
     song        = _song;
