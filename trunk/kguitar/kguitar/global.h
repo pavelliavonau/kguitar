@@ -6,4 +6,5 @@
 
 // Global utility functions
 
+class QString;
 QString note_name(int);
