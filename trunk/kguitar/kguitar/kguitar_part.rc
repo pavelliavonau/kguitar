@@ -8,6 +8,8 @@
    <Action name="time_sig" />
    <Action name="arrange_trk" />
    <Separator/>
+   <Action name="track_new" />
+   <Action name="track_delete" />
    <Action name="track_properties" />
   </Menu>
   <Menu noMerge="1" name="note" >
