@@ -1,7 +1,9 @@
 #include "application.h"
-#include "chord.h"
 #include "global.h"
 #include "trackview.h"
+#include "chord.h"
+#include "track.h"
+#include "setsong.h"
 
 #include <qpopupmenu.h>
 
@@ -44,6 +46,7 @@ ApplicationWindow::ApplicationWindow(): KTMainWindow()
     p->insertItem(i18n("&Save"), this, SLOT(save()));
     p->insertItem(i18n("S&ave as..."));
     p->insertSeparator();
+    p->insertItem(i18n("P&roperties..."), this, SLOT(songProperties()));
     p->insertItem(i18n("&Print..."), this, SLOT(print()));
     p->insertSeparator();
     p->insertItem(i18n("&Close"), this, SLOT(closeDoc()));
@@ -85,11 +88,6 @@ ApplicationWindow::ApplicationWindow(): KTMainWindow()
 
     statusBar()->message( "Ready", 2000 );
 }
-
-
-/*! Destroys the object and frees any allocated resources.
-
-*/
 
 ApplicationWindow::~ApplicationWindow()
 {
@@ -213,4 +211,22 @@ void ApplicationWindow::toggleStatusBar()
 void ApplicationWindow::inschord()
 {
     cs->exec();
+}
+
+void ApplicationWindow::songProperties()
+{
+    SetSong *ss = new SetSong();
+    ss->title->setText(tv->sng()->title);
+    ss->author->setText(tv->sng()->author);
+    ss->transcriber->setText(tv->sng()->transcriber);
+    ss->comments->setText(tv->sng()->comments);
+
+    if (ss->exec()) {
+	tv->sng()->title = ss->title->text();
+	tv->sng()->author = ss->author->text();
+	tv->sng()->transcriber = ss->transcriber->text();
+	tv->sng()->comments = ss->comments->text();
+    }
+
+    delete ss;
 }

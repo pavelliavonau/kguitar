@@ -25,6 +25,7 @@ private slots:
     void print();
     void closeDoc();
     void inschord();
+    void songProperties();
 
     void toggleMenuBar();
     void toggleStatusBar();
