@@ -6,7 +6,7 @@
 msgid ""
 msgstr ""
 "Project-Id-Version: PACKAGE VERSION\n"
-"POT-Creation-Date: 2000-09-04 14:42-0400\n"
+"POT-Creation-Date: 2000-10-14 22:45-0400\n"
 "PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
 "Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
 "Language-Team: LANGUAGE <LL@li.org>\n"
@@ -14,115 +14,123 @@ msgstr ""
 "Content-Type: text/plain; charset=CHARSET\n"
 "Content-Transfer-Encoding: ENCODING\n"
 
-#: application.cpp:58
+#: application.cpp:68
 msgid "New document"
 msgstr ""
 
-#: application.cpp:64
+#: application.cpp:74
 msgid "Insert chord"
 msgstr ""
 
-#: application.cpp:66
+#: application.cpp:76
 msgid "Whole"
 msgstr ""
 
-#: application.cpp:78 timesig.cpp:60
+#: application.cpp:88 timesig.cpp:60
 msgid "Time signature"
 msgstr ""
 
-#: application.cpp:80
+#: application.cpp:90
 msgid "Link with previous column"
 msgstr ""
 
-#: application.cpp:82
+#: application.cpp:92
 msgid "Legato (hammer on/pull off)"
 msgstr ""
 
-#: application.cpp:84
+#: application.cpp:94
 msgid "Natural harmonic"
 msgstr ""
 
-#: application.cpp:86
+#: application.cpp:96
 msgid "Artificial harmonic"
 msgstr ""
 
-#: application.cpp:91
+#: application.cpp:101
 msgid "&New"
 msgstr ""
 
-#: application.cpp:99
+#: application.cpp:112
+msgid "&MIDI file..."
+msgstr ""
+
+#: application.cpp:113
 msgid "ASCII &tab..."
 msgstr ""
 
-#: application.cpp:100
+#: application.cpp:114
+msgid "&MusiXTeX tab..."
+msgstr ""
+
+#: application.cpp:116
 msgid "&Export"
 msgstr ""
 
-#: application.cpp:103
+#: application.cpp:119
 msgid "P&roperties..."
 msgstr ""
 
-#: application.cpp:111
+#: application.cpp:127
 msgid "&Track..."
 msgstr ""
 
-#: application.cpp:115
+#: application.cpp:131
 msgid "&Chord"
 msgstr ""
 
-#: application.cpp:119
+#: application.cpp:135
 msgid "&General..."
 msgstr ""
 
-#: application.cpp:122
+#: application.cpp:138
 msgid "American, sharps"
 msgstr ""
 
-#: application.cpp:123
+#: application.cpp:139
 msgid "American, flats"
 msgstr ""
 
-#: application.cpp:124
+#: application.cpp:140
 msgid "American, mixed"
 msgstr ""
 
-#: application.cpp:126
+#: application.cpp:142
 msgid "European, sharps"
 msgstr ""
 
-#: application.cpp:127
+#: application.cpp:143
 msgid "European, flats"
 msgstr ""
 
-#: application.cpp:128
+#: application.cpp:144
 msgid "European, mixed"
 msgstr ""
 
-#: application.cpp:130
+#: application.cpp:146
 msgid "Jazz, sharps"
 msgstr ""
 
-#: application.cpp:131
+#: application.cpp:147
 msgid "Jazz, flats"
 msgstr ""
 
-#: application.cpp:132
+#: application.cpp:148
 msgid "Jazz, mixed"
 msgstr ""
 
-#: application.cpp:137
+#: application.cpp:153
 msgid "&Note names"
 msgstr ""
 
-#: application.cpp:142
+#: application.cpp:158
 msgid "A stringed instrument tabulature editor"
 msgstr ""
 
-#: application.cpp:150 application.cpp:170
+#: application.cpp:166 application.cpp:187
 msgid "Bar: "
 msgstr ""
 
-#: application.cpp:177
+#: application.cpp:194
 msgid ""
 "Jazz note names are very special and should be\n"
 "used only if really know what you do. Usage of jazz\n"
@@ -133,47 +141,51 @@ msgid ""
 "Are you sure you want to use jazz notes?"
 msgstr ""
 
-#: chord.cpp:157
+#: chord.cpp:164
 msgid "Root"
 msgstr ""
 
-#: chord.cpp:158
+#: chord.cpp:165
 msgid "Inv #1"
 msgstr ""
 
-#: chord.cpp:159
+#: chord.cpp:166
 msgid "Inv #2"
 msgstr ""
 
-#: chord.cpp:160
+#: chord.cpp:167
 msgid "Inv #3"
 msgstr ""
 
-#: chord.cpp:161
+#: chord.cpp:168
 msgid "Inv #4"
 msgstr ""
 
-#: chord.cpp:162
+#: chord.cpp:169
 msgid "Inv #5"
 msgstr ""
 
-#: chord.cpp:163
+#: chord.cpp:170
 msgid "Inv #6"
 msgstr ""
 
-#: chord.cpp:169
+#: chord.cpp:175
 msgid "Usual"
 msgstr ""
 
-#: chord.cpp:171
+#: chord.cpp:177
 msgid "Rare"
 msgstr ""
 
-#: chord.cpp:173
+#: chord.cpp:179
 msgid "All"
 msgstr ""
 
-#: chord.cpp:207
+#: chord.cpp:212
+msgid "&Strum..."
+msgstr ""
+
+#: chord.cpp:284
 msgid "Chord constructor"
 msgstr ""
 
@@ -254,10 +266,46 @@ msgid "&Chords"
 msgstr ""
 
 #: options.cpp:51
-msgid "Others"
+msgid "MusiXTeX Layout"
 msgstr ""
 
-#: options.cpp:61
+#: options.cpp:53
+msgid "Show Barnumber"
+msgstr ""
+
+#: options.cpp:55
+msgid "Show Tuning"
+msgstr ""
+
+#: options.cpp:57
+msgid "Show Pagenumber"
+msgstr ""
+
+#: options.cpp:60
+msgid "Tab Size"
+msgstr ""
+
+#: options.cpp:62
+msgid "Smallest"
+msgstr ""
+
+#: options.cpp:63
+msgid "Small"
+msgstr ""
+
+#: options.cpp:64
+msgid "Normal"
+msgstr ""
+
+#: options.cpp:65
+msgid "Big"
+msgstr ""
+
+#: options.cpp:73
+msgid "MusiXTeX Export"
+msgstr ""
+
+#: options.cpp:83
 msgid "General options"
 msgstr ""
 
@@ -271,4 +319,12 @@ msgstr ""
 
 #: timesig.cpp:47
 msgid "Apply till the &end"
+msgstr ""
+
+#: strumming.cpp:26
+msgid "Strum &pattern:"
+msgstr ""
+
+#: strumming.cpp:53
+msgid "Strumming pattern"
 msgstr ""
