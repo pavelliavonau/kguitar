@@ -28,11 +28,11 @@ Strumming::Strumming(int default_scheme, QWidget *parent=0, const char *name=0):
 	g->addWidget(pattern_l, 0, 0);
 	g->addWidget(pattern, 0, 1);
 
-	g->addRowSpacing(0,30);
+	g->addRowSpacing(0, 30);
 
-    g->addColSpacing(0,80);
-    g->addColSpacing(1,100);
-    g->setColStretch(1,1);
+    g->addColSpacing(0, 80);
+    g->addColSpacing(1, 200);
+    g->setColStretch(1, 1);
 
     // DIALOG BUTTONS
 
