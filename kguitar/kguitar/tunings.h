@@ -23,7 +23,7 @@ typedef struct {
 tuning lib_tuning[] = {
     { 1, {},                        i18n("User defined") },
 
-    { 6, {40,45,50,55,59,64},       i18n("Guitar (6): standard") },
+    { 6, {40,45,50,55,59,64},       i18n("Guitar (6): E (standard)") },
     { 6, {39,44,49,54,58,63},       i18n("Guitar (6): Eb") },
     { 6, {38,43,48,53,57,62},       i18n("Guitar (6): D") },
     { 6, {38,45,50,55,59,64},       i18n("Guitar (6): drop D") },
