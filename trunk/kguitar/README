@@ -59,6 +59,8 @@ on the 24 fret guitar.
 
 Delete - deletes the current fret number in cursor position.
 
+Ctrl+Delete - deletes the whole current column.
+
 Ctrl+Up, Ctrl+Down - if there is a fret number in cursor postion, move
 the cursor up or down taking the number with it, trying to maintain
 the tone frequency. Thus, on a normal 6-string guitar tuning, if
