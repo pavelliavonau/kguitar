@@ -46,6 +46,29 @@ void len2dot(int l, int *len, bool *dot)
 	}
 }
 
+// Find the minimal free channel, for example, to use for new track
+int TabSong::freeChannel()
+{
+	bool fc[17];
+	for (int i = 1; i <= 16; i++)
+		fc[i] = TRUE;
+
+	QListIterator<TabTrack> it(t);
+	for (; it.current(); ++it) {
+		TabTrack *trk = it.current();
+		fc[trk->channel] = FALSE;
+	}
+
+	int res;
+	for (res = 1; res <= 16; res++) {
+		if (fc[res])
+			break;
+	}
+
+	if (res > 16)
+		res = 1;
+}
+
 // KG format specs
 // ===============
 // It's really internal stuff of KGuitar and could be changed without any
@@ -299,7 +322,7 @@ bool TabSong::save_to_kg(QString fileName)
 	for (; it.current(); ++it) {		// For every track
 		TabTrack *trk = it.current();
 
-		s << (Q_UINT8) trk->trackmode();// Track properties
+		s << (Q_UINT8) trk->trackMode();// Track properties
 		s << trk->name;
 		s << (Q_UINT8) trk->channel;
 		s << (Q_UINT16) trk->bank;
