@@ -3,6 +3,8 @@
 #include "fretboard.h"
 #include "trackview.h"
 #include "tabtrack.h"
+#include "options.h"
+#include "optionsmelodyeditor.h"
 
 #include <qcombobox.h>
 #include <qpushbutton.h>
@@ -61,12 +63,31 @@ MelodyEditor::MelodyEditor(TrackView *_tv, QWidget *parent, const char *name)
 	connect(fb, SIGNAL(buttonRelease(ButtonState)), tv, SLOT(melodyEditorRelease(ButtonState)));
 	connect(tv, SIGNAL(trackChanged(TabTrack *)), fb, SLOT(setTrack(TabTrack *)));
 	connect(tv, SIGNAL(columnChanged()), fb, SLOT(update()));
+	connect(options, SIGNAL(clicked()), SLOT(optionsDialog()));
 
-	installEventFilter(this);
+// 	installEventFilter(this);
 
 	setCaption(i18n("Melody Constructor"));
 }
 
+void MelodyEditor::drawBackground()
+{
+    fb->drawBackground();
+}
+
+void MelodyEditor::optionsDialog()
+{
+	KDialogBase opDialog(0, 0, TRUE, i18n("Melody Editor"),
+	                     KDialogBase::Help|KDialogBase::Default|KDialogBase::Ok|
+	                     KDialogBase::Apply|KDialogBase::Cancel, KDialogBase::Ok);
+	OptionsMelodyEditor op;
+	opDialog.setMainWidget(&op);
+	connect(&opDialog, SIGNAL(defaultClicked()), &op, SLOT(defaultBtnClicked()));
+	connect(&opDialog, SIGNAL(okClicked()), &op, SLOT(applyBtnClicked()));
+	connect(&opDialog, SIGNAL(applyClicked()), &op, SLOT(applyBtnClicked()));
+	opDialog.exec();
+	drawBackground();
+}
 // Special event filter that translates all keypresses to main widget,
 // i.e. TrackView
 // bool MelodyEditor::eventFilter(QObject *o, QEvent *e)
