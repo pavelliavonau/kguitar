@@ -16,6 +16,9 @@
 #include <qlabel.h>
 #include <qlayout.h>
 
+#include <libkmid/deviceman.h>
+#include <libkmid/player.h>
+
 QString notes_us1[12] = {"C",  "C#", "D",  "D#", "E",  "F",
 						 "F#", "G",	 "G#", "A",	 "A#", "B"};
 QString notes_us2[12] = {"C",  "Db", "D",  "Eb", "E",  "F",
@@ -37,7 +40,6 @@ QString notes_jz2[12] = {"C",  "Db", "D",  "Eb", "E",  "F",
 QString notes_jz3[12] = {"C",  "Db", "D",  "Eb", "E",  "F",
 						 "F#", "G",	 "G#", "A",	 "B" , "H"};
 
-// Note names
 QString note_name(int num)
 {
 	if ((num < 0) || (num > 11))
@@ -76,11 +78,12 @@ QString maj7name[] = {"7M", "maj7", "dom7"};
 QString flat[] = {"-", "b"};
 QString sharp[] = {"+", "#"};
 
-ChordSelector::ChordSelector(TabTrack *p, QWidget *parent = 0,
+ChordSelector::ChordSelector(DeviceManager *_dm, TabTrack *p, QWidget *parent = 0,
 							 const char *name = 0): QDialog(parent, name, TRUE)
 {
 	parm = p;
 	strum_scheme = 0;
+	dm = _dm;
 
 	chname = new QLineEdit(this);
 	chname->setMinimumHeight(20);
@@ -189,7 +192,7 @@ ChordSelector::ChordSelector(TabTrack *p, QWidget *parent = 0,
 
 	chords = new ChordList(this);
 	chords->setMinimumWidth(120);
-	connect(chords,SIGNAL(highlighted(int)),SLOT(setStepsFromChord()));
+	connect(chords, SIGNAL(highlighted(int)), SLOT(setStepsFromChord()));
 
 	// CHORD FINDER OUTPUT
 
@@ -213,12 +216,11 @@ ChordSelector::ChordSelector(TabTrack *p, QWidget *parent = 0,
 	strumbut->setMinimumSize(75, 30);
 	connect(strumbut, SIGNAL(clicked()), SLOT(askStrum()));
 
-#ifdef HAVE_MIDI
 	QPushButton *play;
 
 	play = new QPushButton(i18n("&Play"), this);
 	play->setMinimumSize(75, 30);
-#endif
+	connect(play, SIGNAL(clicked()), SLOT(playMidi()));
 
 	// LAYOUT MANAGEMENT
 
@@ -282,9 +284,7 @@ ChordSelector::ChordSelector(TabTrack *p, QWidget *parent = 0,
 	QBoxLayout *lstrum = new QVBoxLayout();
 	l->addLayout(lstrum);
 	lstrum->addStretch(1);
-#ifdef HAVE_MIDI
 	lstrum->addWidget(play);
-#endif
 	lstrum->addWidget(strumbut);
 	lstrum->addWidget(ok);
 	lstrum->addWidget(cancel);
@@ -300,6 +300,32 @@ void ChordSelector::askStrum()
 
 	if (strum.exec())
 		strum_scheme = strum.scheme();
+}
+
+void ChordSelector::playMidi()
+{
+//	dm->setDefaultDevice(1);
+	
+ 	dm->tmrStart(1);
+
+	dm->chnPatchChange(0, parm->patch);
+
+	for (int i = 0; i < parm->string; i++)
+		if (fng->app(i) != -1) {
+			if (i > 0)
+				dm->wait(i*70);
+			dm->noteOn(0, fng->app(i) + parm->tune[i], 127);
+		}
+
+ 	dm->wait(1000);
+
+	for (int i = 0; i < parm->string; i++) 
+		if (fng->app(i) != -1)
+			dm->noteOff(0, fng->app(i) + parm->tune[i], 127);
+
+	dm->sync();
+
+ 	dm->tmrStop();
 }
 
 // Try to detect some chord forms from a given applicature.
@@ -494,11 +520,11 @@ void ChordSelector::findChords()
 
 	int t = tonic->currentItem();
 
-	if (t==-1)							// no calculations without tonic
+	if (t == -1)						// no calculations without tonic
 		return;
 
-	int notenum=1;
-	need[0]=t;
+	int notenum = 1;
+	need[0] = t;
 	cnote[0]->setText(note_name(t));
 
 	switch (st[0]->currentItem()) {
@@ -546,18 +572,18 @@ void ChordSelector::findChords()
 	if (inv->currentItem()>=notenum)
 		inv->setCurrentItem(0);
 
-	int span=3; // maximal fingerspan
+	int span = 3; // maximal fingerspan
 	
 	if (complexer[1]->isChecked())
-		span=4;
+		span = 4;
 	if (complexer[2]->isChecked())
-		span=5;	   
+		span = 5;	   
 	
 	// PREPARING FOR FINGERING CALCULATION
 	
-	for (i=0;i<parm->string;i++) {
-		for (j=0;j<=parm->frets;j++)
-			fb[i][j]=-1;
+	for (i = 0; i < parm->string; i++) {
+		for (j = 0; j <= parm->frets; j++)
+			fb[i][j] = -1;
 		for (k=0;k<notenum;k++) {
 			j=(need[k]-parm->tune[i]%12+12)%12;
 			while (j<=parm->frets) {
@@ -567,17 +593,17 @@ void ChordSelector::findChords()
 		}
 	}
 
-	for (i=0;i<parm->string;i++) {
+	for (i = 0; i < parm->string; i++) {
 		k=1;
-		hfret[i][0]=-1;
-		hnote[i][0]=-2;
-		for (j=0;j<=parm->frets;j++)
-			if (fb[i][j]!=-1) {
-				hfret[i][k]=j;
-				hnote[i][k]=fb[i][j];
+		hfret[i][0] = -1;
+		hnote[i][0] = -2;
+		for (j = 0; j <= parm->frets; j++)
+			if (fb[i][j] != -1) {
+				hfret[i][k] = j;
+				hnote[i][k] = fb[i][j];
 				k++;
 			}
-		hnote[i][k]=-1;
+		hnote[i][k] = -1;
 	}
 
 	// After all the previous funky calculations, we would have 2 arrays:
@@ -587,14 +613,14 @@ void ChordSelector::findChords()
 	//						to each hfret array's fret. -1 means end of string,
 	//						-2 means muted string.
 
-	for (i=0;i<parm->string;i++)
-		ind[i]=0;
+	for (i = 0; i < parm->string; i++)
+		ind[i] = 0;
 
-	min=-1;max=-1;needrecalc=FALSE;
+	min = -1; max = -1; needrecalc = FALSE;
 
 	// MAIN FINGERING CALCULATION LOOP
 
-	i=0;
+	i = 0;
 	do {
 		// end of string not reached
 		if (!( (hnote[i][ind[i]]==-1) || ( (!needrecalc) && (max-min>=span)))) {
