@@ -125,8 +125,7 @@ void Fingering::drawContents(QPainter *p)
 
     QString tmp;
     tmp.setNum(ff->value());
-
-    p->drawText(BORDER, BORDER + SCALE + 2 * SPACER, 50, 50, AlignLeft | AlignTop, tmp);
+    p->drawText(BORDER - SPACER, BORDER + SCALE + 2 * SPACER, 50, 50, AlignLeft | AlignTop, tmp);
 
     // Vertical lines, fingering and note names
 
