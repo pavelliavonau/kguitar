@@ -1,20 +1,26 @@
-KGuitar v0.0.2
-==============
+				KGuitar
+			A KDE tabulature editor
 
-(C) 2000, by GreyCat <yakshin@glasnet.ru>
+(C) 2000 by GreyCat <yakshin@glasnet.ru>
 
-This is a second public release, should be now partially usable and somewhat
-useful for finding and analyzing chord fingerings by guitarists.
+KGuitar is basically a guitar tabulature editor for K Desktop
+Environment. It's much more than just a tab editor. It's features are:
 
-Nothing very visible added to this release, but:
 
-1) Now it uses autoconf/automake, so making should be fairly easy.
-2) It's much more KDE integrated, uses KDE dirs in installation, includes
-   all 3 required icons for desktop (large/normal/mini), etc, etc.
-3) Chord analyzer works almost perfectly - it detects almost all possible
-   flavors of chords, typically about 3-4 variants for every possible fingering.
-4) Chord finder is also very improved - now it's lightning fast (compared to
-   old slow crawl, but it's still not a limit in optimization). Added
-   user interface, required for finding all basic chord forms.
+* Free GPLed program;
 
-So, this one should be useful at least of chord stuff.
+* K Desktop Environment GUI;
+
+* Powerful and convenient tabulature editing, including many effects
+and classical note score editing for classic instrument players;
+
+* Full and very customizable MIDI to tabulature import and export;
+
+* Support of extra data formats, such as ASCII tabulatures or popular
+programs' format, such as Guitar Pro's or TablEdit;
+
+* Chord fingering construction tools - chord finder & chord analyzer;
+
+* Highly customizable to suit a lot of possible instruments (not only
+6-stringed guitars, and even not only guitars), including drum tracks,
+lyrics and other MIDI events.
