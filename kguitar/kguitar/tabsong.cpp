@@ -17,7 +17,7 @@ TabSong::TabSong(QString _title, int _tempo)
 // Dot + undotted length -> full length
 Q_UINT16 TabSong::dot2len(int len, bool dot)
 {
-	return (Q_UINT16) (dot ? len + len / 2 : len );
+	return (Q_UINT16) (dot ? len + len / 2 : len);
 }
 
 // Normal durations
@@ -28,7 +28,7 @@ int dotdur[6] = {720, 360, 180, 90, 45, 23};
 // Full length -> dot + undotted length
 void TabSong::len2dot(int l, int *len, bool *dot)
 {
-	for (uint i=0;i<6;i++) {
+	for (uint i = 0; i < 6; i++) {
 		if (nordur[i] == l) {
 			*len = l;
 			*dot = FALSE;
@@ -94,7 +94,7 @@ bool TabSong::load_from_kg(QString fileName)
 	// HEADER SIGNATURE
 	char hdr[4];
 	s.readRawBytes(hdr, 3); // should be KG\0 header
-	if (!((hdr[0]=='K') && (hdr[1]=='G') && (hdr[2]==0)))
+	if (!((hdr[0] == 'K') && (hdr[1] == 'G') && (hdr[2] == 0)))
 		return FALSE;
 	
 	// FILE VERSION NUMBER
@@ -296,12 +296,12 @@ bool TabSong::save_to_kg(QString fileName)
 		s << (Q_UINT8) trk->b[0].time2;
 		
 		for (uint x=0;x<trk->c.size();x++) {
-			if (bar+1<trk->b.size()) {	// This bar's not last
-				if (trk->b[bar+1].start==x)
+			if (bar+1 < trk->b.size()) {	// This bar's not last
+				if (trk->b[bar+1].start == x)
 					bar++;				// Time for next bar		
 			}
 			
-			if (trk->b[bar].start==x) { // New bar event
+			if (trk->b[bar].start == x) { // New bar event
 				s << (Q_UINT8) 'B';
 				s << (Q_UINT8) 0;
 			}
@@ -721,7 +721,7 @@ bool TabSong::save_to_tex_tab(QString fileName)
 	s << "\\subtitle{\\svtpoint\\bf Author: " << author << "}" << "\n";
 	s << "\\author{Transcribed by: " << transcriber;
 	s << "\\\\%" << "\n";
-	s << "        Tempo: " << tempo <<"}";
+	s << "        Tempo: " << tempo << "}";
 	s << "\n";
 
 	if (global_showstr)
@@ -731,7 +731,7 @@ bool TabSong::save_to_tex_tab(QString fileName)
 	s << "\n";
 	s << "\\settab1" << "\n";
 
-	if (global_showbarnumb==FALSE)
+	if (!global_showbarnumb)
 		s << "\\nobarnumbers" << "\n";
 
 	s << "\\let\\extractline\\leftline" << "\n";
@@ -744,7 +744,7 @@ bool TabSong::save_to_tex_tab(QString fileName)
 	int width;
 	uint bbar;       // who are bars?
 	
-	for (;it.current();++it) { // For every track
+	for (; it.current(); ++it) { // For every track
 		TabTrack *trk = it.current();
 		
 		s << "Track " << n << ": " << trk->name;
@@ -765,39 +765,40 @@ bool TabSong::save_to_tex_tab(QString fileName)
 		width = 0;
 		bbar = 1;
 		trksize = trk->c.size();
+
 		QString tmpline;
 
-		for (uint j=0;j<trksize;j++) { // for every column (j)
+		for (uint j = 0; j < trksize; j++) { // for every column (j)
 			tmpline = notes;
 
-			if ((bbar+1)<trk->b.size()){         // looking for bars
-			  if(trk->b[bbar+1].start==j) bbar++;
+			if ((bbar + 1) < trk->b.size()) { // looking for bars
+				if (trk->b[bbar + 1].start == j)  bbar++;
 			}
-			if (trk->b[bbar].start==j) s << bar;
+			if (trk->b[bbar].start == j)  s << bar;
 
-			for (int x=0;x<trk->string;x++)  // test how much tabs in this column
-				if (trk->c[j].a[x]>=0) cho++;
+			for (int x = 0; x < trk->string; x++) // test how much tabs in this column
+				if (trk->c[j].a[x]>=0)  cho++;
 
-			for (int x=0;x<trk->string;x++){
+			for (int x = 0; x < trk->string; x++) {
 				if ((trk->c[j].a[x]>=0) && (cho==1))
-					s << notes << tab(FALSE,((x-trk->string)*(-1)),trk->c[j].a[x]);
+					s << notes << tab(FALSE, trk->string - x, trk->c[j].a[x]);
 				if ((trk->c[j].a[x]>=0) && (cho>1))
-					tmpline += tab(TRUE,((x-trk->string)*(-1)),trk->c[j].a[x]);
+					tmpline += tab(TRUE, trk->string - x, trk->c[j].a[x]);
 			}
 
-			if (cho>1)
+			if (cho > 1)
 				s << tmpline;
-			if (cho>0) width++;                // if tab is set
-			if (((j+1)==trksize) && (cho>0))   // Last time?		
+			if (cho > 0) width++;                  // if tab is set
+			if (((j + 1) == trksize) && (cho > 0)) // Last time?		
 				s << "\\sk\\en";
 			else {
-				if (cho>0) s << "\\en" << "\n";
-				if ((cho>0) && (width>=26)){     // we need a LF in tab
-				  s << "\\endextract" << "\n";
-				  if (global_showstr && (flatnote==FALSE))
-					s << showstr;
-				  s << "\\startextract" << "\n";
-				  width = 0;
+				if (cho > 0)  s << "\\en" << "\n";
+				if ((cho > 0) && (width >= 26)){       // we need a LF in tab
+					s << "\\endextract" << "\n";
+					if (global_showstr && (!flatnote))
+						s << showstr;
+					s << "\\startextract" << "\n";
+					width = 0;
 				}
 			}
 			cho = 0;
@@ -823,8 +824,8 @@ bool TabSong::save_to_tex_notes(QString fileName)
 
 	QTextStream s(&f);
 
-	QListIterator<TabTrack>it(t);
-	TabTrack *trk=it.current();
+	QListIterator<TabTrack> it(t);
+	TabTrack *trk = it.current();
 
 	// TeX-File INFO-HEADER
 	s << "%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%" << "\n";
@@ -856,12 +857,11 @@ bool TabSong::save_to_tex_notes(QString fileName)
 	s << "\\input musixtex" << "\n" << "\n";
 
 	// SONG HEADER   	
-	if (global_showpagenumb==FALSE)
+	if (!global_showpagenumb)
 		s << "\\nopagenumbers" << "\n";
-	if (global_showbarnumb==FALSE)
+	if (!global_showbarnumb)
 		s << "\\nobarnumbers" << "\n";
 	s << "\n";
-
 
 	// TRACK DATA
 	int n = 1;       // Trackcounter
@@ -874,7 +874,6 @@ bool TabSong::save_to_tex_notes(QString fileName)
 		s << "\\startpiece" << "\n";
 
 		// make here the notes
-
 
 		s << "\\endpiece" << "\n" << "\n";
 		n++;                      // next Track
