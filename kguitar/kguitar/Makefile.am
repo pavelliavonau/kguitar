@@ -20,7 +20,7 @@ SUBDIRS = toolbar pics
 
 ####### This part is very kguitar specific
 # you can add here more. This one gets installed
-bin_PROGRAMS =     kguitar
+bin_PROGRAMS = kguitar
 lib_LTLIBRARIES = libkguitar.la
 
 # Which sources should be compiled for kguitar.
@@ -40,7 +40,7 @@ kguitar_LDFLAGS = $(all_libraries) $(KDE_RPATH)
 
 # the libraries to link against. Be aware of the order. First the libraries,
 # that depend on the following ones.
-kguitar_LDADD   = $(LIB_KFILE) libkguitar.la
+kguitar_LDADD = $(LIB_KFILE) libkguitar.la
 
 # this option you can leave out. Just, if you use "make dist", you need it
 noinst_HEADERS = application.h songview.h chord.h fingers.h fingerlist.h \
@@ -95,11 +95,11 @@ $(INSTALL_KGTABS):
 	$(mkinstalldirs) $(TEXMF)/tex/generic/kgtabs
 	$(INSTALL_DATA) $(srcdir)/kgtabs.tex $(TEXMF)/tex/generic/kgtabs/kgtabs.tex
 	@echo "Running texhash..."
-	texhash
+	@texhash
 
 $(UNINSTALL_KGTABS):
 	@echo "Delete kgtabs.tex"
 	-rm -f $(TEXMF)/tex/generic/kgtabs/kgtabs.tex
 	@echo "Running texhash..."
-	texhash
+	@texhash
 
