@@ -377,12 +377,18 @@ bool TabSong::save_to_kg(QString fileName)
 	return TRUE;
 }
 
+// Reads Delphi string in GPro format. Delphi string looks pretty much like:
+// <max-length> <real-length> <real-length * bytes - string data>
+
 void TabSong::readDelphiString(QDataStream *s, char *c)
 {
 	Q_UINT8 maxl, l;
 	(*s) >> maxl;
-	maxl--;
 	(*s) >> l;
+	if (maxl == 0)
+		maxl = l;
+	else
+		maxl--;
 	s->readRawBytes(c, maxl);
 	c[l] = 0;
 }
@@ -500,6 +506,9 @@ bool TabSong::load_from_gtp(QString fileName)
 
 			for (int j = 0; j < thisbar; x++, j++) {
 
+				if (s.atEnd())
+					break;
+
 				// Guitar Pro uses maximal system for MIDI event
 				// timing. Thus, it sets 480 ticks to be equal to 1/4 of a
 				// whole note. KGuitar has 120 ticks as 1/4, so we need to
@@ -507,12 +516,36 @@ bool TabSong::load_from_gtp(QString fileName)
 				
 				trk->c[x].l = readDelphiInteger(&s) / 4;// duration of column
 				trk->c[x].flags = 0;
-				
-				kdDebug() << "Read column " << x << ": duration " << trk->c[x].l << endl;
-				
+
 				s >> num;                      // 1 unknown byte
 				s >> num;
-				if (num == 8) {
+				
+				kdDebug() << "Read column " << x << ": duration " << trk->c[x].l << " (type mask=" << (int) num << ")" << endl;
+				
+				// Here comes "type mask" of a column.
+				
+				switch (num) {
+				case 0:
+					s >> num2;                      // 1 unknown byte
+					break;
+				case 2:
+					readDelphiString(&s, c);
+					kdDebug() << "Chord name [" << c << "]" << endl;
+					printf("%d byte:\n", f.at());
+					s >> num;                      // unknown byte - always 1?
+					if (num != 1)
+						printf("Byte after chord name is not 1!\n");
+					s >> num;                      // chord diagram tonic (0-11) - if 12 then no diagram
+					kdDebug() << "Got tonic " << (int) num << " after 1 after chord name ";
+					if (num != 0xc) {
+						kdDebug() << "=> trying to skip the diagram" << endl;
+						s.readRawBytes(c, 63);     // unknown bytes - diagram data
+					} else {
+						kdDebug() << "=> assuming no chord diagram" << endl;
+						s.readRawBytes(c, 7);      // unknown bytes - C0 + something - 8 bytes
+					}
+					break;
+				case 8:
 					kdDebug() << "Rest 8" << endl;
 					for (int i = 0; i < MAX_STRINGS; i++) {
 						trk->c[x].a[i] = -1;
@@ -521,23 +554,18 @@ bool TabSong::load_from_gtp(QString fileName)
 					s >> num;
 					continue;
 				}
-				s >> num;                      // 1 unknown byte
-
 
 				s >> num2;                     // mask of following fret numbers
 				s >> fx;                       // effects
 				s >> num;                      // 1 unknown byte
-				
+
 				kdDebug() << "Frets using mask " << (int) num2 << ", fx " << (int) fx << ": ";
-				
+
 				for (int i = 5; i >= 0; i--) {
+					trk->c[x].e[i] = 0;
 					if (num2 & (1 << i)) {
 						s >> num;              // fret number
-						if (num == 100) {      // 100 = GTP's dead note
-							trk->c[x].a[i] = DEAD_NOTE;
-						} else {
-							trk->c[x].a[i] = num;
-						}						
+						trk->c[x].a[i] = (num == 100) ? DEAD_NOTE : num; // 100 = GTP's dead note
 						kdDebug() << (int) num;
 						s >> num;              // volume>? - GREYFIX
 						if (fx & (1 << i)) {
@@ -551,7 +579,6 @@ bool TabSong::load_from_gtp(QString fileName)
 						}
 					} else {
 						trk->c[x].a[i] = -1;
-						trk->c[x].e[i] = 0;
 						kdDebug() << "X";
 					}
 				}
