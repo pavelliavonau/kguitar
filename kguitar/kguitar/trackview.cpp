@@ -13,6 +13,9 @@
 #include <kmessagebox.h>
 #include <klocale.h>
 #include <kapp.h>
+#include <kpopupmenu.h>
+#include <kxmlgui.h>
+#include <kxmlguiclient.h>
 
 #include <qwidget.h>
 #include <qpainter.h>
@@ -48,8 +51,8 @@
 
 #define BOTTOMDUR	VERTSPACE+VERTLINE*(s+1)
 
-TrackView::TrackView(TabSong *s, QWidget *parent = 0, const char *name = 0):
-	QTableView(parent, name)
+TrackView::TrackView(TabSong *s, KXMLGUIClient *_XMLGUIClient, QWidget *parent = 0, const char *name = 0):
+    QTableView(parent, name)
 {
 	setTableFlags(Tbl_autoVScrollBar | Tbl_smoothScrolling);
 	setFrameStyle(Panel | Sunken);
@@ -58,6 +61,8 @@ TrackView::TrackView(TabSong *s, QWidget *parent = 0, const char *name = 0):
 	setNumCols(1);
 
 	setFocusPolicy(QWidget::StrongFocus);
+
+    m_XMLGUIClient = _XMLGUIClient;
 
 	song = s;
 	curt = s->t.first();
@@ -650,79 +655,87 @@ void TrackView::arrangeBars()
 
 void TrackView::mousePressEvent(QMouseEvent *e)
 {
-	bool found = FALSE;
-	QPoint clickpt;
+    // RightButton pressed
+    if (e->button() == RightButton) {
+        QWidget *tmpWidget = 0;
+        tmpWidget = m_XMLGUIClient->factory()->container("trackviewpopup", m_XMLGUIClient);
 
-	uint tabrow = findRow(e->pos().y());
+        if (!tmpWidget || !tmpWidget->inherits("KPopupMenu")) {
+            kdDebug() << "TrackView::mousePressEvent => wrong container widget" << endl;
+            return;
+        }
 
-	// Clicks on non-existing rows are not allowed
-	if (tabrow >= curt->b.size())
-		return;
+        KPopupMenu *menu(static_cast<KPopupMenu*>(tmpWidget));
+        menu->popup(QCursor::pos());
+    }
 
-	clickpt.setX(xOffset() + e->pos().x());
-	clickpt.setY(yOffset() + e->pos().y());
+    // LeftButton pressed
+    if (e->button() == LeftButton) {
+        bool found = FALSE;
+        QPoint clickpt;
 
-	int xpos=40, xdelta, lastxpos = 20;
+        uint tabrow = findRow(e->pos().y());
 
-	for (uint j=curt->b[tabrow].start;
-	     j < (tabrow < curt->b.size()-1 ? curt->b[tabrow+1].start : curt->c.size());
-	     j++) {
+        // Clicks on non-existing rows are not allowed
+        if (tabrow >= curt->b.size())
+            return;
 
-		// Length of interval to next column - adjusted if dotted
+        clickpt.setX(xOffset() + e->pos().x());
+        clickpt.setY(yOffset() + e->pos().y());
 
-		xdelta = horizDelta(j);
+        int xpos=40, xdelta, lastxpos = 20;
 
-		// Current column X area is half of the previous duration and
-		// half of current duration
+        for (uint j=curt->b[tabrow].start;
+             j < (tabrow < curt->b.size()-1 ? curt->b[tabrow+1].start : curt->c.size());
+             j++) {
 
-		if ((clickpt.x() >= (lastxpos + xpos) / 2) &&
-			(clickpt.x() <= xpos + xdelta / 2)) {
-			curt->x = j;
-			// We won't calculate xb from x as in updateXB(), but
-			// would just use what we know.
-			curt->xb = tabrow;
+            // Length of interval to next column - adjusted if dotted
 
-			curt->y = curt->string - 1 -
-				((int) (clickpt.y() - tabrow * cellHeight()) - VERTSPACE) / VERTLINE;
+            xdelta = horizDelta(j);
 
-			if (curt->y<0)
-				curt->y = 0;
-			if (curt->y>=curt->string)
-				curt->y = curt->string-1;
+            // Current column X area is half of the previous duration and
+            // half of current duration
 
-			emit statusBarChanged();
-			found = TRUE;
-			break;
-		}
+            if ((clickpt.x() >= (lastxpos + xpos) / 2) &&
+                (clickpt.x() <= xpos + xdelta / 2)) {
+                curt->x = j;
+                // We won't calculate xb from x as in updateXB(), but
+                // would just use what we know.
+                curt->xb = tabrow;
 
-		lastxpos = xpos;
-		xpos += xdelta;
-	}
+                curt->y = curt->string - 1 -
+                          ((int) (clickpt.y() - tabrow * cellHeight()) - VERTSPACE) / VERTLINE;
 
-// 	if (curt->c[tabrow].clickrect.contains(clickpt)) {
-// 		found = TRUE;
-// 		curt->x = j;
-// 		recttop = curt->c[tabrow].clickrect.top();
-// 		for (uint i=0;i<curt->string;i++) {
-// 			if ((clickpt.y() >= (recttop+(curt->string - 1 - i)*VERTLINE-VERTLINE/2)) &&
-// 				(clickpt.y() < (recttop + (curt->string - i)*VERTLINE - VERTLINE/2 + 1))) {
-// 				curt->y = i;
-// 			}
-// 		}
-// 		break;
-// 	}
+                if (curt->y<0)
+                    curt->y = 0;
+                if (curt->y>=curt->string)
+                    curt->y = curt->string-1;
 
+                emit statusBarChanged();
+                found = TRUE;
+                break;
+            }
 
-	if (found) {
-		repaint();
+            lastxpos = xpos;
+            xpos += xdelta;
+        }
 
-		if (e->button() == RightButton)
-//			popup->exec(QCursor::pos())
-			;
-		else if (e->button() == LeftButton) {
+        // 	if (curt->c[tabrow].clickrect.contains(clickpt)) {
+        // 		found = TRUE;
+        // 		curt->x = j;
+        // 		recttop = curt->c[tabrow].clickrect.top();
+        // 		for (uint i=0;i<curt->string;i++) {
+        // 			if ((clickpt.y() >= (recttop+(curt->string - 1 - i)*VERTLINE-VERTLINE/2)) &&
+        // 				(clickpt.y() < (recttop + (curt->string - i)*VERTLINE - VERTLINE/2 + 1))) {
+        // 				curt->y = i;
+        // 			}
+        // 		}
+        // 		break;
+        // 	}
 
-		}
-	}
+        if (found)
+            repaint();
+    }
 }
 
 void TrackView::selectTrack(QListViewItem *item)

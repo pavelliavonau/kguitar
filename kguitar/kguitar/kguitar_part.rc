@@ -11,6 +11,7 @@
    <Action name="track_new" />
    <Action name="track_delete" />
    <Action name="track_bassline" />
+   <Separator/>
    <Action name="track_properties" />
   </Menu>
   <Menu noMerge="1" name="note" >
@@ -66,6 +67,20 @@
    <Action name="pref_options" />
   </Menu>
  </MenuBar>
+ <Menu name="tracklistpopup">
+   <Title>Track List</Title>
+   <Action name="track_new" />
+   <Action name="track_delete" />
+   <Separator/>
+   <Action name="track_properties" />
+ </Menu>
+ <Menu name="trackviewpopup">
+   <Title>Track View</Title>
+   <Action name="midi_playtrack" />
+   <Action name="midi_stopplay" />
+   <Separator/>
+   <Action name="track_properties" />
+ </Menu>
  <ToolBar noMerge="1" name="editToolBar" fullWidth="true" >
   <text>Edit Toolbar</text>
   <Action name="insert_chord" />
