@@ -1,15 +1,13 @@
-
 #ifndef FILEBROWSER_H
 #define FILEBROWSER_H
 
 #include <qwidget.h>
 #include <qpushbutton.h>
-#include <kseparator.h>
 #include <qcombobox.h>
 #include <qlistview.h>
 #include <qlabel.h>
 
-#include <qdialog.h>
+#include <kdialog.h>
 
 #include "application.h"
 
@@ -39,7 +37,7 @@ private:
 
 //----------------------------------------------
 
-class FileBrowser : public QDialog  {
+class FileBrowser : public KDialog  {
    Q_OBJECT
 public: 
    FileBrowser(ApplicationWindow *parent=0, const char *name=0);
@@ -59,7 +57,6 @@ protected:
     QPushButton *btnclose;
     QPushButton *btnscan;
     QPushButton *btnplay;
-    KSeparator *separator;
     QComboBox *jumpcombo;
     QListView *dirlist;
     Directory *directory;
