@@ -1,0 +1,144 @@
+# this 10 paths are KDE specific. Use them:
+# kde_htmldir       Where your docs should go to. (contains lang subdirs)
+# kde_appsdir       Where your application file (.kdelnk) should go to. 
+# kde_icondir       Where your icon should go to.
+# kde_sounddir      Where system sounds should go to.
+# kde_datadir       Where you install application data. (Use a subdir)
+# kde_locale        Where translation files should go to.(contains lang subdirs)
+# kde_cgidir        Where cgi-bin executables should go to.
+# kde_confdir       Where config files should go to.
+# kde_mimedir       Where mimetypes should go to.
+# kde_toolbardir    Where general toolbar icons should go to.
+# kde_wallpaperdir  Where general wallpapers should go to.
+
+# set the include path for X, qt and KDE
+INCLUDES = $(all_includes)
+
+# claim, which subdirectories you want to install
+# if you don't have subdirectories, comment it
+SUBDIRS = toolbar pics
+
+####### This part is very kguitar specific
+# you can add here more. This one gets installed 
+bin_PROGRAMS = 	kguitar
+
+# Which sources should be compiled for kguitar.
+kguitar_SOURCES	= application.cpp chord.cpp fingers.cpp fingerlist.cpp \
+ main.cpp trackview.cpp setsong.cpp tabsong.cpp tabtrack.cpp settrack.cpp \
+ settabfret.cpp radiustuner.cpp notespinbox.cpp options.cpp chordlistitem.cpp \
+ chordlist.cpp timesig.cpp strumming.cpp filebrowser.cpp\
+ application.moc.cpp chord.moc.cpp fingers.moc.cpp fingerlist.moc.cpp \
+ trackview.moc.cpp setsong.moc.cpp settrack.moc.cpp settabfret.moc.cpp \
+ radiustuner.moc.cpp notespinbox.moc.cpp options.moc.cpp chordlist.moc.cpp \
+ timesig.moc.cpp strumming.moc.cpp filebrowser.moc.cpp
+
+# GREYFIX: todo automatic mocs
+# kguitar_METASOURCES = AUTO
+
+# the library search path. 
+kguitar_LDFLAGS = $(all_libraries) $(KDE_RPATH)
+
+# the libraries to link against. Be aware of the order. First the libraries,
+# that depend on the following ones.
+kguitar_LDADD   = $(LIB_KFILE)
+
+# this option you can leave out. Just, if you use "make dist", you need it
+noinst_HEADERS = application.h chord.h fingers.h fingerlist.h trackview.h \
+ setsong.h tabsong.h tabtrack.h settrack.h settabfret.h radiustuner.h \
+ notespinbox.h options.h chordlistitem.h chordlist.h timesig.h strumming.h \
+ filebrowser.h
+
+rcdir = $(kde_datadir)/kguitar
+rc_DATA = kguitarui.rc
+
+applnkdir = $(kde_appsdir)/Multimedia
+applnk_DATA = kguitar.desktop
+
+mimedir = $(kde_mimedir)/application
+mime_DATA = x-kguitar.desktop
+
+messages:
+	$(XGETTEXT) -C -ki18n $(kguitar_SOURCES) -o ../po/kguitar.pot
+
+KDE_ICON = AUTO
+
+# EXTRA_DIST = x-kguitar.desktop
+
+#install-data-local:
+#	$(mkinstalldirs) $(kde_mimedir)
+#	$(mkinstalldirs) $(kde_mimedir)/application
+#	$(INSTALL_DATA) x-kguitar.desktop $(kde_mimedir)/application/x-kguitar.desktop
+
+#uninstall-local:
+#	-rm -f $(kde_mimedir)/application/x-kguitar.desktop
+
+# OLD Makefile.am ===========================================================
+
+# EXTRA_DIST = kguitar.kdelnk kguitar.xpm kguitar-large.xpm kguitar-mini.xpm
+
+# just install datas here. Use install-exec-data for scripts and etc.
+# the binary itself is already installed from automake
+# use mkinstalldirs, not "install -d"
+# don't install a list of file. Just one file per install.
+# if you have more of them, create a subdirectory with an extra Makefile 
+#install-data-local: 
+#	$(mkinstalldirs) $(APPSDIR)
+#	$(INSTALL_DATA) kguitar.kdelnk $(APPSDIR)
+#	$(mkinstalldirs) $(kde_icondir)
+#	$(mkinstalldirs) $(kde_minidir)
+#	$(mkinstalldirs) $(kde_icondir)/large
+#	$(INSTALL_DATA) kguitar.xpm $(kde_icondir)
+#	$(INSTALL_DATA) kguitar-large.xpm $(kde_icondir)/large/kguitar.xpm
+#	$(INSTALL_DATA) kguitar-mini.xpm $(kde_minidir)/kguitar.xpm
+
+# remove ALL you have installed in install-data-local or install-exec-local
+#uninstall-local:
+#	-rm -f $(APPSDIR)/kguitar.kdelnk
+#	-rm -f $(kde_icondir)/kguitar.xpm
+#	-rm -f $(kde_minidir)/kguitar.xpm
+#	-rm -f $(kde_icondir)/large/kguitar.xpm
+
+application.moc.cpp: application.h
+	$(MOC) application.h -o application.moc.cpp
+
+chord.moc.cpp: chord.h
+	$(MOC) chord.h -o chord.moc.cpp
+
+fingers.moc.cpp: fingers.h
+	$(MOC) fingers.h -o fingers.moc.cpp
+
+fingerlist.moc.cpp: fingerlist.h
+	$(MOC) fingerlist.h -o fingerlist.moc.cpp
+
+trackview.moc.cpp: trackview.h
+	$(MOC) trackview.h -o trackview.moc.cpp
+
+setsong.moc.cpp: setsong.h
+	$(MOC) setsong.h -o setsong.moc.cpp
+
+settrack.moc.cpp: settrack.h
+	$(MOC) settrack.h -o settrack.moc.cpp
+
+settabfret.moc.cpp: settabfret.h
+	$(MOC) settabfret.h -o settabfret.moc.cpp
+
+radiustuner.moc.cpp: radiustuner.h
+	$(MOC) radiustuner.h -o radiustuner.moc.cpp
+
+notespinbox.moc.cpp: notespinbox.h
+	$(MOC) notespinbox.h -o notespinbox.moc.cpp
+
+options.moc.cpp: options.h
+	$(MOC) options.h -o options.moc.cpp
+
+chordlist.moc.cpp: chordlist.h
+	$(MOC) chordlist.h -o chordlist.moc.cpp
+
+timesig.moc.cpp: timesig.h
+	$(MOC) timesig.h -o timesig.moc.cpp
+
+strumming.moc.cpp: strumming.h
+	$(MOC) strumming.h -o strumming.moc.cpp
+
+filebrowser.moc.cpp: filebrowser.h
+	$(MOC) filebrowser.h -o filebrowser.moc.cpp
