@@ -512,16 +512,17 @@ bool TabSong::load_from_gtp(QString fileName)
 				if (s.atEnd())
 					break;
 
-				// Guitar Pro uses maximal system for MIDI event
+				// Guitar Pro uses overmaxed system for MIDI event
 				// timing. Thus, it sets 480 ticks to be equal to 1/4 of a
 				// whole note. KGuitar has 120 ticks as 1/4, so we need to
 				// divide duration by 4
 				
-				trk->c[x].l = readDelphiInteger(&s) / 4;// duration of column
 				trk->c[x].flags = 0;
+				trk->c[x].setFullDuration(readDelphiInteger(&s) / 4);
 
 				s >> num;                      // 1 unknown byte
-				s >> num;
+				s >> num;                      // type mask
+// 				s >> num2;                     // 1 unknown byte
 				
 				kdDebug() << "Read column " << x << ": duration " << trk->c[x].l << " (type mask=" << (int) num << ")" << endl;
 				
@@ -529,7 +530,7 @@ bool TabSong::load_from_gtp(QString fileName)
 				
 				switch (num) {
 				case 0:
-					s >> num2;                      // 1 unknown byte
+ 					s >> num2;                      // 1 unknown byte
 					break;
 				case 2:
 					readDelphiString(&s, c);
@@ -554,8 +555,30 @@ bool TabSong::load_from_gtp(QString fileName)
 						trk->c[x].a[i] = -1;
 						trk->c[x].e[i] = 0;
 					}
-					s >> num;
+  					s >> num;
 					continue;
+				case 16:
+					kdDebug() << "(dotted note) ";
+ 					s >> num;                       // 1 unknown byte
+					break;
+				case 32:
+					kdDebug() << "(triplet note) ";
+					s >> num;
+					s >> num;
+					break;
+				case 64:
+					kdDebug() << "(linked beat) ";
+					for (int i = 0; i < MAX_STRINGS; i++) {
+						trk->c[x].a[i] = -1;
+						trk->c[x].e[i] = 0;
+					}
+					trk->c[x].flags |= FLAG_ARC;
+					s >> num;                       // 1 unknown byte
+					continue;
+				default:
+					kdDebug() << "(unknown typemask) ";
+					s >> num;
+					break;
 				}
 
 				s >> num2;                     // mask of following fret numbers

@@ -12,9 +12,8 @@ extern bool globalShowStr;
 extern bool globalShowPageNumb;
 extern int globalTexExpMode;
 
-// ALSA MIDI
-extern int globalAlsaClient;
-extern int globalAlsaPort;
+// TSE3 MIDI port
+extern int globalMidiPort;
 
 // Features for global options
 
