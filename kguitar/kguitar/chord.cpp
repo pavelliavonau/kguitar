@@ -213,6 +213,13 @@ ChordSelector::ChordSelector(TabTrack *p, QWidget *parent = 0,
 	strumbut->setMinimumSize(75, 30);
 	connect(strumbut, SIGNAL(clicked()), SLOT(askStrum()));
 
+#ifdef HAVE_MIDI
+	QPushButton *play;
+
+	play = new QPushButton(i18n("&Play"), this);
+	play->setMinimumSize(75, 30);
+#endif
+
 	// LAYOUT MANAGEMENT
 
 	// Main layout
@@ -275,6 +282,9 @@ ChordSelector::ChordSelector(TabTrack *p, QWidget *parent = 0,
 	QBoxLayout *lstrum = new QVBoxLayout();
 	l->addLayout(lstrum);
 	lstrum->addStretch(1);
+#ifdef HAVE_MIDI
+	lstrum->addWidget(play);
+#endif
 	lstrum->addWidget(strumbut);
 	lstrum->addWidget(ok);
 	lstrum->addWidget(cancel);
