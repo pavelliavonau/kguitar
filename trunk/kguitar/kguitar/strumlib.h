@@ -1,3 +1,6 @@
+#ifndef STRUMLIB_H
+#define STRUMLIB_H
+
 // Strumming library defines and headers
 
 #define MAX_STRUM_LENGTH	10
@@ -27,3 +30,4 @@ typedef struct {
 	QString description;
 } strummer;
 
+#endif
