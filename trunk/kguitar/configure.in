@@ -47,5 +47,6 @@ AC_OUTPUT( \
 	./Makefile \
 	kguitar/Makefile \
 	kguitar/toolbar/Makefile \
+	kguitar/pics/Makefile \
 	po/Makefile \
 )
