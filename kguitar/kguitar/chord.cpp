@@ -2,7 +2,7 @@
 #include "fingers.h"
 #include "fingerlist.h"
 #include "chordlist.h"
-#include "track.h"
+#include "tabsong.h"
 
 #include <kapp.h>
 
