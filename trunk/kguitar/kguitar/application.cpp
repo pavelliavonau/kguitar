@@ -58,6 +58,9 @@ int globalTexExpMode;
 int globalAlsaClient;
 int globalAlsaPort;
 
+bool globalHaveMidi;
+
+
 extern "C" {
 	void *init_libkguitar()
 	{
@@ -78,8 +81,8 @@ KGuitarFactory::~KGuitarFactory()
 	s_instance = 0;
 }
 
-KParts::Part *KGuitarFactory::createPart(QWidget *parentWidget, const char *widgetName, 
-									 QObject *parent, const char *name, const char *className, 
+KParts::Part *KGuitarFactory::createPart(QWidget *parentWidget, const char *widgetName,
+									 QObject *parent, const char *name, const char *className,
 									 const QStringList &)
 {
 	bool bBrowserView = (strcmp(className, "Browser/View") == 0);
@@ -98,7 +101,7 @@ KInstance *KGuitarFactory::instance()
 
 //------------------------------------------------------------------------
 
-KGuitarPart::KGuitarPart(bool bBrowserView, QWidget *parentWidget, 
+KGuitarPart::KGuitarPart(bool bBrowserView, QWidget *parentWidget,
 						 const char *, QObject *parent, const char *name)
 	: KParts::ReadWritePart(parent, name)
 {
@@ -119,12 +122,12 @@ KGuitarPart::KGuitarPart(bool bBrowserView, QWidget *parentWidget,
 	tv->setFocus();
 
 	// SET UP STANDARD ACTIONS
-	newAct = KStdAction::openNew(this, SLOT(fileNew()), 
+	newAct = KStdAction::openNew(this, SLOT(fileNew()),
 								 actionCollection(), "file_new");
 
-	preferencesAct = KStdAction::preferences(this, SLOT(options()), 
+	preferencesAct = KStdAction::preferences(this, SLOT(options()),
 											 actionCollection(), "pref_options");
-	confTBAct = KStdAction::configureToolbars(this, SLOT(slotConfigToolBars()), 
+	confTBAct = KStdAction::configureToolbars(this, SLOT(slotConfigToolBars()),
 											  actionCollection(), "config_toolbars");
 	confKeyAct = KStdAction::keyBindings(this, SLOT(configKeys()),
 										 actionCollection(), "config_keys");
@@ -134,11 +137,11 @@ KGuitarPart::KGuitarPart(bool bBrowserView, QWidget *parentWidget,
 
 	trkPropAct = new KAction(i18n("&Properties..."), 0, this, SLOT(trackProperties()),
 							 actionCollection(), "track_properties");
-	insChordAct = new KAction(i18n("&Chord..."), "chord",  KAccel::stringToKey("Shift+C"), 
+	insChordAct = new KAction(i18n("&Chord..."), "chord",  KAccel::stringToKey("Shift+C"),
 							  this, SLOT(insertChord()), actionCollection(), "insert_chord");
 
 
-	saveOptionAct = new KAction(i18n("&Save Options"), 0, this, 
+	saveOptionAct = new KAction(i18n("&Save Options"), 0, this,
 								SLOT(saveOptions()), actionCollection(), "save_options");
 
 	arrTrkAct = new KAction(i18n("&Arrange Track"), KAccel::stringToKey("Shift+A"), tv,
@@ -147,52 +150,52 @@ KGuitarPart::KGuitarPart(bool bBrowserView, QWidget *parentWidget,
 	// SET UP DURATION
 	len1Act = new KAction(i18n("Whole"), "note1", KAccel::stringToKey("Ctrl+1"),
 						  tv, SLOT(setLength1()), actionCollection(), "set_len1");
-	len2Act = new KAction(i18n("1/2"), "note2", KAccel::stringToKey("Ctrl+2"), 
+	len2Act = new KAction(i18n("1/2"), "note2", KAccel::stringToKey("Ctrl+2"),
 						  tv, SLOT(setLength2()), actionCollection(), "set_len2");
-	len4Act = new KAction(i18n("1/4"), "note4", KAccel::stringToKey("Ctrl+3"), 
+	len4Act = new KAction(i18n("1/4"), "note4", KAccel::stringToKey("Ctrl+3"),
 						  tv, SLOT(setLength4()), actionCollection(), "set_len4");
-	len8Act = new KAction(i18n("1/8"), "note8", KAccel::stringToKey("Ctrl+4"), 
+	len8Act = new KAction(i18n("1/8"), "note8", KAccel::stringToKey("Ctrl+4"),
 						  tv, SLOT(setLength8()), actionCollection(), "set_len8");
-	len16Act = new KAction(i18n("1/16"), "note16", KAccel::stringToKey("Ctrl+5"), 
+	len16Act = new KAction(i18n("1/16"), "note16", KAccel::stringToKey("Ctrl+5"),
 						   tv, SLOT(setLength16()), actionCollection(), "set_len16");
-	len32Act = new KAction(i18n("1/32"), "note32", KAccel::stringToKey("Ctrl+6"), 
+	len32Act = new KAction(i18n("1/32"), "note32", KAccel::stringToKey("Ctrl+6"),
 						   tv, SLOT(setLength32()), actionCollection(), "set_len32");
 
 	// SET UP EFFECTS
 	timeSigAct = new KAction(i18n("Time signature"), "timesig",
 							 KAccel::stringToKey("Shift+T"), tv, SLOT(timeSig()),
 							 actionCollection(), "time_sig");
-	arcAct = new KAction(i18n("Link with previous column"), "arc", 
-						 KAccel::stringToKey("L"), tv, SLOT(linkPrev()), 
+	arcAct = new KAction(i18n("Link with previous column"), "arc",
+						 KAccel::stringToKey("L"), tv, SLOT(linkPrev()),
 						 actionCollection(), "link_prev");
-	legatoAct = new KAction(i18n("Legato (hammer on/pull off)"), "fx_legato", 
-							KAccel::stringToKey("P"), tv, SLOT(addLegato()), 
+	legatoAct = new KAction(i18n("Legato (hammer on/pull off)"), "fx_legato",
+							KAccel::stringToKey("P"), tv, SLOT(addLegato()),
 							actionCollection(), "fx_legato");
-	natHarmAct = new KAction(i18n("Natural harmonic"), "fx_harmonic", 
-							 KAccel::stringToKey("H"), tv, SLOT(addHarmonic()), 
+	natHarmAct = new KAction(i18n("Natural harmonic"), "fx_harmonic",
+							 KAccel::stringToKey("H"), tv, SLOT(addHarmonic()),
 							 actionCollection(), "fx_nat_harm");
-	artHarmAct = new KAction(i18n("Artificial harmonic"), "fx_harmonic", 
+	artHarmAct = new KAction(i18n("Artificial harmonic"), "fx_harmonic",
 							 KAccel::stringToKey("R"), tv, SLOT(addArtHarm()),
 							 actionCollection(), "fx_art_harm");
 
 	// SET UP 'Note Names'
-	usSharpAct = new KToggleAction(i18n("American, sharps"), 0, this, 
+	usSharpAct = new KToggleAction(i18n("American, sharps"), 0, this,
 								   SLOT(setUSsharp()), actionCollection(), "us_sharp");
-	usFlatAct = new KToggleAction(i18n("American, flats"), 0, this, 
+	usFlatAct = new KToggleAction(i18n("American, flats"), 0, this,
 								  SLOT(setUSflats()), actionCollection(), "us_flat");
-	usMixAct = new KToggleAction(i18n("American, mixed"), 0, this, 
+	usMixAct = new KToggleAction(i18n("American, mixed"), 0, this,
 								 SLOT(setUSmixed()), actionCollection(), "us_mix");
-	euSharpAct = new KToggleAction(i18n("European, sharps"), 0, this, 
+	euSharpAct = new KToggleAction(i18n("European, sharps"), 0, this,
 								   SLOT(setEUsharp()), actionCollection(), "eu_sharp");
-	euFlatAct = new KToggleAction(i18n("European, flats"), 0, this, 
+	euFlatAct = new KToggleAction(i18n("European, flats"), 0, this,
 								  SLOT(setEUflats()), actionCollection(), "eu_flat");
-	euMixAct = new KToggleAction(i18n("European, mixed"), 0, this, 
+	euMixAct = new KToggleAction(i18n("European, mixed"), 0, this,
 								 SLOT(setEUmixed()), actionCollection(), "eu_mix");
-	jazzSharpAct = new KToggleAction(i18n("Jazz, sharps"), 0, this, 
+	jazzSharpAct = new KToggleAction(i18n("Jazz, sharps"), 0, this,
 									 SLOT(setJZsharp()), actionCollection(), "jazz_sharp");
-	jazzFlatAct = new KToggleAction(i18n("Jazz, flats"), 0, this, 
+	jazzFlatAct = new KToggleAction(i18n("Jazz, flats"), 0, this,
 									SLOT(setJZflats()), actionCollection(), "jazz_flat");
-	jazzMixAct = new KToggleAction(i18n("Jazz, mixed"), 0, this, 
+	jazzMixAct = new KToggleAction(i18n("Jazz, mixed"), 0, this,
 								   SLOT(setJZmixed()), actionCollection(), "jazz_mix");
 
 	// SET UP ACCEL...
@@ -282,7 +285,7 @@ void KGuitarPart::updateMenu()
 	usFlatAct->setChecked(globalNoteNames == 1);
 	usMixAct->setChecked(globalNoteNames == 2);
 	euSharpAct->setChecked(globalNoteNames == 3);
-	euFlatAct->setChecked(globalNoteNames == 4); 
+	euFlatAct->setChecked(globalNoteNames == 4);
 	euMixAct->setChecked(globalNoteNames == 5);
 	jazzSharpAct->setChecked(globalNoteNames == 6);
 	jazzFlatAct->setChecked(globalNoteNames == 7);
@@ -557,7 +560,7 @@ void KGuitarPart::trackProperties()
 		tv->trk()->channel = st->channel->value();
 		tv->trk()->bank = st->bank->value();
 		tv->trk()->patch = st->patch->value();
-		
+
 		tv->trk()->string = st->fret->string();
 		tv->trk()->frets = st->fret->frets();
 		for (int i = 0; i < tv->trk()->string; i++)
@@ -592,7 +595,7 @@ void KGuitarPart::slotConfigToolBars()
 
 void KGuitarPart::configKeys()
 {
-	KKeyDialog::configureKeys(actionCollection(), "kguitar_part.rc"); 
+	KKeyDialog::configureKeys(actionCollection(), "kguitar_part.rc");
 }
 
 void KGuitarPart::readOptions()

@@ -3,7 +3,10 @@
 
 #include "timesig.h"
 
+#include "globaloptions.h"
+
 #include <kglobalsettings.h>
+#include <kstddirs.h>
 #include <kdebug.h>
 
 #include <qwidget.h>
@@ -14,6 +17,7 @@
 #include <qspinbox.h>
 #include <qcombobox.h>
 #include <qcheckbox.h>
+#include <qdir.h>
 
 #include <libkmid/deviceman.h>
 #include <libkmid/midimapper.h>
@@ -61,20 +65,38 @@ TrackView::TrackView(QWidget *parent, const char *name): QTableView(parent, name
 	lastnumber = 0;
 
     // MIDI INIT STUFF
-	FMOut::setFMPatchesDirectory("/usr/share/apps/kmid/fm/"); // ALINXFIX - remove hardcoded path
+    QString fmPatch, fmPatchDir;
+    fmPatch = locate("data", "kmid/fm/std.o3");
 
-	midi = new DeviceManager( /*mididev*/ -1);
+    if (!fmPatch.isEmpty()) {
 
-	if (midi->initManager() == 0)
-		kdDebug() << "midi->initManager()...  OK" << endl;
+        QFileInfo *fi = new QFileInfo(fmPatch);
+        fmPatchDir = fi->dirPath().latin1();
+        fmPatchDir += "/";
+        globalHaveMidi = TRUE;
 
-	MidiMapper *map = new MidiMapper(NULL); // alinx - for future option in Optiondialog
-	                                        // Maps are stored in:
-                                            // "$DKEDIR/share/apps/kmid/maps/*.map")
-	midi->setMidiMap(map);
+        FMOut::setFMPatchesDirectory(fmPatchDir);
 
- 	midi->openDev();
-	midi->initDev();
+        kdDebug() << "FMPatchesDirectory: " << fmPatchDir << endl;
+    }
+    else {
+        kdDebug() << "Can't find FMPatches from KMid !! ** MIDI not ready !! ***" << endl;
+        globalHaveMidi = FALSE;
+    }
+
+    midi = new DeviceManager( /*mididev*/ -1);
+
+    if (midi->initManager() == 0)
+        kdDebug() << "midi->initManager()...  OK" << endl;
+
+    MidiMapper *map = new MidiMapper(NULL); // alinx - for future option in Optiondialog
+                                                // Maps are stored in:
+                                                // "$DKEDIR/share/apps/kmid/maps/*.map")
+    midi->setMidiMap(map);
+
+    midi->openDev();
+    midi->initDev();
+
 }
 
 TrackView::~TrackView()
@@ -155,7 +177,7 @@ int TrackView::horizDelta(uint n)
 	if (res < HORCELL)
 		res = HORCELL;
 	return res;
-}	
+}
 
 void TrackView::paintCell(QPainter *p, int row, int col)
 {
@@ -175,7 +197,7 @@ void TrackView::paintCell(QPainter *p, int row, int col)
 	for (i = 0; i <= s; i++)
 		p->drawLine(0, VERTSPACE + (s - i) * VERTLINE,
 					width(), VERTSPACE + (s - i) * VERTLINE);
-	
+
 	int xpos = 40, lastxpos = 20, xdelta;
 
 	// Starting bars - very thick and thick one
@@ -202,13 +224,13 @@ void TrackView::paintCell(QPainter *p, int row, int col)
 	p->setBrush(KGlobalSettings::baseColor());
 	for (uint t = curt->b[bn].start; t <= last; t++) {
 		// Drawing duration marks
-		
+
 		// Draw connection with previous, if applicable
 		if ((t > 0) && (t>curt->b[bn].start) && (curt->c[t-1].l == curt->c[t].l))
 			xdelta = lastxpos + VERTLINE / 2;
 		else
 			xdelta = xpos + VERTLINE / 2 + HORDUR;
-		
+
 		switch (curt->c[t].l) {
 		case 15:  // 1/32
 			p->drawLine(xpos + VERTLINE / 2, BOTTOMDUR + VERTLINE - 4,
@@ -221,10 +243,10 @@ void TrackView::paintCell(QPainter *p, int row, int col)
 						xdelta, BOTTOMDUR + VERTLINE);
 		case 120: // 1/4 - a long vertical line, so we need to find the highest note
 			for (i = s;((i >= 0) && (curt->c[t].a[i] == -1)); i--);
-			
+
 			// If it's an empty measure at all - draw the vertical line from bottom
 			if (i < 0)  i = 1;
-			
+
 			p->drawLine(xpos + VERTLINE / 2, VERTSPACE + VERTLINE * (s - i) + VERTLINE / 2,
 						xpos + VERTLINE / 2, BOTTOMDUR + VERTLINE);
 		case 240: // 1/2
@@ -233,18 +255,18 @@ void TrackView::paintCell(QPainter *p, int row, int col)
 		case 480: // whole
 			break;
 		}
-		
+
 		// Draw dot
-		
+
 		if (curt->c[t].flags & FLAG_DOT)
 			p->drawRect(xpos + VERTLINE / 2 + 3, BOTTOMDUR + 5, 2, 2);
-		
+
 		// Draw arcs to backward note
-		
+
 		if (curt->c[t].flags & FLAG_ARC)
 			p->drawArc(lastxpos + VERTLINE / 2, BOTTOMDUR + 9,
 					   xpos-lastxpos, 10, 0, -180 * 16);
-		
+
 		// Draw palm muting
 
 		if (curt->c[t].flags & FLAG_PM)
@@ -252,11 +274,11 @@ void TrackView::paintCell(QPainter *p, int row, int col)
 						AlignCenter, "P.M.");
 
 		// Length of interval to next column - adjusted if dotted
-		
+
 		xdelta = horizDelta(t);
-		
+
 		// Draw the number column
-		
+
 		p->setPen(NoPen);
 		for (i = 0; i <= s; i++) {
 			if ((t == curt->x) && (i == curt->y)) {
@@ -286,7 +308,7 @@ void TrackView::paintCell(QPainter *p, int row, int col)
 								VERTLINE, VERTLINE, AlignCenter, tmp);
 				}
 			}
-			
+
 			// Draw effects
 			switch (curt->c[t].e[i]) {
 			case EFFECT_HARMONIC:
@@ -307,15 +329,15 @@ void TrackView::paintCell(QPainter *p, int row, int col)
 				break;
 			}
 		}
-		
+
 		p->setPen(SolidLine);
-		
+
 		lastxpos = xpos;
 		xpos += xdelta;
 	}
-	
+
 	p->drawRect(xpos, VERTSPACE, 1, VERTLINE * s);
-	
+
 	p->setBrush(SolidPattern);
 }
 
@@ -334,7 +356,7 @@ bool TrackView::moveFinger(int from, int dir)
 	return FALSE;
 
 	int to = from;
-	
+
 	do {
 		to += dir;
 		if ((to < 0) || (to >= curt->string))
@@ -343,7 +365,7 @@ bool TrackView::moveFinger(int from, int dir)
 		if ((n < 0) || (n > curt->frets))
 			return FALSE;
 	} while (curt->c[curt->x].a[to] != -1);
-	
+
 	curt->c[curt->x].a[from] = -1;
 	curt->c[curt->x].a[to] = n;
 
@@ -360,7 +382,7 @@ void TrackView::timeSig()
 	SetTimeSig *sts = new SetTimeSig();
 
 	sts->time1->setValue(curt->b[curt->xb].time1);
-	
+
 	switch (curt->b[curt->xb].time2) {
 	case 1:	 sts->time2->setCurrentItem(0); break;
 	case 2:	 sts->time2->setCurrentItem(1); break;
@@ -376,7 +398,7 @@ void TrackView::timeSig()
 
 		// Sophisticated construction to mark all or only one bar with
 		// new sig, depending on user's selection of checkbox
-		
+
 		for (uint i = curt->xb;
 			 i < (sts->toend->isChecked() ? curt->b.size() : curt->xb+1);
 			 i++) {
@@ -403,7 +425,7 @@ void TrackView::keyRight()
 	if (curt->x+1 == curt->c.size()) {
 		curt->c.resize(curt->c.size()+1);
 		curt->x++;
-		for (uint i = 0; i < MAX_STRINGS; i++) {  // Set it for all strings,  
+		for (uint i = 0; i < MAX_STRINGS; i++) {  // Set it for all strings,
 			curt->c[curt->x].a[i] = -1;           // so we didn't get crazy
 			curt->c[curt->x].e[i] = 0;            // data - alinx
 		}
@@ -440,7 +462,7 @@ void TrackView::keyCtrlUp()
 
 void TrackView::keyDown()
 {
-	if (curt->y > 0) 
+	if (curt->y > 0)
 		curt->y--;
 	update();
 }
@@ -574,7 +596,7 @@ void TrackView::insertTab(int num)
 
 	if (curt->c[curt->x].flags & FLAG_ARC)
 		curt->c[curt->x].flags -= FLAG_ARC;
-	
+
     // Allow making two-digit fret numbers pressing two keys sequentally
 	if (lastnumber * 10 + num <= curt->frets)
 		num = lastnumber * 10 + num;
@@ -603,7 +625,7 @@ void TrackView::mousePressEvent(QMouseEvent *e)
 	// Clicks on non-existing rows are not allowed
 	if (tabrow >= curt->b.size())
 		return;
-	
+
 	clickpt.setX(xOffset() + e->pos().x());
 	clickpt.setY(yOffset() + e->pos().y());
 
@@ -614,9 +636,9 @@ void TrackView::mousePressEvent(QMouseEvent *e)
 	     j++) {
 
 		// Length of interval to next column - adjusted if dotted
-		
+
 		xdelta = horizDelta(j);
-		
+
 		// Current column X area is half of the previous duration and
 		// half of current duration
 
@@ -643,7 +665,7 @@ void TrackView::mousePressEvent(QMouseEvent *e)
 		lastxpos = xpos;
 		xpos += xdelta;
 	}
-	
+
 // 	if (curt->c[tabrow].clickrect.contains(clickpt)) {
 // 		found = TRUE;
 // 		curt->x = j;
@@ -660,13 +682,13 @@ void TrackView::mousePressEvent(QMouseEvent *e)
 
 	if (found) {
 		repaint();
-		
+
 		if (e->button() == RightButton)
 //			popup->exec(QCursor::pos())
 			;
 		else if (e->button() == LeftButton) {
-			
+
 		}
 	}
 }
- 
+
