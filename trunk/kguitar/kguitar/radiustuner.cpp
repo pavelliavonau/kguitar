@@ -4,13 +4,19 @@
 
 RadiusTuner::RadiusTuner(QWidget *parent=0, const char *name=0): QWidget(parent,name)
 {
-    val = new QSpinBox(0,255,1,this);
+    val = new NoteSpinBox(this);
     connect(val,SIGNAL(valueChanged(int)),SLOT(update()));
+    connect(val,SIGNAL(valueChanged(int)),SLOT(emitVC()));
 }
 
 void RadiusTuner::resizeEvent(QResizeEvent *e)
 {
     val->setGeometry(0,height()-20,width(),20);
+}
+
+void RadiusTuner::emitVC()
+{
+    emit valueChanged(val->value());
 }
 
 void RadiusTuner::paintEvent(QPaintEvent *p)

@@ -4,7 +4,7 @@
 #include <qwidget.h>
 #include "global.h"
 
-#include <qspinbox.h>
+#include "notespinbox.h"
 
 #define RADTUNER_W   45
 #define RADTUNER_H   50
@@ -16,8 +16,15 @@ public:
     RadiusTuner(QWidget *parent=0, const char *name=0);
     void setValue(uchar x) { val->setValue(x); };
     uchar value() { return val->value(); };
+
+signals:
+    void valueChanged(int);
+
+private slots:
+    void emitVC();
+
 private:
-    QSpinBox *val;
+    NoteSpinBox *val;
     virtual void resizeEvent(QResizeEvent *e);
     virtual void paintEvent(QPaintEvent *p);
 };
