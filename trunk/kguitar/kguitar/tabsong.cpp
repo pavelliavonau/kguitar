@@ -16,9 +16,6 @@
 #include <string>
 #endif
 
-//GREYFIX
-#include <iostream.h>
-
 TabSong::TabSong(QString _title, int _tempo)
 {
 	tempo = _tempo;
@@ -490,9 +487,6 @@ bool TabSong::loadFromGtp(QString fileName)
 	};
 
 	s.readRawBytes(c, 10);                     // 10 unknown bytes
-
-// GREYFIX
-#define kdDebug()  cout
 
 	//	for (
 	it.toFirst();// it.current(); ++it) {
