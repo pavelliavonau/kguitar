@@ -104,9 +104,9 @@ ApplicationWindow::ApplicationWindow(): KTMainWindow()
 	p->insertItem(i18n("&Save"), this, SLOT(save()));
 	p->insertItem(i18n("S&ave as..."), this, SLOT(saveAs()));
 
-	QPopupMenu *imp = new QPopupMenu();
-	imp->insertItem(i18n("&MIDI file..."), this, SLOT(importMID()));
-	p->insertItem(i18n("&Import"), imp);
+// 	QPopupMenu *imp = new QPopupMenu();
+// 	imp->insertItem(i18n("&MIDI file..."), this, SLOT(importMID()));
+// 	p->insertItem(i18n("&Import"), imp);
 
 	QPopupMenu *exp = new QPopupMenu();
 	exp->insertItem(i18n("&MIDI file..."), this, SLOT(exportMID()));
