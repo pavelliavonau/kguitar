@@ -15,9 +15,7 @@ TabTrack::TabTrack(TrackMode _tm, QString _name, int _channel,
     string=_string;
     frets=_frets;
 
-//    c = new QList<TabColumn>;
     c.setAutoDelete(TRUE);
-//    QListIterator<TabColumn> xi(c);
 };
 
 bool TabSong::load_from_kg(QString fileName)
@@ -32,6 +30,12 @@ bool TabSong::load_from_kg(QString fileName)
     char hdr[4];
     s.readRawBytes(hdr,3); // should be KG\0 header
     if (!((hdr[0]=='K') && (hdr[1]=='G') && (hdr[2]==0)))
+	return FALSE;
+
+    // FILE VERSION NUMBER
+    Q_UINT8 ver;
+    s >> ver; // we could only read version 1 files
+    if (ver!=1)
 	return FALSE;
 
     // HEADER SONG DATA
@@ -61,9 +65,8 @@ bool TabSong::load_from_kg(QString fileName)
 
     printf("Going to read %d track(s)...\n",cnt);
 
-    int ccnt;
     Q_UINT16 i16;
-    Q_UINT8 channel,patch,string,frets,tm;
+    Q_UINT8 channel,patch,string,frets,tm,event,elength;
     Q_INT8 cn;
     QString tn;
 
@@ -94,20 +97,33 @@ bool TabSong::load_from_kg(QString fileName)
 	}
 
 	printf("Read the tuning...\n");
-	
-	s >> ccnt;
 
-	printf("Read the column header... Going to get %d...\n",ccnt);
+	bool finished=FALSE;
 
-	for (int j=0;j<ccnt;j++) {
-	    t.current()->c.append(new TabColumn());
-	    for (int k=0;k<string;k++) {
-		s >> cn;
-		t.current()->c.current()->a[k] = cn;
+	do {
+	    s >> event;
+	    s >> elength;
+
+	    switch (event) {
+	    case 'T':                   // Tab column
+		t.current()->c.append(new TabColumn());
+		for (int k=0;k<string;k++) {
+		    s >> cn;
+		    t.current()->c.current()->a[k] = cn;
+		}
+		s >> i16;
+		t.current()->c.current()->l = i16;
+		break;
+	    case 'X':                   // End of track
+		finished=TRUE;
+		break;
+	    default:
+		printf("Non-fatal error: unknown event %c. Skipping...\n",event);
+		for (int k=0;k<elength;k++)
+		    s >> cn;
+		break;
 	    }
-	    s >> i16;
-	    t.current()->c.current()->l = i16;
-	}
+	} while (!finished);
     }
 
     f.close();
@@ -125,6 +141,9 @@ bool TabSong::save_to_kg(QString fileName)
 
     // HEADER SIGNATURE
     s.writeRawBytes("KG\0",3);
+
+    // VERSION SIGNATURE
+    s << (Q_UINT8) 1;
 
     // HEADER SONG DATA
     s << title;
@@ -150,15 +169,22 @@ bool TabSong::save_to_kg(QString fileName)
 	for (int i=0;i<trk->string;i++)
 	    s << (Q_UINT8) trk->tune[i];
 
-	s << trk->c.count();            // Track columns
+	// TRACK EVENTS
 
  	QListIterator<TabColumn> ic(trk->c);
+
+	Q_UINT8 tcsize=trk->string+2;
+
  	for (;ic.current();++ic) {
+	    s << (Q_UINT8) 'T';         // Tab column events
+	    s << (Q_UINT8) tcsize;      // Size of event
  	    TabColumn *col = ic.current();
 	    for (int i=0;i<trk->string;i++)
 		s << (Q_INT8) col->a[i];
 	    s << (Q_INT16) col->l;      // Duration
  	}
+
+	s << (Q_UINT8) 'X';             // End of track marker
     }
 
     f.close();
@@ -186,6 +212,8 @@ bool TabSong::load_from_mid(QString fileName)
 
 bool TabSong::save_to_mid(QString fileName)
 {
+    return FALSE;
+
     QFile f(fileName);
     if (!f.open(IO_WriteOnly))
 	return FALSE;
