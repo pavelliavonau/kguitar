@@ -9,3 +9,5 @@ config.h
 config.cache
 config.status
 aclocal.m4
+subdirs
+libtool
