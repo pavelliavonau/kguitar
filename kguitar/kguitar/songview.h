@@ -44,6 +44,9 @@ private slots:
 	void playMidi(MidiList &ml);
 
 private:
+	TabTrack *highlightedTabs();
+	void insertTabs(TabTrack* trk);
+
 	QSplitter *split, *splitv;
 	DeviceManager *midi;
 	TabSong *song;

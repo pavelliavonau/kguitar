@@ -3,6 +3,7 @@
 #include "trackview.h"
 #include "tracklist.h"
 #include "trackpane.h"
+#include "trackdrag.h"
 #include "tabsong.h"
 #include "tabtrack.h"
 #include "settrack.h"
@@ -23,6 +24,7 @@
 #include <knuminput.h>
 #include <kmessagebox.h>
 
+#include <qclipboard.h>
 #include <qsplitter.h>
 #include <qlayout.h>
 #include <qlineedit.h>
@@ -210,7 +212,7 @@ void SongView::trackBassLine()
 				kdDebug() << "Column " << i << ", EMPTY " << endl;
 			}
 
-			for (uint k = 0; k < newtrk->string; k++) {
+			for (uint k = 0; k < MAX_STRINGS; k++) {
 				newtrk->c[i].a[k] = -1;
 				newtrk->c[i].e[k] = 0;
 			}
@@ -261,7 +263,7 @@ bool SongView::trackProperties()
 				tv->trk()->tune[i] = drum->tune(i);
 		}
 
-		tv->setCurt(tv->trk()); // artificially needed to emit newTrackSelected()
+		tv->selectTrack(tv->trk()); // artificially needed to emit newTrackSelected()
 		tl->updateList();
 		tp->updateList();
 		res = TRUE;
@@ -309,7 +311,7 @@ void SongView::playTrack()
 
 	midiList.clear();
 
-	MidiData::getMidiList(tv->trk(), midiList); // ALINXFIX: at this time only one track...
+	MidiData::getMidiList(tv->trk(), midiList);
 
 	playMidi(midiList);
 #endif
@@ -482,22 +484,8 @@ void SongView::slotCut()
 		return;
 	}
 
-	int px = tv->trk()->x;
-	int pxsel = tv->trk()->xsel;
-
-	kdDebug() << "      x: " << px << endl;
-	kdDebug() << "   xsel: " << pxsel << endl;
-	kdDebug() << "    " << tv->trk()->sel << endl;
-
-	int pdelta;
-
-	if (px <= pxsel)
-		pdelta = pxsel - px;
-	else pdelta = px - pxsel;
-
-	pdelta++;
-
-	kdDebug() << "   pdelta: " << pdelta << endl;
+	QApplication::clipboard()->setData(new TrackDrag(highlightedTabs()));
+	tv->deleteColumn();
 }
 
 void SongView::slotCopy()
@@ -507,25 +495,16 @@ void SongView::slotCopy()
 		return;
 	}
 
-	int px = tv->trk()->x;
-	int pxsel = tv->trk()->xsel;
-	kdDebug() << "      x: " << px << endl;
-	kdDebug() << "   xsel: " << pxsel << endl;
-	kdDebug() << "    " << tv->trk()->sel << endl;
-
-	int pdelta;
-
-	if (px <= pxsel)
-		pdelta = pxsel - px;
-	else pdelta = px - pxsel;
-
-	pdelta++;
-
-	kdDebug() << "   pdelta: " << pdelta << endl;
+	QApplication::clipboard()->setData(new TrackDrag(highlightedTabs()));
 }
 
 void SongView::slotPaste()
 {
+	TabTrack *trk;
+
+	if (TrackDrag::decode(QApplication::clipboard()->data(), trk))
+        insertTabs(trk);
+
 }
 
 void SongView::slotSelectAll()
@@ -535,5 +514,137 @@ void SongView::slotSelectAll()
 	tv->trk()->sel = TRUE;
 
 	tv->update();
+}
+
+TabTrack *SongView::highlightedTabs()
+{
+	if (!tv->trk()->sel)
+		return NULL;
+
+	TabTrack* trk = tv->trk();
+	TabTrack* newtrk = new TabTrack(trk->trackMode(), "ClipboardTrack", trk->channel,
+									trk->bank, trk->patch, trk->string, trk->frets);
+	for (int i = 0; i < trk->string; i++)
+		newtrk->tune[i] = trk->tune[i];
+
+	uint pdelta, pstart, pend;
+
+	if (trk->x <= trk->xsel) {
+		pend = trk->xsel;
+		pstart = trk->x;
+	} else {
+		pend = trk->x;
+		pstart = trk->xsel;
+	}
+
+	pdelta = pend - pstart + 1;
+
+	newtrk->c.resize(pdelta);
+	int _s = pstart;
+
+	for (uint i = 0; i < pdelta; i++) {
+		for (uint k = 0; k < MAX_STRINGS; k++) {
+				newtrk->c[i].a[k] = -1;
+				newtrk->c[i].e[k] = 0;
+		}
+
+		newtrk->c[i].l = trk->c[_s].l;
+		newtrk->c[i].flags = trk->c[_s].flags;
+
+		for (uint k = 0; k < newtrk->string; k++) {
+			newtrk->c[i].a[k] = trk->c[_s].a[k];
+			newtrk->c[i].e[k] = trk->c[_s].e[k];
+		}
+
+		_s++;
+	}
+
+	return newtrk;
+}
+
+void SongView::insertTabs(TabTrack* trk)
+{
+	kdDebug() << "SongView::insertTabs(TabTrack* trk)" << endl;
+
+	if (!trk)
+		kdDebug() << "   trk == NULL" << endl;
+	else kdDebug() << "   trk with data" << endl;
+
+	kdDebug() << "      x: " << trk->x << endl;
+	kdDebug() << "   xsel: " << trk->xsel << endl;
+	kdDebug() << "    sel: " << trk->sel << endl;
+
+	uint pdelta, pstart, pend;
+
+	if (trk->x <= trk->xsel) {
+		pend = trk->xsel;
+		pstart = trk->x;
+	} else {
+		pend = trk->x;
+		pstart = trk->xsel;
+	}
+
+	pdelta = pend - pstart + 1;
+
+	kdDebug() << "   pdelta: " << pdelta << endl;
+	kdDebug() << " c.size(): " << trk->c.size() << endl;
+
+
+	//ALINXFIX: Make it more flexible.
+	QString msg(i18n("There are some problems:\n\n"));
+	bool err = FALSE;
+	bool errtune = FALSE;
+
+	if (tv->trk()->trackMode() != trk->trackMode()) {
+		msg += i18n("The clipboard data hasn't the same track mode.\n");
+		err = TRUE;
+	}
+	if (tv->trk()->string != trk->string) {
+		msg += i18n("The clipboard data hasn't the same number of strings.\n");
+		err = TRUE;
+	} else {
+		for (int i = 0; i < tv->trk()->string; i++) {
+			if (tv->trk()->tune[i] != trk->tune[i])
+				errtune = TRUE;
+			if (errtune) break;
+		}
+		if (errtune) {
+			msg += i18n("The clipboard data hasn't the same tuneing.\n");
+			err = TRUE;
+		}
+	}
+	if (tv->trk()->frets != trk->frets) {
+		msg += i18n("The clipboard data hasn't the same number of frets.\n");
+		err = TRUE;
+	}
+
+
+	if (err) {
+		msg += i18n("\n\nI'll improve this code. So some of these problems\n");
+		msg += i18n("will be solved in the future.");
+		KMessageBox::error(this, msg);
+		return;
+	}
+
+
+	//ALINXFIX: Insert all columns (that's what I do now) or insert
+	//          c.size()-1 columns and change the strings where the
+	//          cursor is (trk->x)??
+	uint col = trk->c.size();
+	uint _x = tv->trk()->x;
+
+	for (uint i = 1; i <= col; i++)
+		tv->insertColumn();
+
+	for (uint i = 0; i <= col - 1; i++) {
+		tv->trk()->c[_x].l = trk->c[i].l;
+		tv->trk()->c[_x].flags = trk->c[i].flags;
+
+		for (uint k = 0; k < tv->trk()->string; k++) {
+			tv->trk()->c[_x].a[k] = trk->c[i].a[k];
+			tv->trk()->c[_x].e[k] = trk->c[i].e[k];
+		}
+		_x++;
+	}
 }
 
