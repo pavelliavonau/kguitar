@@ -6,5 +6,10 @@
 
 // Global utility functions
 
+#include <qglobal.h>
+
 class QString;
+
 QString note_name(int);
+Q_UINT16 dot2len(int len, bool dot);
+void len2dot(int l, int *len, bool *dot);
