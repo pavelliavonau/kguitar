@@ -50,11 +50,16 @@
 #include <tse3/Error.h>
 #endif
 
+#include <iostream>
+#define kdDebug()	cout
 
 SongView::SongView(KXMLGUIClient *_XMLGUIClient, KCommandHistory *_cmdHist,
 				   QWidget *parent = 0, const char *name = 0): QWidget(parent, name)
 {
 #ifdef WITH_TSE3
+	AlsaFactory = new TSE3::Plt::AlsaMidiSchedulerFactory();
+	OSSFactory = new TSE3::Plt::OSSMidiSchedulerFactory();
+
 	scheduler = 0L;
 	initScheduler();
 #endif
@@ -95,6 +100,9 @@ SongView::SongView(KXMLGUIClient *_XMLGUIClient, KCommandHistory *_cmdHist,
 SongView::~SongView()
 {
 	delete song;
+#ifdef WITH_TSE3
+	delete AlsaFactory, OSSFactory;
+#endif
 }
 
 // Refreshes all the views and resets all minor parameters in the
@@ -467,20 +475,17 @@ bool SongView::initScheduler()
 {
 	if (!scheduler) {
 		try {
-			scheduler = AlsaFactory.createScheduler();
-			kdDebug() << "TSE3 ALSA MIDI Scheduler created" << endl;
+			scheduler = OSSFactory->createScheduler();
+			kdDebug() << "TSE3 OSS MIDI Scheduler created" << endl;
+		} catch (TSE3::MidiSchedulerError e) {
+			kdDebug() << "cannot create an OSS MIDI Scheduler" << endl;
 		}
-		catch (TSE3::MidiSchedulerError e) {
-			kdDebug() << "cannot create an ALSA MIDI Scheduler" << endl;
-		}
-
 		if (!scheduler) {
 			try {
-				scheduler = OSSFactory.createScheduler();
-				kdDebug() << "TSE3 OSS MIDI Scheduler created" << endl;
-			}
-			catch (TSE3::MidiSchedulerError e) {
-				kdDebug() << "cannot create an OSS MIDI Scheduler" << endl;
+				scheduler = AlsaFactory->createScheduler();
+				kdDebug() << "TSE3 ALSA MIDI Scheduler created" << endl;
+			} catch (TSE3::MidiSchedulerError e) {
+				kdDebug() << "cannot create an ALSA MIDI Scheduler" << endl;
 			}
 		}
 
