@@ -15,7 +15,7 @@
  * See the file COPYING for more information.
  ***************************************************************************/
 
-// LVIFIX: this file needs to be redesigned
+// LVIFIX: HACK HACK HACK ! means that xpos/ypos handling needs rethinking
 
 // Notes on vertical spacing:
 // Assuming we can accomodate notes one octave above (stem up) and below
@@ -60,6 +60,7 @@
 #include "songprint.h"
 #include "tabsong.h"
 #include "tabtrack.h"
+#include "trackprint.h"
 
 #include <kprinter.h>
 #include <qmemarray.h>
@@ -81,6 +82,7 @@ static const QString notes[7] = {"C", "D", "E", "F", "G", "A", "B"};
 SongPrint::SongPrint()
 {
 	p = new QPainter;
+	trp = new TrackPrint;
 }
 
 // SongPrint destructor
@@ -88,1087 +90,7 @@ SongPrint::SongPrint()
 SongPrint::~SongPrint()
 {
 	delete p;
-}
-
-// return expandable width in pixels of bar bn in track trk
-// this part of the bar is expanded to fill a line completely
-// extra space will be added between notes
-
-int SongPrint::barExpWidth(int bn, TabTrack *trk)
-{
-	int w = 0;
-	for (uint t = trk->b[bn].start; (int) t <= trk->lastColumn(bn); t++)
-		w += colWidth(t, trk);
-	return w;
-}
-
-// return width in pixels of bar br in track trk
-
-int SongPrint::barWidth(int bn, TabTrack *trk)
-{
-	int w = 0;
-	for (uint t = trk->b[bn].start; (int) t <= trk->lastColumn(bn); t++)
-		w += colWidth(t, trk);
-	// LVIFIX: when KGuitar supports changing the key at the start of any bar,
-	// calculate space for keysig here
-	if (trk->showBarSig(bn))
-		w += tsgfw;				// space for timesig
-	w += nt0fw;					// space before first note
-	int cl = trk->b[bn].start;	// first column of bar
-	int wacc = 0;				// width accidental
-	// LVIFIX: replace by hasAccidental(int cl)
-	for (int i = 0; i < trk->string; i++) {
-		// if first column has note with accidental, add space
-		if ((trk->c[cl].a[i] > -1)
-			&& (trk->c[cl].acc[i] != Accidentals::None)) {
-			wacc = (int) (0.9 * wNote);
-		}
-	}
-	w += wacc;					// space for accidental
-	w += ntlfw;					// space after last note
-	w += 1;						// LVIFIX: the trailing vertical line
-	return w;
-}
-
-// return width in pixels of column cl in track trk
-// depends on note length, font and effect
-// magic number "21" scales quarter note to about one centimeter
-// LVIFIX: make logarithmic ???
-
-int SongPrint::colWidth(int cl, TabTrack *trk)
-{
-	// cout << "colWidth(" << cl << ")";
-	int w;
-	w = trk->c[cl].l;
-	// cout << " xpos=" << xpos;
-	// cout << " br8w=" << br8w;
-	// cout << " wNote=" << wNote;
-	// cout << " l=" << w;
-	w *= br8w;
-	w /= 21;
-	// adjust for dots and triplets
-	if (trk->c[cl].flags & FLAG_DOT)
-		w = (int) (w * 1.5);
-	if (trk->c[cl].flags & FLAG_TRIPLET)
-		w = (int) (w * 2 / 3);
-	// make sure column is wide enough
-	if (w < 2 * br8w)
-		w = 2 * br8w;
-	// make sure effects fit in column
-	const int lstStr = trk->string - 1;
-	for (int i = 0; i < lstStr + 1; i++) {
-		if (   trk->c[cl].e[i] == EFFECT_ARTHARM
-			|| trk->c[cl].e[i] == EFFECT_HARMONIC
-			|| trk->c[cl].e[i] == EFFECT_LEGATO
-			|| trk->c[cl].e[i] == EFFECT_SLIDE)
-			if (w < 2 * ysteptb)
-				w = 2 * ysteptb;
-	}
-	if (trk->c[cl].flags & FLAG_PM) {
-			if (w < 2 * ysteptb)
-				w = 2 * ysteptb;
-	}
-
-	// corrections that apply only when printing notes
-	if (stNts) {
-		int emsa = 0;			// extra minimum space between notes due to acc.
-		int emsf = 0;			// extra minimum space between notes due to flag
-		// not the last column in a track
-		// and not the last column in a bar
-		if ((cl < (trk->c.size() - 1))
-			&& (cl != trk->lastColumn(trk->barNr(cl)))) {
-			for (int i = 0; i < trk->string; i++) {
-				// if next column has note with accidental, add space
-				if ((trk->c[cl + 1].a[i] > -1)
-					&& (trk->c[cl + 1].acc[i] != Accidentals::None)) {
-					emsa = (int) (0.6 * wNote);
-					// if note in voice 0 or 1 in this column has a flag
-					// and it is not beamed, add space
-					// LVIFIX: fix test
-					int dt;
-					bool res0;
-					bool res1;
-					int tp0;
-					int tp1;
-					bool tr;
-					res0 = trk->getNoteTypeAndDots(cl, 0, tp0, dt, tr);
-					res1 = trk->getNoteTypeAndDots(cl, 1, tp1, dt, tr);
-					if ((res0 && (tp0<=60) && (trk->c[cl].stl.l1 == 'n'))
-						|| (res1 && (tp1<=60) && (trk->c[cl].stu.l1 == 'n'))) {
-						emsf = (int) (0.6 * wNote);
-					}
-				}
-			}
-		}
-		int ms = (int) (1.5 * wNote);	// minimum space between notes
-		ms += emsa;
-		ms += emsf;
-		if (w < ms) {
-			w = ms;
-		}
-		// cout << " emsa=" << emsa;
-	}
-	// cout << " w=" << w << endl;
-	return w;
-}
-
-// draw bar bn's contents starting at xpos,ypostb adding extra space es
-
-void SongPrint::drawBar(int bn, TabTrack *trk, int es)
-{
-	TabTrack *curt = trk;		// LVIFIX
-
-	int lastxpos = 0;			// fix compiler warning
-	int extSpAftNote = 0;		// extra space, divided over the notes
-	int xdelta = 0;				// used for drawing beams, legato and slide
-	bool ringing[MAX_STRINGS];
-	uint s = curt->string - 1;
-	int i = 0;
-	int trpCnt = 0;				// triplet count
-	
-	for (uint i = 0; i <= s; i++) {
-		ringing[i] = FALSE;
-	}
-
-	// print timesig if necessary
-	// LVIFIX: may need to center horizontally
-	if (trk->showBarSig(bn)) {
-		int brth;
-		QFontMetrics fm = p->fontMetrics();
-		QString time;
-		int y;
-		if (stNts) {
-			// staff
-			p->setFont(fFetaNr);
-			fm = p->fontMetrics();
-			// calculate vertical position:
-			// exactly halfway between top and bottom string
-			y = yposst - ystepst * 2;
-			// center the timesig at this height
-			// use spacing of 0.2 * char height
-			time.setNum(trk->b[bn].time1);
-			brth = fm.boundingRect(time).height();
-			y -= (int) (0.1 * brth);
-			p->drawText(xpos + tsgpp, y, time);
-			time.setNum(trk->b[bn].time2);
-			y += (int) (1.2 * brth);
-			p->drawText(xpos + tsgpp, y, time);
-		}
-		if (stTab) {
-			// tab bar
-			p->setFont(fTSig);
-			fm = p->fontMetrics();
-			// calculate vertical position:
-			// exactly halfway between top and bottom string
-			y = ypostb - ysteptb * (trk->string - 1) / 2;
-			// center the timesig at this height
-			// use spacing of 0.2 * char height
-			time.setNum(trk->b[bn].time1);
-			brth = fm.boundingRect(time).height();
-			y -= (int) (0.1 * brth);
-			p->drawText(xpos + tsgpp, y, time);
-			time.setNum(trk->b[bn].time2);
-			y += (int) (1.2 * brth);
-			p->drawText(xpos + tsgpp, y, time);
-			p->setFont(fTBar1);
-		}
-		if (stNts || stTab) {
-			xpos += tsgfw;
-		}
-	}
-
-	// space before first note
-	xpos += nt0fw;
-	int cl = trk->b[bn].start;	// first column of bar
-	int wacc = 0;				// width accidental
-	// LVIFIX: replace by hasAccidental(int cl)
-	for (int i = 0; i < trk->string; i++) {
-		// if first column has note with accidental, add space
-		if ((trk->c[cl].a[i] > -1)
-			&& (trk->c[cl].acc[i] != Accidentals::None)) {
-			// LVIFIX: make global const, used twice
-			wacc = (int) (0.9 * wNote);
-		}
-	}
-	xpos += wacc;
-
-	// init expandable space left for space distribution calculation
-	int barExpWidthLeft = barExpWidth(bn, trk);
-
-	// loop t over all columns in this bar and print them
-	for (uint t = trk->b[bn].start; (int) t <= trk->lastColumn(bn); t++) {
-
-		// tie handling
-		int  tt = t;				// t where tie starts
-		if ((t > 0) && (trk->c[t].flags & FLAG_ARC)) {
-			tt = t - 1;				// LVIFIX: handle more than one tie
-		}
-
-		// triplet handling:
-		// - reset after third note of triplet
-		// - count notes while inside triplet
-		if (trpCnt >= 3) {
-			trpCnt = 0;
-		}
-		if (trk->c[t].flags & FLAG_TRIPLET) {
-			trpCnt++;
-		} else {
-			trpCnt = 0;
-		}
-
-		// LVIFIX: indentation
-		if (stTab) {
-
-		// Drawing duration marks
-		// Draw connection with previous, if applicable
-		if ((t > 0) && (t > (unsigned) curt->b[bn].start)
-					&& (curt->c[t-1].l == curt->c[t].l))
-			xdelta = lastxpos;
-		else
-			xdelta = xpos + ysteptb / 2;
-
-		p->setPen(pLnBl);
-		switch (curt->c[t].l) {
-		case 15:  // 1/32
-			p->drawLine(xpos,   (int) (ypostb + 1.6 * ysteptb),
-						xdelta, (int) (ypostb + 1.6 * ysteptb));
-		case 30:  // 1/16
-			p->drawLine(xpos,   (int) (ypostb + 1.8 * ysteptb),
-						xdelta, (int) (ypostb + 1.8 * ysteptb));
-		case 60:  // 1/8
-			p->drawLine(xpos,   ypostb + 2 * ysteptb,
-						xdelta, ypostb + 2 * ysteptb);
-		case 120: // 1/4 - a long vertical line, so we need to find the highest note
-			for (i = s;((i >= 0) && (curt->c[t].a[i] == -1)); i--);
-
-			// If it's an empty measure at all - draw the vertical line from bottom
-			if (i < 0)  i = 1;
-
-			p->drawLine(xpos, ypostb - i * ysteptb + ysteptb / 2,
-						xpos, ypostb + 2 * ysteptb);
-			break;		// required to prevent print preview artefact
-		case 240: // 1/2
-			p->drawLine(xpos, ypostb + 1 * ysteptb,
-						xpos, ypostb + 2 * ysteptb);
-		case 480: // whole
-			break;
-		} // end switch (curt->c[t].l)
-
-		// Draw dot is not here, see: "Draw the number column"
-
-		// Length of interval to next column - adjusted if dotted
-		// calculated here because it is required by triplet code
-
-		xdelta = colWidth(t, trk);
-		extSpAftNote = (colWidth(t, trk) * es) / barExpWidthLeft;
-
-		// Draw triplet - GREYFIX: ugly code, needs to be fixed
-		// somehow... Ideally, triplets should be drawn in a second
-		// loop, after everything else would be done.
-
-		/*
-		if (curt->c[t].flags & FLAG_TRIPLET) {
- 			if ((curt->c.size() >= t + 1) && (t) &&
- 				(curt->c[t - 1].flags & FLAG_TRIPLET) &&
- 				(curt->c[t + 1].flags & FLAG_TRIPLET) &&
-				(curt->c[t - 1].l == curt->c[t].l) &&
-				(curt->c[t + 1].l == curt->c[t].l)) {
-				p->setFont(fTBar2);
-				drawStrCntAt(xpos, -3, "3");
-				p->setFont(fTBar1);
-				extSpAftNote = (colWidth(t, trk) * es) / barExpWidthLeft;
-				p->drawLine(xpos + xdelta + extSpAftNote,
-							(int) (ypostb + 2.3 * ysteptb),
-							xpos + xdelta + extSpAftNote,
-							(int) (ypostb + 2.5 * ysteptb));
-				p->drawLine(xpos + xdelta + extSpAftNote,
-							(int) (ypostb + 2.5 * ysteptb),
-							lastxpos,
-							(int) (ypostb + 2.5 * ysteptb));
-				p->drawLine(lastxpos,
-							(int) (ypostb + 2.3 * ysteptb),
-							lastxpos,
-							(int) (ypostb + 2.5 * ysteptb));
- 			} else {
-				if (!(((curt->c.size() >= t + 2) &&
-					   (curt->c[t + 1].flags & FLAG_TRIPLET) &&
-					   (curt->c[t + 2].flags & FLAG_TRIPLET) &&
-					   (curt->c[t + 1].l == curt->c[t].l) &&
-					   (curt->c[t + 2].l == curt->c[t].l)) ||
-					  ((t >= 2) &&
-					   (curt->c[t - 1].flags & FLAG_TRIPLET) &&
-					   (curt->c[t - 2].flags & FLAG_TRIPLET) &&
-					   (curt->c[t - 1].l == curt->c[t].l) &&
-					   (curt->c[t - 2].l == curt->c[t].l)))) {
-					p->setFont(fTBar2);
-					drawStrCntAt(xpos, -3, "3");
-					p->setFont(fTBar1);
-				}
-			}
-		}
-		*/
-
-		// Draw triplet - improved (? :-)) code
-		if ((trpCnt == 1) || (trpCnt == 2)) {
-			// draw horizontal line to next note
-			p->drawLine(xpos + xdelta + extSpAftNote,
-						(int) (ypostb + 2.5 * ysteptb),
-						xpos,
-						(int) (ypostb + 2.5 * ysteptb));
-		}
-		if ((trpCnt == 1) || (trpCnt == 3)) {
-			// draw vertical line
-			p->drawLine(xpos,
-						(int) (ypostb + 2.3 * ysteptb),
-						xpos,
-						(int) (ypostb + 2.5 * ysteptb));
-		}
-		if (trpCnt == 2) {
-			// draw "3"
-			p->setFont(fTBar2);
-			drawStrCntAt(xpos, -3, "3");
-			p->setFont(fTBar1);
-		}
-
-		// Draw arcs to backward note
-
-		if (curt->c[t].flags & FLAG_ARC)
-			p->drawArc(lastxpos, ypostb + 2 * ysteptb + 1,
-					   xpos - lastxpos, ysteptb / 2 + 1, 0, -180 * 16);
-
-		// Draw palm muting
-
-		/* moved to "draw effects" ...
-		if (curt->c[t].flags & FLAG_PM) {
-			p->setFont(fTBar2);
-			QString pm = "PM";
-			drawStrCntAt(xpos, trk->string, pm);
-			p->setFont(fTBar1);
-		}
-		*/
-
-		} // end if (stTab ...
-
-		// start drawing notes
-
-		// tie handling:
-		// KGuitar stores the second column of a tie as a rest (an empty column).
-		// Therefore take the notes from the previous column.
-		// LVIFIX:
-		// "previous" should be "first column of the set of tied columns"
-		// (there may be more than two)
-		// See also: musicxml.cpp MusicXMLWriter::writeCol()
-
-		if (stNts) {
-	
-			// print notes
-			int ln = 0;				// line where note is printed
-			int nhPrinted = 0;		// # note heads printed
-			int yl = 0;				// ypos (line) lowest note head
-			int yh = 0;				// ypos (line) highest note head
-			/*
-			cout << "SongPrint::drawBar() draw column"
-				<< " t=" << t
-				<< " tt=" << tt
-				<< endl;
-			for (int i = 0; i < 2; i++) {
-				int dt;
-				int tp;
-				bool tr;
-				bool res;
-				res = trk->getNoteTypeAndDots(t, i, tp, dt, tr);
-				cout
-					<< "getNoteTypeAndDots(t)"
-					<< " i=" << i
-					<< " res=" << res
-					<< " tp=" << tp
-					<< " dt=" << dt
-					<< endl;
-			}
-			for (int i = 0; i < 2; i++) {
-				bool res;
-				res = findHiLo(tt, i, trk, yh, yl);
-				cout
-					<< "findHiLo(tt)"
-					<< " i=" << i
-					<< " res=" << res
-					<< " yh=" << yh
-					<< " yl=" << yl
-					<< endl;
-			}
-			*/
-			int dt;
-			bool res1;
-			bool res2;
-			int tp;
-			bool tr;
-			// print voice 0
-			res1 = trk->getNoteTypeAndDots(t, 0, tp, dt, tr);
-			res2 = findHiLo(tt, 0, trk, yh, yl);
-			if (res1 && res2) {
-				// voice 0 found
-				for (int i = 0; i < trk->string; i++) {
-					if ((trk->c[tt].a[i] > -1) && (trk->c[t].v[i] == 0)) {
-						ln = line((QChar) trk->c[tt].stp[i], trk->c[tt].oct[i]);
-						drawNtHdCntAt(xpos, ln, tp, trk->c[tt].acc[i]);
-						nhPrinted++;
-						// Draw dot, must be at odd line -> set lsbit
-						// LVIFIX: add support for double dot
-						if (dt) {
-							QString s;
-							s = QChar(0xA7);
-							int y = ln | 1;
-							p->setFont(fFeta);
-							p->drawText((int) (xpos + 0.8 * wNote),
-										yposst - ystepst * y / 2, s);
-						}
-					}
-				}
-				if (trk->c[t].stl.l1 != 'n') {
-					// note is beamed, don't draw lower stem and flag
-					drawNtStmCntAt(xpos, yl, yh, 0, 'd');
-					// remember position
-					trk->c[t].stl.bp.setX((int) (xpos - 0.45 * wNote));
-					int yhd = yposst - (int) (ystepst * ((-0.4 + yl) / 2));
-					trk->c[t].stl.bp.setY(yhd);
-				} else {
-					drawNtStmCntAt(xpos, yl, yh, tp, 'd');
-				}
-			}
-			// print voice 1
-			res1 = trk->getNoteTypeAndDots(t, 1, tp, dt, tr);
-			res2 = findHiLo(tt, 1, trk, yh, yl);
-			if (res1 && res2) {
-				// voice 1 found
-				for (int i = 0; i < trk->string; i++) {
-					if ((trk->c[tt].a[i] > -1) && (trk->c[t].v[i] == 1)) {
-						ln = line((QChar) trk->c[tt].stp[i], trk->c[tt].oct[i]);
-						drawNtHdCntAt(xpos, ln, tp, trk->c[tt].acc[i]);
-						nhPrinted++;
-						// Draw dot, must be at odd line -> set lsbit
-						// LVIFIX: add support for double dot
-						if (dt) {
-							QString s;
-							s = QChar(0xA7);
-							int y = ln | 1;
-							p->setFont(fFeta);
-							p->drawText((int) (xpos + 0.8 * wNote),
-										yposst - ystepst * y / 2, s);
-						}
-					}
-				}
-				if (trk->c[t].stu.l1 != 'n') {
-					// note is beamed, don't draw upper stem and flag
-					drawNtStmCntAt(xpos, yl, yh, 0, 'u');
-					// remember position
-					trk->c[t].stu.bp.setX((int) (xpos + 0.45 * wNote));
-					int yhd = yposst - (int) (ystepst * ((0.4 + yh) / 2));
-					trk->c[t].stu.bp.setY(yhd);
-				} else {
-					drawNtStmCntAt(xpos, yl, yh, tp, 'u');
-				}
-			}
-			/*
-			// original print code
-			for (int i = 0; i < trk->string; i++) {
-				if (trk->c[t].a[i] > -1) {
-					ln = line((QChar) trk->c[t].stp[i], trk->c[t].oct[i]);
-					drawNtHdCntAt(xpos, ln, trk->c[t].l, trk->c[t].acc[i]);
-					// Draw dot, must be at odd line -> set lsbit
-					if (curt->c[t].flags & FLAG_DOT) {
-						QString s;
-						s = QChar(0xA7);
-						int y = ln | 1;
-						p->setFont(fFeta);
-						p->drawText((int) (xpos + 0.8 * wNote),
-									yposst - ystepst * y / 2, s);
-					}
-					nhPrinted++;
-					if (nhPrinted == 1) {
-						// first note printed, yl = yh;
-						yl = yh = ln;
-					} else {
-						// more than one note printed, determine lowest/highest
-						if (ln < yl) {
-							yl = ln;
-						}
-						if (ln > yh) {
-							yh = ln;
-						}
-					}
-				} // end if (trk->c[t].a[i] > -1) {
-			} // end for (int i = 0; i < trk->string; i++) {
-			*/
-	
-			// if no note printed, print rest
-			if (nhPrinted == 0) {
-				drawRstCntAt(xpos, 4, trk->c[t].l);
-			}
-
-		} // end if (stNts ...
-
-		// end drawing notes
-
-		// LVIFIX: indentation
-		if (stTab) {
-
-		// Draw the number column including effects
-		p->setFont(fTBar1);
-		int ew_2 = 0;			// used for positioning effects
-		QString note = "";
-		for (int i = 0; i < trk->string; i++) {
-			if (trk->c[t].a[i] != -1) {
-				if (curt->c[t].a[i] == DEAD_NOTE)
-					note = "X";
-				else
-					note.setNum(trk->c[t].a[i]);
-				// Draw dot
-				if (curt->c[t].flags & FLAG_DOT)
-					note += ".";
-				drawStrCntAt(xpos, i, note);
-				// cell width is needed later
-				ew_2 = eraWidth(note) / 2;
-				if (ringing[i]) {
-					drawLetRing(xpos - ew_2, i);
-					ringing[i] = FALSE;
-				}
-			}
-			if ((curt->c[t].a[i] == -1)
-			     && (curt->c[t].e[i] == EFFECT_STOPRING)) {
-				if (ringing[i]) {
-					int ew_3 = eraWidth("0") / 4;
-					drawLetRing(xpos - ew_3, i);
-					ringing[i] = FALSE;
-				}
-			}
-
-			// Draw effects
-			// GREYFIX - use lastxpos, not xdelta
-
-			switch (curt->c[t].e[i]) {
-			case EFFECT_HARMONIC:
-				{
-					QPointArray a(4);
-					// size of diamond
-					int sz_2 = ysteptb / 4;
-					// leftmost point of diamond
-					int x = xpos + ew_2;
-					int y = ypostb - i * ysteptb;
-					// initialize diamond shape
-					a.setPoint(0, x,        y     );
-					a.setPoint(1, x+sz_2,   y+sz_2);
-					a.setPoint(2, x+2*sz_2, y     );
-					a.setPoint(3, x+sz_2,   y-sz_2);
-					// erase tab line
-					p->setPen(pLnWh);
-					p->drawLine(x, y, x+2*sz_2, y);
-					p->setPen(pLnBl);
-					// draw (empty) diamond
-					p->drawPolygon(a);
-				}
-				break;
-			case EFFECT_ARTHARM:
-				{
-					QPointArray a(4);
-					// size of diamond
-					int sz_2 = ysteptb / 4;
-					// leftmost point of diamond
-					int x = xpos + ew_2;
-					int y = ypostb - i * ysteptb;
-					// initialize diamond shape
-					a.setPoint(0, x,        y     );
-					a.setPoint(1, x+sz_2,   y+sz_2);
-					a.setPoint(2, x+2*sz_2, y     );
-					a.setPoint(3, x+sz_2,   y-sz_2);
-					// draw filled diamond
-					QBrush blbr(Qt::black);
-					p->setBrush(blbr);
-					p->drawPolygon(a);
-					p->setBrush(Qt::NoBrush);
-				}
-				break;
-			case EFFECT_LEGATO:
-				// draw arc to next note
-				// the arc should be as wide as the line between
-				// this note and the next. see drawStrCntAt.
-				// extra space between notes must also be added
-				if ((t < curt->c.size() - 1) && (curt->c[t + 1].a[i] >= 0)) {
-					extSpAftNote = (colWidth(t, trk) * es) / barExpWidthLeft;
-					p->drawArc(xpos + ew_2, ypostb - i * ysteptb - ysteptb / 2,
-							   xdelta + extSpAftNote - 2 * ew_2, ysteptb / 2,
-							   0, 180 * 16);
-				}
-				break;
-			case EFFECT_SLIDE:
-				// the slide symbol should be as wide as the line
-				// between this note and the next. see drawStrCntAt.
-				// extra space between notes must also be added
-				if ((t < curt->c.size() - 1) && (curt->c[t + 1].a[i] >= 0)) {
-					extSpAftNote = (colWidth(t, trk) * es) / barExpWidthLeft;
-					if (curt->c[t + 1].a[i] > curt->c[t].a[i]) {
-						p->drawLine(xpos + ew_2,
-									ypostb - i * ysteptb + ysteptb / 3 - 2,
-									xpos + xdelta + extSpAftNote - ew_2,
-									ypostb - i * ysteptb - ysteptb / 3 + 2);
-					} else {
-						p->drawLine(xpos + ew_2,
-									ypostb - i * ysteptb - ysteptb / 3 + 2,
-									xpos + xdelta + extSpAftNote - ew_2,
-									ypostb - i * ysteptb + ysteptb / 3 - 2);
-					}
-				}
-				break;
-			case EFFECT_LETRING:
-				ringing[i] = TRUE;
-				break;
-			} // end switch (curt->c[t].e[i])
-
-			// draw palm muting as little cross behind note
-			if (curt->c[t].flags & FLAG_PM
-				&& trk->c[t].a[i] != -1) {
-				int sz_2 = ysteptb / 4;
-				int x    = xpos + ew_2;
-				int y    = ypostb - i * ysteptb;
-				p->drawLine(x, y - sz_2, x + sz_2, y + sz_2);
-				p->drawLine(x, y + sz_2, x + sz_2, y - sz_2);
-			}
-			
-		} // end for (int i = 0 ... (end draw the number column ...)
-
-		} // end if (stTab ...
-		
-		lastxpos = xpos;
-		xpos += colWidth(t, trk);
-
-		// calculate and add extra space
-		int extSpAftNote = (colWidth(t, trk) * es) / barExpWidthLeft;
-		xpos += extSpAftNote;
-		es -= extSpAftNote;
-		barExpWidthLeft -= colWidth(t, trk);
-
-	} // end for (uint t ... (end loop t over all columns ...)
-
-	// draw beams
-	if (stNts) {
-		drawBeams(bn, 'd', trk);
-		drawBeams(bn, 'u', trk);
-	}
-
-	// space after last note
-	xpos += ntlfw;
-
-	// end bar
-	if (stTab) {
-		// show notes still ringing at end of bar
-		for (int i = 0; i <= s; i++) {
-			if (ringing[i]) {
-				int ew_3 = eraWidth("0") / 4;
-				drawLetRing(xpos - ew_3, i);
-				ringing[i] = FALSE;
-			}
-		}
-		// draw vertical line
-		p->drawLine(xpos, ypostb,
-		            xpos, ypostb - (trk->string - 1) * ysteptb);
-	}
-	if (stNts) {
-		// draw vertical line
-		p->drawLine(xpos, yposst,
-		            xpos, yposst - 4 * ystepst);
-	}
-	// LVIFIX
-	xpos += 1;
-}
-
-// draw bar lines at xpos,ypostb width w for all strings of track trk
-
-void SongPrint::drawBarLns(int w, TabTrack *trk)
-{
-	const int lstStr = trk->string - 1;
-	// vertical lines at xpos and xpos+w-1
-	p->setPen(pLnBl);
-	p->drawLine(xpos, ypostb, xpos, ypostb - lstStr * ysteptb);
-	p->drawLine(xpos + w - 1, ypostb, xpos + w - 1, ypostb - lstStr * ysteptb);
-	// horizontal lines from xpos to xpos+w-1
-	for (int i = 0; i < lstStr+1; i++) {
-		p->drawLine(xpos, ypostb - i * ysteptb,
-					xpos + w - 1, ypostb - i * ysteptb);
-	}
-}
-
-void SongPrint::drawBeam(int x1, int x2, int y, char tp, char dir)
-{
-	int yh;
-	int yl;
-	if (dir != 'd') {
-		yh = y;
-		yl = y - (int) (0.4 * ystepst);
-	} else {
-		yh = y + (int) (0.4 * ystepst);
-		yl = y;
-	}
-	QPointArray a;
-	QBrush brush(Qt::black, Qt::SolidPattern);
-	p->setBrush(brush);
-	switch (tp) {
-	case 'b':
-		x2 = x1;
-		x1 = x1 - (int) (0.6 * ystepst);
-		break;
-	case 'f':
-		x2 = x1 + (int) (0.6 * ystepst);
-		break;
-	case 'c':
-	case 's':
-		// nothing to be done for 'c' and 's'
-		break;
-	default:
-		return;
-	}
-	a.setPoints(4,
-		x1, yh,
-		x2, yh,
-		x2, yl,
-		x1, yl
-	);
-	p->drawPolygon(a);
-}
-
-// draw beams of bar bn, all other info to be found in StemInfo stl/stu
-
-void SongPrint::drawBeams(int bn, char dir,	TabTrack *trk)
-{
-	// cout << "SongPrint::drawBeams(" << bn << ", " << dir << ")" << endl;
-	StemInfo * stxt = 0;
-	for (uint t = trk->b[bn].start; (int) t <= trk->lastColumn(bn); t++) {
-		/*
-		if (dir != 'd') {
-			stxt = & trk->c[t].stu;
-		} else {
-			stxt = & trk->c[t].stl;
-		}
-		cout
-			<< "t=" << t
-			<< " l1..3=" << stxt->l1 << stxt->l2 << stxt->l3 << endl;
-		*/
-	}
-	int yextr = 0;
-	for (uint t = trk->b[bn].start; (int) t <= trk->lastColumn(bn); t++) {
-		if (dir != 'd') {
-			stxt = & trk->c[t].stu;
-		} else {
-			stxt = & trk->c[t].stl;
-		}
-		if (stxt->l1 == 's') {
-			// determine beam height: depends on highest/lowest note
-			// LVIFIX: support angled beams
-			uint i = t;
-			if (dir != 'd') {
-				yextr = trk->c[i].stu.bp.y();
-			} else {
-				yextr = trk->c[i].stl.bp.y();
-			}
-			i++;
-			while ((int) i <= trk->lastColumn(bn)) {
-				if (dir != 'd') {
-					if (trk->c[i].stu.bp.y() < yextr) {
-						yextr = trk->c[i].stu.bp.y();
-					}
-					if (trk->c[i].stu.l1 == 'e') {
-						break;
-					}
-				} else {
-					if (trk->c[i].stl.bp.y() > yextr) {
-						yextr = trk->c[i].stl.bp.y();
-					}
-					if (trk->c[i].stl.l1 == 'e') {
-						break;
-					}
-				}
-				i++;
-			}
-		}
-		if (stxt->l1 != 'n') {
-			// draw stem
-			int x1 = stxt->bp.x();
-			int x2 = 0;
-			if ((int) t < trk->lastColumn(bn)) {
-				if (dir != 'd') {
-					x2 = trk->c[t+1].stu.bp.x();
-				} else {
-					x2 = trk->c[t+1].stl.bp.x();
-				}
-			}
-			int ydir;
-			int yh;
-			int yl;
-			if (dir != 'd') {
-				ydir = 1;
-				yh = yextr - ydir * (int) (3.5 * ystepst);
-				yl = stxt->bp.y();
-			} else {
-				ydir = -1;
-				yh = stxt->bp.y();
-				yl = yextr - ydir * (int) (3.5 * ystepst);
-			}
-			p->setPen(pLnBl);
-			p->drawLine(x1, yl, x1, yh);
-			// draw beams
-			if (dir != 'd') {
-				drawBeam(x1, x2, yh, stxt->l1, dir);
-				yh = yh + (int) (0.8 * ystepst);
-				drawBeam(x1, x2, yh, stxt->l2, dir);
-				yh = yh + (int) (0.8 * ystepst);
-				drawBeam(x1, x2, yh, stxt->l3, dir);
-			} else {
-				drawBeam(x1, x2, yl, stxt->l1, dir);
-				yl = yl - (int) (0.8 * ystepst);
-				drawBeam(x1, x2, yl, stxt->l2, dir);
-				yl = yl - (int) (0.8 * ystepst);
-				drawBeam(x1, x2, yl, stxt->l3, dir);
-			}
-		}
-	}
-}
-
-// draw clef at xpos,yposst
-// draw key at xpos,ypostb for all strings of track trk
-// at the first line (l == 0), string names are printed
-// at all other lines the text "TAB"
-// note: print drum names instead in case of drumtrack
-
-void SongPrint::drawKey(int l, TabTrack *trk)
-{
-	if (stNts) {
-		// draw clef
-		QString s;
-		s = QChar(0x6A);
-		p->setFont(fFeta);
-		// LVIFIX: determine correct location (both clef and key)
-		p->drawText(xpos + tabpp, yposst - ystepst, s);
-	}
-
-	if (stTab) {
-		p->setFont(fTBar1);
-		const int lstStr = trk->string - 1;
-		if (l == 0) {
-			for (int i = 0; i < lstStr + 1; i++) {
-				if (trk->trackMode() == DrumTab) {
-					drawStrCntAt(xpos + tabpp + 3 * br8w / 2,
-								 i,
-								 drum_abbr[trk->tune[i]]);
-				} else {
-					drawStrCntAt(xpos + tabpp + br8w / 2,
-								 i,
-								 note_name(trk->tune[i] % 12));
-				}
-			}
-		} else {
-			// calculate vertical position:
-			// exactly halfway between top and bottom string
-			// center "TAB" at this height, use spacing of 0.25 * char height
-			QFontMetrics fm  = p->fontMetrics();
-			int y = ypostb - ysteptb * lstStr / 2;
-			int br8h = fm.boundingRect("8").height();
-			y -= (int) ((0.5 + 0.25) * br8h);
-			p->drawText(xpos + tabpp, y, "T");
-			y += (int) ((1.0 + 0.25) * br8h);
-			p->drawText(xpos + tabpp, y, "A");
-			y += (int) ((1.0 + 0.25) * br8h);
-			p->drawText(xpos + tabpp, y, "B");
-		}
-	}
-}
-
-// Key signature accidental placement table
-// if keySig > 0, start at F and work to the right, notes are sharpened
-// if keySig < 0, start at B and work to the left, notes are flattened
-//                               F   C   G   D   A   E   B
-static int accPosSharpTab[7] = { 3,  0,  4,  1, -2,  2, -1};
-static int accPosFlatTab[7]  = {-4,  0, -3,  1, -2,  2, -1};
-
-// draw key signature at xpos,yposst
-
-void SongPrint::drawKeySig(TabTrack *trk)
-{
-	QString s;
-	p->setFont(fFeta);
-	if (stNts) {
-		int ypos;
-		int sig = trk->b[0].keysig;
-		if ((sig <= -8) || (8 <= sig)) {
-			sig = 0;
-		}
-		if (sig != 0) {
-			xpos += wNote;
-		}
-		if (sig > 0) {
-			s = QChar(0x201c);
-			for (int i = 0; i < sig; i++) {
-				ypos = accPosSharpTab[i];
-				p->drawText(xpos, yposst - (ypos + 5) * ystepst / 2, s);
-				xpos += (int) (0.8 * wNote);
-			}
-		} else if (sig < 0) {
-			s = QChar(0x201e);
-			for (int i = 0; i > sig; i--) {
-				ypos = accPosFlatTab[i + 6];
-				p->drawText(xpos, yposst - (ypos + 5) * ystepst / 2, s);
-				xpos += (int) (0.7 * wNote);
-			}
-		}
-	}
-}
-
-// draw "let ring" with point of arrowhead at x on string y
-// LVIFIX: use xpos too ?
-
-void SongPrint::drawLetRing(int x, int y)
-{
-	p->drawLine(x,               ypostb - y * ysteptb,
-				x - ysteptb / 3, ypostb - y * ysteptb - ysteptb / 3);
-	p->drawLine(x,               ypostb - y * ysteptb,
-				x - ysteptb / 3, ypostb - y * ysteptb + ysteptb / 3);
-}
-
-// draw notehead of type t with accidental a centered at x on staff line y
-// note: lowest = 0, highest = 8
-// uses yposst but ignores xpos
-// LVIFIX: use xpos too ?
-
-// LVIFIX: move 1/2 note head "a little bit" to the left
-
-void SongPrint::drawNtHdCntAt(int x, int y, int t, Accidentals::Accid a)
-{
-	// draw auxiliary lines
-	int xdl = (int) (0.8 * wNote);	// x delta left of origin
-	int xdr = (int) (0.8 * wNote);	// x delta right of origin
-	p->setPen(pLnBl);
-	int auxLine = y / 2;
-	while (auxLine < 0) {
-		p->drawLine(x - xdl, yposst - auxLine * ystepst,
-		            x + xdr, yposst - auxLine * ystepst);
-		auxLine++;
-	}
-	while (auxLine > 4) {
-		p->drawLine(x - xdl, yposst - auxLine * ystepst,
-		            x + xdr, yposst - auxLine * ystepst);
-		auxLine--;
-	}
-	// draw note head
-	int noteHead = 0;
-	if (t == 480) {
-		// whole
-		noteHead = 0x22;
-	} else if (t == 240) {
-		// 1/2
-		noteHead = 0x23;
-	} else {
-		// others
-		noteHead = 0x24;
-	}
-	QString s;
-	s = QChar(noteHead);
-	p->setFont(fFeta);
-	p->drawText(x - wNote / 2, yposst - ystepst * y / 2, s);
-	// draw accidentals
-	int acc = 0;				// accidental char code
-	int accxposcor = 0;			// accidental xpos correction
-	if (a == Accidentals::Sharp) {
-		acc = 0x201c;
-	} else if (a == Accidentals::Flat) {
-		acc = 0x201e;
-		accxposcor = (int) (0.35 * wNote);
-	} else if (a == Accidentals::Natural) {
-		acc = 0x201d;
-		accxposcor = (int) (0.35 * wNote);
-	}
-	s = QChar(acc);
-	p->drawText((int) (x - 1.4 * wNote) + accxposcor,
-				yposst - ystepst * y / 2, s);
-}
-
-// draw notestem and flag of type t and direction dir centered at x
-// for notes on staff lines yl .. yh
-// note: lowest = 0, highest = 8
-// uses yposst but ignores xpos
-// if t==0, draws only notestem between notes
-// LVIFIX: use xpos too ?
-
-// LVIFIX: lower stem doesn't touch upper stem
-// LVIFIX: draw stem "a little bit" more to the left
-
-void SongPrint::drawNtStmCntAt(int x, int yl, int yh, int t, char dir)
-{
-	int flagCh = 0;
-	int w = 0;
-	int yoffset = 0;						// y offset flags
-	switch (t) {
-	case 0:   // none
-		break;
-	case 15:  // 1/32
-		flagCh = (dir != 'd') ? 0x5C :   0x61;
-		yoffset = (int) (-1.3 * ystepst);
-		break;
-	case 30:  // 1/16
-		flagCh = (dir != 'd') ? 0x5B : 0x2018;
-		yoffset = (int) (-0.5 * ystepst);
-		break;
-	case 60:  // 1/8
-		flagCh = (dir != 'd') ? 0x5A :   0x5F;
-		break;
-	case 120: // 1/4
-		break;
-	case 240: // 1/2
-		break;
-	case 480: // whole
-		return;
-	default:
-		; // do nothing
-	} // end switch (t)
-	p->setPen(pLnBl);
-	// draw stem (lower part)
-	int xs;
-	if (dir != 'd') {
-		xs = (int) (x + 0.45 * wNote);		// x pos stem
-	} else {
-		xs = (int) (x - 0.45 * wNote);		// x pos stem
-	}
-	if (yl != yh) {
-		int yld = yposst - (int) (ystepst * ((0.2 + yl) / 2));
-		int yhd = yposst - (int) (ystepst * ((0.4 + yh) / 2));
-		p->drawLine(xs, yld,
-					xs, yhd);
-	}
-	if (dir != 'd') {
-		// up
-		if (t != 0) {
-			QString s;
-			// draw stem (upper part)
-			s = QChar(0x64);
-			p->drawText(xs, yposst - ystepst * yh / 2, s);
-			// draw flag(s)
-			s = QChar(flagCh);
-			int yFlag = yposst - ystepst * yh / 2
-						- (int) (3.5 * ystepst)
-						+ yoffset;
-			p->drawText(xs, yFlag, s);
-		}
-	} else {
-		// down
-		if (t != 0) {
-			QString s;
-			// draw stem (lower part)
-			s = QChar(0x65);
-			p->drawText(xs, yposst - ystepst * yl / 2, s);
-			// draw flag(s)
-			s = QChar(flagCh);
-			int yFlag = yposst - ystepst * yl / 2
-						+ (int) (3.5 * ystepst)
-						+ yoffset;
-			p->drawText(xs, yFlag, s);
-		}
-	}
+	delete trp;
 }
 
 // draw header of song song, page n
@@ -1186,68 +108,6 @@ void SongPrint::drawPageHdr(int n, TabSong *song)
 	p->setFont(fHdr3);
 	p->drawText(0, hdrh1 + hdrh2, "Transcribed by " + song->transcriber);
 	ypostb = hdrh1 + hdrh2 + hdrh3;
-}
-
-// draw rest of type t centered at x on staff line y
-// note: lowest = 0, highest = 8
-// uses yposst but ignores xpos
-// LVIFIX: use xpos too ?
-
-void SongPrint::drawRstCntAt(int x, int y, int t)
-{
-	int restSym = 0;
-	int yoffset = 0;
-	switch (t) {
-	case 15:  // 1/32
-		restSym = 0x02D9;
-		break;
-	case 30:  // 1/16
-		restSym = 0xAF;
-		break;
-	case 60:  // 1/8
-		restSym = 0x02D8;
-		break;
-	case 120: // 1/4
-		restSym = 0x02C7;
-		break;
-	case 240: // 1/2
-		restSym = 0xB4;
-		break;
-	case 480: // whole
-		restSym = 0x60;
-		yoffset = 2;
-		break;
-	default:
-		return; // do nothing
-	} // end switch (t)
-	QString s;
-	s = QChar(restSym);
-	p->setFont(fFeta);
-	p->drawText(x - wNote / 2, yposst - ystepst * (y + yoffset) / 2, s);
-}
-
-// draw staff lines at xpos,yposst width w
-
-void SongPrint::drawStLns(int w)
-{
-	const int lstStL = 4;
-	// vertical lines at xpos and xpos+w-1
-	p->setPen(pLnBl);
-	p->drawLine(xpos, yposst,
-				xpos, yposst - lstStL * ystepst);
-	p->drawLine(xpos + w - 1, yposst,
-				xpos + w - 1, yposst - lstStL * ystepst);
-	// horizontal lines from xpos to xpos+w-1
-	for (int i = 0; i < lstStL+1; i++) {
-		p->drawLine(xpos, yposst - i * ystepst,
-					xpos + w - 1, yposst - i * ystepst);
-	}
-	if (stTab) {
-		p->drawLine(xpos, yposst,
-					xpos, yposst + (7 + 3) * ystepst);
-		p->drawLine(xpos + w - 1, yposst,
-					xpos + w - 1, yposst + (7 + 3) * ystepst);
-	}
 }
 
 // draw string s centered at x on string n
@@ -1327,43 +187,6 @@ static bool initExactFont(const QString fn, int fs, QFont & fnt)
 	// cout << "rn='" << rn << "'" << endl;
 	// cout << "an='" << an << "'" << endl;
 	return (rn == an);
-}
-
-// find line of highest/lowest note in column cl for voice v in tabtrack trk
-// returns false if not found
-// precondition: calcStepAltOct() and calcVoices() must have been called
-
-bool SongPrint::findHiLo(int cl, int v, TabTrack *trk, int & hi, int & lo)
-{
-	bool found = false;
-	hi = 0;						// prevent uninitialized variable
-	lo = 0;						// prevent uninitialized variable
-	// loop over all strings
-	/*
-	cout << "v=" << v;
-	*/
-	for (int i = 0; i < trk->string; i++) {
-	/*
-		cout
-			<< " i=" << i
-			<< " v[i]=" << (int) trk->c[cl].v[i]
-			<< endl;
-	*/
-		if (trk->c[cl].v[i] == v) {
-			int ln = line((QChar) trk->c[cl].stp[i], trk->c[cl].oct[i]);
-			if (found) {
-				// found note in this voice, but not the first
-				if (ln < lo) lo = ln;
-				if (ln > hi) hi = ln;
-			} else {
-				// found first note in this voice
-				lo = ln;
-				hi = ln;
-			}
-			found = true;
-		}
-	}
-	return found;
 }
 
 // initialize fonts
@@ -1478,31 +301,18 @@ void SongPrint::initPrStyle()
 		stTab = true;
 	}
 	// no notes if feta fonts not found
+	// LVIFIX: feta font handling to be delegated to TrackPrint
 	if (!fFetaFnd) {
 		stNts = false;
 	}
-}
-
-// return staffline where note must be drawn (lowest = 0, highest = 8)
-
-int SongPrint::line(const QString step, int oct)
-{
-	const int ClefOctCh = -1;
-	int cn = 0;				// if note not found, default to "C"
-	for (int i = 0; i < 7; i++) {
-		if (notes[i] == step) {
-			cn = i;
-		}
-	}
-	// magic constant "30" maps G3 to the second-lowest staffline
-	// note implicit clef-octave-change of -1
-	return cn + 7 * (oct - ClefOctCh) - 30;
 }
 
 // print song song on printer printer
 
 void SongPrint::printSong(KPrinter *printer, TabSong *song)
 {
+//	cout << "SongPrint::printSong(" << printer << ", " << song << ")" << endl;
+
 	// start painting on printer
 	if (!p->begin(printer))
 		return;
@@ -1520,6 +330,13 @@ void SongPrint::printSong(KPrinter *printer, TabSong *song)
 
 	// init printing style variables
 	initPrStyle();
+
+	// now also initialize the TrackPrint
+	trp->initFonts();
+	trp->setPainter(p);
+	trp->initMetrics();
+	trp->initPens();
+	trp->initPrStyle();
 
 	// print page header
 	int pgNr = 1;
@@ -1545,35 +362,6 @@ void SongPrint::printSong(KPrinter *printer, TabSong *song)
 		// Determine beams for this track
 		trk->calcBeams();
 
-	// LVIFIX: start debug only, remove
-	/*
-	{
-		cout << "SongPrint::printSong()" << endl;
-		uint bn = 0;						// Drawing only this bar
-		int s = trk->string - 1;
-		for (int t = 0; t < trk->c.size(); t++) {
-			cout << "t=" << t;
-			cout << " b=" << trk->barNr(t);
-			cout << " l=" << trk->c[t].l;
-			cout << " a[i]=";
-			for (int i=0; i<=s; i++) cout << (int) trk->c[t].a[i] << " ";
-			cout << "e[i]=";
-			for (int i=0; i<=s; i++) cout << (int) trk->c[t].e[i] << " ";
-			cout << "ncols[i]=";
-			for (int i=0; i<=s; i++)
-				cout << trk->noteNrCols(t, i) << " ";
-			cout << "l[i]=";
-			for (int i=0; i<=s; i++)
-				cout << trk->noteDuration(t, i) << " ";
-			cout << " v[i]=";
-			for (int i=0; i<=s; i++) cout << (int) trk->c[t].v[i] << " ";
-			cout << "flags=" << trk->c[t].flags;
-			cout << endl;
-		}
-	}
-	*/
-	// LVIFIX: end debug only, remove
-
 		// print the track header
 		if ((song->t).count() > 1)
 		{
@@ -1591,8 +379,8 @@ void SongPrint::printSong(KPrinter *printer, TabSong *song)
 		QMemArray<int> bew(trk->b.size());
 		QMemArray<int> bw(trk->b.size());
 		for (uint bn = 0; bn < trk->b.size(); bn++) {
-			bew[bn] = barExpWidth(bn, trk);
-			bw[bn]  = barWidth(bn, trk);
+			bew[bn] = trp->barExpWidth(bn, trk);
+			bw[bn]  = trp->barWidth(bn, trk);
 		}
 
 		// loop while bars left in the track
@@ -1604,7 +392,11 @@ void SongPrint::printSong(KPrinter *printer, TabSong *song)
 				yposst = ypostb + (7 + 4) * ystepst;
 				xpos = 0;
 				// draw empty staff at xPos, yPosst
-				drawStLns(pprw - 1);
+				// LVIFIX: HACK HACK HACK !
+				// drawStLns(pprw - 1);
+				trp->yposst = yposst;
+				trp->xpos = xpos;
+				trp->drawStLns(pprw - 1);
 				if (stTab) {
 					// move ypostb to the top bar line
 					// (where it would be if there as no staff)
@@ -1621,13 +413,25 @@ void SongPrint::printSong(KPrinter *printer, TabSong *song)
 				ypostb = ypostb + (trk->string - 1) * ysteptb;
 				xpos = 0;
 				// draw empty tab bar at xPos, yPos
-				drawBarLns(pprw - 1, trk);
+				// LVIFIX: HACK HACK HACK !
+				// drawBarLns(pprw - 1, trk);
+				trp->ypostb = ypostb;
+				trp->xpos = xpos;
+				trp->drawBarLns(pprw - 1, trk);
 			}
 
 			xpos += 1;				// first vertical line
-			drawKey(l, trk);
+			// LVIFIX: HACK HACK HACK !
+			// drawKey(l, trk);
+			trp->xpos = xpos;
+			trp->drawKey(l, trk);
+
 			xpos += tabfw;			// "TAB"
-			drawKeySig(trk);		// key signature (note: updates xpos)
+			// LVIFIX: HACK HACK HACK !
+			// drawKeySig(trk);		// key signature (note: updates xpos)
+			trp->xpos = xpos;
+			trp->drawKeySig(trk);		// key signature (note: updates xpos)
+			xpos = trp->xpos;
 
 			// determine # bars fitting on this line
 			// must be at least 1 (very long bar will be truncated)
@@ -1645,7 +449,13 @@ void SongPrint::printSong(KPrinter *printer, TabSong *song)
 			if (bn + nBarsOnLine >= trk->b.size()) {
 				// last line, no extra space
 				for (uint i = 0; i < nBarsOnLine; i++) {
-					drawBar(bn, trk, 0);
+					// LVIFIX: HACK HACK HACK !
+					// drawBar(bn, trk, 0);
+					trp->xpos = xpos;
+					trp->yposst = yposst;
+					trp->ypostb = ypostb;
+					trp->drawBar(bn, trk, 0);
+					xpos = trp->xpos;
 					bn++;
 				}
 			} else {
@@ -1655,7 +465,13 @@ void SongPrint::printSong(KPrinter *printer, TabSong *song)
 				int extSpLeft = pprw - xpos - totWidth - 1;
 				for (uint i = 0; i < nBarsOnLine; i++) {
 					int extSpInBar = extSpLeft / (nBarsOnLine - i);
-					drawBar(bn, trk, extSpInBar);
+					// LVIFIX: HACK HACK HACK !
+					// drawBar(bn, trk, extSpInBar);
+					trp->xpos = xpos;
+					trp->yposst = yposst;
+					trp->ypostb = ypostb;
+					trp->drawBar(bn, trk, extSpInBar);
+					xpos = trp->xpos;
 					extSpLeft -= extSpInBar;
 					bn++;
 				}
