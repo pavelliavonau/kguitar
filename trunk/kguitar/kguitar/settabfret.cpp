@@ -9,6 +9,23 @@
 #include <qspinbox.h>
 #include <qlabel.h>
 
+// Numbers of instruments that are selected by default with selection
+// of new number of strings
+
+int defaultByString[MAX_STRINGS] =
+	{ 0,
+	  0,
+	  0, 
+	  11,    // 4 string bass guitar
+	  13,    // 5 string bass guitar
+	  1,     // 6 string guitar
+	  8,     // 7 string guitar
+	  10,    // 8 string brahms guitar
+	  0,
+	  0,
+	  0,
+	  0 };
+
 SetTabFret::SetTabFret(QWidget *parent=0, const char *name=0)
 	: QWidget(parent, name)
 {
@@ -62,7 +79,11 @@ void SetTabFret::stringChanged(int n)
     if (oldst == n)
 		return;
 	
-    if (oldst<n) {       // Need to add
+	if (defaultByString[n - 1] != 0)
+		for (int i = 0; i < n; i++)
+			tuner[i]->setValue(lib_tuning[defaultByString[n - 1]].shift[i]);
+
+    if (oldst < n) {       // Need to add
 		for (int i = oldst; i < n; i++)
 			tuner[i]->show();
     } else {             // Need to delete
