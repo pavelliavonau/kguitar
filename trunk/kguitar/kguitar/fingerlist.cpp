@@ -13,18 +13,18 @@
 FingerList::FingerList(TabTrack *p, QWidget *parent, const char *name)
 	: QGridView(parent, name)
 {
-    parm = p;
+	parm = p;
 
 	setVScrollBarMode(Auto);
 	setHScrollBarMode(AlwaysOff);
 
-    setFrameStyle(Panel | Sunken);
-    setBackgroundMode(PaletteBase);
-    setFocusPolicy(StrongFocus);
-    num = 0; curSel = -1; oldCol = 0; oldRow = 0;
+	setFrameStyle(Panel | Sunken);
+	setBackgroundMode(PaletteBase);
+	setFocusPolicy(StrongFocus);
+	num = 0; curSel = -1; oldCol = 0; oldRow = 0;
 
-    setCellWidth(ICONCHORD);
-    setCellHeight(ICONCHORD);
+	setCellWidth(ICONCHORD);
+	setCellHeight(ICONCHORD);
 
 	setMinimumSize(ICONCHORD + 2, ICONCHORD + 2);
 	resize(width(), 3 * ICONCHORD + 2);
@@ -140,8 +140,8 @@ void FingerList::paintCell(QPainter *p, int row, int col)
 
 		for (int i = 0; i <= NUMFRETS; i++)
 			p->drawLine(SCALE/2+BORDER+FRETTEXT,BORDER+SCALE+2*SPACER+i*SCALE,
-						SCALE/2+BORDER+parm->string*SCALE-SCALE+FRETTEXT,
-						BORDER+SCALE+2*SPACER+i*SCALE);
+			            SCALE/2+BORDER+parm->string*SCALE-SCALE+FRETTEXT,
+			            BORDER+SCALE+2*SPACER+i*SCALE);
 
 		// Beginning fret number
 
@@ -163,31 +163,31 @@ void FingerList::paintCell(QPainter *p, int row, int col)
 			fs.setNum(firstFret);
 			p->setFont(*fretNumberFont);
 			p->drawText(BORDER, BORDER + SCALE + 2 * SPACER, 50, 50,
-						AlignLeft | AlignTop, fs);
+			            AlignLeft | AlignTop, fs);
 		}
 
 		// Vertical lines and fingering
 
 		for (int i = 0; i < parm->string; i++) {
 			p->drawLine(i * SCALE + BORDER + SCALE / 2 + FRETTEXT,
-						BORDER + SCALE + 2 * SPACER,
-						i * SCALE + BORDER + SCALE / 2 + FRETTEXT,
-						BORDER + SCALE + 2 * SPACER + NUMFRETS * SCALE);
+			            BORDER + SCALE + 2 * SPACER,
+			            i * SCALE + BORDER + SCALE / 2 + FRETTEXT,
+			            BORDER + SCALE + 2 * SPACER + NUMFRETS * SCALE);
 			if (appl[n].f[i] == -1) {
 				p->drawLine(i*SCALE+BORDER+CIRCBORD+FRETTEXT,BORDER+CIRCBORD,
-							i*SCALE+BORDER+SCALE-CIRCBORD+FRETTEXT,
-							BORDER+SCALE-CIRCBORD);
+				            i*SCALE+BORDER+SCALE-CIRCBORD+FRETTEXT,
+				            BORDER+SCALE-CIRCBORD);
 				p->drawLine(i*SCALE+BORDER+SCALE-CIRCBORD+FRETTEXT,BORDER+CIRCBORD,
-							i*SCALE+BORDER+CIRCBORD+FRETTEXT,BORDER+SCALE-CIRCBORD);
+				            i*SCALE+BORDER+CIRCBORD+FRETTEXT,BORDER+SCALE-CIRCBORD);
 			} else if (appl[n].f[i]==0) {
 				p->setBrush(back);
 				p->drawEllipse(i*SCALE+BORDER+CIRCBORD+FRETTEXT,BORDER+CIRCBORD,
-							   CIRCLE,CIRCLE);
+				               CIRCLE,CIRCLE);
 			} else {
 				p->setBrush(fore);
 				p->drawEllipse(i*SCALE+BORDER+CIRCBORD+FRETTEXT,
-							   BORDER+SCALE+2*SPACER+(appl[n].f[i]-firstFret)*SCALE+
-							   CIRCBORD,CIRCLE,CIRCLE);
+				               BORDER+SCALE+2*SPACER+(appl[n].f[i]-firstFret)*SCALE+
+				               CIRCBORD,CIRCLE,CIRCLE);
 			}
 		}
 
@@ -198,7 +198,7 @@ void FingerList::paintCell(QPainter *p, int row, int col)
 		for (int i = 0; i < NUMFRETS; i++) {
 			barre = 0;
 			while ((appl[n].f[parm->string - barre - 1] >= (i + firstFret)) ||
-				   (appl[n].f[parm->string - barre - 1] == -1)) {
+			       (appl[n].f[parm->string - barre - 1] == -1)) {
 				barre++;
 				if (barre > parm->string - 1)
 					break;
@@ -215,13 +215,13 @@ void FingerList::paintCell(QPainter *p, int row, int col)
 
 			if (eff > 2) {
 				p->drawRect((parm->string-barre) * SCALE + SCALE / 2 +
-							BORDER + FRETTEXT,
-							BORDER + SCALE + 2 * SPACER + i * SCALE + CIRCBORD,
-							(barre - 1) * SCALE, CIRCLE);
+				            BORDER + FRETTEXT,
+				            BORDER + SCALE + 2 * SPACER + i * SCALE + CIRCBORD,
+				            (barre - 1) * SCALE, CIRCLE);
 			}
 		}
 
 		p->setBrush(NoBrush);
 		p->setPen(SolidLine);
-    }
+	}
 }
