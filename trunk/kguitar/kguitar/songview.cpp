@@ -60,8 +60,10 @@ using namespace std;
 SongView::SongView(KXMLGUIClient *_XMLGUIClient, KCommandHistory *_cmdHist,
 				   QWidget *parent, const char *name): QWidget(parent, name)
 {
+#ifdef WITH_TSE3
 	scheduler = 0L;
 	initMidi();
+#endif
 
 	midiInUse = FALSE;
 	midiStopPlay = FALSE;
