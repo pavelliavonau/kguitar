@@ -1,7 +1,7 @@
-# SOME DESCRIPTIVE TITLE.
-# Copyright (C) YEAR Free Software Foundation, Inc.
-# FIRST AUTHOR <EMAIL@ADDRESS>, YEAR.
-#
+# Spannish translation
+# Copyright (C) 2000 Free Software Foundation, Inc.
+# Juan Pablo Sousa gotem@users.sourceforge.net
+# 
 #, fuzzy
 msgid ""
 msgstr ""
@@ -131,7 +131,12 @@ msgid ""
 "of jazz note naming.\n"
 "\n"
 "Are you sure you want to use jazz notes?"
-msgstr ""
+msgstr "Los nombres de las notas de Jazz son muy especiales\n"
+"y sólo deben ser usadas si realmente sabes lo que estas\n"
+"haciendo. Un uso de estos nombres sin un propósito llevaría\n"
+"a confusión a cualquiera que no tenga conocimiento de Jazz\n"
+"\n"
+"¿Estas seguro de querer usar notas de Jazz?"
 
 #: chord.cpp:157
 msgid "Root"
@@ -211,7 +216,7 @@ msgstr "&Banco"
 
 #: settrack.cpp:27
 msgid "&Patch:"
-msgstr "&Parche"
+msgstr ""
 
 #: settrack.cpp:65
 msgid "Track properties"
