@@ -1,20 +1,8 @@
-#include "track.h"
+#include "tabsong.h"
 #include "global.h"
 
 #include <qfile.h>
 #include <qdatastream.h>
-
-TabTrack::TabTrack(TrackMode _tm, QString _name, int _channel,
-		   int _bank, uchar _patch, uchar _string, uchar _frets)
-{
-    tm=_tm;
-    name=_name;
-    channel=_channel;
-    bank=_bank;
-    patch=_patch;
-    string=_string;
-    frets=_frets;
-};
 
 // KG format specs
 // ===============
