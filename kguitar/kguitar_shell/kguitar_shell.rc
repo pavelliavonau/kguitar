@@ -10,12 +10,13 @@
 		<Separator/>
 		<Action name="file_quit" />
 	</Menu>
+
 	<Menu noMerge="1" name="settings"><text>&amp;Settings</text>
 		<Menu name="showtoolbars"><text>Show Toolbars</text>
 			<Action name="tog_mainTB"/>
 			<Action name="tog_editTB"/>
 		</Menu>
-		<Action name="tog_statusbar" />
+		<Action name="options_show_statusbar"/>
 		<Merge name="show_merge"/>
 		<Separator/>
 		<Action name="options_configure_keybinding"/>
