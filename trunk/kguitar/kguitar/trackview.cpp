@@ -710,6 +710,7 @@ void TrackView::mousePressEvent(QMouseEvent *e)
 
 void TrackView::playTrack()
 {
+#ifdef HAVE_MIDI
     kdDebug() << "TrackView::playTrack with pid:" << getpid() << endl;
 
     if (midiInUse) {
@@ -725,13 +726,16 @@ void TrackView::playTrack()
     MidiData::getMidiList(curt, midiList); // ALINXFIX: at this time only one track...
 
     playMidi(midiList);
+#endif
 }
 
 void TrackView::stopPlayTrack()
 {
+#ifdef HAVE_MIDI
     kdDebug() << "TrackView::stopPlayTrack" << endl;
 
     if (midiInUse) midiStopPlay = TRUE;
+#endif
 }
 
 void TrackView::playMidi(MidiList &ml)
@@ -745,6 +749,7 @@ void TrackView::playMidi(MidiList &ml)
     *  - find a callback to make played note visible on TrackView
     ******************************************************************/
 
+#ifdef HAVE_MIDI
     kdDebug() << "TrackView::playMidi" << endl;
 
     if (ml.isEmpty()) {
@@ -890,6 +895,7 @@ void TrackView::playMidi(MidiList &ml)
         kdDebug() << "    -->midi->setDefaultDevice(" << defDevice << ")" << endl;
         midi->setDefaultDevice(defDevice);
     }
+#endif
 }
 
 /*

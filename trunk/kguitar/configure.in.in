@@ -1,5 +1,40 @@
 #MIN_CONFIG
 
+
+AC_ARG_WITH(midisupport,[  --with-midisupport	  compile KGuitar with MIDI-Output])
+
+
+if test "$with_midisupport" = "yes"
+then
+    AC_DEFINE(WITH_MIDISUPPORT, 1, [Define if you want to use MIDI-Output in KGuitar])
+	echo ""
+	echo ""
+	echo "**********************************************************"
+	echo "*                KGuitar with MIDI-Output                *"
+	echo "*                                                        *"
+	echo "*   You need libkmid! It's not checked by ./configure!   *"
+	echo "*                                                        *"
+	echo "*--------------------------------------------------------*"
+	echo "*                                                        *"
+	echo "*               If you have problems with                *"
+	echo "*          MIDI-Output please send a bugreport.          *"
+	echo "**********************************************************"
+	echo ""
+	echo ""
+else
+	echo ""
+	echo ""
+	echo "**********************************************************"
+	echo "*       You can enable MIDI-Output for KGuitar.          *"
+	echo "*      Please run: ./configure --with-midisupport        *"
+	echo "*                                                        *"
+	echo "*  !!! But there are some problems with this stuff. !!!  *"
+	echo "**********************************************************"
+	echo ""
+	echo ""
+fi
+
+
 AM_INIT_AUTOMAKE(kguitar, 0.2.10pre-1)
 AC_CHECK_BOOL
 CXXFLAGS="$CXXFLAGS -DQT_CLEAN_NAMESPACE -DQT_NO_COMPAT"
