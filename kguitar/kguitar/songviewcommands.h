@@ -19,7 +19,9 @@ class TrackPane;
 // Set the song properties
 class SetSongPropCommand : public KNamedCommand {
 public:
-	SetSongPropCommand(TabSong* _song, QString _title, QString _author, QString _trans, QString _com);
+	SetSongPropCommand(TabSong* _song, QString _title,
+	                   QString _author, QString _trans,
+	                   QString _com, int _tempo);
 	virtual ~SetSongPropCommand();
 
 	virtual void execute();
@@ -28,6 +30,7 @@ public:
 private:
 	QString title, author, transcriber, comments,
 		oldtitle, oldauthor, oldtranscriber, oldcomments;
+	int tempo, oldtempo;
 	TabSong* song;
 };
 

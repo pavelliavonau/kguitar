@@ -14,19 +14,21 @@
 
 
 SetSongPropCommand::SetSongPropCommand(TabSong* _song, QString _title, QString _author,
-                                       QString _trans, QString _com):
-	KNamedCommand(i18n("Set song properties"))
+                                       QString _trans, QString _com, int _tempo)
+	: KNamedCommand(i18n("Set song properties"))
 {
     song        = _song;
 	title       = _title;
 	author      = _author;
 	transcriber = _trans;
 	comments    = _com;
+	tempo       = _tempo;
 
 	oldtitle       = song->title;
 	oldauthor      = song->author;
 	oldtranscriber = song->transcriber;
 	oldcomments    = song->comments;
+	oldtempo       = song->tempo;
 }
 
 SetSongPropCommand::~SetSongPropCommand()
@@ -35,18 +37,20 @@ SetSongPropCommand::~SetSongPropCommand()
 
 void SetSongPropCommand::execute()
 {
-	song->title = title;
-	song->author = author;
+	song->title       = title;
+	song->author      = author;
 	song->transcriber = transcriber;
-	song->comments = comments;
+	song->comments    = comments;
+	song->tempo       = tempo;
 }
 
 void SetSongPropCommand::unexecute()
 {
-	song->title = oldtitle;
-	song->author = oldauthor;
+	song->title       = oldtitle;
+	song->author      = oldauthor;
 	song->transcriber = oldtranscriber;
-	song->comments = oldcomments;
+	song->comments    = oldcomments;
+	song->tempo       = oldtempo;
 }
 
 SetTrackPropCommand::SetTrackPropCommand(TrackView *_tv, TrackList *_tl, TrackPane *_tp,

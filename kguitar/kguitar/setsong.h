@@ -6,6 +6,7 @@
 
 class QLineEdit;
 class QMultiLineEdit;
+class KIntNumInput;
 
 class SetSong: public QDialog
 {
@@ -13,8 +14,10 @@ class SetSong: public QDialog
 public:
     SetSong(QWidget *parent=0, const char *name=0);
 
-    QLineEdit *title,*author,*transcriber;
+    QLineEdit *title, *author, *transcriber;
     QMultiLineEdit *comments;
+
+	KIntNumInput *tempo;
 private:
 };
 
