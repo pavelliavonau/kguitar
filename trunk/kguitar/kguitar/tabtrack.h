@@ -59,6 +59,11 @@ public:
 	bool sel;                           // Selection mode enabled
 	int xsel;                           // If yes, then selection start column
 
+#ifdef WITH_TSE3
+	static TSE3::MidiCommand encodeTimeTracking(int track, int x);
+	static void decodeTimeTracking(TSE3::MidiCommand mc, int &track, int &x);
+#endif
+
 	int barNr(int c);
 	int lastColumn(int n);
 	bool showBarSig(int n);

@@ -35,6 +35,8 @@ public:
  	void setFinger(int num, int fret);
 	int finger(int num);
 
+	void setX(int x);
+
 	void updateRows();
 	void arrangeBars();
 
@@ -103,6 +105,8 @@ public slots:
 	void selectBar(uint);
 	void ensureCurrentVisible();
 
+	void setPlaybackCursor(bool);
+
 signals:
 	void statusBarChanged();
 	void paneChanged();
@@ -135,6 +139,8 @@ private:
 	TabSong *song;
 	TabTrack *curt;
 	Fretboard *fretboard;
+
+	bool playbackCursor;
 
 #ifdef WITH_TSE3
 	TSE3::MidiScheduler *scheduler;

@@ -1834,7 +1834,7 @@ TSE3::Song *TabSong::midiSong(bool tracking)
 		delete trackData;
 		tn++;
 	}
-	
+
 	return song;
 }
 #endif

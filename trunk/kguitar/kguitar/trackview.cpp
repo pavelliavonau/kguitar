@@ -85,6 +85,8 @@ TrackView::TrackView(TabSong *s, KXMLGUIClient *_XMLGUIClient, KCommandHistory *
 #ifdef WITH_TSE3
 	scheduler = _scheduler;
 #endif
+
+	playbackCursor = FALSE;
 }
 
 TrackView::~TrackView()
@@ -402,7 +404,7 @@ void TrackView::paintCell(QPainter *p, int row, int col)
 
 	for (int i = 0; i <= s; i++) {
 		p->drawLine(0, VERTSPACE + (s - i) * VERTLINE,
-					width(), VERTSPACE + (s - i) * VERTLINE);
+		            width(), VERTSPACE + (s - i) * VERTLINE);
 		ringing[i] = FALSE;
 	}
 
@@ -701,34 +703,42 @@ void TrackView::paintCell(QPainter *p, int row, int col)
 	p->setRasterOp(Qt::XorROP);
 // 	p->setBrush(KGlobalSettings::highlightColor());
 
-	// Draw selection between selxcoord and selx2coord (if it exists)
-	if (curt->sel) {
-		if ((selxcoord != -1) && (selx2coord != -1)) {
-			int x1 = KMIN(selxcoord, selx2coord);
-			int wid = abs(selx2coord - selxcoord) + HORCELL + 1;
-			p->drawRect(x1, 0, wid, cellHeight());
-		} else if ((selxcoord == -1) && (selx2coord != -1)) {
-			if (curt->x > curt->lastColumn(bn))
-				p->drawRect(selx2coord, 0, cellWidth(), cellHeight());
-			else
-				p->drawRect(0, 0, selx2coord + HORCELL + 1, cellHeight());
-		} else if ((selxcoord != -1) && (selx2coord == -1)) {
-			if (curt->xsel > curt->lastColumn(bn))
-				p->drawRect(selxcoord, 0, cellWidth(), cellHeight());
-			else
-				p->drawRect(0, 0, selxcoord + HORCELL + 1, cellHeight());
-		} else { // both are -1
-			int x1 = KMIN(curt->x, curt->xsel);
-			int x2 = KMAX(curt->x, curt->xsel);
-			if ((x1 < curt->b[bn].start) && (x2 > curt->lastColumn(bn)))
-				p->drawRect(0, 0, cellWidth(), cellHeight());
-		}
-	}
+	if (playbackCursor) {
+		// Draw MIDI playback cursor
+		if (selxcoord != -1)
+			p->drawRect(selxcoord, 0, HORCELL + 1, cellHeight());
 
-	// Draw original cursor (still inverted)
-	if (selxcoord != -1) {
-		p->drawRect(selxcoord, VERTSPACE + (s - curt->y) * VERTLINE - VERTLINE / 2 - 1,
-					HORCELL + 1, VERTLINE + 2);
+	} else {
+
+		// Draw selection between selxcoord and selx2coord (if it exists)
+		if (curt->sel) {
+			if ((selxcoord != -1) && (selx2coord != -1)) {
+				int x1 = KMIN(selxcoord, selx2coord);
+				int wid = abs(selx2coord - selxcoord) + HORCELL + 1;
+				p->drawRect(x1, 0, wid, cellHeight());
+			} else if ((selxcoord == -1) && (selx2coord != -1)) {
+				if (curt->x > curt->lastColumn(bn))
+					p->drawRect(selx2coord, 0, cellWidth(), cellHeight());
+				else
+					p->drawRect(0, 0, selx2coord + HORCELL + 1, cellHeight());
+			} else if ((selxcoord != -1) && (selx2coord == -1)) {
+				if (curt->xsel > curt->lastColumn(bn))
+					p->drawRect(selxcoord, 0, cellWidth(), cellHeight());
+				else
+					p->drawRect(0, 0, selxcoord + HORCELL + 1, cellHeight());
+			} else { // both are -1
+				int x1 = KMIN(curt->x, curt->xsel);
+				int x2 = KMAX(curt->x, curt->xsel);
+				if ((x1 < curt->b[bn].start) && (x2 > curt->lastColumn(bn)))
+					p->drawRect(0, 0, cellWidth(), cellHeight());
+			}
+		}
+
+		// Draw original cursor (still inverted)
+		if (selxcoord != -1) {
+			p->drawRect(selxcoord, VERTSPACE + (s - curt->y) * VERTLINE - VERTLINE / 2 - 1,
+						HORCELL + 1, VERTLINE + 2);
+		}
 	}
 
 // 	p->setBrush(KGlobalSettings::baseColor());
@@ -1201,4 +1211,27 @@ void TrackView::mousePressEvent(QMouseEvent *e)
 		if (found)
 			repaintContents();
 	}
+}
+
+void TrackView::setX(int x)
+{
+	if (x < curt->c.size()) {
+		curt->x = x;
+		int oldxb = curt->xb;
+		curt->updateXB();
+		if (oldxb == curt->xb) {
+			repaintCurrentCell();
+		} else {
+			repaintContents();
+			ensureCurrentVisible();
+		}
+		emit columnChanged();
+		lastnumber = -1;
+	}
+}
+
+void TrackView::setPlaybackCursor(bool pc)
+{
+    playbackCursor = pc;
+	repaintContents();
 }
