@@ -39,6 +39,7 @@ ApplicationWindow::ApplicationWindow(): KTMainWindow()
     toolBar()->insertButton(openIcon,1,SIGNAL(clicked()),this,SLOT(load()),TRUE,"Open file");
     toolBar()->insertButton(saveIcon,1,SIGNAL(clicked()),this,SLOT(save()),TRUE,"Save file");
     toolBar()->insertButton(printIcon,1,SIGNAL(clicked()),this,SLOT(print()),TRUE,"Print tabulature");
+    toolBar()->insertSeparator();
     toolBar()->insertButton(chordIcon,1,SIGNAL(clicked()),this,SLOT(inschord()),TRUE,"Insert chord");
     
     QPopupMenu * file = new QPopupMenu();
