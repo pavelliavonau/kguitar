@@ -115,7 +115,7 @@ ApplicationWindow::ApplicationWindow(): KTMainWindow()
 	connect(recMenu, SIGNAL(activated(int)), SLOT(recentLoad(int)));
 	p->insertItem(i18n("Open &Recent"), recMenu);
 	recMenu->clear();
-	for (int i = 0; i < recentFiles.count(); i++)
+	for (uint i = 0; i < recentFiles.count(); i++)
 		recMenu->insertItem(recentFiles.at(i));
 
 	p->insertSeparator();
@@ -138,7 +138,7 @@ ApplicationWindow::ApplicationWindow(): KTMainWindow()
 	p->insertItem(i18n("&Print..."), this, SLOT(print()));
 	p->insertSeparator();
 	p->insertItem(i18n("&Close"), this, SLOT(closeDoc()));
-	p->insertItem(i18n("&Quit"), this, SLOT(appQuit())); //qApp, SLOT(quit()));
+	p->insertItem(i18n("&Quit"),  this, SLOT(appQuit()));  //qApp, SLOT(quit()));
 	menuBar()->insertItem(i18n("&File"), p);
 
 	p = new QPopupMenu();
@@ -198,6 +198,12 @@ ApplicationWindow::~ApplicationWindow()
 {
 	delete tv;
 	delete printer;
+}
+
+void ApplicationWindow::closeEvent(QCloseEvent *e)
+{
+	saveOptions();
+	KTMainWindow::closeEvent(e);
 }
 
 void ApplicationWindow::updateMenu()
@@ -428,7 +434,6 @@ void ApplicationWindow::closeDoc()
 
 void ApplicationWindow::appQuit()
 {
-	saveOptions();
 	closeDoc(); //ALINXFIX: exit(0) is impossible, because options will not be saved
 }
 

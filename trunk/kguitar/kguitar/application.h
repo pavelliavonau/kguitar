@@ -73,6 +73,9 @@ private:
 
 	void readOptions();
 	void saveOptions();
+
+protected:
+    virtual void closeEvent(QCloseEvent*);
 };
 
 
