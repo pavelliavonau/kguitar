@@ -69,13 +69,15 @@ int TabSong::freeChannel()
 }
 
 // Returns length of longest track in bars
-int TabSong::maxLen()
+uint TabSong::maxLen()
 {
-	int res = 0;
+	uint res = 0;
 
 	QListIterator<TabTrack> it(t);
 	for (; it.current(); ++it)
 		res = it.current()->b.size() > res ? it.current()->b.size() : res;
+
+	return res;
 }
 
 // KG format specs
