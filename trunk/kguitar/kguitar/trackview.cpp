@@ -1,12 +1,17 @@
 #include "trackview.h"
 #include "track.h"
 
+#include "timesig.h"
+
 #include <kapp.h>
 
 #include <qwidget.h>
 #include <qpainter.h>
 #include <qpen.h>
 #include <qkeycode.h>
+
+#include <qspinbox.h>
+#include <qcombobox.h>
 
 TrackView::TrackView(QWidget *parent,const char *name): QTableView(parent,name)
 {
@@ -93,7 +98,7 @@ void TrackView::paintCell(QPainter *p, int row, int col)
     for (i=0;i<=s;i++)
 	p->drawLine(0,VERTSPACE+(s-i)*VERTLINE,width(),VERTSPACE+(s-i)*VERTLINE);
 
-    int xpos=10,xdelta;
+    int xpos=40,xdelta;
 
     // Starting bars - very thick and thick one
 
@@ -101,26 +106,24 @@ void TrackView::paintCell(QPainter *p, int row, int col)
 	p->setBrush(SolidPattern);
 	p->drawRect(0,VERTSPACE,5,VERTLINE*s);
 	p->drawRect(8,VERTSPACE,2,VERTLINE*s);
-	xpos+=10;
     }
 
     // Time signature
 
     if (curt->b[bn].showsig) {
-	p->setFont(QFont("helvetica",18,QFont::Bold));
+	p->setFont(QFont("helvetica",TIMESIGSIZE,QFont::Bold));
 	tmp.setNum(curt->b[bn].time1);
-	p->drawText(xpos,VERTSPACE+VERTLINE*s/3,VERTLINE,VERTLINE,
-		    AlignCenter,tmp);
+	p->drawText(20,VERTSPACE+VERTLINE*s/3-TIMESIGSIZE/2,
+		    TIMESIGSIZE,TIMESIGSIZE,AlignCenter,tmp);
 	tmp.setNum(curt->b[bn].time2);
-	p->drawText(xpos,VERTSPACE+VERTLINE*s/3*2,VERTLINE,VERTLINE,
-		    AlignCenter,tmp);
-	xpos+=20;
+	p->drawText(20,VERTSPACE+VERTLINE*s*2/3-TIMESIGSIZE/2,
+		    TIMESIGSIZE,TIMESIGSIZE,AlignCenter,tmp);
     }
 
     p->setFont(QFont("helvetica",VERTLINE));
     p->setBrush(KApplication::getKApplication()->windowColor);
     
-    for (int t=curt->b[bn].start;t<=last;t++) {
+    for (uint t=curt->b[bn].start;t<=last;t++) {
 	// Drawing duration marks
 
         switch (curt->c[t].l) {
@@ -137,7 +140,7 @@ void TrackView::paintCell(QPainter *p, int row, int col)
 	    for (i=s;((i>=0) && (curt->c[t].a[i]==-1));i--);
 
 	    // If it's an empty measure at all - draw the vertical line from bottom
-	    if (i<0)  i=0;
+	    if (i<0)  i=1;
 
 	    p->drawLine(xpos+VERTLINE/2,VERTSPACE+VERTLINE*(s-i)+VERTLINE/2,
 			xpos+VERTLINE/2,BOTTOMDUR+VERTLINE);
@@ -185,6 +188,8 @@ void TrackView::paintCell(QPainter *p, int row, int col)
 	xpos+=xdelta;
     }
 
+    p->drawRect(xpos,VERTSPACE,1,VERTLINE*s);
+
     p->setBrush(SolidPattern);
 }
 
@@ -228,7 +233,7 @@ void TrackView::arrangeBars()
 
     curt->b[0].start=0;
 
-    for (int i=0;i<curt->c.size();i++) {
+    for (uint i=0;i<curt->c.size();i++) {
 	cbl+=curt->c[i].l;
 	if (cbl>barlen) {
 	    curt->b.resize(barnum+1);
@@ -248,6 +253,42 @@ void TrackView::arrangeBars()
 	}
     }
     updateRows();
+}
+
+void TrackView::insertColumn(int x)
+{
+    curt->c.resize(curt->c.size()+1);
+    for (uint i=curt->c.size()-1;i>x;i--)
+	curt->c[i]=curt->c[i-1];
+    for (uint i=0;i<MAX_STRINGS;i++)
+	curt->c[curt->x].a[i]=-1;
+}
+
+void TrackView::timeSig()
+{
+    SetTimeSig *sts = new SetTimeSig();
+
+    sts->time1->setValue(curt->b[curt->xb].time1);
+
+    switch (curt->b[curt->xb].time2) {
+    case 1:  sts->time2->setCurrentItem(0);break;
+    case 2:  sts->time2->setCurrentItem(1);break;
+    case 4:  sts->time2->setCurrentItem(2);break;
+    case 8:  sts->time2->setCurrentItem(3);break;
+    case 16: sts->time2->setCurrentItem(4);break;
+    case 32: sts->time2->setCurrentItem(5);break;
+    }
+
+    if (sts->exec()) {
+	int time1 = sts->time1->value();
+	int time2 = ((QString) sts->time2->currentText()).toUInt();
+
+	if ((time1!=curt->b[curt->xb].time1) ||
+	    (time2!=curt->b[curt->xb].time2)) {
+	    curt->b[curt->xb].time1 = time1;
+	    curt->b[curt->xb].time2 = time2;
+	}
+    }
 }
 
 void TrackView::keyPressEvent(QKeyEvent *e)
@@ -333,7 +374,7 @@ void TrackView::keyPressEvent(QKeyEvent *e)
 	break;
     case Key_Delete:
 	if (e->state()==ControlButton) {
-// 	    if (curt->c.count()>1) {          // GREYFIX - deletion of column
+// 	    if (curt->c.count()>1) {    // GREYFIX - deletion of column
 // 		curt->c.remove();
 // 		updateRows();
 // 	    }
@@ -341,7 +382,7 @@ void TrackView::keyPressEvent(QKeyEvent *e)
 	    curt->c[curt->x].a[curt->y]=-1;
 	break;
     case Key_Insert:
-// 	curt->c.insert(curt->c.at(),new TabColumn());
+	insertColumn(curt->x);
 	break;
     case Key_Plus:
 	if (curt->c[curt->x].l<480)

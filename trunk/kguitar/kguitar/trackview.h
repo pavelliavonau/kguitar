@@ -7,6 +7,7 @@
 #define VERTLINE 10
 #define HORDUR 4
 #define HORCELL 8
+#define TIMESIGSIZE 14
 
 #define BOTTOMDUR   VERTSPACE+VERTLINE*(s+1)
 
@@ -38,6 +39,7 @@ public slots:
     void setLength16() { setLength(30); };
     void setLength32() { setLength(15); };
     void arrangeBars();
+    void timeSig();
 
 protected:
     virtual void paintCell(QPainter *, int row, int col);    
@@ -47,6 +49,7 @@ protected:
 private:
     bool moveFinger(int from, int to);
     void setLength(int l);
+    void insertColumn(int x);
 
     TabSong *song;
     TabTrack *curt;
