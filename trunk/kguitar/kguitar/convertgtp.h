@@ -7,10 +7,10 @@
 class TabSong;
 
 /**
- * Converter to/from standard GTP files.
+ * Converter to/from Guitar Pro 4 files.
  *
  * Manages conversions of tabulatures between internal KGuitar
- * structures and GTP files.
+ * structures and GP4 files.
  */
 class ConvertGtp: public ConvertBase {
 public:
@@ -20,13 +20,13 @@ public:
 	ConvertGtp(TabSong *);
 
 	/**
-	 * Called to save current data from TabSong into GTP tabulature
+	 * Called to save current data from TabSong into GP4 tabulature
 	 * format file named fileName.
 	 */
 	virtual bool save(QString fileName);
 
 	/**
-	 * Called to load data from GTP tabulature format file named
+	 * Called to load data from GP4 tabulature format file named
 	 * fileName into TabSong.
 	 */
 	virtual bool load(QString fileName);
