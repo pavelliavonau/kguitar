@@ -422,7 +422,7 @@ void ConvertGtp::readTabs()
 				// Dump column
 				QString tmp = "";
 				for (int y = 0; y <= trk->string; y++) {
-					if (trk->c[x].a[y] == -1) {
+					if (trk->c[x].a[y] == NULL_NOTE) {
 						tmp += ".";
 					} else {
 						tmp += '0' + trk->c[x].a[y];
