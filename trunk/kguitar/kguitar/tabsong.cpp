@@ -590,7 +590,7 @@ bool TabSong::save_to_tex(QString fileName)
 	default: tsize = "\\largetabsize";
 		break;
 	}
-	tsize +="\n"; 
+	tsize += "\n"; 
 	
 	QListIterator<TabTrack>it(t);
 	TabTrack *trk=it.current();
@@ -599,10 +599,14 @@ bool TabSong::save_to_tex(QString fileName)
 	
 	flatnote = FALSE;
 	for (int i=0;i<trk->string;i++) {
-		nn[i]=note_name(trk->tune[i]%12);
+		nn[i] = note_name(trk->tune[i]%12);
 		if ((nn[i].contains("#",FALSE)==1) && (nn[i].length()==2)) {
-			nn[i]=nn[i].left(1)+"$\\sharp$";
-			flatnote=TRUE;
+			nn[i] = nn[i].left(1) + "$\\sharp$";
+			flatnote = TRUE;
+		}
+		if ((nn[i].contains("b",FALSE)==1) && (nn[i].length()==2)) {
+			nn[i] = nn[i].left(1) + "$\\flat$";
+			flatnote = TRUE;
 		}
 	}
 	
@@ -616,8 +620,8 @@ bool TabSong::save_to_tex(QString fileName)
 		tmp += "} \\quad \\tuning{3}{"+nn[1]+"} \\quad \\\\";
 		tmp += "\n";
 		tmp += "\\tuning{2}{"+nn[2];
-		tmp += "} \\quad \\tuning{4}{"+nn[0]+"}";   //Error at Bass (4 Strings) standart: 
-		tmp += "\n";                                // nn[0]="D" is not correct (alinx)
+		tmp += "} \\quad \\tuning{4}{"+nn[0]+"}"; //ALFIX: Error at Bass (4 Strings) 
+		tmp += "\n";                              //standart: nn[0]="D" is not correct
 	}
 
 	if (trk->string==5){
@@ -650,13 +654,13 @@ bool TabSong::save_to_tex(QString fileName)
 		return FALSE;
 	}
   
-	tmp+="}";
-	tmp+="\n";
+	tmp += "}";
+	tmp += "\n";
 
 	if (trk->string<4)
-		tmp="";
+		tmp = "";
 
-	for (int i=(trk->string-1);i>=0;i--){       // alinx - if it is an "D" you get an
+	for (int i=(trk->string-1);i>=0;i--){       // ALFIX:   if it is an "D" you get an
 		showstr += " ";                          //         error from TeX
 		showstr += note_name(trk->tune[i]%12);   //         I have to fix it....
 	}
@@ -681,7 +685,7 @@ bool TabSong::save_to_tex(QString fileName)
 
 	s << "%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%" << "\n";
 	s << "%" << "\n";
-	s << "% This MusiXTex File was created with KGuitar "<<VERSION<<"\n";
+	s << "% This MusiXTex File was created with KGuitar " << VERSION << "\n";
 	s << "%" << "\n";
 	s << "% You can download the latest version at:" << "\n";
 	s << "%          http://kguitar.sourceforge.net" << "\n";
@@ -706,16 +710,16 @@ bool TabSong::save_to_tex(QString fileName)
 	if (global_showpagenumb==FALSE)
 		s << "\\nopagenumbers" << "\n";
  
-	s << "\\fulltitle{"<<title<<"}";
+	s << "\\fulltitle{" << title << "}";
 	s << "\n";
-	s << "\\subtitle{\\svtpoint\\bf Author: "<<author<<"}" << "\n";
-	s << "\\author{Transcribed by: "<<transcriber;
+	s << "\\subtitle{\\svtpoint\\bf Author: " << author << "}" << "\n";
+	s << "\\author{Transcribed by: " << transcriber;
 	s << "\\\\%" << "\n";
-	s << "        Tempo: "<<tempo<<"}";
+	s << "        Tempo: " << tempo <<"}";
 	s << "\n";
 
 	if (global_showstr)
-		s<<tmp;
+		s << tmp;
 
 	s << "\\maketitle" << "\n";
 	s << "\n";
@@ -728,49 +732,51 @@ bool TabSong::save_to_tex(QString fileName)
 	s << "\n";
 
 	// TRACK DATA
-	int n=1;         // Trackcounter
+	int n = 1;       // Trackcounter
 	int cho;         // more than one string in this column
 	int trksize;
 	
 	for (;it.current();++it) { // For every track
 		TabTrack *trk = it.current();
 		
-		s << "Track "<<n<<": "<<trk->name;
+		s << "Track " << n << ": " << trk->name;
 		s << "\n";
-		s << "\\generalmeter{\\meterfrac{"<<trk->b[0].time1<<"}{"<<trk->b[0].time2<<"}}";
+		s << "\\generalmeter{\\meterfrac{" << trk->b[0].time1;
+		s << "}{" << trk->b[0].time2 << "}}";
 		s << "\n" << "\n"; // the 2nd LF is very important!!
-		s<<tsize;
+		s << tsize;
 		
 		if (global_showstr && (flatnote==FALSE))
-			s<<showstr;
+			s << showstr;
 		
 		s << "\\startextract" << "\n";
 		
 		// make here the tabs
 		
-		cho=0;
-		trksize=trk->c.size();
+		cho = 0;
+		trksize = trk->c.size();
 		QString tmpline;
 
 		for (int j=0;j<trksize;j++) { // for every column (j)
-			tmpline=notes;
+			tmpline = notes;
 			
 			for (int x=0;x<trk->string;x++)  // test how much tabs in this column
 				if (trk->c[j].a[x]>=0) cho++;
 
 			for (int x=0;x<trk->string;x++){
 				if ((trk->c[j].a[x]>=0) && (cho==1))
-					s<<notes<<tab(FALSE,((x-trk->string)*(-1)),trk->c[j].a[x]);
+					s << notes << tab(FALSE,((x-trk->string)*(-1)),trk->c[j].a[x]);
 				if ((trk->c[j].a[x]>=0) && (cho>1))
 					tmpline += tab(TRUE,((x-trk->string)*(-1)),trk->c[j].a[x]);
 			}
+
 			if (cho>1)
-				s<<tmpline;
-			if ((j+1)==trksize)   // Last time?		
+				s << tmpline;
+			if (((j+1)==trksize) && (cho>0))   // Last time?		
 				s << "\\sk\\en";
 			else
-				s << "\\en" << "\n";
-			cho=0;
+				if (cho>0) s << "\\en" << "\n";
+			cho = 0;
 		}                        //end of (j)
 		
 		s << "\n";
