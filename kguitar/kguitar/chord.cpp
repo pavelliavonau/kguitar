@@ -53,10 +53,6 @@ ChordSelector::ChordSelector(QWidget *parent=0, const char *name=0)
     fng->setGeometry(150,10,100,100);
     connect(fng,SIGNAL(chordChange()),SLOT(detectChord()));
 
-    firstFret = new QScrollBar(1,24-NUMFRETS,1,5,1,QScrollBar::Vertical,this);
-    firstFret->setGeometry(fng->x()+fng->width(),fng->y(),15,fng->height());
-    connect(firstFret,SIGNAL(valueChanged(int)),fng,SLOT(setFirstFret(int)));
-
     fnglist = new FingerList(this);
     fnglist->setGeometry(10,240,420,100);
     connect(fnglist,SIGNAL(chordSelected(const int *)),fng,SLOT(setFingering(const int *)));
