@@ -8,6 +8,8 @@
 
 #include <kglobalsettings.h>
 
+#define FRET_NUMBER_FONT_FACTOR 0.7
+
 FingerList::FingerList(TabTrack *p, QWidget *parent, const char *name)
 	: QGridView(parent, name)
 {
@@ -27,7 +29,19 @@ FingerList::FingerList(TabTrack *p, QWidget *parent, const char *name)
 	setMinimumSize(ICONCHORD + 2, ICONCHORD + 2);
 	resize(width(), 3 * ICONCHORD + 2);
 
+	fretNumberFont = new QFont(KGlobalSettings::generalFont());
+	if (fretNumberFont->pointSize() == -1) {
+		fretNumberFont->setPixelSize((int) ((double) fretNumberFont->pixelSize() * FRET_NUMBER_FONT_FACTOR));
+	} else {
+		fretNumberFont->setPointSizeFloat(fretNumberFont->pointSizeFloat() * FRET_NUMBER_FONT_FACTOR);
+	}
+
     repaint();
+}
+
+FingerList::~FingerList()
+{
+	delete fretNumberFont;
 }
 
 // Begins new "session" for fingering list, i.e. clears it and
@@ -89,6 +103,11 @@ void FingerList::mousePressEvent(QMouseEvent *e)
 	}
 }
 
+void FingerList::selectFirst()
+{
+    emit chordSelected(appl[0].f);
+}
+
 void FingerList::paintCell(QPainter *p, int row, int col)
 {
 	int n = row * perRow + col;
@@ -142,6 +161,7 @@ void FingerList::paintCell(QPainter *p, int row, int col)
 		if (firstFret > 1) {
 			QString fs;
 			fs.setNum(firstFret);
+			p->setFont(*fretNumberFont);
 			p->drawText(BORDER, BORDER + SCALE + 2 * SPACER, 50, 50,
 						AlignLeft | AlignTop, fs);
 		}
