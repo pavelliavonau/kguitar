@@ -105,16 +105,28 @@ void TrackView::resizeEvent(QResizeEvent *e)
     setCellHeight(VERTSPACE*2+VERTLINE*(curt->string()-1));
 }
 
-bool TrackView::moveFinger(int from, int to)
+bool TrackView::moveFinger(int from, int dir)
 {
-    int n=curt->c.at(curt->x)->a[from];
+    int n0=curt->c.at(curt->x)->a[from];
+    int n=n0;
     if (n<0)
 	return FALSE;
-    n=n+curt->tune(from)-curt->tune(to);
-    if (n<0)
-	return FALSE;
+
+    int to=from;
+
+    do {
+	to+=dir;
+	if ((to<0) || (to>=curt->string()))
+	    return FALSE;
+	n=n0+curt->tune(from)-curt->tune(to);
+	if (n<0)
+	    return FALSE;
+    } while (curt->c.at(curt->x)->a[to]!=-1);
+
     curt->c.at(curt->x)->a[from]=-1;
     curt->c.at(curt->x)->a[to]=n;
+
+    curt->y=to;
     return TRUE;
 }
 
@@ -134,16 +146,18 @@ void TrackView::keyPressEvent(QKeyEvent *e)
 	break;
     case Key_Down:
 	if (curt->y>0) {
-	    if ((e->state()==ControlButton) && (moveFinger(curt->y,curt->y-1)) ||
-		(e->state()!=ControlButton)) 
+	    if (e->state()==ControlButton)
+		moveFinger(curt->y,-1);
+	    else 
 		curt->y--;
 	}
 	break;
     case Key_Up:
 	if (curt->y<curt->string()-1) {
-	    if ((e->state()==ControlButton) && (moveFinger(curt->y,curt->y+1)) ||
-		(e->state()!=ControlButton)) 
-	    curt->y++;
+	    if (e->state()==ControlButton)
+		moveFinger(curt->y,1);
+	    else
+		curt->y++;
 	}
 	break;
     case Key_1:
