@@ -20,8 +20,7 @@
 
 // LVIFIX missing features:
 // effects
-// input error handling
-// number of strings
+// input error reporting
 // triplet handling
 
 // LVIFIX:
@@ -39,6 +38,7 @@
 // patch (== program): 0..127
 // KGuitar ???
 
+#include "global.h"
 #include "musicxml.h"
 #include "tabsong.h"
 #include "tabtrack.h"
@@ -50,7 +50,7 @@
 
 static QString kgNoteLen2Mxml(const int);
 static int mxmlSao2Kg(const QString&, const QString&, const QString&);
-static int mxmlStr2Kg(const int);
+static int mxmlStr2Kg(const int, const int);
 static int mxmlNoteType2Kg(const QString&);
 
 // convert KGuitar notelength to MusicXML note type
@@ -118,10 +118,9 @@ static int mxmlSao2Kg(const QString& mxmlStep,
 // MusicXML: 654321
 // KGuitar:  012345
 
-static int mxmlStr2Kg(const int mxmlStr)
+static int mxmlStr2Kg(const int mxmlStr, const int nStrings)
 {
-	// LVIFIX
-	return 6 - mxmlStr;
+	return nStrings - mxmlStr;
 }
 
 // convert MusicXML note type to KGuitar notelength
@@ -146,7 +145,6 @@ static int mxmlNoteType2Kg(const QString& mxmlNoteType)
 }
 
 // MusicXMLParser constructor
-// LVIFIX: replace 6 by #strings
 
 MusicXMLParser::MusicXMLParser(TabSong * tsp)
 	: QXmlDefaultHandler()
@@ -282,12 +280,17 @@ bool MusicXMLParser::endElement( const QString&, const QString&,
 		initStScorePart();
 		return res;
 	} else if (qName == "staff-lines") {
-		// LVIFIX set #strings on current track
-		// if >6, init tune[...]
-//    stPtn = stCha;
+		stPtn = stCha;
+		if (trk) {
+			int nStr = stPtn.toInt();
+			if ((nStr < 1) || (nStr > MAX_STRINGS))
+				nStr = MAX_STRINGS;
+			trk->string = nStr;
+		}
 	} else if (qName == "staff-tuning") {
 		if (trk) {
-			trk->tune[mxmlStr2Kg(stPtl.toInt())]
+			// LVIFIX: Check max_strings
+			trk->tune[mxmlStr2Kg(stPtl.toInt(), trk->string)]
 				= mxmlSao2Kg(stPts, "" /* LVIFIX */, stPto);
 		}
 	} else if (qName == "string") {
@@ -337,7 +340,8 @@ bool MusicXMLParser::addNote()
 	if (stCho && (x > 0)) {
 	    // chord with previous note (cannot be first note of track)
 	    if (!stRst) {
-		    trk->c[x-1].a[mxmlStr2Kg(stStr.toInt())] = stFrt.toInt();
+		    trk->c[x-1].a[mxmlStr2Kg(stStr.toInt(), trk->string)]
+			  = stFrt.toInt();
 		}
 		// LVIFIX: as KGuitar does not support notes of different length
 		// in a chord, length is set to the length of the shortest note
@@ -349,12 +353,12 @@ bool MusicXMLParser::addNote()
 		// single note or first note of chord
 		x++;
 		trk->c.resize(x);
-		for (int k = 0; k < 6; k++) {
+		for (int k = 0; k < trk->string; k++) {
 			trk->c[x-1].a[k] = -1;
 			trk->c[x-1].e[k] = 0;
 		}
 		if (!stRst) {
-			trk->c[x-1].a[mxmlStr2Kg(str)] = frt;
+			trk->c[x-1].a[mxmlStr2Kg(str, trk->string)] = frt;
 		}
 	    trk->c[x-1].l = len;
 	    trk->c[x-1].flags = (stDts ? FLAG_DOT : 0);
@@ -371,6 +375,9 @@ bool MusicXMLParser::addTrack()
 	// new track found, append it
 	// note: TabTracks contructor initializes all required member variables,
 	// tune[0..5] is set to guitar standard tuning
+	// LVIFIX (in tabtrack.cpp): init all other members of TabTrack.tune[]
+	// current code gives uninitialized tuning if #strings > 6, but no tuning
+	// specified
 	ts->t.append(new TabTrack(
 		FretTab,				// _tm LVIFIX: no support for drumtrack
 		stPnm,					// _name
@@ -560,7 +567,8 @@ void MusicXMLWriter::writeCol(QTextStream& os, TabTrack * trk, int x)
 			}
 			os << "\t\t\t\t<notations>\n";
 			os << "\t\t\t\t\t<technical>\n";
-			os << "\t\t\t\t\t\t<string>" << mxmlStr2Kg(i) << "</string>\n";
+			os << "\t\t\t\t\t\t<string>" << mxmlStr2Kg(i, trk->string)
+			   << "</string>\n";
 			os << "\t\t\t\t\t\t<fret>" << fret << "</fret>\n";
 			os << "\t\t\t\t\t</technical>\n";
 			os << "\t\t\t\t</notations>\n";
@@ -609,7 +617,7 @@ void MusicXMLWriter::writeStaffDetails(QTextStream& os, TabTrack * trk)
 	os << "\t\t\t\t\t<staff-lines>" << (int) trk->string << "</staff-lines>\n";
 	for (int i = 0; i < trk->string; i++) {
 		os << "\t\t\t\t\t<staff-tuning line=\""
-		   << mxmlStr2Kg(i) << "\">\n";
+		   << mxmlStr2Kg(i, trk->string) << "\">\n";
 		writePitch(os, trk->tune[i], "\t\t\t\t\t\t", "tuning-");
 		os << "\t\t\t\t\t</staff-tuning>\n";
 	}

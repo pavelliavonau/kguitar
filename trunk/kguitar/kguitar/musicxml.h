@@ -72,6 +72,7 @@ private:
 	QString stPnm;				// name
 	// tuning -- initialized in initStStaffTuning()
 	QString stPtl;				// tuning line
+	QString stPtn;				// tuning number of lines
 	QString stPto;				// tuning octave
 	QString stPts;				// tuning step
 };
