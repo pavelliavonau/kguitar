@@ -1,4 +1,5 @@
 #include "options.h"
+#include "globaloptions.h"
 
 #include <klocale.h>
 #include <kiconloader.h>
@@ -17,8 +18,8 @@
 #endif
 
 Options::Options(QWidget *parent = 0, char *name = 0, bool modal)
-	: KDialogBase(IconList, i18n("Preferences"), Ok|Cancel, Ok, parent, name,
-				  modal, TRUE)
+	: KDialogBase(IconList, i18n("Preferences"), Help|Default|Ok|Apply|Cancel, 
+				  Ok, parent, name, modal, TRUE)
 {
 	//Setup Tabs
 	setupTheoryTab();
@@ -27,6 +28,8 @@ Options::Options(QWidget *parent = 0, char *name = 0, bool modal)
 	setupAlsaTab();
 #endif
 	resize(530, 300);
+	connect(this, SIGNAL(defaultClicked()), SLOT(defaultBtnClicked()));
+	connect(this, SIGNAL(applyClicked()), SLOT(applyBtnClicked()));
 }
 
 void Options::setupTheoryTab()
@@ -204,4 +207,36 @@ void Options::fillAlsaBox()
 		}
 	}
 #endif
+}
+
+void Options::applyBtnClicked()
+{
+	if (maj7[0]->isChecked())  globalMaj7 = 0;
+	if (maj7[1]->isChecked())  globalMaj7 = 1;
+	if (maj7[2]->isChecked())  globalMaj7 = 2;
+
+	if (flat[0]->isChecked())  globalFlatPlus = 0;
+	if (flat[1]->isChecked())  globalFlatPlus = 1;
+
+	for (int i = 0; i <= 3; i++)
+		if (tabsize[i]->isChecked())  globalTabSize = i;
+
+	globalShowBarNumb = showbarnumb->isChecked();
+	globalShowStr = showstr->isChecked();
+	globalShowPageNumb = showpagenumb->isChecked();
+
+	if (expmode[0]->isChecked()) globalTexExpMode = 0;
+	if (expmode[1]->isChecked()) globalTexExpMode = 1;
+}
+
+void Options::defaultBtnClicked()
+{
+	maj7gr->setButton(0);
+	flatgr->setButton(0);
+
+	texsizegr->setButton(2);
+	showbarnumb->setChecked(TRUE);
+	showstr->setChecked(TRUE);
+	showpagenumb->setChecked(TRUE);
+	texexpgr->setButton(0);
 }
