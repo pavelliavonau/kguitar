@@ -16,6 +16,7 @@ public:
 public slots:
 	void repaintTrack(TabTrack *);
 	void repaintCurrentTrack();
+	void syncVerticalScroll(int, int);
 
 signals:
 	void trackSelected(TabTrack *);

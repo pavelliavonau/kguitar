@@ -91,6 +91,9 @@ SongView::SongView(KXMLGUIClient *_XMLGUIClient, KCommandHistory *_cmdHist,
 	connect(tv, SIGNAL(paneChanged()), tp, SLOT(update()));
 	connect(tv, SIGNAL(barChanged()), tp, SLOT(repaintCurrentTrack()));
 
+	// synchronize tracklist and trackpane at vertical scrolling
+	connect(tl, SIGNAL(contentsMoving(int, int)), tp, SLOT(syncVerticalScroll(int, int)));
+
 	// let higher-level widgets know that we have a changed song if it
 	// was changed in TrackView
 	connect(tv, SIGNAL(songChanged()), this, SIGNAL(songChanged()));

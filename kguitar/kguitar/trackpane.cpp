@@ -32,10 +32,10 @@ void TrackPane::updateList()
 }
 
 // Draws that pretty squares for track pane.
-void TrackPane::drawContents(QPainter *p, int clipx, int /*clipy*/, int clipw, int /*cliph*/)
+void TrackPane::drawContents(QPainter *p, int clipx, int clipy, int clipw, int /*cliph*/)
 {
 	int x1 = clipx / cellSide - 1;
-	int x2 = (clipx + clipw) / cellSide + 1;
+	int x2 = (clipx + clipw) / cellSide + 2;
 
 	int py = headerHeight;
 
@@ -51,6 +51,14 @@ void TrackPane::drawContents(QPainter *p, int clipx, int /*clipy*/, int clipw, i
 			px += cellSide;
 		}
 		py += cellSide;
+	}
+
+	// Draw header, covering some tracks if necessary
+	if (clipy < contentsY() + headerHeight) {
+		style().drawPrimitive(QStyle::PE_HeaderSection, p,
+		                      QRect(x1 * cellSide, contentsY(),
+		                            x2 * cellSide, contentsY() + headerHeight),
+		                      colorGroup());
 	}
 }
 
@@ -78,4 +86,9 @@ void TrackPane::repaintTrack(TabTrack *trk)
 void TrackPane::repaintCurrentTrack()
 {
 	repaintContents();
+}
+
+void TrackPane::syncVerticalScroll(int /* x */, int y)
+{
+	scrollBy(0, y - contentsY());
 }
