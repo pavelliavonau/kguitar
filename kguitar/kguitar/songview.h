@@ -5,6 +5,7 @@
 
 class TrackView;
 class TrackList;
+class TrackPane;
 class DeviceManager;
 class TabSong;
 class QSplitter;
@@ -19,6 +20,7 @@ public:
 
 	TrackView *tv;
 	TrackList *tl;
+	TrackPane *tp;
 
 	TabSong* sng() { return song; }
 
@@ -30,7 +32,7 @@ public slots:
 	void songProperties();
 
 private:
-	QSplitter *split;
+	QSplitter *split, *splitv;
 	DeviceManager *midi;
 	TabSong *song;
 };
