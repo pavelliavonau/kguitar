@@ -33,6 +33,13 @@ class QLabel;
 // 	static KInstance *s_instance;
 // };
 
+/**
+ * KGuitar KPart - main class of application, uses everything else.
+ *
+ * Deals mostly with basic KDE GUI and configuration stuff. Real
+ * editor is composed in SongView, that, in turn, is composed from
+ * several song editing widgets.
+ */
 class KGuitarPart: public KParts::ReadWritePart {
 	Q_OBJECT
 public:
@@ -107,7 +114,6 @@ private:
 	KCommandHistory* cmdHist;
 
 protected:
-    // reimplemented from ReadWritePart
     virtual bool openFile();
     virtual bool saveFile();
 };
