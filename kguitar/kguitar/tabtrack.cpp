@@ -123,6 +123,16 @@ Q_UINT16 TabTrack::currentBarDuration()
 	return dur;
 }
 
+// Returns a cumulative duration of all columns that belong to current
+// track, determined with track parameters
+int TabTrack::trackDuration()
+{
+	int dur = 0;
+	for (int i = 0; i < c.size(); i++)
+		dur += c[i].fullDuration();
+	return dur;
+}
+
 // Calculates and returns maximum current bar duration, based on time
 // signature
 Q_UINT16 TabTrack::maxCurrentBarDuration()
@@ -175,17 +185,216 @@ int TabTrack::noteNrCols(uint t, int i)
 	return 1;
 }
 
+// Returns the column number of the note that contains start time t
+// Sets dur to the offset of t within the column
+int TabTrack::findCStart(int t, int & dur)
+{
+	int res = -1;
+	int tstart = 0;
+	dur = 0;
+	if ((t < 0) || (t >= trackDuration()))
+		return -1;
+	for (int i = 0; i < c.size(); i++) {
+		if ((tstart <= t) && (t < (tstart + c[i].fullDuration()))) {
+			res = i;
+			dur = t - tstart;
+		}
+		tstart += c[i].fullDuration();
+	}
+	return res;
+}
+
+// Returns the column number of the note that contains end time t
+// Sets dur to the offset of t within the column
+int TabTrack::findCEnd(int t, int & dur)
+{
+	int res = -1;
+	int tstart = 0;
+	dur = 0;
+	if ((t <= 0) || (t > trackDuration()))
+		return -1;
+	for (int i = 0; i < c.size(); i++) {
+		if ((tstart < t) && (t <= (tstart + c[i].fullDuration()))) {
+			res = i;
+			dur = t - tstart;
+		}
+		tstart += c[i].fullDuration();
+	}
+	return res;
+}
+
+// Returns if string str is ringing at the start of column col
+bool TabTrack::isRingingAt(int str, int col)
+{
+	int bn = barNr(col);
+	bool res = false;
+	for (int i = b[bn].start; i < col; i++) {
+		if ((c[i].a[str] >= 0) || (c[i].e[str] == EFFECT_STOPRING)) {
+			res = false;
+		}
+		if ((c[i].a[str] >= 0) && (c[i].e[str] == EFFECT_LETRING)) {
+			res = true;
+		}
+	}
+	return res;
+}
+
+/*
+// LVIFIX: remove this
+void dumpCols(TabTrack * trk)
+{
+	cout << "column duration:";
+	for (int i = 0; i < trk->c.size(); i++) {
+		cout << " " << trk->c[i].fullDuration();
+	}
+	cout << endl;
+}
+*/
+
 // Inserts n columns at current cursor position
 void TabTrack::insertColumn(int n)
 {
+//	cout << "TabTrack::insertColumn(" << n << ") x=" << x << endl;
 	c.resize(c.size() + n);
-	for (int i = c.size() - n; i > x; i--)
+	for (int i = c.size() - n; i > x; i--) {
+//		cout << "copy column " << i - n << " to column " << i << endl;
 		c[i] = c[i - n];
-	for (int i = 0; i < n; i++)
+	}
+	for (int i = 0; i < n; i++) {
+//		cout << "initialize column " << x + i << endl;
 		for (int j = 0; j < MAX_STRINGS; j++) {
 			 c[x + i].a[j] = -1;
-			 c[x + i].e[i] = 0;
+			 c[x + i].e[j] = 0;
 		}
+	}
+}
+
+// Inserts column(s) such that a note can start at ts and end at te
+// Sets current position to starting column
+// Returns note duration in columns
+// Ignores bar structure, therefore use only in last bar
+int TabTrack::insertColumn(int ts, int te)
+{
+//	cout << "TabTrack::insertColumn("
+//		<< ts << ", " << te << ")" << endl;
+	int cstart;
+	int cend;
+	int dur;
+	int res = 0;
+
+	if ((ts<0) || (te<=ts)) {
+		// LVIFIX: report error ?
+//		cout << "TabTrack::insertColumn() -> input error" << endl;
+		return -1;
+	}
+
+	int td = trackDuration();
+//	cout << "td=" << td << endl;
+	if (ts > td) {
+//		cout << "TabTrack::insertColumn() ->"
+//			<< " ts > td, append rest: " << ts - td
+//			<< endl;
+		x = c.size();
+		insertColumn(1);
+		c[x].flags = 0;
+		c[x].setFullDuration(ts - td);
+//		cout << "stop ringing:";
+		for (int j = 0; j < MAX_STRINGS; j++) {
+			if (isRingingAt(j, x)) {
+//				cout << " " << j;
+				c[x].e[j] = EFFECT_STOPRING;
+			}
+		}
+//		cout << endl;
+//		cout << "after append: ";
+//		dumpCols(this);
+		td = ts;
+	}
+	if (te > td) {
+//		cout << "TabTrack::insertColumn() ->"
+//			<< " te > td, append column: " << te - td
+//			<< endl;
+		x = c.size();
+		insertColumn(1);
+		c[x].flags = 0;
+		c[x].setFullDuration(te - td);
+//		cout << "stop ringing:";
+		for (int j = 0; j < MAX_STRINGS; j++) {
+			if (isRingingAt(j, x)) {
+//				cout << " " << j;
+				c[x].e[j] = EFFECT_STOPRING;
+			}
+		}
+//		cout << endl;
+//		cout << "after append: ";
+//		dumpCols(this);
+		td = te;
+	}
+	// find starting column
+//	cout << "TabTrack::insertColumn() ->"
+//		<< " find starting column";
+	cstart = findCStart(ts, dur);
+//	cout
+//		<< " cstart=" << cstart
+//		<< " dur=" << dur
+//		<< endl;
+	if (dur > 0) {
+		splitColumn(cstart, dur);
+		cstart++;
+//		cout << "after split start: ";
+//		dumpCols(this);
+	}
+	// find ending column
+//	cout << "TabTrack::insertColumn() ->"
+//		<< " find ending column";
+	cend = findCEnd(te, dur);
+//	cout
+//		<< " cend=" << cend
+//		<< " dur=" << dur
+//		<< endl;
+	if (dur < c[cend].fullDuration()) {
+		splitColumn(cend, dur);
+//		cout << "after split end: ";
+//		dumpCols(this);
+	}
+
+	x = cstart;
+	res = cend - cstart + 1;		
+//	cout << "TabTrack::insertColumn() ->"
+//		<< " x=" << x
+//		<< " res=" << res
+//		<< endl;
+	return res;
+}
+
+// Split column col at dur
+void TabTrack::splitColumn(int col, int dur)
+{
+	if ((col < 0) || (c.size() <= col))
+		return;
+	int prevdur = c[col].fullDuration();
+	if ((dur < 0) || (prevdur <= dur))
+		return;
+	x = col + 1;
+	insertColumn(1);
+	c[x - 1].setFullDuration(dur);
+	c[x].flags = 0;
+	c[x].setFullDuration(prevdur - dur);
+	// set existing notes ringing
+	for (int j = 0; j < MAX_STRINGS; j++) {
+		if (c[x - 1].a[j] >= 0) {
+			c[x - 1].e[j] = EFFECT_LETRING;
+		}
+	}
+	// stop ringing at column x+1 (if it exists)
+	// needed only if x-1 has note and x+1 hasn't
+	if (x < (c.size() - 1)) {
+		for (int j = 0; j < MAX_STRINGS; j++) {
+			if ((c[x - 1].a[j] >= 0) && (c[x + 1].a[j] < 0)) {
+				c[x + 1].e[j] = EFFECT_STOPRING;
+			}
+		}
+	}
 }
 
 // Removes n columns starting with current cursor position

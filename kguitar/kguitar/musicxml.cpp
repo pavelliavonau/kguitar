@@ -209,6 +209,8 @@ bool MusicXMLParser::startDocument()
 	// do note re-init between measures
 	stBts = "4";
 	stBtt = "4";
+	stDiv = "";
+	iDiv = 0;
 	return TRUE;
 }
 
@@ -233,7 +235,7 @@ bool MusicXMLParser::startElement( const QString&, const QString&,
 		// if not first bar: copy attributes from previous bar
 		// note: first bar's default attributes set in TabTrack's constructor
 		// LVIFIX: maybe don't add first measure here
-		// (already done in TabTrack's constructor)
+		// (already done in TabTrack's constructor) ?
 		if (trk) {
 			bar++;
 			trk->b.resize(bar);
@@ -243,6 +245,7 @@ bool MusicXMLParser::startElement( const QString&, const QString&,
 				trk->b[bar-1].time2=trk->b[bar-2].time2;
 			}
 		}
+		tStartCur = -1;			// undefined
     } else if (qName == "note") {
     	// re-init note specific variables
 		initStNote();
@@ -265,6 +268,7 @@ bool MusicXMLParser::startElement( const QString&, const QString&,
 			bar = 0;
 			ts->t.at(index);
 			trk = ts->t.current();
+			tEndCur = 0;
 		}
 	} else if (qName == "pull-off") {
 		QString tp = attributes.value("type");
@@ -308,6 +312,9 @@ bool MusicXMLParser::endElement( const QString&, const QString&,
 			trk->b[bar-1].time1=stBts.toInt();
 			trk->b[bar-1].time2=stBtt.toInt();
 		}
+	} else if (qName == "backup") {
+		tStartCur = -1;
+		tEndCur -= stDur.toInt() * 120 / iDiv;
 	} else if (qName == "beats") {
 	    stBts = stCha;
 	} else if (qName == "beat-type") {
@@ -316,10 +323,21 @@ bool MusicXMLParser::endElement( const QString&, const QString&,
 	    stCho = TRUE;
 	} else if (qName == "creator") {
 	    stCrt = stCha;
+	} else if (qName == "divisions") {
+	    stDiv = stCha;
+		iDiv = stDiv.toInt();
+		if (iDiv <= 0) {
+			cout << "illegal divisions value: " << stDiv << endl;
+		}
 	} else if (qName == "dot") {
 	    stDts++;
+	} else if (qName == "duration") {
+	    stDur = stCha;
 	} else if (qName == "encoder") {
 	    stEnc = stCha;
+	} else if (qName == "forward") {
+		tStartCur = -1;
+		tEndCur += stDur.toInt() * 120 / iDiv;
 	} else if (qName == "fret") {
 	    stFrt = stCha;
 	} else if (qName == "identification") {
@@ -327,6 +345,13 @@ bool MusicXMLParser::endElement( const QString&, const QString&,
 		ts->author      = stCrt;
 		ts->transcriber = stEnc;
 		ts->comments    = "";
+	} else if (qName == "measure") {
+		// forward to end of track in case of incomplete last voice
+		int td = trk->trackDuration();
+		if (tEndCur < td) {
+			tEndCur = td;
+			x = trk->c.size();
+		}
 	} else if (qName == "midi-bank") {
 	    stPmb = stCha;
 	} else if (qName == "midi-channel") {
@@ -431,41 +456,24 @@ bool MusicXMLParser::addNote()
 	}
 
 	// append note to current track
-	if (!stCho || (x == 0)) {
-		// single note or first note of track: add a new column
-		x++;
-		trk->c.resize(x);
-		// initialize it
-		for (int k = 0; k < trk->string; k++) {
-			trk->c[x-1].a[k] = -1;
-			trk->c[x-1].e[k] = 0;
+	if (stCho) {
+		if (tStartCur < 0) {
+			// LVIFIX: report error ?
+			cout << "<chord> at start of measure of after backup/forward"
+				<< endl;
+			// pretend to be appending
+			tStartCur = tEndCur;
 		}
-	    trk->c[x-1].l = len;
-		trk->c[x-1].flags = nnFlags;
+		tEndCur = tStartCur + nnDur;
 	} else {
+		tStartCur = tEndCur;
+		tEndCur += nnDur;
+	}
+	int ncols = trk->insertColumn(tStartCur, tEndCur);
+	x = trk->x + 1;
 
-		// note is part of existing column
-
-		// LVIFIX: as KGuitar does not support notes of different length
-		// in a chord, length is set to the length of the shortest note
-		// note: use duration of note including dot and triplet
-		//       shortest note also determines column's dot and triplet flag
-
-		int ccDur = trk->c[x-1].l;			// current column duration
-		uint ccFlags = trk->c[x-1].flags;	// current column flags
-		if (ccFlags & FLAG_DOT) {
-			ccDur = ccDur * 3 / 2;
-		}
-		if (ccFlags & FLAG_TRIPLET) {
-			ccDur = ccDur * 2 / 3;
-		}
-		if (nnDur < ccDur) {
-	      trk->c[x-1].l = len;
-		  ccFlags &= ~FLAG_DOT;
-		  ccFlags &= ~FLAG_TRIPLET;
-		  ccFlags |= nnFlags;
-		  trk->c[x-1].flags = ccFlags;
-		}
+	if (stRst) {
+		cout << "rest, l=" << len << endl;
 	}
 
 	// if not rest or tie: fill in fret (if rest: frets stay -1)
@@ -493,6 +501,17 @@ bool MusicXMLParser::addNote()
 		// LVIFIX: check valid range for frt and str
 		int kgStr = mxmlStr2Kg(str, trk->string);
 		trk->c[x-1].a[kgStr] = frt;
+		// if note spans multiple columns, then set ringing
+		if (ncols > 1) {
+			trk->c[x-1].e[kgStr] = EFFECT_LETRING;
+			// stop ringing at column x+ncols-1 (if it exists)
+			// needed only if x-1 has note and x+ncols-1 hasn't
+			if (x < (trk->c.size() - ncols + 1)) {
+				if (trk->c[x+ncols-1].a[kgStr] < 0) {
+					trk->c[x+ncols-1].e[kgStr] = EFFECT_STOPRING;
+				}
+			}
+		}
 		// handle slide, hammer-on and pull-off
 		// last two get higher priority
 		// (EFFECT_LEGATO overwrites EFFECT_SLIDE)
@@ -524,7 +543,7 @@ bool MusicXMLParser::addTrack()
 	// LVIFIX (in tabtrack.cpp): init all other members of TabTrack.tune[]
 	// current code gives uninitialized tuning if #strings > 6, but no tuning
 	// specified
-	ts->t.append(new TabTrack(
+	TabTrack * trk = new TabTrack(
 		FretTab,				// _tm LVIFIX: no support for drumtrack
 		stPnm,					// _name
 		stPmc.toInt(),			// _channel
@@ -532,7 +551,12 @@ bool MusicXMLParser::addTrack()
 		stPmp.toInt(),			// _patch (=program)
 		6,						// _string (default value)
 		24						// _frets (default value)
-	));
+	);
+	ts->t.append(trk);
+	// don't want any columns yet, as that would interfere
+	// with the first note's timing
+	// LVIFIX: add a single column to empty tracks after loading mxml
+	trk->c.resize(0);
 	// remember part id to track nr mapping
 	QString *sp = new QString(stPid);
 	int sz = partIds.size();
@@ -549,6 +573,7 @@ void MusicXMLParser::initStNote()
 	stAno = "";
 	stCho = FALSE;
 	stDts = 0;
+	stDur = "";
 	stFrt = "";
 	stGls = FALSE;
 	stHmr = FALSE;

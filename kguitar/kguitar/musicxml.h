@@ -52,6 +52,9 @@ private:
 	int x;						// current column
 	int bar;					// current bar
 	Accidentals accSt;			// accidental state
+	int iDiv;					// divisions
+	int tStartCur;				// start time current note
+	int tEndCur;				// end time current note
 
 	// state variables for parsing
 	// general -- initialized in startDocument()
@@ -63,11 +66,13 @@ private:
 	// measure -- initialized in startDocument()
 	QString stBts;				// beats
 	QString stBtt;				// beat-type
-	// note -- initialized in initStNote()
+	QString stDiv;				// divisions
+	// note (including forward/backup) -- initialized in initStNote()
 	QString stAlt;				// alter
 	QString	stAno;				// actual notes
 	bool    stCho;				// chord with previous note
 	int     stDts;				// dots (count)
+	QString stDur;				// duration
 	QString stFrt;				// fret
 	bool    stGls;				// glissando
 	bool    stHmr;				// hammer-on
