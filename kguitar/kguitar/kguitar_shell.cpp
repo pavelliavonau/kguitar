@@ -79,7 +79,7 @@ KGuitarShell::KGuitarShell()
 	showStatusbarAct = KStdAction::showStatusbar(this, SLOT(slotShowStatusBar()),
 	                                             actionCollection(), "tog_statusbar");
 
-	showMelodyEditorAct = new KToggleAction(i18n("Show Melody Editor"),
+	showMelodyEditorAct = new KToggleAction(i18n("Show Melody Editor"), "melodyeditor",
 	                                        KAccel::stringToKey("Shift+M"),
 	                                        this, SLOT(slotShowMelodyEditor()),
 	                                        actionCollection(), "view_melodyEditor");
@@ -254,7 +254,7 @@ void KGuitarShell::slotShowMelodyEditor()
 	if (showMelodyEditorAct->isChecked())
 		m_kgpart->sv->me->show();
 	else
-		m_kgpart->sv->me->show();
+		m_kgpart->sv->me->hide();
 }
 
 void KGuitarShell::slotToggleMainTB()
