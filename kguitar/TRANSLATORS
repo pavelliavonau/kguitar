@@ -1,0 +1,185 @@
+=================================
+Web site translation instructions
+=================================
+
+General information:
+
+Every major page file is named PAGENAME.LANGUAGE.php, with exception
+of english, that's named PAGENAME.php. Each page begins with a including
+a header and ends with including a footer php file. The footer and
+header, are header.LANGUAGE.php and footer.LANGUAGE.php respectively.
+
+English is considered the default official project language and
+everything should be updated in English first, and *then* in other
+languages.
+
+On a given file, special script in i18n.php checks if the translation
+file modification date is earlier than original english document
+modification date, and, if it is true, that means that translation is
+outdated and a special message would be included in the document,
+informing the site visitor that the translation is outdated.
+
+That "outdated" warning message is in the file warning.LANGUAGE.html.
+Be sure to make a translation from warning.html.
+
+Adding new translation:
+
+0) Download the whole website from the host shell.sourceforge.net,
+directory /home/groups/kguitar/htdocs/. The easiest way to do it, I
+guess, is making a tarball (or .tar.bz2) from the whole site on that
+host and then downloading it via accessing
+http://kguitar.sourceforge.net/site-tarball.tar.gz or whatever.
+
+1) Add your language 2-letter code in i18n.php file, using the same
+format of link <A CLASS=... blah-blah-blah>, pointing to your language
+file. Ignore the PHP script, it is made to allow i18n.php to make links
+to pages CURRENTPAGE.VARIOUSLANGUAGES.php. Add you language in the
+alphabetical order to be most neutral.
+
+2) Translate every file PAGENAME.php (that's an english version) in
+file PAGENAME. Specials cases:
+
+	a) Don't touch GPL, leave it as is (in english)
+	b) Don't touch dates on the news page. They're pretty
+	international and don't need to be translated.
+	c) Don't touch any abbreviations, such as BTW, AFAIR and other
+	usenet common cludges. Leave it as is.
+
+3) Translate warning.LANGUAGE.php from warning.html (I know that
+warning.html is useless, it's only for translators purposes).
+
+4) Upload the new translation to shell.sourceforge.net, in the same
+directory. You should overwrite only 1 file - i18n.php. It's most
+convinient to use "scp" to upload files via secure connection.
+
+5) Set the proper permissions and owners on your files. Any file should
+be 664 (rw-rw-r--) and have you as the owner (your unixname) and
+"kguitar" as group owner. Any directory should be 775 (rwxrwxr-x). So,
+don't forget to do:
+
+	chgrp kguitar *
+	chmod 664 *.YOURLANGUAGE.php	
+
+Updating website:
+
+Any member of project have a right to update the page he needs to (don't
+update the pages very often, though). If any member of a project updates
+a page, he should:
+
+1) Update english version first
+2) Update any national versions he maintains
+3) Upload his files (don't forget to check the permissions).
+4) Post the "translation request" on kguitar-devel maillist for other
+translations to update the webpage in their languages.
+
+Any translator that would get the translation request should update the
+local copy of english webpage on his disc, translate the requested
+page and the upload his national page back to website.
+
+Rules of thumb:
+
+1) Don't overwrite files that don't belong to you. Don't occassionally
+overwrite the other language's translation files. The only files you
+should touch are your files and english files.
+2) Always check the file permissions. If you'll leave the file
+unwritable to everybody but you and then you'll occasionally quit the
+internet that would be a *bad* thing...
+3) When updating, always update the english translation.
+4) Try to keep your translation as up-to-date as possible. It's not
+terrible, however, if you couldn't update it as soon as you'll receive
+the translation request - just add it to your "todo" list and do it
+when you'd have time.
+
+=============================
+NLS localization instructions
+=============================
+
+General information:
+--------------------
+
+Official language is english. Every string in program should be in
+english, including comments, program's messages, any printout, etc,
+etc. Translation would be done internally by KDE with the help of .po
+translation files.
+
+Requirements:
+-------------
+
+Just install some sort of gettext package. I bet almost everybody has
+it installed already.
+
+Coders:
+-------
+
+Just add i18n() call to every string that need to be translated (i.e.
+it's not a special music or whatever term that's always in latin words
+or something like that. For example: instead of string "&Chord..." 
+write i18n("&Chord...")
+
+This way it would be easy to rip out all the strings that need
+translation from sources.
+
+If you're including an i18n() call into any source, don't forget to do
+#include <klocale.h>, as i18n() is defined in klocale.h file.
+
+Translators - new translation:
+------------------------------
+
+Do the following: (assuming you're in the kguitar directory)
+1) do "cd kguitar"
+2) do "make messages"
+3) do "cd ../po"
+4) open your text editor with Makefile.am
+5) add YOURLANGUAGECODE.gmo to GMOFILES entry in the first string;
+   *please* use the alphabetic order of languages - that would
+   minimize possible hazards.
+6) copy kguitar.pot to YOURLANGUAGECODE.po
+
+Now you have a clean untranslated template to translate. Proceed to the
+"editing translation" section.
+
+Translators - editing translation:
+----------------------------------
+
+Open the file "YOURLANGUAGECODE.po". Fill the header properly - don't
+leave it untouched. It *is* important for official stuff.
+
+Then the translation itself. It's easy - just enter the translation in
+your language in empty quotes "" in msgstr lines, don't touch msgid
+lines - they're for reference.
+
+Please try to follow the style that your KDE language team
+follows. Use all the words it uses... Or we'll end up with a bunch of
+programs translated by a lot of people without a single standard. You
+won't get a clue if a what one program calls "files" is the same thing
+that other program calls "documents" or whatever... So, please be
+careful and accurate with translation. Remember: it's up to you to
+keep the translation clean and nice.
+
+After editing, do "make" and "make install" in po directory.
+
+Translators - updating translation:
+-----------------------------------
+
+As the program updates, new strings to translate would emerge. They
+would show up untranslated in program. To update your translation do
+two pretty simple things:
+
+1) do "make messages" in kguitar sources directory
+2) do "make merge" in po directory
+
+It would merge new untranslated strings in your po file. Just search
+for untranslated strings there now (like search for "") and translate
+'em.
+
+=================
+MISC TRANSLATIONS
+=================
+
+Here's a list of what else needs to be translated:
+
+1) File "kguitar/kguitar.desktop" - add a line with
+
+   Comment[yourlanguagecode]=Translation of description
+
+2)
