@@ -161,10 +161,29 @@ public slots:
 	void viewScore(bool);
 
 signals:
-	void statusBarChanged();
 	void paneChanged();
+	/**
+	 * Emitted when other track became current and visible, i.e. curt
+	 * itself is changed.
+	 */
 	void trackChanged(TabTrack *);
+	/**
+	 * Emitted when other column became current, i.e. curt->x is
+	 * changed.
+	 */
 	void columnChanged();
+	/**
+	 * Emitted when other bar became current, i.e. curt->xb is
+	 * changed. Updates status bar's "current bar" and track pane's
+	 * current bar cursor.
+	 */
+	void barChanged();
+	/**
+	 * Emitted when something changed in a song that will be lost
+	 * without saving. Any executed commands, any changes in
+	 * tabulatures or song- or track-wide options trigger this
+	 * thing. Usually it updates "document modified" flag.
+	 */
 	void songChanged();
 
 protected:
