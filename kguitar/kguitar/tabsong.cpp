@@ -639,8 +639,11 @@ bool TabSong::save_to_tex(QString fileName)
     tmp += "} \\quad \\tuning{6}{"+nn[0]+"}";
     tmp += "\n";
   }
-  if (trk->string==7){
-    return FALSE;       /* alinx - tabdefs.tex can handle only 6 strings*/
+  if (trk->string>=7){
+    s<<"Sorry, but MusiXTeX/tabdefs.tex has only 6 tablines"<<"\n";
+    s<<"\\end"<<"\n";
+    f.close();
+    return FALSE;
   }
   
   tmp+="}";
