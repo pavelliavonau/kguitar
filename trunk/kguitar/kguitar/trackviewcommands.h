@@ -1,23 +1,16 @@
-/*
-  Undo/Redo commands for TrackView
-*/
 #ifndef TRACKVIEWCOMMANDS_H
 #define TRACKVIEWCOMMANDS_H
 
 #include "global.h"
 #include "tabtrack.h"
-
+#include "trackview.h"
 #include <kcommand.h>
-#include <klocale.h>
-
-class TabTrack;
-class TrackView;
 
 // Set the duration for the notes
-class SetLengthCommand : public KNamedCommand {
+class TrackView::SetLengthCommand: public KNamedCommand {
 public:
 	SetLengthCommand(TrackView *_tv, TabTrack *&_trk, int l);
-	virtual ~SetLengthCommand();
+	virtual ~SetLengthCommand() {};
 
 	virtual void execute();
 	virtual void unexecute();
@@ -30,12 +23,11 @@ private:
 	TrackView *tv;
 };
 
-
 // Insert tabs from keyboard
-class InsertTabCommand : public KNamedCommand {
+class TrackView::InsertTabCommand: public KNamedCommand {
 public:
 	InsertTabCommand(TrackView *_tv, TabTrack *&_trk, int t);
-	virtual ~InsertTabCommand();
+	virtual ~InsertTabCommand() {};
 
 	virtual void execute();
 	virtual void unexecute();
@@ -49,10 +41,10 @@ private:
 };
 
 // Moves the finger
-class MoveFingerCommand : public KNamedCommand {
+class TrackView::MoveFingerCommand: public KNamedCommand {
 public:
 	MoveFingerCommand(TrackView *_tv, TabTrack *&_trk, int _from, int _to, int _tune);
-	virtual ~MoveFingerCommand();
+	virtual ~MoveFingerCommand() {};
 
 	virtual void execute();
 	virtual void unexecute();
@@ -65,10 +57,10 @@ private:
 };
 
 // Add FX
-class AddFXCommand : public KNamedCommand {
+class TrackView::AddFXCommand: public KNamedCommand {
 public:
 	AddFXCommand(TrackView *_tv, TabTrack *&_trk, char _fx);
-	virtual ~AddFXCommand();
+	virtual ~AddFXCommand() {};
 
 	virtual void execute();
 	virtual void unexecute();
@@ -82,10 +74,10 @@ private:
 };
 
 // Set a flag
-class SetFlagCommand : public KNamedCommand {
+class TrackView::SetFlagCommand: public KNamedCommand {
 public:
 	SetFlagCommand(TrackView *_tv, TabTrack *&_trk, int _flag);
-	virtual ~SetFlagCommand();
+	virtual ~SetFlagCommand() {};
 
 	virtual void execute();
 	virtual void unexecute();
@@ -101,10 +93,10 @@ private:
 };
 
 // Delete Note
-class DeleteNoteCommand : public KNamedCommand {
+class TrackView::DeleteNoteCommand : public KNamedCommand {
 public:
 	DeleteNoteCommand(TrackView *_tv, TabTrack *&_trk);
-	virtual ~DeleteNoteCommand();
+	virtual ~DeleteNoteCommand() {};
 
 	virtual void execute();
 	virtual void unexecute();
@@ -119,10 +111,10 @@ private:
 };
 
 // Add a column at end of track
-class AddColumnCommand : public KNamedCommand {
+class TrackView::AddColumnCommand: public KNamedCommand {
 public:
 	AddColumnCommand(TrackView *_tv, TabTrack *&_trk);
-	virtual ~AddColumnCommand();
+	virtual ~AddColumnCommand() {};
 
 	virtual void execute();
 	virtual void unexecute();
@@ -136,11 +128,11 @@ private:
 };
 
 // Delete column
-class DeleteColumnCommand : public KNamedCommand {
+class TrackView::DeleteColumnCommand: public KNamedCommand {
 public:
 	DeleteColumnCommand(TrackView *_tv, TabTrack *&_trk);
 	DeleteColumnCommand(QString name, TrackView *_tv, TabTrack *&_trk);
-	virtual ~DeleteColumnCommand();
+	virtual ~DeleteColumnCommand() {};
 
 	virtual void execute();
 	virtual void unexecute();
@@ -155,10 +147,10 @@ private:
 };
 
 // Set time sig
-class SetTimeSigCommand : public KNamedCommand {
+class TrackView::SetTimeSigCommand : public KNamedCommand {
 public:
 	SetTimeSigCommand(TrackView *_tv, TabTrack *&_trk, bool _toend, int _time1, int _time2);
-	virtual ~SetTimeSigCommand();
+	virtual ~SetTimeSigCommand() {};
 
 	virtual void execute();
 	virtual void unexecute();
@@ -172,10 +164,10 @@ private:
 };
 
 // Insert a column at cursor pos
-class InsertColumnCommand : public KNamedCommand {
+class TrackView::InsertColumnCommand: public KNamedCommand {
 public:
 	InsertColumnCommand(TrackView *_tv, TabTrack *&_trk);
-	virtual ~InsertColumnCommand();
+	virtual ~InsertColumnCommand() {};
 
 	virtual void execute();
 	virtual void unexecute();
@@ -188,10 +180,10 @@ private:
 };
 
 // Insert strum
-class InsertStrumCommand : public KNamedCommand {
+class TrackView::InsertStrumCommand: public KNamedCommand {
 public:
 	InsertStrumCommand(TrackView *_tv, TabTrack *&_trk, int _sch, int *_chord);
-	virtual ~InsertStrumCommand();
+	virtual ~InsertStrumCommand() {};
 
 	virtual void execute();
 	virtual void unexecute();
@@ -205,10 +197,10 @@ private:
 	TrackView *tv;
 };
 
-#include <qlistbox.h>
+class QListBox;
 
 // Insert rhythm from rhythmer
-class InsertRhythm: public KNamedCommand {
+class TrackView::InsertRhythm: public KNamedCommand {
 public:
 	InsertRhythm(TrackView *_tv, TabTrack *&_trk, QListBox *quantized);
 
