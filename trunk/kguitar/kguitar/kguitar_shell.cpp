@@ -22,6 +22,7 @@
 #include "trackview.h"
 #include "trackdrag.h"
 #include "tabsong.h"
+#include "melodyeditor.h"
 
 KGuitarShell::KGuitarShell()
 {
@@ -58,7 +59,7 @@ KGuitarShell::KGuitarShell()
 	(void) KStdAction::quit(this, SLOT(slotQuit()), actionCollection(), "file_quit");
 
 	browserAct = new KAction(i18n("Browser..."), KAccel::stringToKey("Shift+B"), this,
-							 SLOT(openBrowser()), actionCollection(), "open_browser");
+	                         SLOT(openBrowser()), actionCollection(), "open_browser");
 
 	// Cut-n-Paste
 	(void) KStdAction::cut(m_kgpart->sv, SLOT(slotCut()), actionCollection(), "edit_cut");
@@ -67,16 +68,21 @@ KGuitarShell::KGuitarShell()
 	(void) KStdAction::selectAll(m_kgpart->sv, SLOT(slotSelectAll()), actionCollection(), "edit_selectAll");
 
 	showMainTBAct = KStdAction::showToolbar(this, SLOT(slotToggleMainTB()),
-											actionCollection(), "tog_mainTB");
+	                                        actionCollection(), "tog_mainTB");
 	showMainTBAct->setText(i18n("Main Toolbar"));
 
 	showEditTBAct = KStdAction::showToolbar(this, SLOT(slotToggleEditTB()),
-											actionCollection(), "tog_editTB");
+	                                        actionCollection(), "tog_editTB");
 	showEditTBAct->setText(i18n("Edit Toolbar"));
 
 
 	showStatusbarAct = KStdAction::showStatusbar(this, SLOT(slotShowStatusBar()),
-												 actionCollection(), "tog_statusbar");
+	                                             actionCollection(), "tog_statusbar");
+
+	showMelodyEditorAct = new KToggleAction(i18n("Show Melody Editor"),
+	                                        KAccel::stringToKey("Shift+M"),
+	                                        this, SLOT(slotShowMelodyEditor()),
+	                                        actionCollection(), "view_melodyEditor");
 
 	connect(m_kgpart, SIGNAL(configToolBars()), SLOT(slotConfigTB()));
 	connect(m_kgpart, SIGNAL(setWindowCaption(const QString&)), SLOT(slotSetCaption(const QString&)));
@@ -243,6 +249,14 @@ void KGuitarShell::slotShowStatusBar()
 		statusBar()->hide();
 }
 
+void KGuitarShell::slotShowMelodyEditor()
+{
+	if (showMelodyEditorAct->isChecked())
+		m_kgpart->sv->me->show();
+	else
+		m_kgpart->sv->me->show();
+}
+
 void KGuitarShell::slotToggleMainTB()
 {
 	KToolBar *bar = toolBar("mainToolBar");
@@ -295,6 +309,9 @@ void KGuitarShell::readSettings()
 	toolBar("mainToolBar")->applySettings(config, "MainToolBar");
 	toolBar("editToolBar")->applySettings(config, "EditToolBar");
 
+	showMelodyEditorAct->setChecked(config->readBoolEntry("ShowMelodyEditor", TRUE));
+	slotShowMelodyEditor();
+
 	showStatusbarAct->setChecked(config->readBoolEntry("ShowStatusBar", TRUE));
 	slotShowStatusBar();
 
@@ -315,6 +332,7 @@ void KGuitarShell::writeSettings()
 	config->writeEntry("ShowEditTB", showEditTBAct->isChecked());
 	toolBar("mainToolBar")->saveSettings(config, "MainToolBar");
 	toolBar("editToolBar")->saveSettings(config, "EditToolBar");
+	config->writeEntry("ShowMelodyEditor", showMelodyEditorAct->isChecked());
 	config->writeEntry("ShowStatusBar", showStatusbarAct->isChecked());
 	config->writeEntry("Geometry", size());
 
