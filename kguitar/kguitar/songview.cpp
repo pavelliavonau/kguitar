@@ -93,7 +93,8 @@ SongView::SongView(KXMLGUIClient *_XMLGUIClient, KCommandHistory *_cmdHist,
 
 SongView::~SongView()
 {
-	delete song, sp;
+	delete song;
+	delete sp;
 }
 
 // Refreshes all the views and resets all minor parameters in the
@@ -101,7 +102,7 @@ SongView::~SongView()
 // or imported.
 void SongView::refreshView()
 {
-	tv->setCurt(song->t.first());
+	tv->setCurrentTrack(song->t.first());
 	tv->updateRows();
 	tv->repaint();
 	tl->updateList();
@@ -116,14 +117,14 @@ bool SongView::trackNew()
 	TabTrack* newtr = new TabTrack(FretTab, "", song->freeChannel(), 0, 25, 6, 24);
 
 	song->t.append(newtr);
-	tv->setCurt(newtr);
+	tv->setCurrentTrack(newtr);
 
 	// Special case - if user declined track properties dialog during
 	// track creation, then he doesn't seem to want the new track, so
 	// we'll destroy it.
 
 	if (!setTrackProperties()) {
-		tv->setCurt(oldtr);
+		tv->setCurrentTrack(oldtr);
 		song->t.removeLast();
 		return FALSE;
 	}
@@ -147,7 +148,7 @@ void SongView::trackDelete()
 		}
 
 		song->t.remove(tv->trk());
-		tv->setCurt(newsel);
+		tv->setCurrentTrack(newsel);
 		tv->updateRows();
 		tv->update();
 		tl->updateList();

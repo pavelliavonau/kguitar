@@ -32,25 +32,25 @@
 #endif
 
 QString notes_us1[12] = {"C",  "C#", "D",  "D#", "E",  "F",
-						 "F#", "G",	 "G#", "A",	 "A#", "B"};
+                         "F#", "G",  "G#", "A",  "A#", "B"};
 QString notes_us2[12] = {"C",  "Db", "D",  "Eb", "E",  "F",
-						 "Gb", "G",	 "Ab", "A",	 "Bb", "B"};
+                         "Gb", "G",  "Ab", "A",  "Bb", "B"};
 QString notes_us3[12] = {"C",  "Db", "D",  "Eb", "E",  "F",
-						 "F#", "G",	 "G#", "A",	 "Bb", "B"};
+                         "F#", "G",  "G#", "A",  "Bb", "B"};
 
 QString notes_eu1[12] = {"C",  "C#", "D",  "D#", "E",  "F",
-						 "F#", "G",	 "G#", "A",	 "A#", "H"};
+                         "F#", "G",  "G#", "A",  "A#", "H"};
 QString notes_eu2[12] = {"C",  "Db", "D",  "Eb", "E",  "F",
-						 "Gb", "G",	 "Ab", "A",	 "Hb", "H"};
+                         "Gb", "G",  "Ab", "A",  "Hb", "H"};
 QString notes_eu3[12] = {"C",  "Db", "D",  "Eb", "E",  "F",
-						 "F#", "G",	 "G#", "A",	 "Hb", "H"};
+                         "F#", "G",  "G#", "A",  "Hb", "H"};
 
 QString notes_jz1[12] = {"C",  "C#", "D",  "D#", "E",  "F",
-						 "F#", "G",	 "G#", "A",	 "B" , "H"};
+                         "F#", "G",  "G#", "A",  "B" , "H"};
 QString notes_jz2[12] = {"C",  "Db", "D",  "Eb", "E",  "F",
-						 "Gb", "G",	 "Ab", "A",	 "B" , "H"};
+                         "Gb", "G",  "Ab", "A",  "B" , "H"};
 QString notes_jz3[12] = {"C",  "Db", "D",  "Eb", "E",  "F",
-						 "F#", "G",	 "G#", "A",	 "B" , "H"};
+                         "F#", "G",  "G#", "A",  "B" , "H"};
 
 QString note_name(int num)
 {
@@ -346,8 +346,8 @@ void ChordSelector::playMidi()
 	int duration = TSE3::Clock::PPQN;
 
 	phraseEdit.insert(TSE3::MidiEvent(TSE3::MidiCommand(TSE3::MidiCommand_ProgramChange,
-														0, globalMidiPort, parm->patch),
-									  0));
+	                                                    0, globalMidiPort, parm->patch),
+	                                  0));
 
 	int note;
 
@@ -584,7 +584,7 @@ void ChordSelector::findChords()
 
 	// CALCULATION OF REQUIRED NOTES FOR A CHORD FROM USER STEP INPUT
 
-	int need[7],got[7];
+	int need[7], got[7];
 
 	int t = tonic->currentItem();
 
