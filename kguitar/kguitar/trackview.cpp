@@ -211,7 +211,7 @@ void TrackView::paintCell(QPainter *p, int row, int col)
 void TrackView::resizeEvent(QResizeEvent *e)
 {
     QTableView::resizeEvent(e); // GREYFIX ? Is it C++-correct?
-    setCellWidth(width());
+    setCellWidth(width()-2);
     setCellHeight(VERTSPACE*2+VERTLINE*(curt->string-1));
 }
 
