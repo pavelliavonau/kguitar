@@ -423,11 +423,11 @@ void SongPrint::drawKey(int l, TabTrack *trk)
 	if (l == 0) {
 		for (int i = 0; i < lstStr + 1; i++) {
 			if (trk->trackMode() == DrumTab) {
-				drawStrCntAt(tabpp + br8w / 2,
+				drawStrCntAt(xpos + tabpp + 3 * br8w / 2,
 							 i,
 							 drum_abbr[trk->tune[i]]);
 			} else {
-				drawStrCntAt(tabpp + br8w / 2,
+				drawStrCntAt(xpos + tabpp + br8w / 2,
 							 i,
 							 note_name(trk->tune[i] % 12));
 			}
@@ -452,16 +452,17 @@ void SongPrint::drawKey(int l, TabTrack *trk)
 
 void SongPrint::drawPageHdr(int n, TabSong *song)
 {
-	// LVIFIX: replace magic numbers by font-dependent constants
 	p->setFont(fHdr1);
-	p->drawText(140, 210, song->title + " - " + song->author);
+	p->drawText(0, hdrh1, song->title + " - " + song->author);
 	QString pgNr;
 	pgNr.setNum(n);
+	QFontMetrics fm  = p->fontMetrics();
+	int brnw = fm.boundingRect(pgNr).width();
 	p->setFont(fHdr2);
-	p->drawText(pprw - 140, 210, pgNr);
+	p->drawText(pprw - brnw, hdrh1, pgNr);
 	p->setFont(fHdr3);
-	p->drawText(140, 350, "Transcribed by " + song->transcriber);
-	ypos = 560;					// LVIFIX: replace magic number
+	p->drawText(0, hdrh1 + hdrh2, "Transcribed by " + song->transcriber);
+	ypos = hdrh1 + hdrh2 + hdrh3;
 }
 
 // draw string s centered at x on string n
@@ -517,28 +518,33 @@ void SongPrint::initFonts()
 
 void SongPrint::initMetrics(KPrinter *printer)
 {
-	// LVIFIX: remove debug cout
-	// cout << "SongPrint::initMetrics()" << endl;
 	// determine width/height of printer surface
 	QPaintDeviceMetrics pdm(printer);
 	pprh  = pdm.height();
 	pprw  = pdm.width();
-	// LVIFIX: remove debug cout
-	// cout << "pprh=" << pprh << " pprw=" << pprw << endl;
 	// determine font-dependent bar metrics
 	p->setFont(fTBar1);
 	QFontMetrics fm  = p->fontMetrics();
 	br8h = fm.boundingRect("8").height();
 	br8w = fm.boundingRect("8").width();
 	ystep = fm.ascent() - 1;
-	// LVIFIX: tune these values
-	// note: font dependent
-	tabfw = 140;
-	tabpp =  35;
-	tsgfw = 140;
-	tsgpp =  70;
-	nt0fw =  56;
-	ntlfw =  14;
+	tabfw = 4 * br8w;
+	tabpp =     br8w;
+	tsgfw = 5 * br8w;
+	tsgpp = 2 * br8w;
+	nt0fw = 2 * br8w;
+	ntlfw =     br8w / 2;
+	// determine font-dependent page header metrics
+	p->setFont(fHdr1);
+	fm  = p->fontMetrics();
+	hdrh1 = fm.ascent();
+	p->setFont(fHdr3);
+	fm  = p->fontMetrics();
+	hdrh2 = (int) (1.5 *fm.height());
+	hdrh3 = 2 * ystep;
+	p->setFont(fHdr2);
+	fm  = p->fontMetrics();
+	hdrh4 = 2 * fm.height();
 }
 
 // initialize pens
@@ -565,7 +571,7 @@ void SongPrint::printSong(KPrinter *printer, TabSong *song)
 	// (metrics depend on fonts)
 	initFonts();
 
-	// initialize variables
+	// initialize metrics
 	initMetrics(printer);
 
 	// initialize pens
@@ -575,6 +581,8 @@ void SongPrint::printSong(KPrinter *printer, TabSong *song)
 	// print page header
 	int pgNr = 1;
 	drawPageHdr(pgNr, song);
+	// ypos now is where either the top barline of the first tab bar,
+	// or the top of the track name should be
 	
 	uint trkPr = 0;				// tracks printed
 
@@ -587,10 +595,13 @@ void SongPrint::printSong(KPrinter *printer, TabSong *song)
 		if ((song->t).count() > 1)
 		{
 			p->setFont(fHdr2);
-			p->drawText(20, ypos, trk->name);
-			ypos += 140;			// LVIFIX: should be font-dependent
+			QFontMetrics fm  = p->fontMetrics();
+			p->drawText(0, ypos + fm.ascent(), trk->name);
+			ypos += hdrh4;
 		}
-		ypos += 280;				// LVIFIX: should be font-dependent
+		// move ypos to the bottom bar line
+		// i.e. move down (nstrings - 1) linesteps
+		ypos += (trk->string - 1) * ystep;
 
 		int l = 0;					// line nr in the current track
 		uint brsPr = 0;				// bars printed
@@ -660,15 +671,19 @@ void SongPrint::printSong(KPrinter *printer, TabSong *song)
 				if ((song->t).count() > 1)
 				{
 					p->setFont(fHdr2);
-					p->drawText(20, ypos, trk->name);
-					ypos += 140;			// LVIFIX: should be font-dependent
+					QFontMetrics fm  = p->fontMetrics();
+					p->drawText(0, ypos + fm.ascent(), trk->name);
+					ypos += hdrh4;
 				}
-				ypos += 280;				// LVIFIX: should be font-dependent
+				// move ypos to the bottom bar line
+				// i.e. move down (nstrings - 1) linesteps
+				ypos += (trk->string - 1) * ystep;
 			}
 
 		} // end while (brsPr ...
 
 		// move to the next track
+		ypos -= 5 * ystep;				// LVIFIX: replace magic number
 		trkPr++;
 
 	} // end while (trkPr ...

@@ -68,10 +68,15 @@ private:
 	int tsgpp;
 	int nt0fw;
 	int ntlfw;
+	// Variables describing layout of the page header
+	int hdrh1;					// height line 1 (title/author/pagenr)
+	int hdrh2;					// height line 2 (transcriber)
+	int hdrh3;					// space between line 2 and music or trkname
+	int hdrh4;					// height trkname (top of text to top of music)
 	// Fonts used
-	QFont fHdr1;				// used for headers
-	QFont fHdr2;				// used for headers
-	QFont fHdr3;				// used for headers
+	QFont fHdr1;				// used for headers (title/author)
+	QFont fHdr2;				// used for headers (pagenr/trkname)
+	QFont fHdr3;				// used for headers (transcriber)
 	QFont fTBar1;				// used for notes on the tab bar
 	QFont fTBar2;				// used for notes on the tab bar
 	QFont fTSig;				// used for time signature
