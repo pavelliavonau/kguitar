@@ -157,12 +157,12 @@ bool TabSong::load_from_kg(QString fileName)
 
 	bool finished=FALSE;
 
-	int x=0,bar=1;
+	int x = 0, bar = 1;
 //	uchar tcsize=t.current()->string+2;
 	t.current()->b.resize(1);
-	t.current()->b[0].start=0;
-	t.current()->b[0].time1=4;
-	t.current()->b[0].time2=4;
+	t.current()->b[0].start = 0;
+	t.current()->b[0].time1 = 4;
+	t.current()->b[0].time2 = 4;
 
 	bool dot;
 	int dur;
@@ -265,68 +265,68 @@ bool TabSong::save_to_kg(QString fileName)
 
     QListIterator<TabTrack> it(t);
     for (;it.current();++it) {          // For every track
-	TabTrack *trk = it.current();
-
-	s << (Q_UINT8) trk->trackmode();// Track properties
-	s << trk->name;
-	s << (Q_UINT8) trk->channel;
-	s << (Q_UINT16) trk->bank;
-	s << (Q_UINT8) trk->patch;
-	s << (Q_UINT8) trk->string;
-	s << (Q_UINT8) trk->frets;
-	for (int i=0;i<trk->string;i++)
-	    s << (Q_UINT8) trk->tune[i];
-
-	// TRACK EVENTS
-
-	Q_UINT8 tcsize=trk->string+2;
-	uint bar=1;
-
-	s << (Q_UINT8) 'S';             // Time signature event
-	s << (Q_UINT8) 2;               // 2 byte event length
-	s << (Q_UINT8) trk->b[0].time1; // Time signature itself
-	s << (Q_UINT8) trk->b[0].time2;
-
- 	for (uint x=0;x<trk->c.size();x++) {
-	    if (bar+1<trk->b.size()) {  // This bar's not last
-		if (trk->b[bar+1].start==x)
-		    bar++;              // Time for next bar		
-	    }
-	    
-	    if (trk->b[bar].start==x) { // New bar event
-		s << (Q_UINT8) 'B';
-		s << (Q_UINT8) 0;
-	    }
-
-	    if (trk->c[x].flags & FLAG_ARC) {
-		s << (Q_UINT8) 'L';     // Continue of previous event
-		s << (Q_UINT8) 2;       // Size of event
-		s << dot2len(trk->c[x].l, trk->c[x].flags & FLAG_DOT); // Duration
-	    } else {
-		s << (Q_UINT8) 'T';     // Tab column events
-		s << (Q_UINT8) tcsize;  // Size of event
-		needfx = FALSE;
-		for (int i=0;i<trk->string;i++) {
-		    s << (Q_INT8) trk->c[x].a[i];
-		    if (trk->c[x].e[i])
-			needfx = TRUE;
+		TabTrack *trk = it.current();
+		
+		s << (Q_UINT8) trk->trackmode();// Track properties
+		s << trk->name;
+		s << (Q_UINT8) trk->channel;
+		s << (Q_UINT16) trk->bank;
+		s << (Q_UINT8) trk->patch;
+		s << (Q_UINT8) trk->string;
+		s << (Q_UINT8) trk->frets;
+		for (int i=0;i<trk->string;i++)
+			s << (Q_UINT8) trk->tune[i];
+		
+		// TRACK EVENTS
+		
+		Q_UINT8 tcsize = trk->string+2;
+		uint bar = 1;
+		
+		s << (Q_UINT8) 'S';             // Time signature event
+		s << (Q_UINT8) 2;               // 2 byte event length
+		s << (Q_UINT8) trk->b[0].time1; // Time signature itself
+		s << (Q_UINT8) trk->b[0].time2;
+		
+		for (uint x=0;x<trk->c.size();x++) {
+			if (bar+1<trk->b.size()) {  // This bar's not last
+				if (trk->b[bar+1].start==x)
+					bar++;              // Time for next bar		
+			}
+			
+			if (trk->b[bar].start==x) { // New bar event
+				s << (Q_UINT8) 'B';
+				s << (Q_UINT8) 0;
+			}
+			
+			if (trk->c[x].flags & FLAG_ARC) {
+				s << (Q_UINT8) 'L';     // Continue of previous event
+				s << (Q_UINT8) 2;       // Size of event
+				s << dot2len(trk->c[x].l, trk->c[x].flags & FLAG_DOT); // Duration
+			} else {
+				s << (Q_UINT8) 'T';     // Tab column events
+				s << (Q_UINT8) tcsize;  // Size of event
+				needfx = FALSE;
+				for (int i=0;i<trk->string;i++) {
+					s << (Q_INT8) trk->c[x].a[i];
+					if (trk->c[x].e[i])
+						needfx = TRUE;
+				}
+				s << dot2len(trk->c[x].l, trk->c[x].flags & FLAG_DOT); // Duration
+				if (needfx) {
+					s << (Q_UINT8) 'E'; // Effect event
+					s << (Q_UINT8) trk->string; // Size of event
+					for (int i=0;i<trk->string;i++)
+						s << (Q_UINT8) trk->c[x].e[i];
+				}
+			}
 		}
-		s << dot2len(trk->c[x].l, trk->c[x].flags & FLAG_DOT); // Duration
-		if (needfx) {
-		    s << (Q_UINT8) 'E'; // Effect event
-		    s << (Q_UINT8) trk->string; // Size of event
-		    for (int i=0;i<trk->string;i++)
-			s << (Q_UINT8) trk->c[x].e[i];
-		}
-	    }
-	}
-	
-	s << (Q_UINT8) 'X';             // End of track marker
-	s << (Q_UINT8) 0;               // Length of end track event        
+		
+		s << (Q_UINT8) 'X';             // End of track marker
+		s << (Q_UINT8) 0;               // Length of end track event        
     }
-
+	
     f.close();
-
+	
     return TRUE;
 }
 
@@ -412,11 +412,9 @@ bool TabSong::load_from_tab(QString fileName)
 
 bool TabSong::save_to_tab(QString fileName)
 {
-    return FALSE;
-/*
     QFile f(fileName);
     if (!f.open(IO_WriteOnly))
-	return FALSE;
+		return FALSE;
 
     QTextStream s(&f);
 
@@ -441,76 +439,80 @@ bool TabSong::save_to_tab(QString fileName)
     QString tmp;
 
     for (;it.current();++it) {          // For every track	
-	TabTrack *trk = it.current();
-
-	s << "Track " << n << ": " << trk->name << "\n\n";
-
-	// GREYFIX - channel, bank, patch, string, frets data
-
-// 	for (int i=0;i<trk->string;i++)
-// 	    s << (Q_UINT8) trk->tune[i];
-
-	int minstart=1;
-	for (int i=0;i<trk->string;i++)
-	    if (note_name(trk->tune[i]%12).length()>1)
-		minstart=2;
+		TabTrack *trk = it.current();
+		
+		s << "Track " << n << ": " << trk->name << "\n\n";
+		
+		// GREYFIX - channel, bank, patch, string, frets data
+		
+		int minstart=1;
+		for (int i=0;i<trk->string;i++)
+			if (note_name(trk->tune[i]%12).length()>1)
+				minstart=2;
 	    
-	for (int i=0;i<trk->string;i++) {
-	    lin[i]=note_name(trk->tune[i]%12);
-	    if ((lin[i].length()==1) && (minstart>1))
-		lin[i]=lin[i]+' ';
-	    lin[i]=lin[i]+" |-";
-	}
-
- 	QListIterator<TabColumn> ic(trk->c);
-	bool lng=FALSE;
-
- 	for (;ic.current();++ic) {
- 	    TabColumn *col = ic.current();
-	    lng=FALSE;
-
-	    for (int i=0;i<trk->string;i++)
-		if (col->a[i]>=10)
-		    lng=TRUE;
-
-	    for (int i=0;i<trk->string;i++) {
-		if (col->a[i]==-1) {
-		    if (lng)
-			lin[i]=lin[i]+"--";
-		    else
-			lin[i]=lin[i]+'-';
-		} else {
-		    tmp.setNum(col->a[i]);
-		    if ((lng) && (col->a[i]<10))
-			tmp='-'+tmp;
-		    lin[i]=lin[i]+tmp;
-		}
-		for (uint j=0;j<(col->l/48);j++)
-		    lin[i]=lin[i]+'-';
-	    }
-
-	    if (lin[0].length()>twidth) {
-		for (int i=trk->string-1;i>=0;i--)
-		    s << lin[i] << '\n';
-		s << '\n';
 		for (int i=0;i<trk->string;i++) {
-		    lin[i]=note_name(trk->tune[i]%12);
-		    if ((lin[i].length()==1) && (minstart>1))
-			lin[i]=lin[i]+' ';
-		    lin[i]=lin[i]+" |-";
+			lin[i]=note_name(trk->tune[i]%12);
+			if ((lin[i].length()==1) && (minstart>1))
+				lin[i]=lin[i]+' ';
+			lin[i]=lin[i]+" |-";
 		}
-	    }
- 	}
+		
+		bool lng = FALSE;
+		uint bar = 1;
+		
+		for (uint x=0;x<trk->c.size();x++) {
+			if (bar+1<trk->b.size()) {  // This bar's not last
+				if (trk->b[bar+1].start==x)
+					bar++;              // Time for next bar		
+			}
 
-	for (int i=trk->string-1;i>=0;i--)
-	    s << lin[i] << '\n';
-	s << '\n';
+			if (trk->b[bar].start==x)   // Add a bar
+				for (int i=0;i<trk->string;i++)
+					lin[i]=lin[i]+"|";
 
-	n++;   // Numerical track counter
+			lng=FALSE;
+			
+			for (int i=0;i<trk->string;i++)
+				if (trk->c[x].a[i]>=10)
+					lng=TRUE;
+			
+			for (int i=0;i<trk->string;i++) {
+				if (trk->c[x].a[i]==-1) {
+					if (lng)
+						lin[i]=lin[i]+"--";
+					else
+						lin[i]=lin[i]+'-';
+				} else {
+					tmp.setNum(trk->c[x].a[i]);
+					if ((lng) && (trk->c[x].a[i]<10))
+						tmp='-'+tmp;
+					lin[i]=lin[i]+tmp;
+				}
+				for (uint j=0;j<(trk->c[x].l/48);j++)
+					lin[i]=lin[i]+'-';
+			}
+			
+			if (lin[0].length()>twidth) {
+				for (int i=trk->string-1;i>=0;i--)
+					s << lin[i] << '\n';
+				s << '\n';
+				for (int i=0;i<trk->string;i++) {
+					lin[i]=note_name(trk->tune[i]%12);
+					if ((lin[i].length()==1) && (minstart>1))
+						lin[i]=lin[i]+' ';
+					lin[i]=lin[i]+" |-";
+				}
+			}
+		}
+		
+		for (int i=trk->string-1;i>=0;i--)
+			s << lin[i] << '\n';
+		s << '\n';
+		
+		n++;   // Numerical track counter
     }
-
+	
     f.close();
-
+	
     return TRUE;
-*/
 }
