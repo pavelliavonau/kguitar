@@ -48,6 +48,12 @@
 			<Action name="set_len8"/>
 			<Action name="set_len16"/>
 			<Action name="set_len32"/>
+			<Separator/>
+			<Action name="dotted_note"/>
+			<Action name="triplet"/>
+			<Separator/>
+			<Action name="more_duration"/>
+			<Action name="less_duration"/>
 		</Menu>
 		<Menu name="effects"><text>&amp;Effects</text>
 			<Action name="fx_legato"/>
@@ -60,7 +66,6 @@
 		</Menu>
 	</Menu>
 	<Menu noMerge="1" name="play"><text>&amp;Play</text>
-		<Action name="midi_playtrack"/>
 		<Action name="midi_playsong"/>
 		<Action name="midi_stopplay"/>
 	</Menu>
