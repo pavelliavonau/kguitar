@@ -12,6 +12,7 @@ class ChordList: public QListBox
 public:
     ChordList(QWidget *parent=0, const char *name=0);
     ChordListItem* currentItemPointer();
+    void inSort(ChordListItem *it);
 };
 
 #endif
