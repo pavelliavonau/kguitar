@@ -72,8 +72,9 @@ private:
 	QString stTyp;				// type
 	// part (== track) -- initialized in initStScorePart()
 	QString stPid;				// ID
+	QString stPmb;				// MIDI bank
 	QString stPmc;				// MIDI channel
-	QString stPmi;				// MIDI instrument
+	QString stPmp;				// MIDI program
 	QString stPnm;				// name
 	// tuning -- initialized in initStStaffTuning()
 	QString stPtl;				// tuning line
