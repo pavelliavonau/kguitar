@@ -14,13 +14,15 @@ class QComboBox;
 class QLabel;
 class Fingering;
 class FingerList;
+class TabTrack;
 
 class ChordSelector: public QDialog
 {
     Q_OBJECT
 public:
-    ChordSelector(QWidget *parent=0, const char *name=0);
+    ChordSelector(TabTrack *p, QWidget *parent=0, const char *name=0);
     int app(int l);
+
 public slots:
     void detectChord();
     void setStep3();
@@ -28,6 +30,8 @@ public slots:
     void findSelection();
     void findChords(); 
 private:
+    TabTrack *parm;
+
     QLineEdit *chname; 
     QListBox *tonic,*step3,*stephigh;
     QListBox *chords;

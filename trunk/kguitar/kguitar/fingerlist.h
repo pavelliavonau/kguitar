@@ -6,18 +6,17 @@
 
 #define ICONCHORD      50
 
+class TabTrack;
+
 class FingerList: public QTableView
 {
     Q_OBJECT
 public:
-    FingerList(QWidget *parent=0, const char *name=0);
+    FingerList(TabTrack *p, QWidget *parent=0, const char *name=0);
 
     void addFingering(const int a[MAX_STRINGS], bool update);
     void clear();
     void switchAuto(bool update);
-
-public slots:
-/*     void setFirstFret(int fret); */
 
 signals:
     void chordSelected(const int *);
@@ -25,19 +24,16 @@ signals:
 protected:
     virtual void paintCell(QPainter *, int row, int col);
     virtual void resizeEvent(QResizeEvent *); 
-/*     virtual void drawContents(QPainter *); */
-/*     virtual void mouseMoveEvent(QMouseEvent *); */
     virtual void mousePressEvent(QMouseEvent *);
-/*     void         mouseHandle(const QPoint &pos, bool domute); */
 
 private:
     enum { SCALE=6, CIRCLE=4, CIRCBORD=1, BORDER=1, SPACER=1, FRETTEXT=5 };
     
     int num,perRow;
-    int appl[5000][MAX_STRINGS];
+    int appl[5000][MAX_STRINGS]; // GREYFIX!!!
 
     int curSel;
-    int numstr;
+    TabTrack *parm;
 };
 
 #endif

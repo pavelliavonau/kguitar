@@ -35,7 +35,6 @@ private:
     QPrinter *printer;
     TrackView *tv;
     KToolBar *fileTools;
-    ChordSelector *cs;
     int mb, tb, sb;
 };
 

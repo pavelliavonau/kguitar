@@ -1,6 +1,7 @@
 #include "chord.h"
 #include "fingers.h"
 #include "fingerlist.h"
+#include "track.h"
 
 #include <kapp.h>
 
@@ -44,9 +45,11 @@ int stemplate[9][6]={ {-1,2, 0, 0, 0, 0 },
 		      {-1,2, 2, 2, 2, 0 },
                       {0, 2, 0, 0, 0, 0 } };
 
-ChordSelector::ChordSelector(QWidget *parent=0, const char *name=0)
+ChordSelector::ChordSelector(TabTrack *p, QWidget *parent=0, const char *name=0)
     :QDialog(parent,name,TRUE)
 {
+    parm = p;
+
     chname = new QLineEdit(this);
     chname->setGeometry(10,10,210,20);
 
@@ -121,18 +124,18 @@ ChordSelector::ChordSelector(QWidget *parent=0, const char *name=0)
 
     complexity = new QButtonGroup(this);
     complexity->setGeometry(70,150,80,70);
-    complexer[0] = new QRadioButton("Usual",complexity);
+    complexer[0] = new QRadioButton(i18n("Usual"),complexity);
     complexer[0]->setGeometry(5,5,70,20);
-    complexer[1] = new QRadioButton("Rare",complexity);
+    complexer[1] = new QRadioButton(i18n("Rare"),complexity);
     complexer[1]->setGeometry(5,25,70,20);
-    complexer[2] = new QRadioButton("All",complexity);
+    complexer[2] = new QRadioButton(i18n("All"),complexity);
     complexer[2]->setGeometry(5,45,70,20);
     complexity->setButton(0);
     connect(complexity,SIGNAL(clicked(int)),SLOT(findChords()));
 
     // CHORD ANALYZER
 
-    fng = new Fingering(6,this); // GREYFIX hack 6 strings
+    fng = new Fingering(p,this);
     fng->move(230,10);
     connect(fng,SIGNAL(chordChange()),SLOT(detectChord()));
 
@@ -141,7 +144,7 @@ ChordSelector::ChordSelector(QWidget *parent=0, const char *name=0)
 
     // CHORD FINDER OUTPUT
 
-    fnglist = new FingerList(this);
+    fnglist = new FingerList(p,this);
     fnglist->setGeometry(10,250,500,140);
     connect(fnglist,SIGNAL(chordSelected(const int *)),fng,SLOT(setFingering(const int *)));
     
@@ -165,10 +168,6 @@ int ChordSelector::app(int l)
     return fng->app(l);
 }
 
-// Standard tuning
-//int tune[6] = {64,59,55,50,45,40};
-int tune[6]={40,45,50,55,59,64};
-
 // Try to detect some chord forms from a given applicature.
 void ChordSelector::detectChord()
 {
@@ -181,10 +180,10 @@ void ChordSelector::detectChord()
 	cn[i]=FALSE;
     numnotes=0; // number of different notes in a chord
     
-    for (i=0;i<fng->numstrings();i++) {
+    for (i=0;i<parm->string;i++) {
 	j=fng->app(i);
 	if (j!=-1) {
-	    j=(j+tune[i])%12;
+	    j=(j+parm->tune[i])%12;
 	    if (!cn[j]) {
 		cn[j]=TRUE;
 		numnotes++;
@@ -464,9 +463,7 @@ void ChordSelector::findChords()
     int app[MAX_STRINGS];
     int toneshift[6]={0,7,10,2,5,9};
 
-    int maxfret=24,notenum=3,numstr=6; // GREYFIX!!
-
-    int fb[MAX_STRINGS][maxfret];  // array with an either -1 or number of note from a chord
+    int fb[MAX_STRINGS][parm->frets];  // array with an either -1 or number of note from a chord
 
     // CALCULATION OF REQUIRED NOTES FOR A CHORD FROM USER STEP INPUT
 
@@ -474,7 +471,7 @@ void ChordSelector::findChords()
 
     int t = tonic->currentItem();
 
-    notenum=1;
+    int notenum=1;
     need[0]=t;
     cnote[0]->setText(note_name(t));
 
@@ -511,19 +508,19 @@ void ChordSelector::findChords()
     
     // PREPARING FOR FINGERING CALCULATION
     
-    for (i=0;i<numstr;i++) {
-	for (j=0;j<=maxfret;j++)
+    for (i=0;i<parm->string;i++) {
+	for (j=0;j<=parm->frets;j++)
 	    fb[i][j]=-1;
 	for (k=0;k<notenum;k++) {
-	    j=(need[k]-tune[i]%12+12)%12;
-	    while (j<=maxfret) {
+	    j=(need[k]-parm->tune[i]%12+12)%12;
+	    while (j<=parm->frets) {
 		fb[i][j]=k;
 		j+=12;
 	    }
 	}
     }
     
-    for (i=0;i<numstr;i++)
+    for (i=0;i<parm->string;i++)
 	 app[i]=-1;
     
     fnglist->switchAuto(FALSE);
@@ -533,12 +530,12 @@ void ChordSelector::findChords()
 
     i=0;
     do {
-	if (app[i]<=maxfret) {
-	    min=maxfret+1;max=0;
+	if (app[i]<=parm->frets) {
+	    min=parm->frets+1;max=0;
 	    for (k=0;k<notenum;k++)
 		got[k]=0;
 	    k=0;bass=255;muted=0;
-	    for (j=0;j<numstr;j++) {
+	    for (j=0;j<parm->string;j++) {
 		if (app[j]>0) {
 		    if (app[j]<min)  min=app[j];
 		    if (app[j]>max)  max=app[j];
@@ -546,8 +543,8 @@ void ChordSelector::findChords()
 		if (max-min>=span)
 		    break;
 		if (app[j]>=0) {
-		    if (tune[j]+app[j]<bass)
-			bass=tune[j]+app[j];
+		    if (parm->tune[j]+app[j]<bass)
+			bass=parm->tune[j]+app[j];
 		    if (!got[fb[j][app[j]]]) {
 			got[fb[j][app[j]]]=1;
 			k++;
@@ -572,11 +569,11 @@ void ChordSelector::findChords()
 	    i=0;
 	} else {
 	    app[i]=-1;i++;
-	    if (i>=numstr)
+	    if (i>=parm->string)
 		break;
 	}
 	app[i]++;
-	while ((fb[i][app[i]]==-1) && (app[i]<=maxfret))
+	while ((fb[i][app[i]]==-1) && (app[i]<=parm->frets))
 	    app[i]++;
     } while (TRUE);
     

@@ -5,16 +5,16 @@
 #include "global.h"
 
 class QScrollBar;
+class TabTrack;
 
 class Fingering: public QFrame
 {
     Q_OBJECT
 public:
-    Fingering(int strings, QWidget *parent = 0, const char *name = 0);
+    Fingering(TabTrack *p, QWidget *parent = 0, const char *name = 0);
 
     void setFinger(int string, int fret);
 
-    int  numstrings() { return numstr; }
     int  app(int x) { return appl[x]; }
 
 public slots:
@@ -36,10 +36,10 @@ private:
 	   FRETTEXT=10, SCROLLER=15, NOTES=20 };
 
     QScrollBar *ff;
+    TabTrack *parm;
 
     int appl[MAX_STRINGS];
     int lastff;
-    int numstr;
 };
 
 #endif
