@@ -36,6 +36,32 @@ public slots:
     void addHarmonic();
     void addArtHarm();
     void addLegato();
+    void keyLeft();
+    void keyRight();
+    void keyUp();
+    void keyDown();
+    void keyCtrlUp();
+    void keyCtrlDown();
+	void deadNote();
+	void keyDelete();
+    void keyCtrlDelete();
+	void keyInsert();
+	void keyM();
+	void keyPeriod();
+	void keyPlus();
+	void keyMinus();
+	void arrangeTracks();
+    void key1();
+    void key2();
+    void key3();
+    void key4();
+    void key5();
+    void key6();
+    void key7();
+    void key8();
+    void key9();
+    void key0();
+
 
 signals:
     void statusBarChanged();
@@ -43,13 +69,13 @@ signals:
 protected:
     virtual void paintCell(QPainter *, int row, int col);    
     virtual void resizeEvent(QResizeEvent *e);
-    virtual void keyPressEvent(QKeyEvent *e);
 	virtual void mousePressEvent(QMouseEvent *e);
 
 private:
     bool moveFinger(int from, int to);
     void setLength(int l);
 	int horizDelta(uint n);
+    void insertTab(int num);
 
     TabSong *song;
     TabTrack *curt;
