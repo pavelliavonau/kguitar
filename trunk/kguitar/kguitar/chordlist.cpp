@@ -1,8 +1,26 @@
 #include "chordlist.h"
 
+// GREYFIX
+#include <stdio.h>
+
 ChordList::ChordList(QWidget *parent=0, const char *name=0):
     QListBox(parent, name)
 {
+}
+
+void ChordList::inSort(ChordListItem *it)
+{
+    uint l = ((QString) it->text()).length();
+    uint best = 0;
+
+    for (uint i=0;i<count();i++) {
+	if (((QString) item(i)->text()).length()<l)
+	    best++;
+	else
+	    break;
+    }
+
+    insertItem(it,best);
 }
 
 ChordListItem* ChordList::currentItemPointer()
