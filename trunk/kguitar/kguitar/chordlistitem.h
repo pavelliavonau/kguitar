@@ -3,7 +3,6 @@
 
 #include <qlistbox.h>
 #include "global.h"
-#include "globaloptions.h"
 
 class ChordListItem: public QListBoxText {
 public:

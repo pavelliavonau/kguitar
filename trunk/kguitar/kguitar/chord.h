@@ -4,7 +4,6 @@
 #include "config.h"
 
 #include "global.h"
-#include "globaloptions.h"
 #include "fingers.h"
 
 #include <qcombobox.h>

@@ -4,14 +4,14 @@
 #include "fingers.h"
 #include "fingerlist.h"
 #include "chordlist.h"
-#include "tabsong.h"
+#include "settings.h"
 #include "strumming.h"
-#include "globaloptions.h"
+#include "settings.h"
 #include "chordanalyzer.h"
+#include "tabtrack.h"
 
 #include <klocale.h>
 #include <kmessagebox.h>
-#include <kdebug.h>
 #include <kapp.h>
 
 #include <qpushbutton.h>
@@ -33,49 +33,6 @@
 #include <tse3/Transport.h>
 #endif
 
-QString notes_us1[12] = {"C",  "C#", "D",  "D#", "E",  "F",
-                         "F#", "G",  "G#", "A",  "A#", "B"};
-QString notes_us2[12] = {"C",  "Db", "D",  "Eb", "E",  "F",
-                         "Gb", "G",  "Ab", "A",  "Bb", "B"};
-QString notes_us3[12] = {"C",  "Db", "D",  "Eb", "E",  "F",
-                         "F#", "G",  "G#", "A",  "Bb", "B"};
-
-QString notes_eu1[12] = {"C",  "C#", "D",  "D#", "E",  "F",
-                         "F#", "G",  "G#", "A",  "A#", "H"};
-QString notes_eu2[12] = {"C",  "Db", "D",  "Eb", "E",  "F",
-                         "Gb", "G",  "Ab", "A",  "Hb", "H"};
-QString notes_eu3[12] = {"C",  "Db", "D",  "Eb", "E",  "F",
-                         "F#", "G",  "G#", "A",  "Hb", "H"};
-
-QString notes_jz1[12] = {"C",  "C#", "D",  "D#", "E",  "F",
-                         "F#", "G",  "G#", "A",  "B" , "H"};
-QString notes_jz2[12] = {"C",  "Db", "D",  "Eb", "E",  "F",
-                         "Gb", "G",  "Ab", "A",  "B" , "H"};
-QString notes_jz3[12] = {"C",  "Db", "D",  "Eb", "E",  "F",
-                         "F#", "G",  "G#", "A",  "B" , "H"};
-
-QString note_name(int num)
-{
-	if ((num < 0) || (num > 11))
-		return i18n("Unknown");
-
-	switch (globalNoteNames) {
-	case 0: return notes_us1[num];
-	case 1: return notes_us2[num];
-	case 2: return notes_us3[num];
-
-	case 3: return notes_eu1[num];
-	case 4: return notes_eu2[num];
-	case 5: return notes_eu3[num];
-
-	case 6: return notes_jz1[num];
-	case 7: return notes_jz2[num];
-	case 8: return notes_jz3[num];
-	}
-
-	return i18n("Unknown");
-}
-
 //					   3  5	 7	9  11 13
 int stemplate[][6] = {{-1,2, 0, 0, 0, 0 },   // C
                       {-1,2, 2, 0, 0, 0 },   // C7
@@ -87,10 +44,6 @@ int stemplate[][6] = {{-1,2, 0, 0, 0, 0 },   // C
                       {3, 3, 0, 0, 0, 0 },   // Caug
                       {2, 1, 1, 0, 0, 0 },   // Cdim
                       {0, 2, 0, 0, 0, 0 }};  // C5
-
-QString maj7name[] = {"7M", "maj7", "dom7"};
-QString flat[] = {"-", "b"};
-QString sharp[] = {"+", "#"};
 
 ChordSelector::ChordSelector(TabTrack *p, QWidget *parent, const char *name)
 	: QDialog(parent, name, TRUE)
@@ -135,7 +88,7 @@ void ChordSelector::initChordSelector(TabTrack *p)
 
 	tonic = new QListBox(this);
 	for (int i = 0; i < 12; i++)
-		tonic->insertItem(note_name(i));
+		tonic->insertItem(Settings::noteName(i));
 //     tonic->setHScrollBarMode(QScrollView::AlwaysOff);
 //     tonic->setVScrollBarMode(QScrollView::AlwaysOff);
 // 	tonic->setRowMode(12);
@@ -145,7 +98,7 @@ void ChordSelector::initChordSelector(TabTrack *p)
 
 	bassnote = new QComboBox(FALSE, this);
 	for (int i = 0; i < 12; i++)
-		bassnote->insertItem(note_name(i));
+		bassnote->insertItem(Settings::noteName(i));
 
 	step3 = new QListBox(this);
 	step3->insertItem("M");
@@ -159,7 +112,7 @@ void ChordSelector::initChordSelector(TabTrack *p)
 	stephigh = new QListBox(this);
 	stephigh->insertItem("");
 	stephigh->insertItem("7");
-	stephigh->insertItem(maj7name[globalMaj7]);
+	stephigh->insertItem(Settings::maj7Name());
 	stephigh->insertItem("6");
 	stephigh->insertItem("9");
 	stephigh->insertItem("11");
@@ -195,9 +148,9 @@ void ChordSelector::initChordSelector(TabTrack *p)
         if (i > 0)
         	st[i]->insertItem("x");
         if ((i == 2) || (i >= 4)) {
-		st[i]->insertItem(flat[globalFlatPlus]);
+		st[i]->insertItem(Settings::flatName());
 		st[i]->insertItem("0");
-		st[i]->insertItem(sharp[globalFlatPlus]);
+		st[i]->insertItem(Settings::sharpName());
         }
         if (i > 0)  {
 		connect(st[i], SIGNAL(activated(int)), SLOT(findSelection()));
@@ -209,12 +162,12 @@ void ChordSelector::initChordSelector(TabTrack *p)
 	}
 
 	st[1]->insertItem("2");
-	st[1]->insertItem(flat[globalFlatPlus]);
+	st[1]->insertItem(Settings::flatName());
 	st[1]->insertItem("3");
 	st[1]->insertItem("4");
 
 	st[3]->insertItem("6");
-	st[3]->insertItem(flat[globalFlatPlus]);
+	st[3]->insertItem(Settings::flatName());
 	st[3]->insertItem("7");
 
 	inv = new QComboBox(FALSE, this);
@@ -355,9 +308,13 @@ void ChordSelector::playMidi()
 	TSE3::Clock time = 0;
 	int duration = TSE3::Clock::PPQN;
 
-	phraseEdit.insert(TSE3::MidiEvent(TSE3::MidiCommand(TSE3::MidiCommand_ProgramChange,
-	                                                    0, globalMidiPort, parm->patch),
-	                                  0));
+	phraseEdit.insert(
+		TSE3::MidiEvent(
+			TSE3::MidiCommand(
+				TSE3::MidiCommand_ProgramChange,
+				0, Settings::midiPort(), parm->patch),
+			0)
+		);
 
 	int note;
 
@@ -366,9 +323,13 @@ void ChordSelector::playMidi()
 		if (fng->app(i) != -1) {
 			note = fng->app(i) + parm->tune[i];
 
-			phraseEdit.insert(TSE3::MidiEvent(TSE3::MidiCommand(TSE3::MidiCommand_NoteOn,
-																0, globalMidiPort, note, 96),
-											  time, 96, time + duration));
+			phraseEdit.insert(
+				TSE3::MidiEvent(
+					TSE3::MidiCommand(
+						TSE3::MidiCommand_NoteOn,
+						0, Settings::midiPort(), note, 96),
+					time, 96, time + duration)
+				);
 			time += duration;
 		}
 
@@ -377,17 +338,24 @@ void ChordSelector::playMidi()
 		if (fng->app(i) != -1) {
 			note = fng->app(i) + parm->tune[i];
 
-			phraseEdit.insert(TSE3::MidiEvent(TSE3::MidiCommand(TSE3::MidiCommand_NoteOn,
-																0, globalMidiPort, note, 96),
-											  time, 96, time + duration * 3));
+			phraseEdit.insert(
+				TSE3::MidiEvent(
+					TSE3::MidiCommand(
+						TSE3::MidiCommand_NoteOn,
+						0, Settings::midiPort(), note, 96),
+					time, 96, time + duration * 3)
+				);
 		}
 
 
 	time += duration;
-	phraseEdit.insert(TSE3::MidiEvent(TSE3::MidiCommand(TSE3::MidiCommand_NoteOn,
-														0, globalMidiPort, 0, 0),
-									  time, 0, time + duration));
-
+	phraseEdit.insert(
+		TSE3::MidiEvent(
+			TSE3::MidiCommand(
+				TSE3::MidiCommand_NoteOn,
+				0, Settings::midiPort(), 0, 0),
+			time, 0, time + duration)
+		);
 
 	TSE3::Song   tsong(1);
 	TSE3::Phrase *phrase = phraseEdit.createPhrase(tsong.phraseList());
@@ -580,7 +548,7 @@ void ChordSelector::findSelection()
 }
 
 // Calculate absolute notes from tonic + step user input
-bool ChordSelector::calculateNotesFromSteps(int *need, int &notenum)
+bool ChordSelector::calculateNotesFromSteps(int need[], int &notenum)
 {
 	//                  1  5  7   9  11 13
 	int toneshift[6] = {0, 7, 10, 2, 5, 9};
@@ -592,7 +560,7 @@ bool ChordSelector::calculateNotesFromSteps(int *need, int &notenum)
 
 	notenum = 1;
 	need[0] = t;
-	cnote[0]->setText(note_name(t));
+	cnote[0]->setText(Settings::noteName(t));
 
 	switch (st[1]->currentItem()) {
 	case 1: need[1] = (t + 2) % 12; notenum++; break; // 2
@@ -602,7 +570,7 @@ bool ChordSelector::calculateNotesFromSteps(int *need, int &notenum)
 	}
 
 	if (st[1]->currentItem()!=0) {
-		cnote[1]->setText(note_name(need[1]));
+		cnote[1]->setText(Settings::noteName(need[1]));
 	} else {
 		cnote[1]->clear();
 	}
@@ -611,7 +579,7 @@ bool ChordSelector::calculateNotesFromSteps(int *need, int &notenum)
 		int j = st[i + 1]->currentItem();
 		if (j) {
 			need[notenum] = (t + toneshift[i] + (j - 2)) % 12;
-			cnote[i + 1]->setText(note_name(need[notenum]));
+			cnote[i + 1]->setText(Settings::noteName(need[notenum]));
 			notenum++;
 		} else {
 			cnote[i + 1]->clear();

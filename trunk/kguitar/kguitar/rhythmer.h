@@ -2,7 +2,6 @@
 #define RHYTHMER_H
 
 #include "global.h"
-#include "globaloptions.h"
 
 #include <qdialog.h>
 #include <qdatetime.h>
