@@ -828,6 +828,7 @@ int MusicXMLWriter::writeCol(QTextStream& os, TabTrack * trk, int x, int v)
 	// KGuitar stores the second column of a tie as a rest (an empty column),
 	// while MusicXML requires notes there. Therefore take the notes from the
 	// previous column.
+	// See also: songprint.cpp SongPrint::drawBar()
 	// LVIFIX:
 	// "previous" should be "first column of the set of tied columns"
 	// (there may be more than two)
@@ -839,7 +840,7 @@ int MusicXMLWriter::writeCol(QTextStream& os, TabTrack * trk, int x, int v)
 	}
 	if ((x > 0) && (trk->c[x].flags & FLAG_ARC)) {
 		tieStop = TRUE;
-		xt = x - 1;				// LVIFIX
+		xt = x - 1;				// LVIFIX: handle more than one tie
 	}
 
 	// triplet handling:
@@ -851,6 +852,7 @@ int MusicXMLWriter::writeCol(QTextStream& os, TabTrack * trk, int x, int v)
 	if (triplet) {
 		trpCnt++;
 	}
+
 	// print all notes
 	for (int i = trk->string - 1; i >= 0 ; i--) {
 		if ((trk->c[xt].a[i] > -1) && (trk->c[x].v[i] == v)) {
@@ -864,6 +866,7 @@ int MusicXMLWriter::writeCol(QTextStream& os, TabTrack * trk, int x, int v)
 					// note scaling: quarter note = 48
 					duration = length * 2 / 5;
 					// LVIFIX: dot and triplet handling required here ?
+					// E.g. use trk->getNoteTypeAndDots()
 					dots = 0;
 					triplet = false;
 					nCols = 1;
