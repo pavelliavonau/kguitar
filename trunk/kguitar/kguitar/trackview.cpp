@@ -77,7 +77,7 @@ void TrackView::setLength(int l)
 
 void TrackView::paintCell(QPainter *p, int row, int col)
 {
-    int bn = row;                       // Drawing only this bar
+    uint bn = row;                      // Drawing only this bar
 
     int last;
     if (curt->b.size()==bn+1)     // Current bar is the last one
@@ -87,20 +87,38 @@ void TrackView::paintCell(QPainter *p, int row, int col)
 
     QString tmp;
 
-    int s = curt->string-1;
-    int i;
+    uint s = curt->string-1;
+    uint i;
 
     for (i=0;i<=s;i++)
 	p->drawLine(0,VERTSPACE+(s-i)*VERTLINE,width(),VERTSPACE+(s-i)*VERTLINE);
 
+    int xpos=10,xdelta;
+
+    // Starting bars - very thick and thick one
+
+    if (bn==0) {
+	p->setBrush(SolidPattern);
+	p->drawRect(0,VERTSPACE,5,VERTLINE*s);
+	p->drawRect(8,VERTSPACE,2,VERTLINE*s);
+	xpos+=10;
+    }
+
+    // Time signature
+
     if (curt->b[bn].showsig) {
-	// GREYFIX - show time signature here
+	p->setFont(QFont("helvetica",18,QFont::Bold));
+	tmp.setNum(curt->b[bn].time1);
+	p->drawText(xpos,VERTSPACE+VERTLINE*s/3,VERTLINE,VERTLINE,
+		    AlignCenter,tmp);
+	tmp.setNum(curt->b[bn].time2);
+	p->drawText(xpos,VERTSPACE+VERTLINE*s/3*2,VERTLINE,VERTLINE,
+		    AlignCenter,tmp);
+	xpos+=20;
     }
 
     p->setFont(QFont("helvetica",VERTLINE));
     p->setBrush(KApplication::getKApplication()->windowColor);
-
-    int xpos=10,xdelta;
     
     for (int t=curt->b[bn].start;t<=last;t++) {
 	// Drawing duration marks
@@ -215,6 +233,16 @@ void TrackView::arrangeBars()
 	if (cbl>barlen) {
 	    curt->b.resize(barnum+1);
 	    curt->b[barnum].start = i;
+	    // GREYFIX - preserve other possible time signatures
+	    curt->b[barnum].time1 = curt->b[barnum-1].time1;
+	    curt->b[barnum].time2 = curt->b[barnum-1].time2;
+
+	    if ((curt->b[barnum].time1 != curt->b[barnum-1].time1) ||
+		(curt->b[barnum].time2 != curt->b[barnum-1].time2))
+		curt->b[barnum].showsig=TRUE;
+	    else 
+		curt->b[barnum].showsig=FALSE;
+
 	    barnum++;
 	    cbl-=barlen;
 	}
