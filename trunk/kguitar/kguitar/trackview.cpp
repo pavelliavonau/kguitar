@@ -68,7 +68,7 @@ TrackView::TrackView(TabSong *s, KXMLGUIClient *_XMLGUIClient, QWidget *parent =
 
 	updateRows();
 
-	lastnumber = 0;
+	lastnumber = -1;
 
     // MIDI INIT STUFF
     QString fmPatch, fmPatchDir;
@@ -117,17 +117,18 @@ TrackView::~TrackView()
 void TrackView::selectTrack(TabTrack *trk)
 {
 	setCurt(trk);
+	updateRows();
 	update();
 }
 
-
-void TrackView::selectBar(int n)
+void TrackView::selectBar(uint n)
 {
 	if (n < curt->b.size()) {
 		curt->x = curt->b[n].start;
 		curt->updateXB();
 		emit statusBarChanged();
 	}
+	lastnumber = -1;
 }
 
 void TrackView::setCurt(TabTrack *trk)
@@ -138,8 +139,36 @@ void TrackView::setCurt(TabTrack *trk)
 
 void TrackView::updateRows()
 {
+	int ch = VERTSPACE * 2 + VERTLINE * (curt->string - 1);
 	setNumRows(curt->b.size());
-	setMinimumHeight(VERTSPACE * 2 + VERTLINE * (curt->string - 1));
+	setMinimumHeight(ch);
+	setCellHeight(ch);
+}
+
+void TrackView::repaintCellNumber(int n)
+{
+	int ycoord = 0;
+	if (rowYPos(n, &ycoord))
+		repaint(0, ycoord, width(), cellHeight());
+}
+
+void TrackView::repaintCurrentCell()
+{
+	repaintCellNumber(curt->xb);
+}
+
+void TrackView::repaintCurrentColumn()
+{
+	//VERTSPACE + (s - i) * VERTLINE - VERTLINE / 2
+
+	int ycoord = 0;
+	if (rowYPos(curt->xb, &ycoord))
+		repaint(selxcoord, ycoord, VERTLINE + 1, cellHeight());
+}
+
+void TrackView::ensureCurrentVisible()
+{
+	// GREYFIX make it!
 }
 
 void TrackView::setFinger(int num, int fret)
@@ -155,7 +184,7 @@ int TrackView::finger(int num)
 void TrackView::setLength(int l)
 {
 	curt->c[curt->x].l = l;
-	repaint();
+	repaintCurrentCell();
 }
 
 void TrackView::linkPrev()
@@ -165,25 +194,29 @@ void TrackView::linkPrev()
 		curt->c[curt->x].a[i] = -1;
 		curt->c[curt->x].e[i] = 0;
 	}
-	update();
+	repaintCurrentCell();
+	lastnumber = -1;
 }
 
 void TrackView::addHarmonic()
 {
 	curt->addFX(EFFECT_HARMONIC);
-	update();
+	repaintCurrentCell();
+	lastnumber = -1;
 }
 
 void TrackView::addArtHarm()
 {
 	curt->addFX(EFFECT_ARTHARM);
-	update();
+	repaintCurrentCell();
+	lastnumber = -1;
 }
 
 void TrackView::addLegato()
 {
 	curt->addFX(EFFECT_LEGATO);
-	update();
+	repaintCurrentCell();
+	lastnumber = -1;
 }
 
 void TrackView::insertChord()
@@ -211,13 +244,14 @@ void TrackView::insertChord()
 	}
 
 	update();
+	lastnumber = -1;
 }
 
 // Determine horizontal offset between two columns - n and n+1
 int TrackView::horizDelta(uint n)
 {
 	int res = (curt->c[n].flags & FLAG_DOT ?
-			   curt->c[n].l*3/2 : curt->c[n].l) / HORSCALE * HORCELL;
+	           curt->c[n].l*3/2 : curt->c[n].l) / HORSCALE * HORCELL;
 	if (res < HORCELL)
 		res = HORCELL;
 	return res;
@@ -225,6 +259,11 @@ int TrackView::horizDelta(uint n)
 
 void TrackView::paintCell(QPainter *p, int row, int col)
 {
+	if (row >= curt->b.size()) {
+		kdDebug() << "Drawing the bar out of limits!" << endl;
+		return;
+	}
+
 	uint bn = row;						// Drawing only this bar
 
 	//	int last = curt->lastColumn(bn);
@@ -338,6 +377,7 @@ void TrackView::paintCell(QPainter *p, int row, int col)
 		for (i = 0; i <= s; i++) {
 			if ((t == curt->x) && (i == curt->y)) {
 				p->setBrush(KGlobalSettings::highlightColor());
+				selxcoord = xpos;
 				p->drawRect(xpos, VERTSPACE + (s - i) * VERTLINE - VERTLINE / 2,
 							VERTLINE, VERTLINE + 1);
 				p->setBrush(KGlobalSettings::baseColor());
@@ -400,7 +440,6 @@ void TrackView::resizeEvent(QResizeEvent *e)
 {
 	QTableView::resizeEvent(e); // GREYFIX ? Is it C++-correct?
 	setCellWidth(width() - 2);
-	setCellHeight(VERTSPACE * 2 + VERTLINE * (curt->string - 1));
 }
 
 bool TrackView::moveFinger(int from, int dir)
@@ -461,72 +500,92 @@ void TrackView::timeSig()
 			curt->b[i].time2 = time2;
 		}
 	}
+
+	emit paneChanged();
+	lastnumber = -1;
 }
 
-void TrackView::keyLeft()
+void TrackView::moveLeft()
 {
 	if (curt->x > 0) {
 		if (curt->b[curt->xb].start == curt->x) {
+			curt->x--;
+			repaintCurrentCell();
 			curt->xb--;
+			ensureCurrentVisible();
 			emit statusBarChanged();
+		} else {
+			curt->x--;
 		}
-		curt->x--;
+		repaintCurrentCell();
 	}
-	update();
+	lastnumber = -1;
 }
 
-void TrackView::keyRight()
+void TrackView::moveRight()
 {
-	if (curt->x+1 == curt->c.size()) {
+	if (curt->x + 1 == curt->c.size()) {
 		curt->c.resize(curt->c.size()+1);
 		curt->x++;
 		for (uint i = 0; i < MAX_STRINGS; i++) {  // Set it for all strings,
 			curt->c[curt->x].a[i] = -1;           // so we didn't get crazy
 			curt->c[curt->x].e[i] = 0;            // data - alinx
 		}
-		curt->c[curt->x].l = curt->c[curt->x-1].l;
+		curt->c[curt->x].l = curt->c[curt->x - 1].l;
 		curt->c[curt->x].flags = 0;
 		updateRows();
+		repaintCurrentCell();
 	} else {
-		if (curt->b.size() == curt->xb+1)
+		if (curt->b.size() == curt->xb + 1)
 			curt->x++;
 		else {
-			if (curt->b[curt->xb+1].start == curt->x+1) {
+			if (curt->b[curt->xb + 1].start == curt->x + 1) {
+				curt->x++;
+				repaintCurrentCell();
 				curt->xb++;
+				ensureCurrentVisible();
 				emit statusBarChanged();
+			} else {
+				curt->x++;
 			}
-			curt->x++;
 		}
+		repaintCurrentCell();
 	}
-	update();
+	lastnumber = -1;
 }
 
-void TrackView::keyUp()
+void TrackView::moveUp()
 {
-	if (curt->y+1 < curt->string)
+	if (curt->y+1 < curt->string) {
 		curt->y++;
-	update();
+		repaintCurrentColumn();
+	}
+	lastnumber = -1;
 }
 
-void TrackView::keyCtrlUp()
+void TrackView::transposeUp()
 {
 	if (curt->y+1 < curt->string)
-		moveFinger(curt->y, 1);
-	update();
+		if (moveFinger(curt->y, 1))
+			repaintCurrentColumn();
+	lastnumber = -1;
 }
 
-void TrackView::keyDown()
+void TrackView::moveDown()
 {
-	if (curt->y > 0)
+	if (curt->y > 0) {
 		curt->y--;
-	update();
+		repaintCurrentColumn();
+	}
+	lastnumber = -1;
 }
 
-void TrackView::keyCtrlDown()
+void TrackView::transposeDown()
 {
 	if (curt->y > 0)
-		moveFinger(curt->y, -1);
-	update();
+		if (moveFinger(curt->y, -1))
+			repaintCurrentColumn();
+	lastnumber = -1;
 }
 
 void TrackView::deadNote()
@@ -534,17 +593,24 @@ void TrackView::deadNote()
 	if (curt->c[curt->x].flags & FLAG_ARC)
 		curt->c[curt->x].flags -= FLAG_ARC;
 	curt->c[curt->x].a[curt->y] = DEAD_NOTE;
-	update();
+
+	repaintCurrentCell();
+	emit paneChanged();
+	lastnumber = -1;
 }
 
-void TrackView::keyDelete()
+void TrackView::deleteNote()
 {
-	curt->c[curt->x].a[curt->y] = -1;
-	curt->c[curt->x].e[curt->y] = 0;
-	update();
+	if (curt->c[curt->x].a[curt->y] != -1) {
+		curt->c[curt->x].a[curt->y] = -1;
+		curt->c[curt->x].e[curt->y] = 0;
+		repaintCurrentColumn();
+		emit paneChanged();
+	}
+	lastnumber = -1;
 }
 
-void TrackView::keyCtrlDelete()
+void TrackView::deleteColumn()
 {
 	if (curt->c.size() > 1) {
 		curt->removeColumn(1);
@@ -552,39 +618,49 @@ void TrackView::keyCtrlDelete()
 			curt->x--;
 		updateRows();
 	}
+
 	update();
+	emit paneChanged();
+	lastnumber = -1;
 }
 
-void TrackView::keyInsert()
+void TrackView::insertColumn()
 {
 	curt->insertColumn(1);
+
 	update();
+	emit paneChanged();
+	lastnumber = -1;
 }
 
 void TrackView::palmMute()
 {
 	curt->c[curt->x].flags ^= FLAG_PM;
-	update();
+	repaintCurrentCell();
+	lastnumber = -1;
 }
 
 void TrackView::keyPeriod()
 {
 	curt->c[curt->x].flags ^= FLAG_DOT; // It's XOR :-)
-	update();
+	repaintCurrentCell();
+	lastnumber = -1;
 }
 
 void TrackView::keyPlus()
 {
 	if (curt->c[curt->x].l < 480)
 		curt->c[curt->x].l *= 2;
-	update();
+	repaintCurrentCell();
+	lastnumber = -1;
 }
 
 void TrackView::keyMinus()
 {
 	if (curt->c[curt->x].l > 15)
 		curt->c[curt->x].l /= 2;
-	update();
+	repaintCurrentCell();
+	lastnumber = -1;
 }
 
 void TrackView::arrangeTracks()
@@ -593,24 +669,30 @@ void TrackView::arrangeTracks()
 	emit statusBarChanged();
 	updateRows();
 	update();
+
+	emit paneChanged();
 }
 
 void TrackView::insertTab(int num)
 {
-	lastnumber = curt->c[curt->x].a[curt->y];
+	int totab = num;
 
 	if (curt->c[curt->x].flags & FLAG_ARC)
 		curt->c[curt->x].flags -= FLAG_ARC;
 
     // Allow making two-digit fret numbers pressing two keys sequentally
-	if (lastnumber * 10 + num <= curt->frets)
-		num = lastnumber * 10 + num;
+	if ((lastnumber != -1) && (lastnumber * 10 + num <= curt->frets)) {
+		totab = lastnumber * 10 + num;
+		lastnumber = -1;
+	} else {
+		lastnumber = num;
+	}
 
-	// If frets < 10
-	if (num <= curt->frets)
-		curt->c[curt->x].a[curt->y] = num;
-
-	update();
+	if ((totab <= curt->frets) && (curt->c[curt->x].a[curt->y] != totab)) {
+		curt->c[curt->x].a[curt->y] = totab;
+		repaintCurrentColumn();
+		emit paneChanged();
+	}
 }
 
 void TrackView::arrangeBars()
@@ -622,6 +704,8 @@ void TrackView::arrangeBars()
 
 void TrackView::mousePressEvent(QMouseEvent *e)
 {
+	lastnumber = -1;
+
     // RightButton pressed
     if (e->button() == RightButton) {
         QWidget *tmpWidget = 0;
@@ -686,19 +770,6 @@ void TrackView::mousePressEvent(QMouseEvent *e)
             lastxpos = xpos;
             xpos += xdelta;
         }
-
-        // 	if (curt->c[tabrow].clickrect.contains(clickpt)) {
-        // 		found = TRUE;
-        // 		curt->x = j;
-        // 		recttop = curt->c[tabrow].clickrect.top();
-        // 		for (uint i=0;i<curt->string;i++) {
-        // 			if ((clickpt.y() >= (recttop+(curt->string - 1 - i)*VERTLINE-VERTLINE/2)) &&
-        // 				(clickpt.y() < (recttop + (curt->string - i)*VERTLINE - VERTLINE/2 + 1))) {
-        // 				curt->y = i;
-        // 			}
-        // 		}
-        // 		break;
-        // 	}
 
         if (found)
             repaint();
