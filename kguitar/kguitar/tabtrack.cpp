@@ -593,7 +593,7 @@ int TabTrack::insertColumn(int ts, int te)
 	}
 
 	x = cstart;
-	res = cend - cstart + 1;		
+	res = cend - cstart + 1;
 //	cout << "TabTrack::insertColumn() ->"
 //		<< " x=" << x
 //		<< " res=" << res
@@ -878,16 +878,11 @@ TSE3::PhraseEdit *TabTrack::midiTrack(bool tracking, int tracknum)
 
 //			cout << "Inserted note pitch " << (int) pitch
 //				 << ", start " << timer << ", duration " << duration << "\n";
-				 
+
 		} // for (int i = 0; i < string ...
 
-		if (tracking && x > 0) {
-			midi->insert(
-				TSE3::MidiEvent(TSE3::MidiCommand(KGUITAR_MIDI_COMMAND,
-												  channel - 1, KGUITAR_MIDI_PORT,
-												  xl - x + 1, 0), timer)
-				);
-		}
+		if (tracking)
+			midi->insert(TSE3::MidiEvent(encodeTimeTracking(tracknum, x), timer));
 
 		timer += midilen;
 		x = xl;					// step over linked notes
@@ -902,7 +897,7 @@ TSE3::PhraseEdit *TabTrack::midiTrack(bool tracking, int tracknum)
 											  0, 0), timer)
 			);
 	}
-	
+
 	return midi;
 }
 #endif
@@ -1184,3 +1179,36 @@ bool TabTrack::getNoteTypeAndDots(int t, int v, int & tp, int & dt, bool & tr)
 	tr = false;
 	return true;
 }
+
+#ifdef WITH_TSE3
+// These things are ugly stuff to somehow encode cursor tracking as
+// pseudo MIDI events that don't play anything, but KGuitar will catch
+// them and update cursor numbers accordingly. We encode absolute
+// cursor position for a given track. That's bad, because currently we
+// can have only 16 tracks and 16384 columns per track playable.
+
+// *GREYFIX*
+
+TSE3::MidiCommand TabTrack::encodeTimeTracking(int track, int x)
+{
+	// Channel - (0-15) - 4 bits - encode track number
+	int pseudoChannel = track;
+
+	// Data1 - 7 bits - low 7 bits of x
+	int pseudoData1 = x & 0x7f;
+
+	// Data2 - 7 bits - high 7 bits of x
+	int pseudoData2 = x >> 7;
+
+	return TSE3::MidiCommand(KGUITAR_MIDI_COMMAND,
+							 pseudoChannel,
+							 KGUITAR_MIDI_PORT,
+							 pseudoData1, pseudoData2);
+}
+
+void TabTrack::decodeTimeTracking(TSE3::MidiCommand mc, int &track, int &x)
+{
+	track = mc.channel;
+	x = (mc.data2 << 7) + mc.data1;
+}
+#endif
