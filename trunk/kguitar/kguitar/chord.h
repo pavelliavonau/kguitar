@@ -57,10 +57,15 @@ public slots:
 	void askStrum();
 	void playMidi();
 
+    void analyzeChordName();
+    void quickInsert();
+
 private:
+    bool calculateNotesFromSteps(int *, int &);
+
     TabTrack *parm;
 
-    QLineEdit *chname;
+    QLineEdit *chordName;
     QListBox *tonic, *step3, *stephigh;
     QComboBox *st[7], *inv, *bassnote;
     QLabel *cnote[7];
