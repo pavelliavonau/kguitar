@@ -21,22 +21,21 @@ SetTabFret::SetTabFret(QWidget *parent=0, const char *name=0):
 	lib->insertItem(lib_tuning[i].name);
 
     QLabel *lib_l = new QLabel(i18n("Tuning:"),this);
-    lib_l->setGeometry(10,20,50,20);
+    lib_l->setGeometry(10,20,80,20);
 
     st = new QSpinBox(1,MAX_STRINGS,1,this);
     connect(st,SIGNAL(valueChanged(int)),SLOT(stringChanged(int)));
     connect(st,SIGNAL(valueChanged(int)),SLOT(tuneChanged()));
+    st->setGeometry(90,50,40,20);
 
     QLabel *st_l = new QLabel(i18n("Strings:"),this);
     st_l->setGeometry(10,50,50,20);
 
     fr = new QSpinBox(1,MAX_FRETS,1,this);
+    fr->setGeometry(190,50,40,20);
 
     QLabel *fr_l = new QLabel(i18n("Frets:"),this);
     fr_l->setGeometry(140,50,50,20);
-
-    st->setGeometry(80,50,40,20);
-    fr->setGeometry(190,50,40,20);
 
     // Tuners
 
@@ -72,8 +71,7 @@ void SetTabFret::stringChanged(int n)
     }
     oldst=n;
 
-    // GREYFIX: Maximum operation. Unportable?
-    setMinimumSize(330 >? 20+RADTUNER_W*n,90+RADTUNER_H);
+    setMinimumSize(QMAX(330, 20+RADTUNER_W*n), 90+RADTUNER_H);
     reposTuners();
 }
 
@@ -101,7 +99,7 @@ void SetTabFret::tuneChanged()
 
 void SetTabFret::resizeEvent(QResizeEvent *e)
 {
-    lib->setGeometry(80,20,width()-110,20);
+    lib->setGeometry(90,20,width()-110,20);
     reposTuners();
 }
 
