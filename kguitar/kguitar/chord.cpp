@@ -2,6 +2,8 @@
 #include "fingers.h"
 #include "fingerlist.h"
 
+#include <kapp.h>
+
 #include <qpushbutton.h>
 #include <qbuttongroup.h>
 #include <qradiobutton.h>
@@ -35,36 +37,16 @@ QString note_name(int num)
 ChordSelector::ChordSelector(QWidget *parent=0, const char *name=0)
     :QDialog(parent,name,TRUE)
 {
-    QPushButton *ok, *cancel;
-
-    ok = new QPushButton("Ok",this);
-    ok->setGeometry(10,250,75,30);
-    connect(ok,SIGNAL(clicked()),SLOT(accept()));
-
-    cancel = new QPushButton("Cancel",this);
-    cancel->setGeometry(100,250,75,30);
-    connect(cancel,SIGNAL(clicked()),SLOT(reject()));
-
-    chords = new QListBox(this);
-    chords->setGeometry(350,10,80,150);
-
     chname = new QLineEdit(this);
-    chname->setGeometry(10,10,130,20);
+    chname->setGeometry(10,10,210,20);
 
-    fng = new Fingering(6,this); // GREYFIX hack 6 strings
-    fng->setGeometry(150,10,100,100);
-    connect(fng,SIGNAL(chordChange()),SLOT(detectChord()));
-
-    fnglist = new FingerList(this);
-    fnglist->setGeometry(10,240,420,100);
-    connect(fnglist,SIGNAL(chordSelected(const int *)),fng,SLOT(setFingering(const int *)));
+    // CHORD SELECTOR FOR FINDER WIDGETS
 
     tonic = new QListBox(this);
-    tonic->setAutoUpdate(FALSE);
     for(int i=0;i<12;i++)
       tonic->insertItem(note_name(i));
-    tonic->setAutoUpdate(TRUE);
-    tonic->setGeometry(10,40,40,12*tonic->itemHeight()+6);  // GREYFIX
+    tonic->setGeometry(10,40,50,200);
+//    tonic->setGeometry(10,40,40,12*tonic->itemHeight()+6);  // GREYFIX
     connect(tonic,SIGNAL(highlighted(int)),SLOT(findChords()));
 
     step3 = new QListBox(this);
@@ -72,19 +54,53 @@ ChordSelector::ChordSelector(QWidget *parent=0, const char *name=0)
     step3->insertItem("m");
     step3->insertItem("sus2");
     step3->insertItem("sus4");
-    step3->setGeometry(60,40,50,100);
+    step3->setGeometry(70,40,80,70);
+
+    stephigh = new QListBox(this);
+    stephigh->insertItem("");
+    stephigh->insertItem("7");
+    stephigh->insertItem("7M");
+    stephigh->insertItem("6");
+    stephigh->setGeometry(160,40,60,200);
 
     complexity = new QButtonGroup(this);
-    complexity->setGeometry(60,150,90,70);
+    complexity->setGeometry(70,150,80,70);
     complexer[0] = new QRadioButton("Usual",complexity);
-    complexer[0]->setGeometry(5,5,80,20);
+    complexer[0]->setGeometry(5,5,70,20);
     complexer[1] = new QRadioButton("Rare",complexity);
-    complexer[1]->setGeometry(5,25,80,20);
+    complexer[1]->setGeometry(5,25,70,20);
     complexer[2] = new QRadioButton("All",complexity);
-    complexer[2]->setGeometry(5,45,80,20);
+    complexer[2]->setGeometry(5,45,70,20);
     complexity->setButton(0);
 
-    setFixedSize(450,350);
+    // CHORD ANALYZER
+
+    fng = new Fingering(6,this); // GREYFIX hack 6 strings
+    fng->move(230,10);
+    connect(fng,SIGNAL(chordChange()),SLOT(detectChord()));
+
+    chords = new QListBox(this);
+    chords->setGeometry(400,10,80,150);
+
+    // CHORD FINDER OUTPUT
+
+    fnglist = new FingerList(this);
+    fnglist->setGeometry(10,250,500,140);
+    connect(fnglist,SIGNAL(chordSelected(const int *)),fng,SLOT(setFingering(const int *)));
+
+    // DIALOG BUTTONS
+
+    QPushButton *ok, *cancel;
+
+    ok = new QPushButton(i18n("OK"),this);
+    ok->setGeometry(520,250,75,30);
+    connect(ok,SIGNAL(clicked()),SLOT(accept()));
+
+    cancel = new QPushButton(i18n("Cancel"),this);
+    cancel->setGeometry(520,290,75,30);
+    connect(cancel,SIGNAL(clicked()),SLOT(reject()));
+
+    setFixedSize(600,400);
 }
 
 // Standard tuning
@@ -174,7 +190,19 @@ void ChordSelector::findChords()
 
     // CALCULATION OF REQUIRED NOTES FOR A CHORD FROM USER INPUT
 
-    int need[3]={0,4,7},got[3];
+    int need[6],got[6];
+
+    need[0]=0;
+
+    switch (step3->currentItem()) {
+    case 0: need[1]=4;break;          // Major, C
+    case 1: need[1]=3;break;          // Minor, Cm
+    case 2: need[1]=2;break;          // Sus2,  Csus2
+    case 3: need[1]=5;break;	      // Sus4,  Csus4
+    }
+
+    need[2]=7;
+    notenum=3;
 
     for (i=0;i<notenum;i++)
 	 need[i]=(need[i]+tonic->currentItem())%12;
