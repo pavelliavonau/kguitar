@@ -855,11 +855,18 @@ bool TabTrack::getNoteTypeAndDots(int t, int v, int & tp, int & dt, bool & tr)
 	dt = 0;
 	tr = false;
 
+	// tie handling
+	int  tt = t;				// t where tie starts
+	if ((t > 0) && (c[t].flags & FLAG_ARC)) {
+		tt = t - 1;				// LVIFIX: handle more than one tie
+	}
+
 	// find a note in voice v
+	// if tied to previous column, use info from previous one
 	int i;
-	for (i = string-1; i >= 0; i--) {
-		if ((c[t].a[i] != NULL_NOTE)
-			&& (c[t].v[i] == v)) {
+	for (i = string - 1; i >= 0; i--) {
+		if ((c[tt].a[i] != NULL_NOTE)
+			&& (c[tt].v[i] == v)) {
 			break;
 		}
 	}

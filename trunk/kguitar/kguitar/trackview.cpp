@@ -295,6 +295,7 @@ void TrackView::paintCell(QPainter *p, int row, int col)
 
 	QString tmp;
 	bool ringing[MAX_STRINGS];
+	int trpCnt = 0;						// triplet count
 
 	int s = curt->string - 1;
 
@@ -347,6 +348,19 @@ void TrackView::paintCell(QPainter *p, int row, int col)
 	}
 
 	for (int t = curt->b[bn].start; t <= curt->lastColumn(bn); t++) {
+
+		// triplet handling:
+		// - reset after third note of triplet
+		// - count notes while inside triplet
+		if (trpCnt >= 3) {
+			trpCnt = 0;
+		}
+		if (curt->c[t].flags & FLAG_TRIPLET) {
+			trpCnt++;
+		} else {
+			trpCnt = 0;
+		}
+
 		// Drawing duration marks
 
 		// Draw connection with previous, if applicable
@@ -390,6 +404,7 @@ void TrackView::paintCell(QPainter *p, int row, int col)
 		// somehow... Ideally, triplets should be drawn in a second
 		// loop, after everything else would be done.
 
+		/*
 		if (curt->c[t].flags & FLAG_TRIPLET) {
  			if ((curt->c.size() >= t + 1) && (t) &&
  				(curt->c[t - 1].flags & FLAG_TRIPLET) &&
@@ -422,6 +437,30 @@ void TrackView::paintCell(QPainter *p, int row, int col)
 				}
 			}
 		}
+		*/
+
+		// Length of interval to next column - adjusted if dotted
+		// calculated here because it is required by triplet code
+
+		xdelta = horizDelta(t);
+
+		// Draw triplet - improved (? :-)) code
+		if ((trpCnt == 1) || (trpCnt == 2)) {
+			// draw horizontal line to next note
+			p->drawLine(xpos + HORCELL / 2, BOTTOMDUR + VERTLINE + 5,
+						xpos + HORCELL / 2 + xdelta, BOTTOMDUR + VERTLINE + 5);
+		}
+		if ((trpCnt == 1) || (trpCnt == 3)) {
+			// draw vertical line
+			p->drawLine(xpos + HORCELL / 2, BOTTOMDUR + VERTLINE + 2,
+						xpos + HORCELL / 2, BOTTOMDUR + VERTLINE + 5);
+		}
+		if (trpCnt == 2) {
+			// draw "3"
+			p->setFont(*smallCaptionFont);
+			p->drawText(xpos, BOTTOMDUR + VERTLINE + 7, HORCELL, VERTLINE, AlignHCenter | AlignTop, "3");
+			p->setFont(KGlobalSettings::generalFont());
+		}
 
 		// Draw arcs to backward note
 
@@ -437,10 +476,6 @@ void TrackView::paintCell(QPainter *p, int row, int col)
 						AlignCenter, "P.M.");
 			p->setFont(KGlobalSettings::generalFont());
 		}
-
-		// Length of interval to next column - adjusted if dotted
-
-		xdelta = horizDelta(t);
 
 		// Draw the number column
 

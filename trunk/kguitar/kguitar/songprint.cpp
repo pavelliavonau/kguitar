@@ -38,7 +38,8 @@
 // LVIFIX: check width of lower part note stems (seems a bit too thin)
 
 // LVIFIX: "link with previous" doesn't work well
-//         - prints rest instead of note
+//         - prints undefined effects
+//           (because TabColumn's e[i] are filled with random data)
 //         - if at start of bar, links to left margin
 
 // LVIFIX: "ringing" and "link with previous" don't work well together
@@ -47,6 +48,8 @@
 // LVIFIX: rests in lower voice are not supported
 
 // LVIFIX: notes in triplet are (sometimes ?) beamed incorrectly
+
+// LVIFIX: check and/or improve handling of extSpAftNote
 
 #include <qstring.h>			// required for globaloptions.h :-(
 #include "globaloptions.h"
@@ -472,6 +475,7 @@ void SongPrint::drawBar(int bn, TabTrack *trk, int es)
 	bool ringing[MAX_STRINGS];
 	uint s = curt->string - 1;
 	int i = 0;
+	int trpCnt = 0;				// triplet count
 	
 	for (uint i = 0; i <= s; i++) {
 		ringing[i] = FALSE;
@@ -545,6 +549,24 @@ void SongPrint::drawBar(int bn, TabTrack *trk, int es)
 	// loop t over all columns in this bar and print them
 	for (uint t = trk->b[bn].start; (int) t <= trk->lastColumn(bn); t++) {
 
+		// tie handling
+		int  tt = t;				// t where tie starts
+		if ((t > 0) && (trk->c[t].flags & FLAG_ARC)) {
+			tt = t - 1;				// LVIFIX: handle more than one tie
+		}
+
+		// triplet handling:
+		// - reset after third note of triplet
+		// - count notes while inside triplet
+		if (trpCnt >= 3) {
+			trpCnt = 0;
+		}
+		if (trk->c[t].flags & FLAG_TRIPLET) {
+			trpCnt++;
+		} else {
+			trpCnt = 0;
+		}
+
 		// LVIFIX: indentation
 		if (stTab) {
 
@@ -589,11 +611,13 @@ void SongPrint::drawBar(int bn, TabTrack *trk, int es)
 		// calculated here because it is required by triplet code
 
 		xdelta = colWidth(t, trk);
+		extSpAftNote = (colWidth(t, trk) * es) / barExpWidthLeft;
 
 		// Draw triplet - GREYFIX: ugly code, needs to be fixed
 		// somehow... Ideally, triplets should be drawn in a second
 		// loop, after everything else would be done.
 
+		/*
 		if (curt->c[t].flags & FLAG_TRIPLET) {
  			if ((curt->c.size() >= t + 1) && (t) &&
  				(curt->c[t - 1].flags & FLAG_TRIPLET) &&
@@ -633,6 +657,29 @@ void SongPrint::drawBar(int bn, TabTrack *trk, int es)
 				}
 			}
 		}
+		*/
+
+		// Draw triplet - improved (? :-)) code
+		if ((trpCnt == 1) || (trpCnt == 2)) {
+			// draw horizontal line to next note
+			p->drawLine(xpos + xdelta + extSpAftNote,
+						(int) (ypostb + 2.5 * ysteptb),
+						xpos,
+						(int) (ypostb + 2.5 * ysteptb));
+		}
+		if ((trpCnt == 1) || (trpCnt == 3)) {
+			// draw vertical line
+			p->drawLine(xpos,
+						(int) (ypostb + 2.3 * ysteptb),
+						xpos,
+						(int) (ypostb + 2.5 * ysteptb));
+		}
+		if (trpCnt == 2) {
+			// draw "3"
+			p->setFont(fTBar2);
+			drawStrCntAt(xpos, -3, "3");
+			p->setFont(fTBar1);
+		}
 
 		// Draw arcs to backward note
 
@@ -655,9 +702,13 @@ void SongPrint::drawBar(int bn, TabTrack *trk, int es)
 
 		// start drawing notes
 
-		// LVIFIX: if a column is "linked with previous" (FLAG_ARC)
-		// then all a[i]'s are -1. Take a[i] (and e[i]/v[i] ?) from
-		// previous column.
+		// tie handling:
+		// KGuitar stores the second column of a tie as a rest (an empty column).
+		// Therefore take the notes from the previous column.
+		// LVIFIX:
+		// "previous" should be "first column of the set of tied columns"
+		// (there may be more than two)
+		// See also: musicxml.cpp MusicXMLWriter::writeCol()
 
 		if (stNts) {
 	
@@ -666,36 +717,37 @@ void SongPrint::drawBar(int bn, TabTrack *trk, int es)
 			int nhPrinted = 0;		// # note heads printed
 			int yl = 0;				// ypos (line) lowest note head
 			int yh = 0;				// ypos (line) highest note head
-			// cout << "SongPrint::drawBar() draw column" << endl;
+			/*
+			cout << "SongPrint::drawBar() draw column"
+				<< " t=" << t
+				<< " tt=" << tt
+				<< endl;
 			for (int i = 0; i < 2; i++) {
 				int dt;
 				int tp;
 				bool tr;
 				bool res;
 				res = trk->getNoteTypeAndDots(t, i, tp, dt, tr);
-				/*
 				cout
-					<< "getNoteTypeAndDots()"
+					<< "getNoteTypeAndDots(t)"
 					<< " i=" << i
 					<< " res=" << res
 					<< " tp=" << tp
 					<< " dt=" << dt
 					<< endl;
-				*/
 			}
 			for (int i = 0; i < 2; i++) {
 				bool res;
-				res = findHiLo(t, i, trk, yh, yl);
-				/*
+				res = findHiLo(tt, i, trk, yh, yl);
 				cout
-					<< "findHiLo()"
+					<< "findHiLo(tt)"
 					<< " i=" << i
 					<< " res=" << res
 					<< " yh=" << yh
 					<< " yl=" << yl
 					<< endl;
-				*/
 			}
+			*/
 			int dt;
 			bool res1;
 			bool res2;
@@ -703,13 +755,13 @@ void SongPrint::drawBar(int bn, TabTrack *trk, int es)
 			bool tr;
 			// print voice 0
 			res1 = trk->getNoteTypeAndDots(t, 0, tp, dt, tr);
-			res2 = findHiLo(t, 0, trk, yh, yl);
+			res2 = findHiLo(tt, 0, trk, yh, yl);
 			if (res1 && res2) {
 				// voice 0 found
 				for (int i = 0; i < trk->string; i++) {
-					if ((trk->c[t].a[i] > -1) && (trk->c[t].v[i] == 0)) {
-						ln = line((QChar) trk->c[t].stp[i], trk->c[t].oct[i]);
-						drawNtHdCntAt(xpos, ln, tp, trk->c[t].acc[i]);
+					if ((trk->c[tt].a[i] > -1) && (trk->c[t].v[i] == 0)) {
+						ln = line((QChar) trk->c[tt].stp[i], trk->c[tt].oct[i]);
+						drawNtHdCntAt(xpos, ln, tp, trk->c[tt].acc[i]);
 						nhPrinted++;
 						// Draw dot, must be at odd line -> set lsbit
 						// LVIFIX: add support for double dot
@@ -736,13 +788,13 @@ void SongPrint::drawBar(int bn, TabTrack *trk, int es)
 			}
 			// print voice 1
 			res1 = trk->getNoteTypeAndDots(t, 1, tp, dt, tr);
-			res2 = findHiLo(t, 1, trk, yh, yl);
+			res2 = findHiLo(tt, 1, trk, yh, yl);
 			if (res1 && res2) {
 				// voice 1 found
 				for (int i = 0; i < trk->string; i++) {
-					if ((trk->c[t].a[i] > -1) && (trk->c[t].v[i] == 1)) {
-						ln = line((QChar) trk->c[t].stp[i], trk->c[t].oct[i]);
-						drawNtHdCntAt(xpos, ln, tp, trk->c[t].acc[i]);
+					if ((trk->c[tt].a[i] > -1) && (trk->c[t].v[i] == 1)) {
+						ln = line((QChar) trk->c[tt].stp[i], trk->c[tt].oct[i]);
+						drawNtHdCntAt(xpos, ln, tp, trk->c[tt].acc[i]);
 						nhPrinted++;
 						// Draw dot, must be at odd line -> set lsbit
 						// LVIFIX: add support for double dot
