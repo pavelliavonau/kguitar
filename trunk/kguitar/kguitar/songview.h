@@ -56,7 +56,13 @@ public slots:
 	void trackDelete();
 	bool trackProperties();
 	void trackBassLine();
+	/**
+	 * Dialog to set song's properties
+	 */
 	void songProperties();
+	/**
+	 * Start playing the song or stop it if it already plays
+	 */
 	void playSong();
 	void stopPlay();
 	void slotCut();

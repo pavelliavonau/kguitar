@@ -3,6 +3,7 @@
 
 #include <qvalidator.h>
 
+// GREYFIX: Jazz note naming
 QValidator::State NoteValidator::validate(QString &input, int &) const
 {
 	State res = Invalid;
