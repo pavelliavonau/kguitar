@@ -45,7 +45,7 @@ bool ConvertAscii::save(QString fileName)
 bool ConvertAscii::load(QString)
 {
 	// GREYFIX: todo loading from ASCII tabs
-    return FALSE;
+	return FALSE;
 }
 
 void ConvertAscii::writeHeader()
