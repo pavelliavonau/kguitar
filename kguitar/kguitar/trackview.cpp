@@ -1159,7 +1159,7 @@ void TrackView::mousePressEvent(QMouseEvent *e)
 		bool found = FALSE;
 		QPoint clickpt;
 
-		uint tabrow = rowAt(e->pos().y());
+		uint tabrow = rowAt(contentsY() + e->pos().y());
 
 		// Clicks on non-existing rows are not allowed
 		if (tabrow >= curt->b.size())
