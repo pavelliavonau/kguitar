@@ -22,9 +22,10 @@ public:
 	TabSong* sng() { return song; }
 
 public slots:
-	void trackNew();
+	bool trackNew();
 	void trackDelete();
 	bool trackProperties();
+	void trackBassLine();
 	void songProperties();
 
 private:

@@ -3,9 +3,14 @@
 #include "trackview.h"
 #include "tracklist.h"
 #include "tabsong.h"
+#include "tabtrack.h"
 #include "settrack.h"
 #include "settabfret.h"
+#include "settabdrum.h"
 #include "setsong.h"
+#include "chord.h"
+#include "chordlist.h"
+#include "chordlistitem.h"
 
 #include <klocale.h>
 
@@ -14,7 +19,11 @@
 #include <qlineedit.h>
 #include <qcombobox.h>
 #include <knuminput.h>
+#include <klocale.h>
 #include <qmultilinedit.h>
+#include <kmessagebox.h>
+
+#include <kdebug.h>
 
 SongView::SongView(QWidget *parent = 0, const char *name = 0): QWidget(parent, name)
 {
@@ -50,10 +59,10 @@ void SongView::refreshView()
 }
 
 // Creates a new track in the song
-void SongView::trackNew()
+bool SongView::trackNew()
 {
 	TabTrack* oldtr = tv->trk();
-	TabTrack* newtr = new TabTrack(FretTab, "", 1, 0, 25, 6, 24);
+	TabTrack* newtr = new TabTrack(FretTab, "", song->freeChannel(), 0, 25, 6, 24);
 
 	song->t.append(newtr);
 	tv->setCurt(newtr);
@@ -65,7 +74,10 @@ void SongView::trackNew()
 	if (!trackProperties()) {
 		tv->setCurt(oldtr);
 		song->t.removeLast();
+		return FALSE;
 	}
+	
+	return TRUE;
 }
 
 // Deletes the currently selected track in the song
@@ -86,9 +98,56 @@ void SongView::trackDelete()
 		song->t.remove(tv->trk());
 		tv->setCurt(newsel);
 		tv->updateRows();
-		tv->repaint();
+		tv->update();
 		tl->updateList();
 	}
+}
+
+// Generates a new track with a basic bass line, derived from current
+// track's rhythm
+void SongView::trackBassLine()
+{
+	if (tv->trk()->trackMode() == DrumTab) {
+		KMessageBox::sorry(this, i18n("Can't generate a bass line from drum track"));
+		return;
+	}
+
+	TabTrack *origtrk = tv->trk();
+
+	if (trackNew()) {
+		TabTrack *newtrk = tv->trk();
+		newtrk->c.resize(origtrk->c.size());
+		ChordSelector cs(tv->devMan(), origtrk);
+
+		int note;
+
+		for (uint i = 0; i < origtrk->c.size(); i++) {
+			for (uint k = 0; k < origtrk->string; k++) {
+				cs.setApp(k, origtrk->c[i].a[k]);
+			}
+			cs.detectChord();
+			note = ((ChordListItem *) cs.chords->item(0))->tonic();
+
+			kdDebug() << "Column " << i << ", detected tonic " << note_name(note) << endl;
+
+			for (uint k = 0; k < newtrk->string; k++) {
+				newtrk->c[i].a[k] = -1;
+				newtrk->c[i].e[k] = 0;
+			}
+			
+			newtrk->c[i].l = origtrk->c[i].l;
+			newtrk->c[i].flags = 0;
+
+			// GREYFIX: make a better way of choosing a fret. This way
+			// it can, for example, be over max frets number.
+
+			newtrk->c[i].a[0] = note - newtrk->tune[0] % 12;
+			if (newtrk->c[i].a[0] < 0)  newtrk->c[i].a[0] += 12;
+		}
+	};
+
+	tv->updateRows();
+	tv->update();
 }
 
 // Sets current track's properties
@@ -116,6 +175,10 @@ bool SongView::trackProperties()
 		// Drum tab
 		if (st->mode->currentItem() == DrumTab) {
 			SetTabDrum *drum = (SetTabDrum *) st->modespec;
+			tv->trk()->string = drum->drums();
+			tv->trk()->frets = 0;
+			for (int i = 0; i < tv->trk()->string; i++)
+				tv->trk()->tune[i] = drum->tune(i);
 		}
 
 		tl->updateList();
