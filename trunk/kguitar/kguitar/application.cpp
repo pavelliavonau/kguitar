@@ -21,6 +21,7 @@
 #include <kurl.h>
 #include <kkeydialog.h>
 #include <kdebug.h>
+#include <kprinter.h>
 
 #include <qwidget.h>
 #include <qcursor.h>
@@ -28,7 +29,6 @@
 #include <qpixmap.h>
 #include <qkeycode.h>
 #include <qstatusbar.h>
-#include <qprinter.h>
 
 #include <qbuttongroup.h>
 #include <qradiobutton.h>
@@ -517,43 +517,15 @@ bool KGuitarPart::fileSave(QString fn)
 
 void KGuitarPart::filePrint()
 {
+// LVIFIX: enable status message
+//  slotStatusMsg(i18n("Printing..."));
 
-	KMessageBox::sorry(p, i18n("Printing is at this time not implemented. If you would\n"
-							   "help to implement this feature in KGuitar please write\n"
-							   "an email to: greycat@users.sourceforge.net"));
+	KPrinter printer;
+	if (printer.setup()) {
+		sv->print(&printer);
+	}
 
-//	   const int MARGIN = 10;
-//	   int pageNo = 1;
-
-//	   if ( printer->setup(this) ) {		// printer dialog
-//	statusBar()->message( "Printing..." );
-//	QPainter p;
-//	p.begin( printer );			// paint on printer
-//	p.setFont( e->font() );
-//	int yPos		= 0;			// y position for each line
-//	QFontMetrics fm = p.fontMetrics();
-//	QPaintDeviceMetrics metrics( printer ); // need width/height
-//											 // of printer surface
-//	for( int i = 0 ; i < e->numLines() ; i++ ) {
-//		if ( MARGIN + yPos > metrics.height() - MARGIN ) {
-//		QString msg;
-//		msg.sprintf( "Printing (page %d)...", ++pageNo );
-//		statusBar()->message( msg );
-//		printer->newPage();		// no more room on this page
-//		yPos = 0;			// back to top of page
-//		}
-//		p.drawText( MARGIN, MARGIN + yPos,
-//			metrics.width(), fm.lineSpacing(),
-//			ExpandTabs | DontClip,
-//			e->textLine( i ) );
-//		yPos = yPos + fm.lineSpacing();
-//	}
-//	p.end();				// send job to printer
-//	statusBar()->message( "Printing completed", 2000 );
-//	   } else {
-//	statusBar()->message( "Printing aborted", 2000 );
-//	   }
-
+//  slotStatusMsg(i18n("Ready."));
 }
 
 void KGuitarPart::options()

@@ -17,6 +17,7 @@
 #include "chordlist.h"
 #include "chordlistitem.h"
 #include "midilist.h"
+#include "songprint.h"
 
 #include <kapp.h>
 #include <kstddirs.h>
@@ -95,6 +96,8 @@ SongView::SongView(KXMLGUIClient *_XMLGUIClient, KCommandHistory *_cmdHist,
 	l->addWidget(split);
 
 	cmdHist = _cmdHist;
+
+	sp = new SongPrint();
 }
 
 SongView::~SongView()
@@ -103,6 +106,7 @@ SongView::~SongView()
 #ifdef WITH_TSE3
 	delete AlsaFactory, OSSFactory;
 #endif
+	delete sp;
 }
 
 // Refreshes all the views and resets all minor parameters in the
@@ -629,4 +633,9 @@ void SongView::insertTabs(TabTrack* trk)
 	}
 
 	cmdHist->addCommand(new InsertTabsCommand(tv, tv->trk(), trk));
+}
+
+void SongView::print(KPrinter *printer)
+{
+	sp->printSong(printer, song);
 }

@@ -21,6 +21,8 @@ class TabSong;
 class QSplitter;
 class KXMLGUIClient;
 class KCommandHistory;
+class KPrinter;
+class SongPrint;
 
 class SongView: public QWidget {
 	Q_OBJECT
@@ -29,6 +31,7 @@ public:
 			 QWidget *parent = 0, const char *name = 0);
 	~SongView();
 	void refreshView();
+	void print(KPrinter *printer);
 
 	TrackView *tv;
 	TrackList *tl;
@@ -62,6 +65,7 @@ private:
 	QSplitter *split, *splitv;
 	TabSong *song;
 	KCommandHistory *cmdHist;
+	SongPrint *sp;
 
 	// MIDI stuff
 	MidiList midiList;

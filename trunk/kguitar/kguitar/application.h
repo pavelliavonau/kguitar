@@ -77,7 +77,8 @@ private:
 
 	KGuitarBrowserExtension *m_extension;
 
-	QPrinter *printer;
+	// LVIFIX: do we need a printer variable, e.g. to remember settings ?
+	// KPrinter *printer;
 
 	KAction *newAct, *preferencesAct, *confTBAct, *browserAct, *sngPropAct,
 		*trkNewAct, *trkDeleteAct, *trkBassLineAct, *trkPropAct, *insChordAct,
