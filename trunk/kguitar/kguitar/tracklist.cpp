@@ -6,6 +6,7 @@
 #include <qheader.h>
 
 #include <kdebug.h>
+#include <klocale.h>
 #include <kpopupmenu.h>
 #include <kxmlgui.h>
 #include <kxmlguiclient.h>
@@ -20,10 +21,10 @@ TrackList::TrackList(TabSong *s, KXMLGUIClient *_XMLGUIClient, QWidget *parent =
     setAllColumnsShowFocus(TRUE);
 
 	addColumn("N");
-	addColumn("Title");
-	addColumn("Chn");
-	addColumn("Bank");
-	addColumn("Patch");
+	addColumn(i18n("Title"));
+	addColumn(i18n("Chn"));
+	addColumn(i18n("Bank"));
+	addColumn(i18n("Patch"));
 
 	updateList();
 
@@ -68,6 +69,8 @@ void TrackList::contentsMousePressEvent(QMouseEvent *e)
         KPopupMenu *menu(static_cast<KPopupMenu*>(tmpWidget));
         menu->popup(QCursor::pos());
     }
+
+    setSelected(currentItem(), TRUE);
 }
 
 
