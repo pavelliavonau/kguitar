@@ -4,6 +4,36 @@
 #include <qfile.h>
 #include <qdatastream.h>
 
+// Helper functions for duration conversion
+
+// Dot + undotted length -> full length
+Q_UINT16 TabSong::dot2len(int len, bool dot)
+{
+    return (Q_UINT16) (dot ? len+len/2 : len );
+}
+
+// Normal durations
+int nordur[6] = {480,240,120,60,30,15};
+// Dotted durations
+int dotdur[6] = {720,360,180,90,45,23};
+
+// Full length -> dot + undotted length
+void TabSong::len2dot(int l, int *len, bool *dot)
+{
+    for (uint i=0;i<6;i++) {
+	if (nordur[i] == l) {
+	    *len = l;
+	    *dot = FALSE;
+	    return;
+	}
+	if (dotdur[i] == l) {
+	    *len = l * 2 / 3;
+	    *dot = TRUE;
+	    return;
+	}
+    }
+}
+
 // KG format specs
 // ===============
 // It's really internal stuff of KGuitar and could be changed without any
@@ -134,6 +164,9 @@ bool TabSong::load_from_kg(QString fileName)
 	t.current()->b[0].time1=4;
 	t.current()->b[0].time2=4;
 
+	bool dot;
+	int dur;
+
 	do {
 	    s >> event;
 	    s >> elength;
@@ -155,8 +188,9 @@ bool TabSong::load_from_kg(QString fileName)
 		    t.current()->c[x-1].e[k] = 0;
 		}
 		s >> i16;
-		t.current()->c[x-1].l = i16;
-		t.current()->c[x-1].flags = 0;
+		len2dot(i16, &dur, &dot);
+		t.current()->c[x-1].l = dur;
+		t.current()->c[x-1].flags = (dot ? FLAG_DOT : 0);
 		break;
 	    case 'E':                   // Effect column
 		if (x==0) {             // Ignore if there were no tab cols
@@ -174,8 +208,9 @@ bool TabSong::load_from_kg(QString fileName)
 		for (int k=0;k<string;k++)
 		    t.current()->c[x-1].a[k] = -1;
 		s >> i16;
-		t.current()->c[x-1].l = i16;
-		t.current()->c[x-1].flags = FLAG_ARC;
+		len2dot(i16, &dur, &dot);
+		t.current()->c[x-1].l = dur;
+		t.current()->c[x-1].flags = (dot ? FLAG_ARC | FLAG_DOT : FLAG_ARC);
 		break;
 	    case 'S':
 		s >> cn; t.current()->b[bar-1].time1 = cn;
@@ -266,7 +301,7 @@ bool TabSong::save_to_kg(QString fileName)
 	    if (trk->c[x].flags & FLAG_ARC) {
 		s << (Q_UINT8) 'L';     // Continue of previous event
 		s << (Q_UINT8) 2;       // Size of event
-		s << (Q_UINT16) trk->c[x].l; // Duration
+		s << dot2len(trk->c[x].l, trk->c[x].flags & FLAG_DOT); // Duration
 	    } else {
 		s << (Q_UINT8) 'T';     // Tab column events
 		s << (Q_UINT8) tcsize;  // Size of event
@@ -276,7 +311,7 @@ bool TabSong::save_to_kg(QString fileName)
 		    if (trk->c[x].e[i])
 			needfx = TRUE;
 		}
-		s << (Q_UINT16) trk->c[x].l; // Duration
+		s << dot2len(trk->c[x].l, trk->c[x].flags & FLAG_DOT); // Duration
 		if (needfx) {
 		    s << (Q_UINT8) 'E'; // Effect event
 		    s << (Q_UINT8) trk->string; // Size of event
