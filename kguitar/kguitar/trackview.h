@@ -1,10 +1,9 @@
 #ifndef TRACKVIEW_H
 #define TRACKVIEW_H
 
-#include "config.h"
+#include "global.h"
 
 #include <qgridview.h>
-#include <qscrollview.h>
 
 #ifdef WITH_TSE3
 #include <tse3/MidiScheduler.h>
