@@ -69,8 +69,8 @@ private:
 
 #ifdef WITH_TSE3
 	TSE3::MidiScheduler *scheduler;
-	TSE3::Plt::AlsaMidiSchedulerFactory AlsaFactory;
-	TSE3::Plt::OSSMidiSchedulerFactory OSSFactory;
+	TSE3::Plt::AlsaMidiSchedulerFactory *AlsaFactory;
+	TSE3::Plt::OSSMidiSchedulerFactory *OSSFactory;
 	bool initScheduler();
 #endif
 };
