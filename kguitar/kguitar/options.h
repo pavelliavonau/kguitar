@@ -28,6 +28,8 @@ protected:
 // Though these aren't used in any compilation, they're here
 private slots:
 	void fillAlsaBox();
+    void applyBtnClicked();
+    void defaultBtnClicked();
 
 private:
 	QListView *alsaport;
