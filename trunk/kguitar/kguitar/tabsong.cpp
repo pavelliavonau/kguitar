@@ -601,7 +601,7 @@ bool TabSong::save_to_mid(QString fileName)
 		
 		ml.clear();
 		timer = 0;
-		uchar noteon = MIDI_NOTEON | (trk->channel - 1);
+		Q_UINT8 noteon = MIDI_NOTEON | (trk->channel - 1);
 		int midilen = 0, duration;
 
 		uchar pitch;
@@ -647,13 +647,14 @@ bool TabSong::save_to_mid(QString fileName)
 
 		MidiEvent *e;
 		Q_UINT8 lastevent = 0;
-		int laststamp = 0;
+		long laststamp = 0;
+
 		for (e = ml.first(); e != 0; e = ml.next()) {
 			writeVarLen(&s, e->timestamp - laststamp);
 			if (lastevent != e->type)
-				s << (Q_UINT8) e->type;
-			s << (Q_UINT8) e->data1;
-			s << (Q_UINT8) e->data2;
+				s << e->type;
+			s << e->data1;
+			s << e->data2;
 
 			lastevent = e->type;
 			laststamp = e->timestamp;
