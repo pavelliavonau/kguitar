@@ -18,6 +18,7 @@
 #include <qpainter.h>
 #include <qpen.h>
 #include <qkeycode.h>
+#include <qlistview.h>
 
 #include <qspinbox.h>
 #include <qcombobox.h>
@@ -37,7 +38,17 @@
 #include <signal.h>   // kill is declared on signal.h on bsd, not sys/signal.h
 #include <sys/signal.h>
 
-TrackView::TrackView(QWidget *parent, const char *name): QTableView(parent, name)
+#define VERTSPACE 30
+#define VERTLINE 10
+#define HORDUR 4
+#define HORCELL 8
+#define TIMESIGSIZE 14
+#define HORSCALE 10
+
+#define BOTTOMDUR	VERTSPACE+VERTLINE*(s+1)
+
+TrackView::TrackView(TabSong *s, QWidget *parent = 0, const char *name = 0):
+	QTableView(parent, name)
 {
 	setTableFlags(Tbl_autoVScrollBar | Tbl_smoothScrolling);
 	setFrameStyle(Panel | Sunken);
@@ -47,35 +58,11 @@ TrackView::TrackView(QWidget *parent, const char *name): QTableView(parent, name
 
 	setFocusPolicy(QWidget::StrongFocus);
 
-	song = new TabSong("Unnamed", 120);
-	song->t.append(new TabTrack(FretTab, "Guitar", 1, 0, 25, 6, 24));
-
-	curt = song->t.first();
-
-	uchar standtune[6] = {40, 45, 50, 55, 59, 64};
-
-	for (int i = 0; i < 6; i++)
-		curt->tune[i] = standtune[i];
-
-	curt->c.resize(1);
-	curt->b.resize(1);
-
-	for (int i = 0; i < MAX_STRINGS; i++) {
-		curt->c[0].a[i] = -1;
-		curt->c[0].e[i] = 0;
-	}
-	curt->c[0].l = 120;
-	curt->c[0].flags = 0;
-
-	curt->b[0].start = 0;
-	curt->b[0].time1 = 4;
-	curt->b[0].time2 = 4;
+	song = s;
+	curt = s->t.first();
 
 	updateRows();
 
-	curt->x = 0;
-	curt->xb = 0;
-	curt->y = 0;
 	lastnumber = 0;
 
     // MIDI INIT STUFF
@@ -83,7 +70,6 @@ TrackView::TrackView(QWidget *parent, const char *name): QTableView(parent, name
     fmPatch = locate("data", "kmid/fm/std.o3");
 
     if (!fmPatch.isEmpty()) {
-
         QFileInfo *fi = new QFileInfo(fmPatch);
         fmPatchDir = fi->dirPath().latin1();
         fmPatchDir += "/";
@@ -92,8 +78,7 @@ TrackView::TrackView(QWidget *parent, const char *name): QTableView(parent, name
         FMOut::setFMPatchesDirectory(fmPatchDir);
 
         kdDebug() << "FMPatchesDirectory: " << fmPatchDir << endl;
-    }
-    else {
+    } else {
         kdDebug() << "Can't find FMPatches from KMid !! ** MIDI not ready !! ***" << endl;
         globalHaveMidi = FALSE;
     }
@@ -122,14 +107,12 @@ TrackView::~TrackView()
 
 	kdDebug() << "Deleting devicemanager" << endl;
 	//	delete midi;
-
-	kdDebug() << "Deleting song..." << endl;
-	delete song;
 }
 
 void TrackView::updateRows()
 {
 	setNumRows(curt->b.size());
+	setMinimumHeight(VERTSPACE * 2 + VERTLINE * (curt->string - 1));
 }
 
 void TrackView::setFinger(int num, int fret)
@@ -176,14 +159,30 @@ void TrackView::addLegato()
 	update();
 }
 
-#define VERTSPACE 30
-#define VERTLINE 10
-#define HORDUR 4
-#define HORCELL 8
-#define TIMESIGSIZE 14
-#define HORSCALE 10
+void TrackView::insertChord()
+{
+	int a[MAX_STRINGS];
 
-#define BOTTOMDUR	VERTSPACE+VERTLINE*(s+1)
+	ChordSelector cs(devMan(), curt);
+	for (int i = 0; i < curt->string; i++)
+		cs.setApp(i, curt->c[curt->x].a[i]);
+
+	// required to detect chord from tabulature
+	cs.detectChord();
+
+    int i;
+
+    // set fingering right if frets > 5
+    for (i = 0; i < curt->string; i++)
+        a[i] = cs.app(i);
+    cs.fng->setFingering(a);
+
+	if (cs.exec()) {
+		for (i = 0; i < curt->string; i++)
+			a[i] = cs.app(i);
+		curt->insertStrum(cs.scheme(), a);
+	}
+}
 
 // Determine horizontal offset between two columns - n and n+1
 int TrackView::horizDelta(uint n)
@@ -706,6 +705,17 @@ void TrackView::mousePressEvent(QMouseEvent *e)
 
 		}
 	}
+}
+
+void TrackView::selectTrack(QListViewItem *item)
+{
+	int num = item->text(0).toInt();
+
+	QListIterator<TabTrack> it(song->t);
+	for (int n = 1; n != num; ++it) { n++; };
+	curt = it.current();
+	updateRows();
+	repaint();
 }
 
 void TrackView::playTrack()

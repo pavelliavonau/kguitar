@@ -8,16 +8,15 @@
 class TabSong;
 class TabTrack;
 class DeviceManager;
+class QListViewItem;
 
-
-class TrackView: public QTableView
-{
+class TrackView: public QTableView {
     Q_OBJECT
 public:
-    TrackView(QWidget *parent=0, const char *name=0);
+    TrackView(TabSong* s, QWidget *parent = 0, const char *name = 0);
     ~TrackView();
 
-    TabSong* sng() { return song; }
+//     TabSong* sng() { return song; }
 
     TabTrack* trk() { return curt; }
     void setCurt(TabTrack *trk) { curt = trk; }
@@ -42,6 +41,7 @@ public slots:
     void addHarmonic();
     void addArtHarm();
     void addLegato();
+	void insertChord();
     void keyLeft();
     void keyRight();
     void keyUp();
@@ -67,6 +67,7 @@ public slots:
     void key8();
     void key9();
     void key0();
+	void selectTrack(QListViewItem *);
     void playTrack();
     void stopPlayTrack();
 
