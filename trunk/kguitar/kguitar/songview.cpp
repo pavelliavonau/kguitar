@@ -416,7 +416,6 @@ void SongView::playMidi(MidiList &ml, bool playSong = TRUE)
 		phraseEdit.insert(TSE3::MidiEvent(TSE3::MidiCommand(TSE3::MidiCommand_NoteOn, e->chn, 0/*port*/,
 															e->data1/*note*/, e->data2 /*velocity*/),
 										  e->timestamp, 0/*velocity*/, e->timestamp + e->duration));
-
 	}
 
 	// Now assemble the Song
@@ -467,14 +466,13 @@ void SongView::playMidi(MidiList &ml, bool playSong = TRUE)
 
     // Play and wait for the end
 	transport.play(&m_song, 0);
-	while (transport.status() != TSE3::Transport::Resting)
-		transport.poll();
+// 	while (transport.status() != TSE3::Transport::Resting)
+// 		transport.poll();
 
 	midiInUse = FALSE;
 	phraseEdit.clearSelection();
 
 	delete scheduler;
-
 #endif
 }
 
