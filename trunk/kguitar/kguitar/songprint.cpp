@@ -66,7 +66,7 @@ int SongPrint::barWidth(int bn, TabTrack *trk)
 }
 
 // return width in pixels of column cl in track trk
-// depends on note length, font and possibly effect
+// depends on note length, font and effect
 // magic number "21" scales quarter note to about one centimeter
 // LVIFIX: make logarithmic ???
 
@@ -76,10 +76,22 @@ int SongPrint::colWidth(int cl, TabTrack *trk)
 	w = trk->c[cl].l;
 	w *= br8w;
 	w /= 21;
+	// adjust for dots and triplets
 	if (trk->c[cl].flags & FLAG_DOT)
 		w = (int) (w * 1.5);
+	if (trk->c[cl].flags & FLAG_TRIPLET)
+		w = (int) (w * 2 / 3);
+	// make sure column is wide enough
 	if (w < 2 * br8w)
 		w = 2 * br8w;
+	// make sure effects fit in column
+	const int lstStr = trk->string - 1;
+	for (int i = 0; i < lstStr + 1; i++) {
+		if (trk->c[cl].e[i] == EFFECT_LEGATO
+			|| trk->c[cl].e[i] == EFFECT_SLIDE)
+			if (w < 2 * ystep)
+				w = 2 * ystep;
+	}
 	return w;
 }
 
@@ -88,11 +100,18 @@ int SongPrint::colWidth(int cl, TabTrack *trk)
 void SongPrint::drawBar(int bn, TabTrack *trk, int es)
 {
 	TabTrack *curt = trk;	// LVIFIX
+	QFont fTBar2 = QFont("Helvetica", 7, QFont::Normal); // LVIFIX class var ?
 
 	int lastxpos = 0;		// fix compiler warning
+	int extSpAftNote;
 	int xdelta;
+	bool ringing[MAX_STRINGS];
 	uint s = curt->string - 1;
 	int i;
+
+	for (uint i = 0; i <= s; i++) {
+		ringing[i] = FALSE;
+	}
 
 	// print timesig if necessary
 	if (trk->showBarSig(bn)) {
@@ -125,7 +144,8 @@ void SongPrint::drawBar(int bn, TabTrack *trk, int es)
 
 		// Drawing duration marks
 		// Draw connection with previous, if applicable
-		if ((t > 0) && (t>curt->b[bn].start) && (curt->c[t-1].l == curt->c[t].l))
+		if ((t > 0) && (t > (unsigned) curt->b[bn].start)
+					&& (curt->c[t-1].l == curt->c[t].l))
 			xdelta = lastxpos;
 		else
 			xdelta = xpos + ystep / 2;
@@ -156,14 +176,154 @@ void SongPrint::drawBar(int bn, TabTrack *trk, int es)
 			break;
 		} // end switch (curt->c[t].l)
 
-		// print this column
+		// Draw dot is not here, see: "Draw the number column"
+
+		// Length of interval to next column - adjusted if dotted
+		// calculated here because it is required by triplet code
+
+		xdelta = colWidth(t, trk);
+
+		// Draw triplet - GREYFIX: ugly code, needs to be fixed
+		// somehow... Ideally, triplets should be drawn in a second
+		// loop, after everything else would be done.
+
+		if (curt->c[t].flags & FLAG_TRIPLET) {
+ 			if ((curt->c.size() >= t + 1) && (t) &&
+ 				(curt->c[t - 1].flags & FLAG_TRIPLET) &&
+ 				(curt->c[t + 1].flags & FLAG_TRIPLET) &&
+				(curt->c[t - 1].l == curt->c[t].l) &&
+				(curt->c[t + 1].l == curt->c[t].l)) {
+				extSpAftNote = (colWidth(t, trk) * es) / barExpWidthLeft;
+				p->drawLine(xpos + xdelta + extSpAftNote, ypos + 3 * ystep,
+							xpos + xdelta + extSpAftNote, ypos + 3 * ystep - 3);
+				p->drawLine(xpos + xdelta + extSpAftNote, ypos + 3 * ystep,
+							lastxpos, ypos + 3 * ystep);
+				p->drawLine(lastxpos, ypos + 3 * ystep,
+							lastxpos, ypos + 3 * ystep - 3);
+				p->setFont(fTBar2);
+				drawStrFccAt(xpos, -4, "3");
+				p->setFont(fTBar);
+ 			} else {
+				if (!(((curt->c.size() >= t + 2) &&
+					   (curt->c[t + 1].flags & FLAG_TRIPLET) &&
+					   (curt->c[t + 2].flags & FLAG_TRIPLET) &&
+					   (curt->c[t + 1].l == curt->c[t].l) &&
+					   (curt->c[t + 2].l == curt->c[t].l)) ||
+					  ((t >= 2) &&
+					   (curt->c[t - 1].flags & FLAG_TRIPLET) &&
+					   (curt->c[t - 2].flags & FLAG_TRIPLET) &&
+					   (curt->c[t - 1].l == curt->c[t].l) &&
+					   (curt->c[t - 2].l == curt->c[t].l)))) {
+					p->setFont(fTBar2);
+					drawStrFccAt(xpos, -4, "3");
+					p->setFont(fTBar);
+				}
+			}
+		}
+
+		// Draw arcs to backward note
+
+		if (curt->c[t].flags & FLAG_ARC)
+			p->drawArc(lastxpos, ypos + 2 * ystep + 1,
+					   xpos - lastxpos, ystep / 2 + 1, 0, -180 * 16);
+
+		// Draw palm muting
+
+		if (curt->c[t].flags & FLAG_PM) {
+			p->setFont(fTBar2);
+			QString pm = "PM";
+			drawStrFccAt(xpos, trk->string, pm);
+			p->setFont(fTBar);
+		}
+
+		// Draw the number column
 		for (int i = 0; i < trk->string; i++) {
 			if (trk->c[t].a[i] != -1) {
 				QString note;
-				note.setNum(trk->c[t].a[i]);
+				if (curt->c[t].a[i] == DEAD_NOTE)
+					note = "X";
+				else
+					note.setNum(trk->c[t].a[i]);
+				// Draw dot
+				if (curt->c[t].flags & FLAG_DOT)
+					note += ".";
 				drawStrFccAt(xpos, i, note);
+				if (ringing[i]) {
+					// LVIFIX: replace 2 and 4 by (font-dependent) calculation
+					p->drawLine(xpos - 4, ypos - i * ystep,
+								xpos - 4 - 2, ypos - i * ystep - 2);
+					p->drawLine(xpos - 4, ypos - i * ystep,
+								xpos - 4 - 2, ypos - i * ystep + 2);
+					ringing[i] = FALSE;
+				}
 			}
-		}
+
+			// Draw effects
+			// GREYFIX - use lastxpos, not xdelta
+
+			switch (curt->c[t].e[i]) {
+			case EFFECT_HARMONIC:
+				// LVIFIX: replace 6 by (font-dependent) calculation
+				p->setFont(fTBar2);
+				drawStrFccAt(xpos + 6, i, " H");
+				p->setFont(fTBar);
+				break;
+			case EFFECT_ARTHARM:
+				// LVIFIX: replace 6 by (font-dependent) calculation
+				p->setFont(fTBar2);
+				drawStrFccAt(xpos + 6, i, " AH");
+				p->setFont(fTBar);
+				break;
+			case EFFECT_LEGATO:
+				// draw arc to next note
+				// LVIFIX: replace 4 by (font-dependent) calculation
+				// the arc should (probably) be as wide as the line between
+				// this note and the next. see drawStrFccAt
+				// extra space between notes must also be added
+				if ((t < curt->c.size() - 1) && (curt->c[t + 1].a[i] >= 0)) {
+					extSpAftNote = (colWidth(t, trk) * es) / barExpWidthLeft;
+					p->drawArc(xpos + 4, ypos - i * ystep - ystep / 2,
+							   xdelta + extSpAftNote - 2 * 4, ystep / 2,
+							   0, 180 * 16);
+					p->setFont(fTBar2);
+					// LVIFIX: draw HO/PO centered over arc
+					if (curt->c[t + 1].a[i] > curt->c[t].a[i]) {
+						drawStrFccAt(xpos + xdelta / 2, trk->string, "HO");
+					} else if (curt->c[t + 1].a[i] < curt->c[t].a[i]) {
+						drawStrFccAt(xpos + xdelta / 2, trk->string, "PO");
+					}
+					p->setFont(fTBar);
+				}
+				break;
+			case EFFECT_SLIDE:
+				// LVIFIX: replace 4 by (font-dependent) calculation
+				// the slide symbol should (probably) be as wide as the line
+				// between this note and the next. see drawStrFccAt
+				// extra space between notes must also be added
+				if ((t < curt->c.size() - 1) && (curt->c[t + 1].a[i] >= 0)) {
+					extSpAftNote = (colWidth(t, trk) * es) / barExpWidthLeft;
+					if (curt->c[t + 1].a[i] > curt->c[t].a[i]) {
+						p->drawLine(xpos + 4, ypos - i * ystep + ystep / 2 - 2,
+									xpos + xdelta + extSpAftNote - 4,
+									ypos - i * ystep - ystep / 2 + 2);
+					} else {
+						p->drawLine(xpos + 4, ypos - i * ystep - ystep / 2 + 2,
+									xpos + xdelta + extSpAftNote - 4,
+									ypos - i * ystep + ystep / 2 - 2);
+					}
+					p->setFont(fTBar2);
+					// LVIFIX: draw SL centered over line
+					drawStrFccAt(xpos + xdelta / 2, trk->string, "SL");
+					p->setFont(fTBar);
+				}
+				break;
+			case EFFECT_LETRING:
+				ringing[i] = TRUE;
+				break;
+			} // end switch (curt->c[t].e[i])
+			
+		} // end for (int i = 0 ...
+		
 		lastxpos = xpos;
 		xpos += colWidth(t, trk);
 
