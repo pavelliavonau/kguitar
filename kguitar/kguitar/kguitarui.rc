@@ -28,9 +28,27 @@
    <text>&amp;Track</text>
    <Action name="track_properties" />
   </Menu>
-  <Menu noMerge="1" name="insert" >
-   <text>&amp;Insert</text>
-   <Action name="insert_chord" />
+  <Menu noMerge="1" name="note" >
+   <text>&amp;Note</text>
+   <Menu name="insert" >
+    <text>&amp;Insert</text>
+    <Action name="insert_chord" />
+   </Menu>
+   <Menu name="duration" >
+    <text>&amp;Duration</text>
+    <Action name="set_len1" />
+    <Action name="set_len2" />
+    <Action name="set_len4" />
+    <Action name="set_len8" />
+    <Action name="set_len16" />
+    <Action name="set_len32" />
+   </Menu>
+   <Menu name="effects" >
+    <text>&amp;Effects</text>
+    <Action name="fx_legato" />
+    <Action name="fx_nat_harm" />
+    <Action name="fx_art_harm" />
+   </Menu>
   </Menu>
   <Menu noMerge="1" name="settings" >
    <text>&amp;Settings</text>
@@ -81,8 +99,8 @@
   <Separator/>
   <Action name="time_sig" />
   <Action name="link_prev" />
-  <Action name="add_legato" />
-  <Action name="nat_harm" />
-  <Action name="art_harm" />
+  <Action name="fx_legato" />
+  <Action name="fx_nat_harm" />
+  <Action name="fx_art_harm" />
  </ToolBar>
 </kpartgui>
