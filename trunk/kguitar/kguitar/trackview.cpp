@@ -45,7 +45,7 @@ TrackView::TrackView(TabSong *s, KXMLGUIClient *_XMLGUIClient, DeviceManager *_d
 
 	setFocusPolicy(QWidget::StrongFocus);
 
-    m_XMLGUIClient = _XMLGUIClient;
+	m_XMLGUIClient = _XMLGUIClient;
 	midi = _dm;
 
 	song = s;

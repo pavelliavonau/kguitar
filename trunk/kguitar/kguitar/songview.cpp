@@ -327,151 +327,151 @@ void SongView::stopPlayTrack()
 void SongView::playMidi(MidiList &ml)
 {
 #ifdef HAVE_MIDI
-    kdDebug() << "SongView::playMidi" << endl;
+	kdDebug() << "SongView::playMidi" << endl;
 
-    if (ml.isEmpty()) {
-        midiStopPlay = TRUE;
-        midiInUse = FALSE;
-        kdDebug() << "    MidiList is empty!! Nothing to play." << endl;
-        return;
-    }
+	if (ml.isEmpty()) {
+		midiStopPlay = TRUE;
+		midiInUse = FALSE;
+		kdDebug() << "    MidiList is empty!! Nothing to play." << endl;
+		return;
+	}
 
-    kdDebug() << "    Parent1 pid: " << getpid() << endl;
+	kdDebug() << "    Parent1 pid: " << getpid() << endl;
 
-    int defDevice = midi->defaultDevice(); // get the device for the child
-    if (defDevice == -1) {
-        kdDebug() << "There is no device available" << endl;
-        return;
-    }
+	int defDevice = midi->defaultDevice(); // get the device for the child
+	if (defDevice == -1) {
+		kdDebug() << "There is no device available" << endl;
+		return;
+	}
 
-    midi->closeDev(); // close MidiDevice for child process
-    delete midi;
+	midi->closeDev(); // close MidiDevice for child process
+	delete midi;
 
-    int status;
-    pid_t m_pid;
+	int status;
+	pid_t m_pid;
 
-    QApplication::flushX();
+	QApplication::flushX();
 
-    m_pid = fork();       // create child process
+	m_pid = fork();       // create child process
 
-    if (m_pid == -1) {
-        kdDebug() << "    **** Error: can't fork a child process!!" << endl;
-        return;
-    }
+	if (m_pid == -1) {
+		kdDebug() << "    **** Error: can't fork a child process!!" << endl;
+		return;
+	}
 
-    if (m_pid == 0) {      // ***** child process *****
+	if (m_pid == 0) {      // ***** child process *****
 
-        kdDebug() << "    --child process with pid: " << getpid() << " and parent pid: " << getppid() << endl;
+		kdDebug() << "    --child process with pid: " << getpid() << " and parent pid: " << getppid() << endl;
 
-        // create own MidiDevice for child process
-        QString fmPatch, fmPatchDir;
-        fmPatch = locate("data", "kmid/fm/std.o3");
+		// create own MidiDevice for child process
+		QString fmPatch, fmPatchDir;
+		fmPatch = locate("data", "kmid/fm/std.o3");
 
-        if (!fmPatch.isEmpty()) {
+		if (!fmPatch.isEmpty()) {
 
-            QFileInfo *fi = new QFileInfo(fmPatch);
-            fmPatchDir = fi->dirPath().latin1();
-            fmPatchDir += "/";
-            globalHaveMidi = TRUE;
+			QFileInfo *fi = new QFileInfo(fmPatch);
+			fmPatchDir = fi->dirPath().latin1();
+			fmPatchDir += "/";
+			globalHaveMidi = TRUE;
 
-            FMOut::setFMPatchesDirectory(fmPatchDir);
+			FMOut::setFMPatchesDirectory(fmPatchDir);
 
-            kdDebug() << "      child process: FMPatchesDirectory: " << fmPatchDir << endl;
-        }
-        else {
-            kdDebug() << "      child process: Can't find FMPatches from KMid !! ** MIDI not ready !! ***" << endl;
-            globalHaveMidi = FALSE;
-        }
+			kdDebug() << "      child process: FMPatchesDirectory: " << fmPatchDir << endl;
+		}
+		else {
+			kdDebug() << "      child process: Can't find FMPatches from KMid !! ** MIDI not ready !! ***" << endl;
+			globalHaveMidi = FALSE;
+		}
 
-        DeviceManager *c_midi;
+		DeviceManager *c_midi;
 
-        kdDebug() << "      child process: c_midi = new DeviceManager(-1)" << endl;
-        c_midi = new DeviceManager(-1);
+		kdDebug() << "      child process: c_midi = new DeviceManager(-1)" << endl;
+		c_midi = new DeviceManager(-1);
 
-        if (c_midi->initManager() == 0)
-            kdDebug() << "      child process: c_midi->initManager()...  OK" << endl;
-        else {
-            kdDebug() << "      child process: c_midi->initManager() FAILED *******" << endl;
-            exit(EXIT_FAILURE);
-        }
+		if (c_midi->initManager() == 0)
+			kdDebug() << "      child process: c_midi->initManager()...  OK" << endl;
+		else {
+			kdDebug() << "      child process: c_midi->initManager() FAILED *******" << endl;
+			exit(EXIT_FAILURE);
+		}
 
-        MidiMapper *c_map = new MidiMapper(NULL); // alinx - for future option in Optiondialog
-                                                  // Maps are stored in:
-                                                  // "$DKEDIR/share/apps/kmid/maps/*.map"
+		MidiMapper *c_map = new MidiMapper(NULL); // alinx - for future option in Optiondialog
+		                                          // Maps are stored in:
+		                                          // "$DKEDIR/share/apps/kmid/maps/*.map"
 
-        kdDebug() << "      child process: c_midi->setMidiMap()" << endl;
-        c_midi->setMidiMap(c_map);
+		kdDebug() << "      child process: c_midi->setMidiMap()" << endl;
+		c_midi->setMidiMap(c_map);
 
-        kdDebug() << "      child process: c_midi->openDev()" << endl;
-        c_midi->openDev();
-        kdDebug() << "      child process: c_midi->initDev()" << endl;
-        c_midi->initDev();
-        kdDebug() << "      child process: c_midi->setDefaultDevice(" << defDevice << ")" << endl;
-        c_midi->setDefaultDevice(defDevice);
+		kdDebug() << "      child process: c_midi->openDev()" << endl;
+		c_midi->openDev();
+		kdDebug() << "      child process: c_midi->initDev()" << endl;
+		c_midi->initDev();
+		kdDebug() << "      child process: c_midi->setDefaultDevice(" << defDevice << ")" << endl;
+		c_midi->setDefaultDevice(defDevice);
 
-        MidiEvent *e;
-        long tempo;
-        int tpcn = 4;          // ALINXFIX: TicksPerCuarterNote: make it as option
+		MidiEvent *e;
+		long tempo;
+		int tpcn = 4;          // ALINXFIX: TicksPerCuarterNote: make it as option
 
-        c_midi->chnPatchChange(0, tv->trk()->patch);
-        c_midi->tmrStart(tpcn);
+		c_midi->chnPatchChange(0, tv->trk()->patch);
+		c_midi->tmrStart(tpcn);
 
-        for (e = ml.first(); e != 0; e = ml.next()) {
-            tempo = e->timestamp * 2;     // ALINXFIX: make the tempo as option
+		for (e = ml.first(); e != 0; e = ml.next()) {
+			tempo = e->timestamp * 2;     // ALINXFIX: make the tempo as option
 
-            c_midi->wait(tempo);
-            c_midi->noteOn(0, e->data1, e->data2);
-        }
-        c_midi->wait(0);
-        c_midi->sync();
-        c_midi->tmrStop();
+			c_midi->wait(tempo);
+			c_midi->noteOn(0, e->data1, e->data2);
+		}
+		c_midi->wait(0);
+		c_midi->sync();
+		c_midi->tmrStop();
 
-        sleep(1);
-        exit(EXIT_SUCCESS);              // exit child process
-    }
-    else {                               // ****** parent process ******
-        kdDebug() << "    Parent3 pid: " << getpid() << endl;
+		sleep(1);
+		exit(EXIT_SUCCESS);              // exit child process
+	}
+	else {                               // ****** parent process ******
+		kdDebug() << "    Parent3 pid: " << getpid() << endl;
 
-        pid_t child_pid;
-        child_pid = m_pid;   // copy child pid for kill()
+		pid_t child_pid;
+		child_pid = m_pid;   // copy child pid for kill()
 
-        while ((m_pid = waitpid(-1, &status, WNOHANG)) == 0) { //wait for child process
-            kdDebug() << "    wait for child process (pid: " << child_pid << ")" << endl;
+		while ((m_pid = waitpid(-1, &status, WNOHANG)) == 0) { //wait for child process
+			kdDebug() << "    wait for child process (pid: " << child_pid << ")" << endl;
 
-            kapp->processEvents();
+			kapp->processEvents();
 
-            if (midiStopPlay) {
-                kdDebug() << "====> try to stop the midi timer..." << endl;
-                kill(child_pid, SIGTERM);
-                waitpid(child_pid, NULL, 0);
-            }
-        }
+			if (midiStopPlay) {
+				kdDebug() << "====> try to stop the midi timer..." << endl;
+				kill(child_pid, SIGTERM);
+				waitpid(child_pid, NULL, 0);
+			}
+		}
 
-        if (WIFEXITED(status) != 0)
-            kdDebug() << "    child process: no error on exit" << endl;
-        else
-            kdDebug() << "    child process exit with error => " << WEXITSTATUS(status) << endl;
+		if (WIFEXITED(status) != 0)
+			kdDebug() << "    child process: no error on exit" << endl;
+		else
+			kdDebug() << "    child process exit with error => " << WEXITSTATUS(status) << endl;
 
-        midiInUse = FALSE;
+		midiInUse = FALSE;
 
-        kdDebug() << "    -->reopen MidiDevice 'midi'..." << endl;
+		kdDebug() << "    -->reopen MidiDevice 'midi'..." << endl;
 
-        kdDebug() << "    -->midi = new DeviceManager(-1)" << endl;
-        midi = new DeviceManager(-1);
+		kdDebug() << "    -->midi = new DeviceManager(-1)" << endl;
+		midi = new DeviceManager(-1);
 
-        if (midi->initManager() == 0)
-            kdDebug() << "    -->midi->initManager()...  OK" << endl;
-        else {
-            kdDebug() << "    -->midi->initManager() FAILED *******" << endl;
-            return;
-        }
-        kdDebug() << "    -->midi->openDev()" << endl;
-        midi->openDev();      // reopen MidiDevice
-        kdDebug() << "    -->midi->initDev()" << endl;
-        midi->initDev();
-        kdDebug() << "    -->midi->setDefaultDevice(" << defDevice << ")" << endl;
-        midi->setDefaultDevice(defDevice);
-    }
+		if (midi->initManager() == 0)
+			kdDebug() << "    -->midi->initManager()...  OK" << endl;
+		else {
+			kdDebug() << "    -->midi->initManager() FAILED *******" << endl;
+			return;
+		}
+		kdDebug() << "    -->midi->openDev()" << endl;
+		midi->openDev();      // reopen MidiDevice
+		kdDebug() << "    -->midi->initDev()" << endl;
+		midi->initDev();
+		kdDebug() << "    -->midi->setDefaultDevice(" << defDevice << ")" << endl;
+		midi->setDefaultDevice(defDevice);
+	}
 #endif
 }
 
