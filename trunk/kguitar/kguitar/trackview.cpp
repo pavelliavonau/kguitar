@@ -20,7 +20,7 @@ TrackView::TrackView(QWidget *parent,const char *name): QTableView(parent,name)
     setFocusPolicy(QWidget::StrongFocus);
 
     song = new TabSong("Unnamed",120);
-    song->t.append(new TabTrack(0,25,6));
+    song->t.append(new TabTrack(GuitarTab,0,25,6));
 
     curt = song->t.first();
     
@@ -198,10 +198,12 @@ void TrackView::keyPressEvent(QKeyEvent *e)
 	curt->c.at(curt->x)->a[curt->y]=-1;
 	break;
     case Key_Plus:
-	curt->c.at(curt->x)->l--;
+	if (curt->c.at(curt->x)->l>1)
+	    curt->c.at(curt->x)->l--;
 	break;
     case Key_Minus:
-	curt->c.at(curt->x)->l++;
+	if (curt->c.at(curt->x)->l<6)
+	    curt->c.at(curt->x)->l++;
 	break;	
     default:
 	e->ignore();
