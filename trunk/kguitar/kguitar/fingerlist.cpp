@@ -25,6 +25,11 @@ void FingerList::clear()
   num=0;
 }
 
+void FingerList::switchAuto(bool update)
+{
+  setAutoUpdate(update);
+}
+
 void FingerList::addFingering(const int a[MAX_STRINGS], bool update=TRUE)
 {
   for (int i=0;i<MAX_STRINGS;i++)
