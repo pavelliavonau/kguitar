@@ -24,9 +24,10 @@ TrackView::TrackView(QWidget *parent,const char *name): QTableView(parent,name)
 
     curt = song->t.first();
     
-    int standtune[6]={40,45,50,55,59,64};
+    uchar standtune[6]={40,45,50,55,59,64};
 
     curt->setTuning(standtune);
+//    curt->xi=QListIterator<TabColumn>(curt->c);
     curt->x=0;
     curt->y=0;
 
@@ -39,6 +40,11 @@ TrackView::TrackView(QWidget *parent,const char *name): QTableView(parent,name)
 TrackView::~TrackView()
 {
     delete song;
+}
+
+void TrackView::setFinger(int num,int fret)
+{
+    curt->c.at(curt->x)->a[num]=fret;
 }
 
 void TrackView::paintCell(QPainter *p, int row, int col)
@@ -62,37 +68,52 @@ void TrackView::paintCell(QPainter *p, int row, int col)
 	    if ((curt->c.at()==curt->x) && 
 		(curt->y==i)) {
 		p->setBrush(KApplication::getKApplication()->selectColor);
-		p->drawRect(xpos,VERTSPACE+(s-i)*VERTLINE-VERTLINE/2,VERTLINE,VERTLINE);
+		p->drawRect(xpos,VERTSPACE+(s-i)*VERTLINE-VERTLINE/2,
+			    VERTLINE,VERTLINE);
 		p->setBrush(KApplication::getKApplication()->windowColor);
 		if (tc->a[i]!=-1) {
 		    tmp.setNum(tc->a[i]);
 		    p->setPen(KApplication::getKApplication()->selectTextColor);
-		    p->drawText(xpos,VERTSPACE+(s-i)*VERTLINE-VERTLINE/2,VERTLINE,VERTLINE,AlignCenter,tmp);
+		    p->drawText(xpos,VERTSPACE+(s-i)*VERTLINE-VERTLINE/2,
+				VERTLINE,VERTLINE,AlignCenter,tmp);
 		    p->setPen(NoPen);
 		}
 	    } else {
 		if (tc->a[i]!=-1) {
 		    tmp.setNum(tc->a[i]);
-		    p->drawRect(xpos,VERTSPACE+(s-i)*VERTLINE-VERTLINE/2,VERTLINE,VERTLINE);
-		    p->drawText(xpos,VERTSPACE+(s-i)*VERTLINE-VERTLINE/2,VERTLINE,VERTLINE,AlignCenter,tmp);
+		    p->drawRect(xpos,VERTSPACE+(s-i)*VERTLINE-VERTLINE/2,
+				VERTLINE,VERTLINE);
+		    p->drawText(xpos,VERTSPACE+(s-i)*VERTLINE-VERTLINE/2,
+				VERTLINE,VERTLINE,AlignCenter,tmp);
 		}
 	    }
 	}
+
+	// Drawing duration marks
+
 	p->setPen(SolidLine);
         switch (tc->l) {
-	case 60:  // 1/8
+	case 6: // 1/32
+	    p->drawLine(xpos+VERTLINE/2,BOTTOMDUR+VERTLINE-4,
+			xpos+VERTLINE/2+HORDUR,BOTTOMDUR+VERTLINE-4);
+	case 5: // 1/16
+	    p->drawLine(xpos+VERTLINE/2,BOTTOMDUR+VERTLINE-2,
+			xpos+VERTLINE/2+HORDUR,BOTTOMDUR+VERTLINE-2);
+	case 4: // 1/8
 	    p->drawLine(xpos+VERTLINE/2,BOTTOMDUR+VERTLINE,
 			xpos+VERTLINE/2+HORDUR,BOTTOMDUR+VERTLINE);
-	case 120: // 1/4
+	case 3: // 1/4
 	    p->drawLine(xpos+VERTLINE/2,BOTTOMDUR,
 			xpos+VERTLINE/2,BOTTOMDUR+VERTLINE);
-	case 240: // 1/2
+	case 2: // 1/2
 	    p->drawLine(xpos+VERTLINE/2,BOTTOMDUR+3,
 			xpos+VERTLINE/2,BOTTOMDUR+VERTLINE);
-	case 480: // whole
+	case 1: // whole
 	    break;
 	}
-	xpos+=VERTLINE+VERTLINE/2;
+
+	// Length of interval
+	xpos+=(7-tc->l)*HORCELL;
     }
 
     p->setBrush(SolidPattern);
@@ -177,10 +198,10 @@ void TrackView::keyPressEvent(QKeyEvent *e)
 	curt->c.at(curt->x)->a[curt->y]=-1;
 	break;
     case Key_Plus:
-	curt->c.at(curt->x)->l*=2;
+	curt->c.at(curt->x)->l--;
 	break;
     case Key_Minus:
-	curt->c.at(curt->x)->l/=2;
+	curt->c.at(curt->x)->l++;
 	break;	
     default:
 	e->ignore();
