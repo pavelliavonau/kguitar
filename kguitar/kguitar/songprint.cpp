@@ -67,9 +67,6 @@
 #include <qprinter.h>
 #include <kglobal.h>
 
-#include <iostream>		// required for cout and friends
-using namespace std;		// required for cout and friends
-
 static const QString notes[7] = {"C", "D", "E", "F", "G", "A", "B"};
 
 /***************************************************************************
@@ -223,9 +220,7 @@ void SongPrint::initFonts()
 	if (!fontIsExactMatch(fFeta)) {
 		delete fFeta;
 		fFeta = 0;
-		cout << "KGuitar: could not find font 'TeX feta19',"
-		     << " cannot show or print score"
-		     << endl;
+		kdWarning() << "KGuitar: could not find font 'TeX feta19', cannot show or print score\n";
 	}
 }
 
