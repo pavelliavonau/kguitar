@@ -195,5 +195,25 @@ private:
 	TabTrack *trk;
 	TrackView *tv;
 };
+
+// Insert strum
+class InsertStrumCommand : public KCommand
+{
+public:
+	InsertStrumCommand(TrackView *_tv, TabTrack *&_trk, int _sch, int *_chord);
+	virtual ~InsertStrumCommand();
+
+	virtual void execute();
+	virtual void unexecute();
+
+private:
+	int sch, x, y, xsel, len, toadd;
+	int chord[MAX_STRINGS];
+	QArray<TabColumn> c;
+	bool sel;
+	TabTrack *trk;
+	TrackView *tv;
+};
+
 #endif
 
