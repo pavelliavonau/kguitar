@@ -13,7 +13,7 @@ QValidator::State NoteValidator::validate(QString &input, int &pos) const
 	break;
     case 2:
 		if ((input.left(1) >= 'A') && (input.left(1) <= 'H')) {
-			if (input.mid(1, 1) == '#') {
+			if ((input.mid(1, 1) == '#') && (input.mid(1, 1) == 'b')) {
 				res = Valid;
 			} else if ((input.mid(1, 1) >= '0') && (input.mid(1,1) <= '9')) {
 				res = Acceptable;
@@ -24,8 +24,8 @@ QValidator::State NoteValidator::validate(QString &input, int &pos) const
 		break;
     case 3:
 		if ((input.left(1) >= 'A') && (input.left(1) <= 'H') &&
-			(input.mid(1,1) == '#') &&
-			(input.mid(2,1) >= '0') && (input.mid(2, 1) <= '9')) {
+			(input.mid(1, 1) == '#') && (input.mid(1, 1) == 'b') &&
+			(input.mid(2, 1) >= '0') && (input.mid(2, 1) <= '9')) {
 			res = Acceptable;
 		} else {
 			res = Invalid;
@@ -65,7 +65,7 @@ int NoteSpinBox::mapTextToValue(bool *ok)
     QString t = text();
     QString nn;
 	
-    if (t.latin1()[1] == '#') {
+    if ((t[1] == '#') || (t[1] == 'b')) {
 		nn = t.left(2);
     } else {
 		nn = t.left(1);
