@@ -51,11 +51,6 @@ void SetTabDrum::resizeEvent(QResizeEvent *e)
 
 void SetTabDrum::reposTuners()
 {
-    int s = dr->value();                // Current number of tuners
-
-    int tw = (width() - 20) / s;        // Width of one tuner
-    int th = height() - 90;             // Height of one tuner
-
-    for (int i = 0; i < s; i++)
-		tuner[i]->setGeometry(10 + i * tw, 80, tw, th);
+    for (int i = 0; i < dr->value(); i++)
+		tuner[i]->setGeometry(10 + i * 50, 80, 50, 30);
 }
