@@ -22,6 +22,7 @@
 #include <kaccel.h>
 #include <kmessagebox.h>
 #include <knuminput.h>
+#include <kedittoolbar.h>
 
 #include <qpixmap.h>
 #include <qkeycode.h>
@@ -32,6 +33,7 @@
 #include <qmultilinedit.h>
 #include <qbuttongroup.h>
 #include <qradiobutton.h>
+
 
 // Global variables - real declarations
 
@@ -49,8 +51,6 @@ bool globalShowPageNumb;
 // Appearance
 bool globalShowMainTB;
 bool globalShowEditTB;
-int globalMainTBPos;
-int globalEditTBPos;
 
 // ALSA
 int globalAlsaClient;
@@ -61,163 +61,121 @@ ApplicationWindow::ApplicationWindow(): KMainWindow()
 // 	printer = new QPrinter;
 // 	printer->setMinMax(1,10);
 
-	// READ CONFIGS
-	readOptions();
 
 	// MAIN WIDGET
 	tv = new TrackView(this);
 	setCentralWidget(tv);
 	tv->setFocus();
 
+	// SET UP STANDART ACTIONS
+
+	newAct = KStdAction::openNew(this, SLOT(fileNew()), 
+								 actionCollection(), "file_new");
+	openAct = KStdAction::open(this, SLOT(fileOpen()), 
+							   actionCollection(), "file_open");
+	openRecentAct = KStdAction::openRecent(this, SLOT(recentLoad()),
+										   actionCollection(), "file_recent");
+	saveAct = KStdAction::save(this, SLOT(fileSave()), actionCollection(), "file_save");
+	saveAsAct = KStdAction::saveAs(this, SLOT(fileSaveAs()), 
+								   actionCollection(), "file_saveAs");
+	printAct = KStdAction::print(this, SLOT(filePrint()), 
+								 actionCollection(), "file_print");
+	closeAct = KStdAction::close(this, SLOT(fileClose()), 
+								 actionCollection(), "file_close");
+	quitAct = KStdAction::quit(this, SLOT(fileQuit()), actionCollection(), "file_quit");
+	preferencesAct = KStdAction::preferences(this, SLOT(options()), 
+											 actionCollection(), "pref_options");
+	confTBAct = KStdAction::configureToolbars(this, SLOT(configToolBars()), 
+											  actionCollection(), "config_Toolbars");
+
 	// SET UP ACTIONS
+	browserAct = new KAction(i18n("Browser..."), 0, this, SLOT(openBrowser()),
+							 actionCollection(), "open_browser");
+	sngPropAct = new KAction(i18n("P&roperties..."), 0, this, SLOT(songProperties()),
+							 actionCollection(), "song_properties");
 
-	KAction *newAct = KStdAction::openNew(this, SLOT(fileNew()),
-										  actionCollection());
-	KAction *openAct = KStdAction::open(this, SLOT(fileOpen()),
-										actionCollection());
-	KRecentFilesAction *openRecentAct = KStdAction::openRecent(this, 0,
-															   actionCollection());
-	KAction *browserAct = new KAction(i18n("&Browser..."), 0, this,
-									  SLOT(openBrowser()), actionCollection());
-	KAction *saveAct = KStdAction::save(this, SLOT(fileSave()),
-										actionCollection());
-	KAction *saveAsAct = KStdAction::saveAs(this, SLOT(fileSaveAs()),
-											actionCollection());
-	KAction *printAct = KStdAction::print(this, SLOT(filePrint()),
-										  actionCollection());
-	KAction *closeAct = KStdAction::close(this, SLOT(fileClose()),
-										actionCollection());
-	KAction *quitAct = KStdAction::quit(this, SLOT(fileQuit()),
-										actionCollection());
-	KAction *preferencesAct = KStdAction::preferences(this, SLOT(options()),
-													  actionCollection());
+	impMidAct = new KAction(i18n("&MIDI file..."), 0, this, SLOT(fileImportMid()),
+							actionCollection(), "imp_midi");
 
-	KAction *propertiesAct = new KAction(i18n("&Browser..."), 0, this,
-										 SLOT(openBrowser()), actionCollection());
+	expMidAct = new KAction(i18n("&MIDI file..."), 0, this, SLOT(fileExportMid()), 
+							actionCollection(), "exp_midi");
+	expTabAct = new KAction(i18n("ASCII &tab..."), 0, this, SLOT(fileExportTab()), 
+							actionCollection(), "exp_tab");
+	expTexTabAct = new KAction(i18n("M&usiXTeX tab..."), 0, this, 
+							   SLOT(fileExportTexTab()), actionCollection(), "exp_textab");
+	expTexNotesAct = new KAction(i18n("Musi&XTeX notes..."), 0, this, 
+								 SLOT(fileExportTexNotes()), actionCollection(), "exp_texnotes");
 
+	trkPropAct = new KAction(i18n("&Properties..."), 0, this, SLOT(trackProperties()),
+							 actionCollection(), "track_properties");
+	insChordAct = new KAction(i18n("&Chord..."), "chord.xpm", 0, this, SLOT(insertChord()),
+							  actionCollection(), "insert_chord");
 
-	// SET UP EDITING TOOLBAR
-	toolBar("Edit")->insertButton("chord.xpm", 1, SIGNAL(clicked()),
-								  this, SLOT(insertChord()), TRUE,
-								  i18n("Insert chord"));
-	toolBar("Edit")->insertButton("note1.xpm", 1, SIGNAL(clicked()),
-								  tv,SLOT(setLength1()),TRUE,i18n("Whole"));
-	toolBar("Edit")->insertButton("note2.xpm", 1, SIGNAL(clicked()),
-								  tv,SLOT(setLength2()),TRUE,"1/2");
-	toolBar("Edit")->insertButton("note4.xpm", 1, SIGNAL(clicked()),
-								  tv,SLOT(setLength4()),TRUE,"1/4");
-	toolBar("Edit")->insertButton("note8.xpm", 1, SIGNAL(clicked()),
-								  tv,SLOT(setLength8()),TRUE,"1/8");
-	toolBar("Edit")->insertButton("note16.xpm", 1, SIGNAL(clicked()),
-								  tv,SLOT(setLength16()),TRUE,"1/16");
-	toolBar("Edit")->insertButton("note32.xpm", 1, SIGNAL(clicked()),
-								  tv,SLOT(setLength32()),TRUE,"1/32");
-	toolBar("Edit")->insertButton("timesig.xpm", 1, SIGNAL(clicked()),
-								  tv,SLOT(timeSig()),TRUE,i18n("Time signature"));
-	toolBar("Edit")->insertButton("arc.xpm", 1, SIGNAL(clicked()),
-								  tv,SLOT(linkPrev()),TRUE,i18n("Link with previous column"));
-	toolBar("Edit")->insertButton("fx-legato.xpm", 1, SIGNAL(clicked()),
-								  tv,SLOT(addLegato()),TRUE,i18n("Legato (hammer on/pull off)"));
-	toolBar("Edit")->insertButton("fx-harmonic.xpm", 1, SIGNAL(clicked()),
-								  tv,SLOT(addHarmonic()),TRUE,i18n("Natural harmonic"));
-	toolBar("Edit")->insertButton("fx-harmonic.xpm", 1, SIGNAL(clicked()),
-								  tv,SLOT(addArtHarm()),TRUE,i18n("Artificial harmonic"));
-	
-//	toolBar()->setBarPos(KToolBar::BarPosition(globalMainTBPos));
-//	toolBar("Edit")->setBarPos(KToolBar::BarPosition(globalEditTBPos));
+	showMainTBAct = new KToggleAction(i18n("Main Toolbar"), 0, this, 
+									  SLOT(setMainTB()), actionCollection(), "tog_mainTB");
+	showEditTBAct = new KToggleAction(i18n("Edit Toolbar"), 0, this,
+									  SLOT(setEditTB()), actionCollection(), "tog_editTB");
+	saveOptionAct = new KAction(i18n("&Save Options"), 0, this, 
+								SLOT(saveOptions()), actionCollection(), "save_Options");
 
-	// SET UP MAIN MENU AND TOOLBARS
+	//SET UP DURATION
+	len1Act = new KAction(i18n("Whole"), "note1.xpm", 0, tv, SLOT(setLength1()),
+						  actionCollection(), "set_len1");
+	len2Act = new KAction(i18n("1/2"), "note2.xpm", 0, tv, SLOT(setLength2()),
+						  actionCollection(), "set_len2");
+	len4Act = new KAction(i18n("1/4"), "note4.xpm", 0, tv, SLOT(setLength4()),
+						  actionCollection(), "set_len4");
+	len8Act = new KAction(i18n("1/8"), "note8.xpm", 0, tv, SLOT(setLength8()),
+						  actionCollection(), "set_len8");
+	len16Act = new KAction(i18n("1/16"), "note16.xpm", 0, tv, SLOT(setLength16()),
+						   actionCollection(), "set_len16");
+	len32Act = new KAction(i18n("1/32"), "note32.xpm", 0, tv, SLOT(setLength32()),
+						   actionCollection(), "set_len32");
 
-	QPopupMenu *p;
+	// SET UP EFFECTS
+	timeSigAct = new KAction(i18n("Time signature"), "timesig.xpm", 0, tv, 
+							 SLOT(timeSig()), actionCollection(), "time_sig");
+	arcAct = new KAction(i18n("Link with previous column"), "arc.xpm", 0, tv,
+						 SLOT(linkPrev()), actionCollection(), "link_prev");
+	legatoAct = new KAction(i18n("Legato (hammer on/pull off)"), "fx-legato.xpm", 0, tv, 
+							SLOT(addLegato()), actionCollection(), "add_legato");
+	natHarmAct = new KAction(i18n("Natural harmonic"), "fx-harmonic.xpm", 0, tv, 
+							 SLOT(addHarmonic()), actionCollection(), "nat_harm");
+	artHarmAct = new KAction(i18n("Artificial harmonic"), "fx-harmonic.xpm", 0, tv, 
+							 SLOT(addArtHarm()), actionCollection(), "art_harm");
 
-	p = new QPopupMenu();
-	newAct->plug(p); newAct->plug(toolBar());
-	openAct->plug(p); openAct->plug(toolBar());
-	openRecentAct->plug(p);
-	p->insertSeparator();
-	saveAsAct->plug(p);
-	saveAct->plug(p); saveAct->plug(toolBar());
-	p->insertSeparator();
+	//SET UP 'Note Names'
+	usSharpAct = new KToggleAction(i18n("American, sharps"), 0, this, 
+								   SLOT(setUSsharp()), actionCollection(), "us_sharp");
+	usFlatAct = new KToggleAction(i18n("American, flats"), 0, this, 
+								  SLOT(setUSflats()), actionCollection(), "us_flat");
+	usMixAct = new KToggleAction(i18n("American, mixed"), 0, this, 
+								 SLOT(setUSmixed()), actionCollection(), "us_mix");
+	euSharpAct = new KToggleAction(i18n("European, sharps"), 0, this, 
+								   SLOT(setEUsharp()), actionCollection(), "eu_sharp");
+	euFlatAct = new KToggleAction(i18n("European, flats"), 0, this, 
+								  SLOT(setEUflats()), actionCollection(), "eu_flat");
+	euMixAct = new KToggleAction(i18n("European, mixed"), 0, this, 
+								 SLOT(setEUmixed()), actionCollection(), "eu_mix");
+	jazzSharpAct = new KToggleAction(i18n("Jazz, sharps"), 0, this, 
+									 SLOT(setJZsharp()), actionCollection(), "jazz_sharp");
+	jazzFlatAct = new KToggleAction(i18n("Jazz, flats"), 0, this, 
+									SLOT(setJZflats()), actionCollection(), "jazz_flat");
+	jazzMixAct = new KToggleAction(i18n("Jazz, mixed"), 0, this, 
+								   SLOT(setJZmixed()), actionCollection(), "jazz_mix");
 
-// 	recMenu = new QPopupMenu();
-// 	connect(recMenu, SIGNAL(activated(int)), SLOT(recentLoad(int)));
-// 	p->insertItem(i18n("Open &Recent"), recMenu);
-// 	recMenu->clear();
-// 	for (uint i = 0; i < recentFiles.count(); i++)
-// 		recMenu->insertItem(recentFiles.at(i));
+	// SET UP GUI
+	createGUI("kguitarui.rc");
 
-	browserAct->plug(p);
-// 	p->insertItem(i18n("Browser..."), this, SLOT(openBrowser()));
-	p->insertSeparator();
+	// READ CONFIGS
+	readOptions();
 
-// 	QPopupMenu *imp = new QPopupMenu();
-// 	imp->insertItem(i18n("&MIDI file..."), this, SLOT(importMID()));
-// 	p->insertItem(i18n("&Import"), imp);
-
-	QPopupMenu *exp = new QPopupMenu();
-	exp->insertItem(i18n("&MIDI file..."), this, SLOT(fileExportMid()));
-	exp->insertItem(i18n("ASCII &tab..."), this, SLOT(fileExportTab()));
-	exp->insertItem(i18n("&MusiXTeX tab..."), this, SLOT(fileExportTexTab()));
-	//exp->insertItem(i18n("Musi&XTeX notes..."), this, SLOT(fileExportTexNotes()));
-	p->insertItem(i18n("&Export"), exp);
-
-	p->insertSeparator();
-	p->insertItem(i18n("P&roperties..."), this, SLOT(songProperties()));
-	printAct->plug(p); printAct->plug(toolBar());
-	p->insertSeparator();
-	closeAct->plug(p);
-	quitAct->plug(p);
-	menuBar()->insertItem(i18n("&File"), p);
-
-	p = new QPopupMenu();
-	p->insertItem(i18n("&Properties..."), this, SLOT(trackProperties()));
-	menuBar()->insertItem(i18n("&Track"), p);
-
-	p = new QPopupMenu();
-	p->insertItem(i18n("&Chord"),this,SLOT(insertChord()));
-	menuBar()->insertItem(i18n("&Insert"),p);
-
-	p = new QPopupMenu();
-
-	tbMenu = new QPopupMenu();
-	tb[0] = tbMenu->insertItem(i18n("Main Toolbar"), this, SLOT(setMainTB()));
-	tb[1] = tbMenu->insertItem(i18n("Edit Toolbar"), this, SLOT(setEditTB()));
-
-	tbMenu->setCheckable(TRUE);
+	updateMenu();
 	updateTbMenu();
 
-	p->insertItem(i18n("Show Toolbars"), tbMenu);
-
-	nnMenu = new QPopupMenu();
-	ni[0] = nnMenu->insertItem(i18n("American, sharps"), this, SLOT(setUSsharp()));
-	ni[1] = nnMenu->insertItem(i18n("American, flats"),	 this, SLOT(setUSflats()));
-	ni[2] = nnMenu->insertItem(i18n("American, mixed"),	 this, SLOT(setUSmixed()));
-	nnMenu->insertSeparator();
-	ni[3] = nnMenu->insertItem(i18n("European, sharps"), this, SLOT(setEUsharp()));
-	ni[4] = nnMenu->insertItem(i18n("European, flats"),	 this, SLOT(setEUflats()));
-	ni[5] = nnMenu->insertItem(i18n("European, mixed"),	 this, SLOT(setEUmixed()));
-	nnMenu->insertSeparator();
-	ni[6] = nnMenu->insertItem(i18n("Jazz, sharps"),	 this, SLOT(setJZsharp()));
-	ni[7] = nnMenu->insertItem(i18n("Jazz, flats"),		 this, SLOT(setJZflats()));
-	ni[8] = nnMenu->insertItem(i18n("Jazz, mixed"),		 this, SLOT(setJZmixed()));
-
-	nnMenu->setCheckable(TRUE);
-	updateMenu();
-
-	p->insertItem(i18n("&Note names"), nnMenu);
-
-	preferencesAct->plug(p);
-
-	menuBar()->insertItem(i18n("&Settings"), p);
-
-	QString aboutmess = "KGuitar " VERSION "\n\n";
-	aboutmess += DESCRIPTION;
-	aboutmess += "\n(C) 2000 by KGuitar development team\n";
-
-	p = helpMenu();
-	
-	menuBar()->insertSeparator();
-	menuBar()->insertItem(i18n("&Help"), p);
+	//Used for translation
+	toolBar("mainToolBar")->setText(i18n("Main Toolbar"));
+	toolBar("editToolBar")->setText(i18n("Edit Toolbar"));
 
 	statusBar()->insertItem(QString(i18n("Bar: ")) + "1", 1);
 	connect(tv, SIGNAL(statusBarChanged()), SLOT(updateStatusBar()));
@@ -229,34 +187,33 @@ ApplicationWindow::~ApplicationWindow()
 //	delete printer;
 }
 
-void ApplicationWindow::closeEvent(QCloseEvent *e)
-{
-	saveOptions();
-	KMainWindow::closeEvent(e);
-}
-
 void ApplicationWindow::updateMenu()
 {
-	for (int i = 0; i < 9; i++)
-		nnMenu->setItemChecked(ni[i], i == globalNoteNames);
-	saveOptions();
+	usSharpAct->setChecked(globalNoteNames == 0);
+	usFlatAct->setChecked(globalNoteNames == 1);
+	usMixAct->setChecked(globalNoteNames == 2);
+	euSharpAct->setChecked(globalNoteNames == 3);
+	euFlatAct->setChecked(globalNoteNames == 4); 
+	euMixAct->setChecked(globalNoteNames == 5);
+	jazzSharpAct->setChecked(globalNoteNames == 6);
+	jazzFlatAct->setChecked(globalNoteNames == 7);
+	jazzMixAct->setChecked(globalNoteNames == 8);
 }
 
 void ApplicationWindow::updateTbMenu()
 {
-	tbMenu->setItemChecked(tb[0], globalShowMainTB);
-	tbMenu->setItemChecked(tb[1], globalShowEditTB);
-	saveOptions();
+	showMainTBAct->setChecked(globalShowMainTB);
+	showEditTBAct->setChecked(globalShowEditTB);
 
 	if (globalShowMainTB)
-		toolBar()->show();
+		toolBar("mainToolBar")->show();
 	else
-		toolBar()->hide();
+		toolBar("mainToolBar")->hide();
 
 	if (globalShowEditTB)
-		toolBar("Edit")->show();
+		toolBar("editToolBar")->show();
 	else
-		toolBar("Edit")->hide();
+		toolBar("editToolBar")->hide();
 }
 
 void ApplicationWindow::updateStatusBar()
@@ -275,8 +232,7 @@ bool ApplicationWindow::jazzWarning()
 										  "note names without a purpose would confuse or mislead\n"
 										  "anyone reading the music who did not have a knowledge\n"
 										  "of jazz note naming.\n\n"
-										  "Are you sure you want to use jazz notes?"),
-									 "KGuitar") == KMessageBox::Yes;
+										  "Are you sure you want to use jazz notes?")) == KMessageBox::Yes;
 }
 
 void ApplicationWindow::fileNew()
@@ -308,38 +264,38 @@ void ApplicationWindow::fileOpen()
 
 void ApplicationWindow::recentLoad(int _id)
 {
-	QString fn = recentFiles.at(_id);
+// 	QString fn = recentFiles.at(_id);
 
-	if (!fn.isEmpty()) {
-		if (tv->sng()->load_from_kg(fn)) {
-			setCaption(fn);
-			tv->setCurt(tv->sng()->t.first());
-			tv->sng()->t.first()->x = 0;
-			tv->sng()->t.first()->y = 0;
-			tv->sng()->filename = fn;
-			tv->updateRows();
-			addRecentFile(fn.latin1());
-		} else {
-			recentFiles.remove(_id);
-			recMenu->clear();
-			for (int i = 0; i < (int) recentFiles.count(); i++)
-				recMenu->insertItem(recentFiles.at(i));
-			KMessageBox::sorry(this, "KGuitar",
-							   i18n("Can't load the song!"));
-		}
-	}
+// 	if (!fn.isEmpty()) {
+// 		if (tv->sng()->load_from_kg(fn)) {
+// 			setCaption(fn);
+// 			tv->setCurt(tv->sng()->t.first());
+// 			tv->sng()->t.first()->x = 0;
+// 			tv->sng()->t.first()->y = 0;
+// 			tv->sng()->filename = fn;
+// 			tv->updateRows();
+// 			addRecentFile(fn.latin1());
+// 		} else {
+// 			recentFiles.remove(_id);
+// //			recMenu->clear();
+// 			for (int i = 0; i < (int) recentFiles.count(); i++)
+// //				recMenu->insertItem(recentFiles.at(i));
+// 			KMessageBox::sorry(this, "KGuitar",
+// 							   i18n("Can't load the song!"));
+// 		}
+// 	}
 }
 
 void ApplicationWindow::addRecentFile(const char *fn)
 {
-	if (recentFiles.find(fn) == -1) {
-		if (recentFiles.count() == 5)
-			recentFiles.remove(4);
-		recentFiles.insert(0, fn);
-		recMenu->clear();
-		for (uint i = 0 ; i < recentFiles.count(); i++)
-			recMenu->insertItem(recentFiles.at(i));
-	}
+// 	if (recentFiles.find(fn) == -1) {
+// 		if (recentFiles.count() == 5)
+// 			recentFiles.remove(4);
+// 		recentFiles.insert(0, fn);
+// //		recMenu->clear();
+// 		for (uint i = 0 ; i < recentFiles.count(); i++)
+// 			recMenu->insertItem(recentFiles.at(i));
+// 	}
 }
 
 void ApplicationWindow::openBrowser()
@@ -454,6 +410,7 @@ void ApplicationWindow::fileClose()
 
 void ApplicationWindow::fileQuit()
 {
+	saveOptions();
 	fileClose(); //ALINXFIX: exit(0) is impossible, because options will not be saved
 }
 
@@ -551,7 +508,14 @@ void ApplicationWindow::options()
 	}
 
 	delete op;
-	saveOptions();
+}
+
+void ApplicationWindow::configToolBars()
+{
+	KEditToolbar dlg(actionCollection(), "kguitarui.rc");
+
+	if (dlg.exec())
+		createGUI("kguitarui.rc");
 }
 
 void ApplicationWindow::readOptions()
@@ -572,12 +536,14 @@ void ApplicationWindow::readOptions()
 	config->setGroup("Appearance");
 	globalShowMainTB = config->readBoolEntry("ShowMainTB", TRUE);
 	globalShowEditTB = config->readBoolEntry("ShowEditTB", TRUE);
-	globalMainTBPos = config->readNumEntry("MainTBPos", 0);
-	globalEditTBPos = config->readNumEntry("EditTBPos", 0);
 	QSize size = config->readSizeEntry("Geometry");
 	if (!size.isEmpty())
 		resize(size);
 	config->readListEntry("RecentFiles", recentFiles);
+
+	toolBar("mainToolBar")->applySettings(config, "MainToolBar");
+	toolBar("editToolBar")->applySettings(config, "EditToolBar");
+
 
 	config->setGroup("ALSA");
 	globalAlsaClient = config->readNumEntry("client", 64);
@@ -602,10 +568,11 @@ void ApplicationWindow::saveOptions()
 	config->setGroup("Appearance");
 	config->writeEntry("ShowMainTB", globalShowMainTB);
 	config->writeEntry("ShowEditTB", globalShowEditTB);
-	config->writeEntry("MainTBPos", toolBar()->barPos());
-	config->writeEntry("EditTBPos", toolBar("Edit")->barPos());
 	config->writeEntry("Geometry", size());
 	config->writeEntry("RecentFiles", recentFiles);
+
+	toolBar("mainToolBar")->saveSettings(config, "MainToolBar");
+	toolBar("editToolBar")->saveSettings(config, "EditToolBar");
 
 	config->setGroup("ALSA");
 	config->writeEntry("Client", globalAlsaClient);

@@ -2,6 +2,7 @@
 #define APPLICATION_H
 
 #include <kmainwindow.h>
+#include <kaction.h>
 
 #include "global.h"
 #include "globaloptions.h"
@@ -42,6 +43,8 @@ private slots:
     void songProperties();
     void trackProperties();
     void options();
+    void saveOptions();
+    void configToolBars();
 
     void updateStatusBar();
 
@@ -56,9 +59,9 @@ private slots:
     void setEUflats() { globalNoteNames = 4; updateMenu(); };
     void setEUmixed() { globalNoteNames = 5; updateMenu(); };
 
-    void setJZsharp() { if (jazzWarning()) { globalNoteNames = 6; updateMenu(); } };
-    void setJZflats() { if (jazzWarning()) { globalNoteNames = 7; updateMenu(); } };
-    void setJZmixed() { if (jazzWarning()) { globalNoteNames = 8; updateMenu(); } };
+    void setJZsharp() { if (jazzWarning()) { globalNoteNames = 6; } updateMenu(); };
+    void setJZflats() { if (jazzWarning()) { globalNoteNames = 7; } updateMenu(); };
+    void setJZmixed() { if (jazzWarning()) { globalNoteNames = 8; } updateMenu(); };
 
 private:
     void updateMenu();
@@ -67,19 +70,25 @@ private:
 
     QPrinter *printer;
 //    TrackView *tv;      //ALINX: set disabled because I need it public for file browser
-    KToolBar *fileTools;
-    QPopupMenu *nnMenu, *tbMenu, *recMenu;
-    int ni[9], tb[2];
+
+    KAction *newAct, *openAct, *saveAct, *saveAsAct, *printAct, *closeAct,
+            *quitAct, *preferencesAct, *confTBAct, *browserAct, *sngPropAct,
+            *impMidAct, *expMidAct, *expTabAct, *expTexTabAct, *expTexNotesAct,
+            *trkPropAct, *insChordAct, *len1Act, *len2Act, *len4Act, *len8Act, 
+            *len16Act, *len32Act, *timeSigAct, *arcAct, *legatoAct, *natHarmAct, 
+            *artHarmAct, *saveOptionAct;
+    KToggleAction *showMainTBAct, *showEditTBAct, *usSharpAct, *usFlatAct, 
+                  *usMixAct, *euSharpAct, *euFlatAct, *euMixAct, *jazzSharpAct, 
+                  *jazzFlatAct, *jazzMixAct;
+    KRecentFilesAction *openRecentAct;
+
 	QStrList recentFiles;
 
     // Status bar labels
     QLabel *s_bar;
 
 	void readOptions();
-	void saveOptions();
 
-protected:
-    virtual void closeEvent(QCloseEvent*);
 };
 
 
