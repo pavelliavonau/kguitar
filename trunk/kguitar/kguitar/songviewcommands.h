@@ -17,8 +17,7 @@ class TrackList;
 class TrackPane;
 
 // Set the song properties
-class SetSongPropCommand : public KCommand
-{
+class SetSongPropCommand : public KNamedCommand {
 public:
 	SetSongPropCommand(TabSong* _song, QString _title, QString _author, QString _trans, QString _com);
 	virtual ~SetSongPropCommand();
@@ -33,8 +32,7 @@ private:
 };
 
 // Set track properties
-class SetTrackPropCommand : public KCommand
-{
+class SetTrackPropCommand : public KNamedCommand {
 public:
 	SetTrackPropCommand(TrackView *_tv, TrackList *_tl, TrackPane *_tp,
 						TabTrack *_trk, TabTrack *_newtrk);
@@ -59,8 +57,7 @@ private:
 };
 
 // Insert tabs
-class InsertTabsCommand : public KCommand
-{
+class InsertTabsCommand : public KNamedCommand {
 public:
 	InsertTabsCommand(TrackView *_tv, TabTrack *_trk, TabTrack *_tabs);
 	virtual ~InsertTabsCommand();

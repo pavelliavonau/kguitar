@@ -4,13 +4,14 @@
 
 #include <qpainter.h>
 #include <qdrawutil.h>
+#include <qstyle.h>
 
 TrackPane::TrackPane(TabSong *s, int hh, int rh, QWidget *parent = 0, const char *name = 0):
-	QTableView(parent, name)
+	QGridView(parent, name)
 {
 	song = s;
 
-	setTableFlags(Tbl_autoHScrollBar | Tbl_smoothScrolling);
+//	setTableFlags(Tbl_autoHScrollBar | Tbl_smoothScrolling);
 	setFrameStyle(Panel | Sunken);
 	setBackgroundMode(PaletteBase);
 
@@ -50,14 +51,14 @@ int TrackPane::cellHeight(int n)
 void TrackPane::paintCell(QPainter *p, int row, int col)
 {
 	if ((row != 0) && (song->t.at(row - 1)->barStatus(col)))
-		style().drawButton(p, 0, 0, cellWidth(), cellWidth(), colorGroup());
+		style().drawPrimitive(QStyle::PE_ButtonBevel, p, QRect(0, 0, cellWidth(), cellWidth()), colorGroup());
 }
 
 void TrackPane::mousePressEvent(QMouseEvent *e)
 {
 	if (e->button() == LeftButton) {
-		int barnum = findCol(e->pos().x());
-		int tracknum = findRow(e->pos().y()) - 1;
+		int barnum = columnAt(e->pos().x());
+		int tracknum = rowAt(e->pos().y()) - 1;
 
 		if (tracknum >= song->t.count())
 			return;

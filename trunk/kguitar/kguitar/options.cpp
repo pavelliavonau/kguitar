@@ -133,7 +133,7 @@ void Options::setupMusixtexTab()
 #ifdef WITH_TSE3
 void Options::setupMidiTab()
 {
-	QFrame *midi = addPage(i18n("MIDI"), 0, DesktopIcon("kcmmidi", KIcon::SizeMedium));
+	QFrame *midi = addPage(i18n("MIDI"), QString::null, DesktopIcon("kcmmidi", KIcon::SizeMedium));
 
 	midiport = new QListView(midi);
 	midiport->setSorting(-1); // no text sorting
@@ -157,9 +157,11 @@ void Options::setupMidiTab()
 	midivb->addWidget(midirefresh);
 	midivb->activate();
 }
+#endif
 
 void Options::fillMidiBox()
 {
+#ifdef WITH_TSE3
 	std::vector<int> portNums;
 	sch->portNumbers(portNums);
 
@@ -175,8 +177,8 @@ void Options::fillMidiBox()
 		if (globalMidiPort == portNums[i])
 			midiport->setCurrentItem(lastItem);
 	}
-}
 #endif
+}
 
 void Options::applyBtnClicked()
 {
@@ -197,8 +199,10 @@ void Options::applyBtnClicked()
 	if (expmode[0]->isChecked()) globalTexExpMode = 0;
 	if (expmode[1]->isChecked()) globalTexExpMode = 1;
 
+#ifdef WITH_TSE3
 	if (midiport->currentItem())
 		globalMidiPort = midiport->currentItem()->text(0).toInt();
+#endif
 }
 
 void Options::defaultBtnClicked()

@@ -15,7 +15,7 @@
 
 SetSongPropCommand::SetSongPropCommand(TabSong* _song, QString _title, QString _author,
 									   QString _trans, QString _com):
-	KCommand(i18n("Set song properties"))
+	KNamedCommand(i18n("Set song properties"))
 {
     song        = _song;
 	title       = _title;
@@ -51,7 +51,7 @@ void SetSongPropCommand::unexecute()
 
 SetTrackPropCommand::SetTrackPropCommand(TrackView *_tv, TrackList *_tl, TrackPane *_tp,
 										 TabTrack *_trk, TabTrack *_newtrk):
-	KCommand(i18n("Set track properties"))
+	KNamedCommand(i18n("Set track properties"))
 {
 	tv     = _tv;
 	tl     = _tl;
@@ -142,7 +142,7 @@ void SetTrackPropCommand::unexecute()
 }
 
 InsertTabsCommand::InsertTabsCommand(TrackView *_tv, TabTrack *_trk, TabTrack *_tabs):
-	KCommand(i18n("Insert from clipboard"))
+	KNamedCommand(i18n("Insert from clipboard"))
 {
 	trk  = _trk;
 	tv   = _tv;

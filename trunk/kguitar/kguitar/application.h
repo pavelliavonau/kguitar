@@ -24,27 +24,27 @@ public:
 	KGuitarFactory();
 	virtual ~KGuitarFactory();
 
-	virtual KParts::Part *createPart(QWidget *parentWidget, const char *widgetName,
-	                                 QObject *parent, const char *name,
-	                                 const char *classname, const QStringList &args);
+	virtual KParts::Part *createPartObject(QWidget *parentWidget, const char *widgetName,
+	                                       QObject *parent, const char *name,
+	                                       const char *classname, const QStringList &args);
 
-    static KInstance *instance();
+	static KInstance *instance();
 
 private:
-    static KInstance *s_instance;
+	static KInstance *s_instance;
 };
 
 
 class KGuitarPart: public KParts::ReadWritePart {
-    Q_OBJECT
+	Q_OBJECT
 public:
-    KGuitarPart(bool bBrowserView, KCommandHistory *_cmdHist, QWidget *parentWidget,
-				const char *widgetName, QObject *parent, const char *name);
-    virtual ~KGuitarPart();
+	KGuitarPart(bool bBrowserView, KCommandHistory *_cmdHist, QWidget *parentWidget,
+	            const char *widgetName, QObject *parent, const char *name);
+	virtual ~KGuitarPart();
 	SongView *sv;
 
 public slots:
-    void filePrint();
+	void filePrint();
 
 private slots:
 	void fileNew();
@@ -85,7 +85,7 @@ private:
 		*len1Act, *len2Act, *len4Act, *len8Act, *len16Act, *len32Act,
 		*timeSigAct, *arcAct, *legatoAct, *natHarmAct, *artHarmAct,
 		*palmMuteAct, *slideAct, *letRingAct, *saveOptionAct, *confKeyAct,
-		*arrTrkAct, *midiPlaySongAct, *midiStopPlayAct;
+		*arrTrkAct, *midiPlaySongAct, *midiStopPlayAct, *rhythmerAct;
     KToggleAction *showMainTBAct, *showEditTBAct, *usSharpAct, *usFlatAct,
 		*usMixAct, *euSharpAct, *euFlatAct, *euMixAct, *jazzSharpAct,
 		*jazzFlatAct, *jazzMixAct;

@@ -324,10 +324,10 @@ void SongView::songProperties()
 	delete ss;
 }
 
-#ifdef WITH_TSE3
 // Start playing the song or stop it if it already plays
 void SongView::playSong()
 {
+#ifdef WITH_TSE3
 	kdDebug() << "SongView::playSong" << endl;
 
 	if (midiInUse) {
@@ -367,14 +367,18 @@ void SongView::playSong()
 	delete tsong;
 
 	midiInUse = FALSE;
+#endif
 }
 
 void SongView::stopPlay()
 {
+#ifdef WITH_TSE3
 	kdDebug() << "SongView::stopPlay" << endl;
 	if (midiInUse)  midiStopPlay = TRUE;
+#endif
 }
 
+#ifdef WITH_TSE3
 bool SongView::initScheduler()
 {
 	if (!scheduler) {

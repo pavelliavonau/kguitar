@@ -20,7 +20,7 @@
 #include "tabtrack.h"
 
 #include <kprinter.h>
-#include <qarray.h>
+#include <qmemarray.h>
 #include <qpainter.h>
 #include <qpaintdevicemetrics.h>
 
@@ -539,8 +539,8 @@ void SongPrint::printSong(KPrinter *printer, TabSong *song)
 		int bn = 0;					// current bar nr
 
 		// precalculate bar widths
-		QArray<int> bew(trk->b.size());
-		QArray<int> bw(trk->b.size());
+		QMemArray<int> bew(trk->b.size());
+		QMemArray<int> bw(trk->b.size());
 		for (uint bn = 0; bn < trk->b.size(); bn++) {
 			bew[bn] = barExpWidth(bn, trk);
 			bw[bn]  = barWidth(bn, trk);

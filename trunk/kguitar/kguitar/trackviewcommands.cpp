@@ -14,26 +14,26 @@
 extern strummer lib_strum[];
 
 SetLengthCommand::SetLengthCommand(TrackView *_tv, TabTrack *&_trk, int l):
-	KCommand(i18n("Set duration"))
+	KNamedCommand(i18n("Set duration"))
 {
 	QString cmd(i18n("Set duration to %1"));
 	QString dur;
 
 	switch (l){
 	case 15:  // 1/32
-		dur = i18n("1/32");
+		dur = "1/32";
 		break;
 	case 30:  // 1/16
-		dur = i18n("1/16");
+		dur = "1/16";
 		break;
 	case 60:  // 1/8
-		dur = i18n("1/8");
+		dur = "1/8";
 		break;
 	case 120: // 1/4
-		dur = i18n("1/4");
+		dur = "1/4";
 		break;
 	case 240: // 1/2
-		dur = i18n("1/2");
+		dur = "1/2";
 		break;
 	case 480: // whole
 		dur = i18n("whole");
@@ -77,7 +77,7 @@ void SetLengthCommand::unexecute()
 }
 
 InsertTabCommand::InsertTabCommand(TrackView *_tv, TabTrack *&_trk, int t):
-	KCommand(i18n("Insert tab"))
+	KNamedCommand(i18n("Insert tab"))
 {
 	setName(i18n("Insert tab %1").arg(QString::number(t)));
 	//Store important data
@@ -116,7 +116,7 @@ void InsertTabCommand::unexecute()
 }
 
 MoveFingerCommand::MoveFingerCommand(TrackView *_tv, TabTrack *&_trk, int _from,
-									 int _to, int _tune): KCommand(i18n("Transpose"))
+									 int _to, int _tune): KNamedCommand(i18n("Transpose"))
 {
     from = _from;
 	to = _to;
@@ -172,7 +172,7 @@ void MoveFingerCommand::unexecute()
 }
 
 AddFXCommand::AddFXCommand(TrackView *_tv, TabTrack *&_trk, char _fx):
-	KCommand(i18n("Add effect"))
+	KNamedCommand(i18n("Add effect"))
 {
 	trk = _trk;
 	tv = _tv;
@@ -227,7 +227,7 @@ void AddFXCommand::unexecute()
 }
 
 SetFlagCommand::SetFlagCommand(TrackView *_tv, TabTrack *&_trk, int _flag):
-	KCommand(i18n("Set flag"))
+	KNamedCommand(i18n("Set flag"))
 {
     flag = _flag;
 	trk = _trk;
@@ -310,7 +310,7 @@ void SetFlagCommand::unexecute()
 }
 
 DeleteNoteCommand::DeleteNoteCommand(TrackView *_tv, TabTrack *&_trk):
-	KCommand(i18n("Delete note"))
+	KNamedCommand(i18n("Delete note"))
 {
 	trk = _trk;
 	tv = _tv;
@@ -350,7 +350,7 @@ void DeleteNoteCommand::unexecute()
 }
 
 AddColumnCommand::AddColumnCommand(TrackView *_tv, TabTrack *&_trk):
-	KCommand(i18n("Add column"))
+	KNamedCommand(i18n("Add column"))
 {
 	trk = _trk;
 	tv = _tv;
@@ -393,7 +393,7 @@ void AddColumnCommand::unexecute()
 }
 
 DeleteColumnCommand::DeleteColumnCommand(TrackView *_tv, TabTrack *&_trk):
-	KCommand(i18n("Delete column"))
+	KNamedCommand(i18n("Delete column"))
 {
 	trk = _trk;
 	tv = _tv;
@@ -427,7 +427,7 @@ DeleteColumnCommand::DeleteColumnCommand(TrackView *_tv, TabTrack *&_trk):
 
 //This is the constructor called by cutToClipboard
 DeleteColumnCommand::DeleteColumnCommand(QString name, TrackView *_tv, TabTrack *&_trk):
-	KCommand(name)
+	KNamedCommand(name)
 {
 	trk = _trk;
 	tv = _tv;
@@ -592,7 +592,7 @@ void DeleteColumnCommand::unexecute()
 }
 
 SetTimeSigCommand::SetTimeSigCommand(TrackView *_tv, TabTrack *&_trk, bool _toend,
-									 int _time1, int _time2): KCommand(i18n("Set time sig."))
+									 int _time1, int _time2): KNamedCommand(i18n("Set time sig."))
 {
 	trk = _trk;
 	tv = _tv;
@@ -648,8 +648,8 @@ void SetTimeSigCommand::unexecute()
 	tv->repaintCurrentCell(); //for emit paneChanded
 }
 
-InsertColumnCommand::InsertColumnCommand(TrackView *_tv, TabTrack *&_trk):
-	KCommand(i18n("Insert column"))
+InsertColumnCommand::InsertColumnCommand(TrackView *_tv, TabTrack *&_trk)
+	: KNamedCommand(i18n("Insert column"))
 {
 	trk = _trk;
 	tv = _tv;
@@ -684,8 +684,8 @@ void InsertColumnCommand::unexecute()
     tv->repaintCurrentCell();
 }
 
-InsertStrumCommand::InsertStrumCommand(TrackView *_tv, TabTrack *&_trk, int _sch, int *_chord):
-	KCommand(i18n("Insert strum"))
+InsertStrumCommand::InsertStrumCommand(TrackView *_tv, TabTrack *&_trk, int _sch, int *_chord)
+	: KNamedCommand(i18n("Insert strum"))
 {
 	trk   = _trk;
 	tv    = _tv;
@@ -821,3 +821,54 @@ void InsertStrumCommand::unexecute()
 	tv->repaintCurrentCell();
 }
 
+InsertRhythm::InsertRhythm(TrackView *_tv, TabTrack *&_trk, QListBox *quantized)
+	: KNamedCommand(i18n("Insert rhythm"))
+{
+	trk = _trk;
+	tv  = _tv;
+	x   = trk->x;
+
+	newdur.resize(quantized->count() - 1);
+	for (int i = 1; i < quantized->count(); i++)
+		newdur[i - 1] = quantized->text(i).toInt();
+}
+
+void InsertRhythm::execute()
+{
+	trk->x = x;
+
+	if (x + newdur.size() > trk->c.size()) {
+		int end = trk->c.size();
+		trk->c.resize(x + newdur.size());
+		for (int i = end; i < trk->c.size(); i++) {
+			for (uint j = 0; j < MAX_STRINGS; j++) {
+				trk->c[i].a[j] = -1;
+				trk->c[i].e[j] = 0;
+			}
+			trk->c[i].flags = 0;
+		}
+		olddur.resize(end - x);
+	} else {
+		olddur.resize(newdur.size());
+	}
+
+	for (int i = 0; i < newdur.size(); i++) {
+		if (i < olddur.size())
+			olddur[i] = trk->c[x + i].fullDuration();
+		trk->c[x + i].setFullDuration(newdur[i]);
+	}
+
+	tv->repaintContents();
+}
+
+void InsertRhythm::unexecute()
+{
+	trk->x = x;
+
+	for (int i = 0; i < olddur.size(); i++)
+		trk->c[x + i].setFullDuration(olddur[i]);
+
+	trk->c.resize(x + olddur.size());
+
+	tv->repaintContents();
+}

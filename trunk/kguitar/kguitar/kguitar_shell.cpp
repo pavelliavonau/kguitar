@@ -11,6 +11,7 @@
 #include <kaccel.h>
 #include <kdebug.h>
 #include <kcommand.h>
+#include <kstatusbar.h>
 
 #include <qfileinfo.h>
 #include <qclipboard.h>
@@ -27,9 +28,9 @@ KGuitarShell::KGuitarShell()
 	// Undo / Redo
 	cmdHistory = new KCommandHistory(actionCollection());
 
-    // We already link to libkguitar !
+	// We already link to libkguitar !
 #if 0
-    // Try to find libkguitar
+	// Try to find libkguitar
 	KLibFactory *factory = KLibLoader::self()->factory("libkguitar");
 	if (factory) {
         // Create the part
@@ -45,8 +46,7 @@ KGuitarShell::KGuitarShell()
 	m_kgpart = new KGuitarPart(FALSE, cmdHistory, this, "kguitarpart", this, "kguitarpart");
 #endif  // if 0
 
-
-  //File
+	//File
 	(void) KStdAction::open (this, SLOT(slotFileOpen()), actionCollection(), "file_open");
 	(void) KStdAction::save(this, SLOT(slotFileSave()), actionCollection(), "file_save");
 	(void) KStdAction::saveAs(this, SLOT(slotFileSaveAs()), actionCollection(), "file_saveAs");

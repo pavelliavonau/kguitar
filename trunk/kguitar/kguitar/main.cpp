@@ -24,7 +24,7 @@ static const char *DESCRIPTION = I18N_NOOP("A stringed instrument tabulature edi
 
 int main(int argc, char **argv)
 {
-	KAboutData aboutData("kguitar", I18N_NOOP("KGuitar"),
+	KAboutData aboutData("kguitar", "KGuitar",
 						 VERSION, DESCRIPTION, KAboutData::License_GPL,
 						 "(C) 2000, 2001, 2002 by KGuitar Development Team", 0,
 						 "http://kguitar.sourceforge.net");
