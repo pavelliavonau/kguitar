@@ -22,8 +22,8 @@ public:
 	void clear();
 	void beginSession();
 	void endSession();
-    int count() { return appl.count(); };
-    void selectFirst();
+	int count() { return appl.count(); };
+	void selectFirst();
 
 signals:
 	void chordSelected(const int *);
