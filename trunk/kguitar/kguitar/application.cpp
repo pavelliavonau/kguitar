@@ -55,6 +55,8 @@ ApplicationWindow::ApplicationWindow(): KTMainWindow()
 	global_showstr=TRUE;
 	global_showpagenumb=TRUE;
 
+	readOptions();
+
 	// MAIN WIDGET
 
 	tv = new TrackView(this);
@@ -175,6 +177,7 @@ void ApplicationWindow::updateMenu()
 {
 	for (int i = 0; i < 9; i++)
 		nnMenu->setItemChecked(ni[i], i == global_notenames);
+	saveOptions();
 }
 
 void ApplicationWindow::updateStatusBar()
@@ -385,10 +388,10 @@ void ApplicationWindow::options()
 	op->maj7gr->setButton(global_maj7);
 	op->flatgr->setButton(global_flatplus);
 
-     op->texsizegr->setButton(global_tabsize);
-     op->showbarnumb->setChecked(global_showbarnumb);
-     op->showstr->setChecked(global_showstr);
-     op->showpagenumb->setChecked(global_showpagenumb);
+	op->texsizegr->setButton(global_tabsize);
+	op->showbarnumb->setChecked(global_showbarnumb);
+	op->showstr->setChecked(global_showstr);
+	op->showpagenumb->setChecked(global_showpagenumb);
 
 	if (op->exec()) {
 		if (op->maj7[0]->isChecked())  global_maj7=0;
@@ -397,18 +400,37 @@ void ApplicationWindow::options()
 		if (op->flat[0]->isChecked())  global_flatplus=0;
 		if (op->flat[1]->isChecked())  global_flatplus=1;
 
-          for (int i=0;i<=3;i++)
-               if (op->tabsize[i]->isChecked()) global_tabsize=i;
-          if (op->showbarnumb->isChecked())          
-              global_showbarnumb = TRUE;
-            else global_showbarnumb = FALSE;
-          if (op->showstr->isChecked())
-              global_showstr = TRUE;
-            else global_showstr = FALSE;
-          if (op->showpagenumb->isChecked())
-              global_showpagenumb = TRUE;
-            else global_showpagenumb = FALSE ;
+		for (int i=0;i<=3;i++)
+			if (op->tabsize[i]->isChecked()) global_tabsize = i;
+		global_showbarnumb = op->showbarnumb->isChecked();
+		global_showstr = op->showstr->isChecked();
+		global_showpagenumb = op->showpagenumb->isChecked();
 	}
 
 	delete op;
+	saveOptions();
+}
+
+void ApplicationWindow::readOptions()
+{
+	kapp->getConfig()->setGroup("GlobalOptions");
+	global_maj7 = kapp->getConfig()->readNumEntry("global_maj7", 0);
+	global_flatplus = kapp->getConfig()->readNumEntry("global_flatplus", 0);
+	global_notenames = kapp->getConfig()->readNumEntry("global_notenames", 0);
+	global_tabsize = kapp->getConfig()->readNumEntry("global_tabsize", 2);
+	global_showbarnumb = kapp->getConfig()->readBoolEntry("global_showbarnumb", TRUE);
+	global_showstr = kapp->getConfig()->readBoolEntry("global_showstr", TRUE);
+	global_showpagenumb = kapp->getConfig()->readBoolEntry("global_showpagenumb", TRUE);
+}
+
+void ApplicationWindow::saveOptions()
+{
+	kapp->getConfig()->setGroup("GlobalOptions");
+	kapp->getConfig()->writeEntry("global_maj7", global_maj7);
+	kapp->getConfig()->writeEntry("global_flatplus", global_flatplus);
+	kapp->getConfig()->writeEntry("global_notenames", global_notenames);
+	kapp->getConfig()->writeEntry("global_tabsize", global_tabsize);
+	kapp->getConfig()->writeEntry("global_showbarnumb", global_showbarnumb);
+	kapp->getConfig()->writeEntry("global_showstr", global_showstr);
+	kapp->getConfig()->writeEntry("global_showpagenumb", global_showpagenumb);
 }
