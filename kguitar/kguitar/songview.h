@@ -58,7 +58,12 @@ public slots:
 	void slotPaste();
 	void slotSelectAll();
 
+	void setReadOnly(bool) {}; // GREYFIX
+
 	void playbackColumn(int track, int advance);
+
+signals:
+	void songChanged();
 
 private:
 	TabTrack *highlightedTabs();
