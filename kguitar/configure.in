@@ -10,7 +10,7 @@ AC_CANONICAL_SYSTEM
 AC_ARG_PROGRAM
 
 dnl This is your app name and version number.  Change as necessary
-AM_INIT_AUTOMAKE(kguitar, 0.0.3)
+AM_INIT_AUTOMAKE(kguitar, 0.1)
 
 dnl make $KDEDIR the default for the installation
 AC_PREFIX_DEFAULT(${KDEDIR:-/opt/kde})
