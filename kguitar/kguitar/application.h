@@ -81,7 +81,7 @@ private:
 	KAction *newAct, *preferencesAct, *confTBAct, *browserAct, *sngPropAct,
 		*trkNewAct, *trkDeleteAct, *trkBassLineAct, *trkPropAct, *insChordAct,
 		*len1Act, *len2Act, *len4Act, *len8Act, *len16Act, *len32Act,
-		*timeSigAct, *arcAct, *legatoAct, *natHarmAct, *artHarmAct,
+		*keySigAct, *timeSigAct, *arcAct, *legatoAct, *natHarmAct, *artHarmAct,
 		*palmMuteAct, *slideAct, *letRingAct, *saveOptionAct, *confKeyAct,
 		*arrTrkAct, *midiPlaySongAct, *midiStopPlayAct, *rhythmerAct;
     KToggleAction *showMainTBAct, *showEditTBAct, *usSharpAct, *usFlatAct,

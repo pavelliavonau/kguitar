@@ -19,6 +19,7 @@ typedef enum {
 typedef struct {
 	int start;                          // Starting column
 	uchar time1,time2;                  // Time signature
+	short keysig;						// Key signature
 } TabBar;
 
 #include "tabcolumn.h"

@@ -5,6 +5,7 @@
  </Menu>
   <Menu noMerge="1" name="track" >
    <text>&amp;Track</text>
+   <Action name="key_sig" />
    <Action name="time_sig" />
    <Action name="arrange_trk" />
    <Separator/>

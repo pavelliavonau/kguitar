@@ -67,6 +67,7 @@ private:
 	QString stBts;				// beats
 	QString stBtt;				// beat-type
 	QString stDiv;				// divisions
+	QString stFif;				// fifths
 	// note (including forward/backup) -- initialized in initStNote()
 	QString stAlt;				// alter
 	QString	stAno;				// actual notes

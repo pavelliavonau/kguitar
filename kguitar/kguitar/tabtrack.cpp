@@ -38,6 +38,7 @@ TabTrack::TabTrack(TrackMode _tm, QString _name, int _channel,
 	b[0].start = 0;
 	b[0].time1 = 4;
 	b[0].time2 = 4;
+	b[0].keysig = 0;
 
 	x = 0;
 	xb = 0;
@@ -670,9 +671,10 @@ void  TabTrack::calcStepAltOct()
 			c[t].acc[i] = Accidentals::None;
 		}
 	}
+	Accidentals accSt;
+	accSt.setKeySig(b[0].keysig);
 	// calculate data for each bar
 	for (uint bn = 0; bn < b.size(); bn++) {
-		Accidentals accSt;
 		accSt.resetToKeySig();
 		// loop t over all columns in this bar and calculate saoa
 		for (t = b[bn].start; (int) t <= lastColumn(bn); t++) {

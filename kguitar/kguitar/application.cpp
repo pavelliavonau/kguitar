@@ -169,6 +169,9 @@ KGuitarPart::KGuitarPart(bool bBrowserView, KCommandHistory *_cmdHist, QWidget *
 						   sv->tv, SLOT(setLength32()), actionCollection(), "set_len32");
 
 	// SET UP EFFECTS
+	keySigAct = new KAction(i18n("Key signature"), "keysig",
+							 KAccel::stringToKey("Shift+K"), sv->tv, SLOT(keySig()),
+							 actionCollection(), "key_sig");
 	timeSigAct = new KAction(i18n("Time signature"), "timesig",
 							 KAccel::stringToKey("Shift+T"), sv->tv, SLOT(timeSig()),
 							 actionCollection(), "time_sig");

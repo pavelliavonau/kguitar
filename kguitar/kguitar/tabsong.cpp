@@ -102,7 +102,7 @@ uint TabSong::maxLen()
 // et='E' - effect of prev column: x bytes - raw FX data
 // et='F' - flag of prev column: 1 byte - raw flag data
 // et='B' - new bar start
-// et='S' - new time signature: 2 bytes - time1:time2
+// et='S' - new time signature: 2 or 3 bytes - time1:time2 + (optional) key
 
 bool TabSong::load_from_kg(QString fileName)
 {
@@ -207,6 +207,7 @@ bool TabSong::load_from_kg(QString fileName)
 				t.current()->b[bar-1].start=x;
 				t.current()->b[bar-1].time1=t.current()->b[bar-2].time1;
 				t.current()->b[bar-1].time2=t.current()->b[bar-2].time2;
+				t.current()->b[bar-1].keysig=t.current()->b[bar-2].keysig;
 				break;
 			case 'T':                   // Tab column
 				x++;
@@ -249,6 +250,9 @@ bool TabSong::load_from_kg(QString fileName)
 			case 'S':                   // New time signature
 				s >> cn; t.current()->b[bar-1].time1 = cn;
 				s >> cn; t.current()->b[bar-1].time2 = cn;
+				if (elength == 3) {
+					s >> cn; t.current()->b[bar-1].keysig = cn;
+				}
 				break;
 			case 'X':					// End of track
 				finished = TRUE;
@@ -326,9 +330,10 @@ bool TabSong::save_to_kg(QString fileName)
 		uint bar = 1;
 
 		s << (Q_UINT8) 'S';				// Time signature event
-		s << (Q_UINT8) 2;				// 2 byte event length
+		s << (Q_UINT8) 3;				// 3 byte event length
 		s << (Q_UINT8) trk->b[0].time1; // Time signature itself
 		s << (Q_UINT8) trk->b[0].time2;
+		s << (Q_INT8) trk->b[0].keysig;
 
 		for (uint x = 0; x < trk->c.size(); x++) {
 			if (bar+1 < trk->b.size()) {	// This bar's not last

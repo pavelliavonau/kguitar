@@ -210,6 +210,7 @@ bool MusicXMLParser::startDocument()
 	stBts = "4";
 	stBtt = "4";
 	stDiv = "";
+	stFif = "";
 	iDiv = 0;
 	return TRUE;
 }
@@ -311,6 +312,7 @@ bool MusicXMLParser::endElement( const QString&, const QString&,
 		if (trk) {
 			trk->b[bar-1].time1=stBts.toInt();
 			trk->b[bar-1].time2=stBtt.toInt();
+			trk->b[bar-1].keysig=stFif.toInt();
 		}
 	} else if (qName == "backup") {
 		tStartCur = -1;
@@ -335,6 +337,8 @@ bool MusicXMLParser::endElement( const QString&, const QString&,
 	    stDur = stCha;
 	} else if (qName == "encoder") {
 	    stEnc = stCha;
+	} else if (qName == "fifths") {
+	    stFif = stCha;
 	} else if (qName == "forward") {
 		tStartCur = -1;
 		tEndCur += stDur.toInt() * 120 / iDiv;
@@ -687,10 +691,11 @@ void MusicXMLWriter::write(QTextStream& os)
 				os << "\t\t\t<attributes>\n";
 				os << "\t\t\t\t<divisions>48</divisions>\n";
 				os << "\t\t\t\t<key>\n";
-				os << "\t\t\t\t\t<fifths>0</fifths>\n";
-				os << "\t\t\t\t\t<mode>major</mode>\n";
+				os << "\t\t\t\t\t<fifths>" << trk->b[0].keysig << "</fifths>\n";
+				// LVIFX: re-enable when KGuitar supports major/minor modes
+				// os << "\t\t\t\t\t<mode>major</mode>\n";
 				os << "\t\t\t\t</key>\n";
-				writeTime(os, trk->b[ib].time1, trk->b[ib].time2);
+				writeTime(os, trk->b[0].time1, trk->b[0].time2);
 				os << "\t\t\t\t<clef>\n";
 				os << "\t\t\t\t\t<sign>G</sign>\n";
 				os << "\t\t\t\t\t<line>2</line>\n";

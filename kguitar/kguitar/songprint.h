@@ -37,6 +37,8 @@ class SongPrint {
 public:
 	SongPrint();
 	~SongPrint();
+	void printSong(KPrinter *printer, TabSong *song);
+private:
 	int barExpWidth(int bn, TabTrack *trk);
 	int barWidth(int bn, TabTrack *trk);
 	void calcBeams(TabTrack *trk);
@@ -46,6 +48,7 @@ public:
 	void drawBeam(int x1, int x2, int y, char tp, char dir);
 	void drawBeams(int bn, char dir, TabTrack *trk);
 	void drawKey(int l, TabTrack *trk);
+	void drawKeySig(TabTrack *trk);
 	void drawLetRing(int x, int y);
 	void drawNtHdCntAt(int x, int y, int t, Accidentals::Accid a);
 	void drawNtStmCntAt(int x, int yl, int yh, int t, char dir);
@@ -53,6 +56,7 @@ public:
 	void drawRstCntAt(int x, int y, int t);
 	void drawStLns(int w);
 	void drawStrCntAt(int x, int y, const QString s);
+	void drawXpos();
 	int eraWidth(const QString s);
 	bool findHiLo(int cl, int v, TabTrack *trk, int & hi, int & lo);
 	void initFonts();
@@ -60,8 +64,6 @@ public:
 	void initPens();
 	void initPrStyle();
 	int line(const QString step, int oct);
-	void printSong(KPrinter *printer, TabSong *song);
-private:
 	// Almost all functions use a pointer to the same painter, instead of
 	// making it a parameter for all functions make it a member variable
 	QPainter *p;
