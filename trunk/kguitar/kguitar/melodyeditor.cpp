@@ -32,12 +32,15 @@ MelodyEditor::MelodyEditor(TrackView *_tv, QWidget *parent, const char *name)
 	mode->insertItem(i18n("Pentatonic"));
 	mode->insertItem(i18n("Natural Major"));
 	mode->insertItem(i18n("Natural Minor"));
+	mode->insertItem(i18n("Harmonic Major"));
+	mode->insertItem(i18n("Harmonic Minor"));
+	mode->insertItem(i18n("Melodic Major"));
 	mode->insertItem(i18n("Melodic Minor"));
-	mode->insertItem(i18n("Dorian"));
+	mode->insertItem(i18n("Mixolydian"));
 	mode->insertItem(i18n("Lydian"));
+	mode->insertItem(i18n("Dorian"));
 	mode->insertItem(i18n("Phrygian"));
 	mode->insertItem(i18n("Locrian"));
-	mode->insertItem(i18n("Mixolydian"));
 
 	options = new QPushButton(i18n("Options..."), this);
 
@@ -64,6 +67,8 @@ MelodyEditor::MelodyEditor(TrackView *_tv, QWidget *parent, const char *name)
 	connect(tv, SIGNAL(trackChanged(TabTrack *)), fb, SLOT(setTrack(TabTrack *)));
 	connect(tv, SIGNAL(columnChanged()), fb, SLOT(update()));
 	connect(options, SIGNAL(clicked()), SLOT(optionsDialog()));
+	connect(tonic, SIGNAL(highlighted(int)), fb, SLOT(setTonic(int)));
+	connect(mode, SIGNAL(highlighted(int)), fb, SLOT(setMode(int)));
 
 // 	installEventFilter(this);
 
