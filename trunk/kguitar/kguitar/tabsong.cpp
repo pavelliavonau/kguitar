@@ -14,7 +14,7 @@ TabSong::TabSong(QString _title, int _tempo)
 	tempo = _tempo;
 	title = _title;
 	t.setAutoDelete(TRUE);
-};
+}
 
 // Helper functions for duration conversion
 
@@ -252,7 +252,8 @@ bool TabSong::load_from_kg(QString fileName)
 	return TRUE;
 }
 
-void TabSong::arrangeBars(){
+void TabSong::arrangeBars()
+{
 	QListIterator<TabTrack> it(t);
 	for (; it.current(); ++it) {		// For every track
 		TabTrack *trk = it.current();
@@ -1120,7 +1121,7 @@ bool TabSong::save_to_tex_notes(QString fileName)
 	s << "%" << "\n" << "%" << "\n";
 	s << "% IMPORTANT: Note that this file should not be used with LaTeX" << "\n";
 	s << "%" << "\n";
-	s << "% MusiXTeX runs as a tree pass system. That means: for best ";
+	s << "% MusiXTeX runs as a three pass system. That means: for best ";
 	s << "results" << "\n";
 	s << "% you have to run: TeX => musixflx => TeX" << "\n" << "%" << "\n";
 	s << "% For example:" << "\n";

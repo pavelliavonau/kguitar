@@ -3,21 +3,32 @@
 
 #include <qtabdialog.h>
 #include "global.h"
+#include "tabtrack.h"
 
 class QLineEdit;
 class KIntNumInput;
 class QComboBox;
 class SetTabFret;
+class SetTabDrum;
+class TabTrack;
 
 class SetTrack: public QTabDialog {
     Q_OBJECT
 public:
-    SetTrack(QWidget *parent = 0, const char *name = 0);
+    SetTrack(TabTrack *trk, QWidget *parent = 0, const char *name = 0);
 
     QLineEdit *title;
     KIntNumInput *channel, *bank, *patch;
 	QComboBox *mode;
-    SetTabFret *fret;
+    QWidget *modespec;
+    TabTrack *track;
+
+private:
+    void selectFret();
+    void selectDrum();
+
+public slots:
+    void selectTrackMode(int sel);
 };
 
 #endif

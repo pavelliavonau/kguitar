@@ -1,5 +1,6 @@
 #include "settrack.h"
 #include "settabfret.h"
+#include "settabdrum.h"
 
 #include <klocale.h>
 #include <qlayout.h>
@@ -8,12 +9,12 @@
 #include <qcombobox.h>
 #include <qlabel.h>
 
-SetTrack::SetTrack(QWidget *parent = 0, const char *name = 0)
+SetTrack::SetTrack(TabTrack *trk, QWidget *parent = 0, const char *name = 0)
 	: QTabDialog(parent, name, TRUE)
 {
     //////////////////////////////////////////////////////////////////
     // GENERAL CONTROLS TAB
-    //////////////////////////////////////////////////////////////////
+	//////////////////////////////////////////////////////////////////
 
 	QWidget *gen = new QWidget(this);
 
@@ -52,17 +53,68 @@ SetTrack::SetTrack(QWidget *parent = 0, const char *name = 0)
 
 	g->activate();
 
+	// Fill tab with information
+
+	title->setText(trk->name);
+	//	title->setReadOnly(isBrowserView);
+	channel->setValue(trk->channel);
+	//	channel->setDisabled(isBrowserView);
+	bank->setValue(trk->bank);
+	//	bank->setDisabled(isBrowserView);
+	patch->setValue(trk->patch);
+	//	patch->setDisabled(isBrowserView);
+	mode->setCurrentItem(trk->trackmode());
+	//	mode->setDisabled(isBrowserView);
+	connect(mode, SIGNAL(highlighted(int)), SLOT(selectTrackMode(int)));
+
+	track = trk;
+
 	addTab(gen, i18n("&General"));
 
     //////////////////////////////////////////////////////////////////
     // TAB MODE SPECIFIC WIDGET
     //////////////////////////////////////////////////////////////////
 
-    fret = new SetTabFret(this);
-	addTab(fret, i18n("&Mode-specific"));
+    modespec = new SetTabFret(this);
+	addTab(modespec, i18n("&Mode-specific"));
+
+	// Fill tab with information
+	selectTrackMode(trk->trackmode());
+
+	// Buttons
 
 	setOkButton(i18n("OK"));
 	setCancelButton(i18n("Cancel"));
 
     setCaption(i18n("Track properties"));
+}
+
+void SetTrack::selectTrackMode(int sel)
+{
+	switch ((TrackMode) sel) {
+	case FretTab: selectFret(); break;
+	case DrumTab: selectDrum(); break;
+	}
+}
+
+void SetTrack::selectFret()
+{
+	removePage(modespec);
+    modespec = new SetTabFret(this);
+	addTab(modespec, i18n("&Mode-specific"));
+	SetTabFret *fret = (SetTabFret *) modespec;
+
+	fret->setString(track->string);
+	fret->setFrets(track->frets);
+	for (int i = 0; i < track->string; i++)
+		fret->setTune(i, track->tune[i]);
+	//	fret->setDisabled(isBrowserView);
+}
+
+void SetTrack::selectDrum()
+{
+	removePage(modespec);
+    modespec = new SetTabDrum(this);
+	addTab(modespec, i18n("&Mode-specific"));
+	SetTabDrum *drum = (SetTabDrum *) modespec;
 }
