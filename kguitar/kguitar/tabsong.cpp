@@ -1,5 +1,5 @@
 #include "tabsong.h"
-#include "globaloptions.h"
+#include "settings.h"
 
 #include "musicxml.h"
 
@@ -1366,11 +1366,11 @@ bool TabSong::saveToTab(QString fileName)
 
 		int minstart = 1;
 		for (int i = 0; i < trk->string; i++)
-			if (note_name(trk->tune[i] % 12).length() > 1)
+			if (Settings::noteName(trk->tune[i] % 12).length() > 1)
 				minstart = 2;
 
 		for (int i = 0; i < trk->string; i++) {
-			lin[i] = note_name(trk->tune[i] % 12);
+			lin[i] = Settings::noteName(trk->tune[i] % 12);
 			if ((lin[i].length() == 1) && (minstart > 1))
 				lin[i] = lin[i]+' ';
 			lin[i] = lin[i] + " |-";
@@ -1416,7 +1416,7 @@ bool TabSong::saveToTab(QString fileName)
 					s << lin[i] << '\n';
 				s << '\n';
 				for (int i = 0; i < trk->string; i++) {
-					lin[i] = note_name(trk->tune[i] % 12);
+					lin[i] = Settings::noteName(trk->tune[i] % 12);
 					if ((lin[i].length() == 1) && (minstart > 1))
 						lin[i] = lin[i] + ' ';
 					lin[i] = lin[i] + " |-";
@@ -1505,7 +1505,7 @@ bool TabSong::saveToTexTab(QString fileName)
 	notes = "\\Notes";
 	showstr = "\\showstrings";
 
-	switch (globalTabSize){
+	switch (Settings::texTabSize()){
 	case 0: tsize = "\\smalltabsize";
 		break;
 	case 1: tsize = "\\normaltabsize";
@@ -1526,7 +1526,7 @@ bool TabSong::saveToTexTab(QString fileName)
 
 	flatnote = FALSE;
 	for (int i = 0; i < trk->string; i++) {
-		nn[i] = note_name(trk->tune[i] % 12);
+		nn[i] = Settings::noteName(trk->tune[i] % 12);
 		if ((nn[i].contains("#", FALSE) == 1) && (nn[i].length() == 2)) {
 			nn[i] = nn[i].left(1) + "$\\sharp$";
 			flatnote = TRUE;
@@ -1589,7 +1589,7 @@ bool TabSong::saveToTexTab(QString fileName)
 
 	for (int i = (trk->string - 1); i >= 0; i--){
 		showstr += " ";
-		showstr += note_name(trk->tune[i] % 12);
+		showstr += Settings::noteName(trk->tune[i] % 12);
 	}
 
 	switch (trk->string){
@@ -1635,7 +1635,7 @@ bool TabSong::saveToTexTab(QString fileName)
 
 	// SONG HEADER
 
-	if (!globalShowPageNumb)
+	if (!Settings::texShowPageNumber())
 		s << "\\nopagenumbers" << "\n";
 
 	s << "\\fulltitle{" << cleanString(title) << "}";
@@ -1646,14 +1646,14 @@ bool TabSong::saveToTexTab(QString fileName)
 	s << "        Tempo: " << tempo << "}";
 	s << "\n";
 
-	if (globalShowStr)
+	if (!Settings::texShowStr())
 		s << tmp;
 
 	s << "\\maketitle" << "\n";
 	s << "\n";
 	s << "\\settab1" << "\n";
 
-	if (!globalShowBarNumb)
+	if (!Settings::texShowBarNumber())
 		s << "\\nobarnumbers" << "\n";
 
 	s << "\\let\\extractline\\leftline" << "\n";
@@ -1676,7 +1676,7 @@ bool TabSong::saveToTexTab(QString fileName)
 		s << "\n" << "\n"; // the 2nd LF is very important!!
 		s << tsize;
 
-		if (globalShowStr && (!flatnote))
+		if (Settings::texShowStr() && (!flatnote))
 			s << showstr;
 
 		s << "\\startextract" << "\n";
@@ -1717,7 +1717,7 @@ bool TabSong::saveToTexTab(QString fileName)
 				if (cho > 0)  s << "\\en" << "\n";
 				if ((cho > 0) && (width >= 26)){       // we need a LF in tab
 					s << "\\endextract" << "\n";
-					if (globalShowStr && (!flatnote))
+					if (Settings::texShowStr() && (!flatnote))
 						s << showstr;
 					s << "\\startextract" << "\n";
 					width = 0;
@@ -1781,9 +1781,9 @@ bool TabSong::saveToTexNotes(QString fileName)
 	s << "\\input musixtex" << "\n" << "\n";
 
 	// SONG HEADER
-	if (!globalShowPageNumb)
+	if (!Settings::texShowPageNumber())
 		s << "\\nopagenumbers" << "\n";
-	if (!globalShowBarNumb)
+	if (!Settings::texShowBarNumber())
 		s << "\\nobarnumbers" << "\n";
 	s << "\n";
 
