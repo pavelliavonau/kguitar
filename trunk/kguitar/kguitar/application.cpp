@@ -42,7 +42,7 @@ ApplicationWindow::ApplicationWindow(): KTMainWindow()
     p->insertItem(i18n("&New"), this, SLOT(newDoc()));
     p->insertItem(i18n("&Open..."), this, SLOT(load()));
     p->insertItem(i18n("&Save"), this, SLOT(save()));
-    p->insertItem(i18n("S&ave as..."));
+    p->insertItem(i18n("S&ave as..."), this, SLOT(saveAs()));
     p->insertSeparator();
     p->insertItem(i18n("P&roperties..."), this, SLOT(songProperties()));
     p->insertItem(i18n("&Print..."), this, SLOT(print()));
@@ -96,7 +96,7 @@ ApplicationWindow::~ApplicationWindow()
 void ApplicationWindow::newDoc()
 {
     ApplicationWindow *ed = new ApplicationWindow;
-    ed->resize( 400, 400 );
+    ed->resize(400, 400);
     ed->show();
 }
 
@@ -109,15 +109,31 @@ void ApplicationWindow::load()
 	    tv->setCurt(tv->sng()->t.first());
 	    tv->sng()->t.first()->x=0;
 	    tv->sng()->t.first()->y=0;
+	    tv->sng()->filename=fn;
 	}
     }
 }
 
 void ApplicationWindow::save()
 {
+    QString fn = tv->sng()->filename;
+
+    if (fn.isEmpty())
+	fn = KFileDialog::getSaveFileName(0,"*.kg",this);
+
+    if (!fn.isEmpty()) {
+	tv->sng()->save_to_kg(tv->sng()->filename);
+	tv->sng()->filename=fn;
+    }
+}
+
+void ApplicationWindow::saveAs()
+{
     QString fn = KFileDialog::getSaveFileName(0,"*.kg",this);
-    if (!fn.isEmpty())
+    if (!fn.isEmpty()) {
 	tv->sng()->save_to_kg(fn);
+	tv->sng()->filename=fn;
+    }
 }
 
 void ApplicationWindow::print()
