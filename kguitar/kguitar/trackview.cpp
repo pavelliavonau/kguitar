@@ -16,7 +16,6 @@ TrackView::TrackView(QWidget *parent,const char *name): QTableView(parent,name)
     setBackgroundMode(PaletteBase);
 
     setNumCols(1);
-    setNumRows(5);
 
     setFocusPolicy(QWidget::StrongFocus);
 
@@ -31,6 +30,7 @@ TrackView::TrackView(QWidget *parent,const char *name): QTableView(parent,name)
 	curt->tune[i]=standtune[i];
 
     curt->c.append(new TabColumn());
+    updateRows();
 
     curt->y=0;
     lastnumber=0;
@@ -39,6 +39,11 @@ TrackView::TrackView(QWidget *parent,const char *name): QTableView(parent,name)
 TrackView::~TrackView()
 {
     delete song;
+}
+
+void TrackView::updateRows()
+{
+    setNumRows((curt->c.count()-1)/8+1);
 }
 
 void TrackView::setFinger(int num,int fret)
@@ -50,7 +55,7 @@ void TrackView::paintCell(QPainter *p, int row, int col)
 {
     QListIterator<TabColumn> it(curt->c);
 
-    int start = row*10;
+    int start = row*8;
     QString tmp;
 
     int s = curt->string-1;
@@ -67,15 +72,45 @@ void TrackView::paintCell(QPainter *p, int row, int col)
 
     int xpos=10,xdelta;
     
-    for (;(it.current()) && (cnt<10);++it) {
+    for (;(it.current()) && (cnt<8);++it) {
 	TabColumn *tc = it.current();
+
+	// Drawing duration marks
+
+        switch (tc->l) {
+	case 15:  // 1/32
+	    p->drawLine(xpos+VERTLINE/2,BOTTOMDUR+VERTLINE-4,
+			xpos+VERTLINE/2+HORDUR,BOTTOMDUR+VERTLINE-4);
+	case 30:  // 1/16
+	    p->drawLine(xpos+VERTLINE/2,BOTTOMDUR+VERTLINE-2,
+			xpos+VERTLINE/2+HORDUR,BOTTOMDUR+VERTLINE-2);
+	case 60:  // 1/8
+	    p->drawLine(xpos+VERTLINE/2,BOTTOMDUR+VERTLINE,
+			xpos+VERTLINE/2+HORDUR,BOTTOMDUR+VERTLINE);
+	case 120: // 1/4 - a long vertical line, so we need to find the highest note
+	    for (i=s;((i>=0) && (tc->a[i]==-1));i--);
+
+	    // If it's an empty measure at all - draw the vertical line from bottom
+	    if (i<0)  i=0;
+
+	    p->drawLine(xpos+VERTLINE/2,VERTSPACE+VERTLINE*(s-i)+VERTLINE/2,
+			xpos+VERTLINE/2,BOTTOMDUR+VERTLINE);
+	case 240: // 1/2
+	    p->drawLine(xpos+VERTLINE/2,BOTTOMDUR+3,
+			xpos+VERTLINE/2,BOTTOMDUR+VERTLINE);
+	case 480: // whole
+	    break;
+	}
+
+	// Draw the number column
+	
 	p->setPen(NoPen);
 	for (i=0;i<=s;i++) {
 	    if ((curt->c.current()==tc) && 
 		(curt->y==i)) {
 		p->setBrush(KApplication::getKApplication()->selectColor);
 		p->drawRect(xpos,VERTSPACE+(s-i)*VERTLINE-VERTLINE/2,
-			    VERTLINE,VERTLINE);
+			    VERTLINE,VERTLINE+1);
 		p->setBrush(KApplication::getKApplication()->windowColor);
 		if (tc->a[i]!=-1) {
 		    tmp.setNum(tc->a[i]);
@@ -88,40 +123,14 @@ void TrackView::paintCell(QPainter *p, int row, int col)
 		if (tc->a[i]!=-1) {
 		    tmp.setNum(tc->a[i]);
 		    p->drawRect(xpos,VERTSPACE+(s-i)*VERTLINE-VERTLINE/2,
-				VERTLINE,VERTLINE);
+				VERTLINE,VERTLINE+1);
 		    p->drawText(xpos,VERTSPACE+(s-i)*VERTLINE-VERTLINE/2,
 				VERTLINE,VERTLINE,AlignCenter,tmp);
 		}
 	    }
 	}
 
-	// Drawing duration marks
-
 	p->setPen(SolidLine);
-        switch (tc->l) {
-	case 15:  // 1/32
-	    p->drawLine(xpos+VERTLINE/2,BOTTOMDUR+VERTLINE-4,
-			xpos+VERTLINE/2+HORDUR,BOTTOMDUR+VERTLINE-4);
-	case 30:  // 1/16
-	    p->drawLine(xpos+VERTLINE/2,BOTTOMDUR+VERTLINE-2,
-			xpos+VERTLINE/2+HORDUR,BOTTOMDUR+VERTLINE-2);
-	case 60:  // 1/8
-	    p->drawLine(xpos+VERTLINE/2,BOTTOMDUR+VERTLINE,
-			xpos+VERTLINE/2+HORDUR,BOTTOMDUR+VERTLINE);
-	case 120: // 1/4 - a long vertical line, so we need to find the lowest note
-	    for (i=0;((i<=s) && (tc->a[i]==-1));i++);
-
-	    // If it's an empty measure at all - draw the vertical line from bottom
-	    if (i>s)  i=0;
-
-	    p->drawLine(xpos+VERTLINE/2,VERTSPACE+VERTLINE*(s-i)+VERTLINE/2+1,
-			xpos+VERTLINE/2,BOTTOMDUR+VERTLINE);
-	case 240: // 1/2
-	    p->drawLine(xpos+VERTLINE/2,BOTTOMDUR+3,
-			xpos+VERTLINE/2,BOTTOMDUR+VERTLINE);
-	case 480: // whole
-	    break;
-	}
 
 	// Length of interval
 	xdelta=(tc->l)/20*HORCELL;
@@ -137,8 +146,7 @@ void TrackView::paintCell(QPainter *p, int row, int col)
 void TrackView::resizeEvent(QResizeEvent *e)
 {
     QTableView::resizeEvent(e); // GREYFIX ? Is it C++-correct?
-//    setCellWidth(width());
-    setCellWidth(30000);
+    setCellWidth(width());
     setCellHeight(VERTSPACE*2+VERTLINE*(curt->string-1));
 }
 
@@ -193,9 +201,10 @@ void TrackView::keyPressEvent(QKeyEvent *e)
 	    curt->c.prev();
 	break;
     case Key_Right:
-	if (curt->c.at()+1==curt->c.count())
+	if (curt->c.at()+1==curt->c.count()) {
 	    curt->c.append(new TabColumn());
-	else
+	    updateRows();
+	} else
 	    curt->c.next();
 	break;
     case Key_Down:
@@ -234,7 +243,16 @@ void TrackView::keyPressEvent(QKeyEvent *e)
 	lastnumber=num;
 	break;
     case Key_Delete:
-	curt->c.current()->a[curt->y]=-1;
+	if (e->state()==ControlButton) {
+	    if (curt->c.count()>1) {
+		curt->c.remove();
+		updateRows();
+	    }
+	} else 
+	    curt->c.current()->a[curt->y]=-1;
+	break;
+    case Key_Insert:
+	curt->c.insert(curt->c.at(),new TabColumn());
 	break;
     case Key_Plus:
 	if (curt->c.current()->l<480)

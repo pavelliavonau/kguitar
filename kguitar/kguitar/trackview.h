@@ -27,10 +27,13 @@ public:
 
     void setFinger(int num, int fret);
 
+    void updateRows();
+
 protected:
     virtual void paintCell(QPainter *, int row, int col);    
     virtual void resizeEvent(QResizeEvent *e);
     virtual void keyPressEvent(QKeyEvent *e);
+
 private:
     bool moveFinger(int from, int to);
 
