@@ -1,15 +1,15 @@
 #ifndef APPLICATION_H
 #define APPLICATION_H
 
-#include <qmainwindow.h>
+#include <ktmainwindow.h>
 
 class QMultiLineEdit;
-class QToolBar;
+class KToolBar;
 class QPopupMenu;
 
 class ChordSelector;
 
-class ApplicationWindow: public QMainWindow
+class ApplicationWindow: public KTMainWindow
 {
     Q_OBJECT
 public:
@@ -32,7 +32,7 @@ private slots:
 private:
     QPrinter *printer;
     QMultiLineEdit *e;
-    QToolBar *fileTools;
+    KToolBar *fileTools;
     QPopupMenu *controls,*insertMenu;
     ChordSelector *cs;
     int mb, tb, sb;
