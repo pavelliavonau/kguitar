@@ -528,14 +528,11 @@ bool TabSong::save_to_tab(QString fileName)
 
 //////////////////////////////////////////////////////////////////////
 //
-// MusiXTeX/kgtabs.tex export - alinx
+// MusiXTeX/kgtabs.tex export by alinx
 //
-//
-// You need MusiTeX
-//
-// Download at ftp.dante.de/tex-archive/macros/musixtex/taupin
-//
-//                or http://www.gmd.de/Misc/Music
+// MusiXTeX is required to use exported files.
+// Download it at ftp://ftp.dante.de/tex-archive/macros/musixtex/taupin
+//             or http://www.gmd.de/Misc/Music
 //
 
 QString TabSong::tab(bool chord, int string, int fret)
@@ -706,14 +703,15 @@ bool TabSong::save_to_tex_tab(QString fileName)
 	s << "% This MusiXTex File was created with KGuitar " << VERSION << "\n";
 	s << "%" << "\n";
 	s << "% You can download the latest version at:" << "\n";
-	s << "%          http://kguitar.sourceforge.net" << "\n";
-	s << "%" << "\n" << "%" << "\n";
-	s << "% You must have installed MusiXTeX" << "\n";
-	s << "% This stuff you can download at:" << "\n" << "%" << "\n";
-	s << "%       ftp.dante.de/tex-archive/macros/musixtex/taupin" << "\n";
-	s << "%    or http://www.gmd.de/Misc/Music" << "\n";
-	s << "%" << "\n" << "%" << "\n";
-	s << "% IMPORTANT: Note that this file should not be used with LaTeX" << "\n";
+	s << "%      http://kguitar.sourceforge.net" << "\n";
+	s << "%" << "\n";
+	s << "% You must have MusiXTeX installed." << "\n";
+	s << "% You can download it at one of the following sites:" << "\n";
+	s << "%" << "\n";
+	s << "%      ftp://ftp.dante.de/tex-archive/macros/musixtex/taupin/" << "\n";
+    s << "%      http://www.gmd.de/Misc/Music/" << "\n";
+	s << "%" << "\n";
+	s << "% IMPORTANT: This file should not be used with LaTeX!" << "\n";
 	s << "%" << "\n";
 	s << "%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%" << "\n";
 	
