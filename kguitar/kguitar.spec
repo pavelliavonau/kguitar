@@ -1,64 +1,30 @@
-# Note that this is NOT a relocatable package
-%define ver      0.4.1
-%define rel      1
-%define prefix   /usr
-
-Summary:   KDE guitarist tabulature environment
-Name:      kguitar 
-Version:   %ver
-Release:   %rel
+Name: kguitar
+Summary: KGuitar -- Some description
+Version: 0.4.1
+Release: 1
 Copyright: GPL
-Group:     Applications/Multimedia
-Source0:   kguitar-%{PACKAGE_VERSION}.tar.bz2
-URL:       http://kguitar.sourceforge.net/ 
-BuildRoot: /tmp/kguitar-%{PACKAGE_VERSION}-root
-Vendor:    KGuitar team <yakshin@online.ru>
-Packager:  Nicolas Vignal <nicolas.vignal@fnac.net>
-Docdir: %{prefix}/doc
+Group: X11/KDE/Utilities
+Source: ftp.kde.org/pub/kde/unstable/apps/utils/kguitar-0.4.1.tar.gz
+Packager: Mikhail Yakshin <greycat@users.sourceforge.net>
+BuildRoot: /tmp/kguitar-0.4.1
+Prefix: /opt/kde2
 
 %description
-KGuitar is a free full-featured KDE guitarist environment, that's
-built using tabulature concepts. It includes tab editor, chord
-construction tools, supports import/export of popular tab formats
-and offers MIDI capabilities.
-
-Install KGuitar if you play guitar or any other fretted instrument
-and have to work with chords and tabulatures.
+A long description
 
 %prep
-rm -rf %{builddir}
-
-%setup
-touch `find . -type f`
+rm -rf $RPM_BUILD_ROOT
+%setup -n kguitar-0.4.1
 
 %build
-if [ -z "$KDEDIR" ]; then
-        export KDEDIR=%{prefix}
-fi
-CXXFLAGS="$RPM_OPT_FLAGS" CFLAGS="$RPM_OPT_FLAGS" ./configure \
-	--prefix=$KDEDIR --with-install-root=$RPM_BUILD_ROOT
+./configure --disable-debug --enable-final --prefix=%{prefix}
 make
 
 %install
-if [ -z "$KDEDIR" ]; then
-        export KDEDIR=%{prefix}
-fi
-rm -rf $RPM_BUILD_ROOT
-make install-strip
-
-cd $RPM_BUILD_ROOT
-find . -type d | sed '1,2d;s,^\.,\%attr(-\,root\,root) \%dir ,' > \
-	$RPM_BUILD_DIR/file.list.%{name}
-find . -type f | sed -e 's,^\.,\%attr(-\,root\,root) ,' \
-	-e '/\/config\//s|^|%config|' >> \
-	$RPM_BUILD_DIR/file.list.%{name}
-find . -type l | sed 's,^\.,\%attr(-\,root\,root) ,' >> \
-	$RPM_BUILD_DIR/file.list.%{name}
-echo "%docdir $KDEDIR/doc/kde" >> $RPM_BUILD_DIR/file.list.%{name}
+make DESTDIR=$RPM_BUILD_ROOT install
+find . -type f -o -type l | sed 's|^\.||' > $RPM_BUILD_ROOT/master.list
 
 %clean
 rm -rf $RPM_BUILD_ROOT
-rm -rf %{builddir}
-rm -f $RPM_BUILD_DIR/file.list.%{name}
 
-%files -f ../file.list.%{name}
+%files -f $RPM_BUILD_ROOT/master.list

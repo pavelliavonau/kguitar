@@ -17,7 +17,6 @@ Makefile.in makefiles.
 As usual.
 
 
-
 Releasing a new version
 =======================
 
@@ -52,6 +51,7 @@ Remember, the tags look like "rel0-1".
 
 * Test new release
 
+
 Announcing a new release
 ========================
 
@@ -70,9 +70,10 @@ shortened version of ChangeLog for news sites):
 	lrn.ru
 	linux.org.ru
 
+
 Update translations
 ===================
-* Change in top source directory
+* Chdir to top source directory
 * Do "make clean" (because we didn't translate *.moc.cpp files)
 * Do "make package-messages"
 * Change to 'po' directory
