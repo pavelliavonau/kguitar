@@ -1,0 +1,183 @@
+# SOME DESCRIPTIVE TITLE.
+# Copyright (C) YEAR Free Software Foundation, Inc.
+# FIRST AUTHOR <EMAIL@ADDRESS>, YEAR.
+#
+#, fuzzy
+msgid ""
+msgstr ""
+"Project-Id-Version: PACKAGE VERSION\n"
+"POT-Creation-Date: 2000-08-11 20:27-0400\n"
+"PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
+"Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
+"Language-Team: LANGUAGE <LL@li.org>\n"
+"MIME-Version: 1.0\n"
+"Content-Type: text/plain; charset=CHARSET\n"
+"Content-Transfer-Encoding: ENCODING\n"
+
+#: application.cpp:49
+msgid "New document"
+msgstr ""
+
+#: application.cpp:54
+msgid "Insert chord"
+msgstr ""
+
+#: application.cpp:59
+msgid "&New"
+msgstr ""
+
+#: application.cpp:67
+msgid "ASCII &tab..."
+msgstr ""
+
+#: application.cpp:68
+msgid "&Export"
+msgstr ""
+
+#: application.cpp:71
+msgid "P&roperties..."
+msgstr ""
+
+#: application.cpp:79
+msgid "&Track..."
+msgstr ""
+
+#: application.cpp:83
+msgid "&Chord"
+msgstr ""
+
+#: application.cpp:87
+msgid "&General..."
+msgstr ""
+
+#: application.cpp:106
+msgid "A stringed instrument tabulature editor"
+msgstr ""
+
+#: chord.cpp:133
+msgid "Root"
+msgstr ""
+
+#: chord.cpp:134
+msgid "Inv #1"
+msgstr ""
+
+#: chord.cpp:135
+msgid "Inv #2"
+msgstr ""
+
+#: chord.cpp:136
+msgid "Inv #3"
+msgstr ""
+
+#: chord.cpp:137
+msgid "Inv #4"
+msgstr ""
+
+#: chord.cpp:138
+msgid "Inv #5"
+msgstr ""
+
+#: chord.cpp:139
+msgid "Inv #6"
+msgstr ""
+
+#: chord.cpp:145
+msgid "Usual"
+msgstr ""
+
+#: chord.cpp:147
+msgid "Rare"
+msgstr ""
+
+#: chord.cpp:149
+msgid "All"
+msgstr ""
+
+#: chord.cpp:182
+msgid "Chord constructor"
+msgstr ""
+
+#: setsong.cpp:17
+msgid "&Title:"
+msgstr ""
+
+#: setsong.cpp:18
+msgid "&Author:"
+msgstr ""
+
+#: setsong.cpp:19
+msgid "&Transcriber:"
+msgstr ""
+
+#: setsong.cpp:20
+msgid "&Comments:"
+msgstr ""
+
+#: setsong.cpp:53
+msgid "Song properties"
+msgstr ""
+
+#: settrack.cpp:24
+msgid "&Track name:"
+msgstr ""
+
+#: settrack.cpp:25
+msgid "&Channel:"
+msgstr ""
+
+#: settrack.cpp:26
+msgid "&Bank:"
+msgstr ""
+
+#: settrack.cpp:27
+msgid "&Patch:"
+msgstr ""
+
+#: settrack.cpp:65
+msgid "Track properties"
+msgstr ""
+
+#: settabfret.cpp:13
+msgid "Fret tabulature"
+msgstr ""
+
+#: settabfret.cpp:23
+msgid "Tuning:"
+msgstr ""
+
+#: settabfret.cpp:30
+msgid "Strings:"
+msgstr ""
+
+#: settabfret.cpp:35
+msgid "Frets:"
+msgstr ""
+
+#: options.cpp:18
+msgid "Dominant 7th"
+msgstr ""
+
+#: options.cpp:32
+msgid "Alterations"
+msgstr ""
+
+#: options.cpp:34
+msgid "-/+ symbols"
+msgstr ""
+
+#: options.cpp:35
+msgid "b/# symbols"
+msgstr ""
+
+#: options.cpp:43
+msgid "&Chords"
+msgstr ""
+
+#: options.cpp:51
+msgid "Others"
+msgstr ""
+
+#: options.cpp:61
+msgid "General options"
+msgstr ""
