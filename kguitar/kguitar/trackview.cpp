@@ -57,18 +57,19 @@ TrackView::TrackView(TabSong *s, KXMLGUIClient *_XMLGUIClient, KCommandHistory* 
 
 	updateRows();
 
-// 	smallCaptionFont = new QFont(KGlobalSettings::generalFont());
-// 	smallCaptionFont.setPointSizeFloat(smallCaptionFont.pointSizeFloat() * 0.7);
-// 	timeSigFont = KGlobalSettings::generalFont();
-// 	timeSigFont.setPointSizeFloat(timeSigFont.pointSizeFloat() * 1.4);
-// 	timeSigFont.setBold(TRUE);
+ 	smallCaptionFont = new QFont(KGlobalSettings::generalFont());
+ 	smallCaptionFont->setPointSizeFloat(smallCaptionFont->pointSizeFloat() * 0.7);
+  	timeSigFont = new QFont(KGlobalSettings::generalFont());
+  	timeSigFont->setPointSizeFloat(timeSigFont->pointSizeFloat() * 1.4);
+  	timeSigFont->setBold(TRUE);
 
 	lastnumber = -1;
 }
 
 TrackView::~TrackView()
 {
-// 	delete smallCaptionFont;
+ 	delete smallCaptionFont;
+	delete timeSigFont;
 }
 
 void TrackView::selectTrack(TabTrack *trk)
@@ -228,7 +229,7 @@ int TrackView::horizDelta(uint n)
 
 void TrackView::paintCell(QPainter *p, int row, int col)
 {
-	if (row >= curt->b.size()) {
+	if (row >= int(curt->b.size())) {
 		kdDebug() << "Drawing the bar out of limits!" << endl;
 		return;
 	}
@@ -239,7 +240,7 @@ void TrackView::paintCell(QPainter *p, int row, int col)
 
 	QString tmp;
 
-	uint s = curt->string - 1;
+	int s = curt->string - 1;
 	int i;
 
 	for (i = 0; i <= s; i++)
@@ -262,7 +263,7 @@ void TrackView::paintCell(QPainter *p, int row, int col)
 	// Time signature
 
 	if (curt->showBarSig(bn)) {
-// 		p->setFont(timeSigFont);
+ 		p->setFont(*timeSigFont);
 		tmp.setNum(curt->b[bn].time1);
 		p->drawText(20, VERTSPACE + VERTLINE * s / 4 - TIMESIGSIZE / 2,
 					TIMESIGSIZE, TIMESIGSIZE, AlignCenter, tmp);
@@ -288,11 +289,11 @@ void TrackView::paintCell(QPainter *p, int row, int col)
 		p->setPen(SolidLine);
 	}
 
-	for (uint t = curt->b[bn].start; t <= curt->lastColumn(bn); t++) {
+	for (int t = curt->b[bn].start; t <= curt->lastColumn(bn); t++) {
 		// Drawing duration marks
 
 		// Draw connection with previous, if applicable
-		if ((t > 0) && (t>curt->b[bn].start) && (curt->c[t-1].l == curt->c[t].l))
+		if ((t > 0) && (t > curt->b[bn].start) && (curt->c[t - 1].l == curt->c[t].l))
 			xdelta = lastxpos + VERTLINE / 2;
 		else
 			xdelta = xpos + VERTLINE / 2 + HORDUR;
@@ -335,9 +336,12 @@ void TrackView::paintCell(QPainter *p, int row, int col)
 
 		// Draw palm muting
 
-		if (curt->c[t].flags & FLAG_PM)
-			p->drawText(xpos + VERTLINE / 2, 0, VERTLINE * 2, VERTLINE,
+		if (curt->c[t].flags & FLAG_PM) {
+			p->setFont(*smallCaptionFont);
+			p->drawText(xpos, VERTSPACE / 2, VERTLINE * 2, VERTLINE,
 						AlignCenter, "P.M.");
+			p->setFont(KGlobalSettings::generalFont());
+		}
 
 		// Length of interval to next column - adjusted if dotted
 
@@ -369,31 +373,31 @@ void TrackView::paintCell(QPainter *p, int row, int col)
 			// Draw effects
 			switch (curt->c[t].e[i]) {
 			case EFFECT_HARMONIC:
-// 				p->setFont(smallCaptionFont);
-				p->drawText(xpos + VERTLINE + 2, VERTSPACE + (s - i) * VERTLINE - VERTLINE / 2,
+ 				p->setFont(*smallCaptionFont);
+				p->drawText(xpos + VERTLINE + 2, VERTSPACE + (s - i) * VERTLINE - VERTLINE * 2 / 3,
 							VERTLINE, VERTLINE, AlignCenter, "H");
-// 				p->setFont(KGlobalSettings::generalFont());
+ 				p->setFont(KGlobalSettings::generalFont());
 				break;
 			case EFFECT_ARTHARM:
-// 				p->setFont(smallCaptionFont);
-				p->drawText(xpos + VERTLINE + 2, VERTSPACE + (s - i) * VERTLINE - VERTLINE / 2,
+ 				p->setFont(*smallCaptionFont);
+				p->drawText(xpos + VERTLINE + 2, VERTSPACE + (s - i) * VERTLINE - VERTLINE * 2 / 3,
 							VERTLINE * 2, VERTLINE, AlignCenter, "AH");
-// 				p->setFont(KGlobalSettings::generalFont());
+ 				p->setFont(KGlobalSettings::generalFont());
 				break;
 			case EFFECT_LEGATO:
  				p->setPen(SolidLine);
 				p->drawArc(xpos + VERTLINE, VERTSPACE + (s - i) * VERTLINE - VERTLINE / 2,
 						   xdelta - VERTLINE, 10, 0, 180 * 16);
 				if ((t < curt->c.size() - 1) && (curt->c[t + 1].a[i] >= 0)) {
-// 					p->setFont(smallCaptionFont);
+ 					p->setFont(*smallCaptionFont);
 					if (curt->c[t + 1].a[i] > curt->c[t].a[i]) {
-						p->drawText(xpos + xdelta / 2, VERTSPACE + (s - i) * VERTLINE - VERTLINE / 2,
+						p->drawText(xpos + xdelta / 2 - VERTLINE / 2, VERTSPACE + (s - i) * VERTLINE - VERTLINE / 3,
 									VERTLINE * 2, VERTLINE, AlignCenter, "HO");
 					} else if (curt->c[t + 1].a[i] < curt->c[t].a[i]) {
-						p->drawText(xpos + xdelta / 2, VERTSPACE + (s - i) * VERTLINE - VERTLINE / 2,
+						p->drawText(xpos + xdelta / 2 - VERTLINE / 2, VERTSPACE + (s - i) * VERTLINE - VERTLINE / 3,
 									VERTLINE * 2, VERTLINE, AlignCenter, "PO");
 					}
-// 					p->setFont(KGlobalSettings::generalFont());
+ 					p->setFont(KGlobalSettings::generalFont());
 				}
 				p->setPen(NoPen);
 				break;
@@ -401,11 +405,11 @@ void TrackView::paintCell(QPainter *p, int row, int col)
 				p->setPen(SolidLine);
 				if ((t < curt->c.size() - 1) && (curt->c[t + 1].a[i] >= 0)) {
 					if (curt->c[t + 1].a[i] > curt->c[t].a[i]) {
-						p->drawLine(xpos + VERTLINE + 2, VERTSPACE + (s - i) * VERTLINE + VERTLINE / 2,
-									xpos + xdelta, VERTSPACE + (s - i) * VERTLINE - VERTLINE / 2);
+						p->drawLine(xpos + VERTLINE + 2, VERTSPACE + (s - i) * VERTLINE + VERTLINE / 2 - 1,
+									xpos + xdelta, VERTSPACE + (s - i) * VERTLINE - VERTLINE / 2 + 1);
 					} else {
-						p->drawLine(xpos + VERTLINE + 2, VERTSPACE + (s - i) * VERTLINE - VERTLINE / 2,
-									xpos + xdelta, VERTSPACE + (s - i) * VERTLINE + VERTLINE / 2);
+						p->drawLine(xpos + VERTLINE + 2, VERTSPACE + (s - i) * VERTLINE - VERTLINE / 2 + 1,
+									xpos + xdelta, VERTSPACE + (s - i) * VERTLINE + VERTLINE / 2 - 1);
 					}
 				}
 				p->setPen(NoPen);
