@@ -5,20 +5,66 @@
 
 ConvertGtp::ConvertGtp(TabSong *song): ConvertBase(song) {}
 
-// Reads Delphi string in GPro format. Delphi string looks pretty much like:
-// <max-length> <real-length> <real-length * bytes - string data>
-
-void ConvertGtp::readDelphiString(char *c)
+QString ConvertGtp::readDelphiString()
 {
-	Q_UINT8 maxl, l;
-	(*stream) >> maxl;
+	QString str;
+	Q_UINT8 l;
+	char *c;
+
+	int maxl = readDelphiInteger();
 	(*stream) >> l;
-	if (maxl == 0)
-		maxl = l;
-	else
-		maxl--;
-	stream->readRawBytes(c, maxl);
-	c[l] = 0;
+
+	if (maxl != l + 1)  kdWarning() << "readDelphiString - first word doesn't match second byte\n";
+
+	c = (char *) malloc(l + 5);
+
+	if (c) {
+		stream->readRawBytes(c, l);
+		c[l] = 0;
+		str = QString::fromLocal8Bit(c);
+		free(c);
+	}
+
+	return str;
+}
+
+QString ConvertGtp::readPascalString()
+{
+	QString str;
+	Q_UINT8 l;
+	char *c;
+
+	(*stream) >> l;
+
+	c = (char *) malloc(l + 5);
+
+	if (c) {
+		stream->readRawBytes(c, l);
+		c[l] = 0;
+		str = QString::fromLocal8Bit(c);
+		free(c);
+	}
+
+	return str;
+}
+
+QString ConvertGtp::readWordPascalString()
+{
+	QString str;
+	char *c;
+
+	int l = readDelphiInteger();
+
+	c = (char *) malloc(l + 5);
+
+	if (c) {
+		stream->readRawBytes(c, l);
+		c[l] = 0;
+		str = QString::fromLocal8Bit(c);
+		free(c);
+	}
+
+	return str;
 }
 
 int ConvertGtp::readDelphiInteger()
@@ -32,6 +78,392 @@ int ConvertGtp::readDelphiInteger()
 	return r;
 }
 
+void ConvertGtp::readChromaticGraph()
+{
+	Q_UINT8 num;
+	int n;
+
+	// GREYFIX: currently just skips over chromatic graph
+	(*stream) >> num;                        // icon
+	readDelphiInteger();                     // shown amplitude
+	n = readDelphiInteger();                 // number of points
+	for (int i = 0; i < n; i++) {
+		readDelphiInteger();                 // time
+		readDelphiInteger();                 // pitch
+		(*stream) >> num;                    // vibrato
+	}
+}
+
+bool ConvertGtp::readSignature()
+{
+	char garbage[10];
+
+	QString s = readPascalString();          // Format string
+	kdDebug() << "GTP format: " << s << "\n";
+
+	stream->readRawBytes(garbage, 6);        // Mysterious bytes
+
+	return TRUE;
+}
+
+void ConvertGtp::readSongAttributes()
+{
+	QString s;
+	char garbage[10];
+
+	Q_UINT8 num;
+
+	song->comments = "";
+
+	song->title = readDelphiString();        // Song title
+	kdDebug() << "Title: " << song->title << "\n";
+
+	s = readDelphiString();                  // Song subtitle
+ 	if (!s.isEmpty())  song->title += " (" + s + ")";
+	kdDebug() << "Title: " << song->title << "\n";
+
+	song->author = readDelphiString();       // Artist
+	kdDebug() << "Author: " << song->author << "\n";
+
+	s = readDelphiString();                  // Album
+ 	if (!s.isEmpty())  song->author += " (" + s + ")";
+	kdDebug() << "Author: " << song->author << "\n";
+
+	s = readDelphiString();                  // Author
+ 	if (!s.isEmpty())  song->author += " / " + s;
+	kdDebug() << "Author: " << song->author << "\n";
+
+	s = readDelphiString();                  // Copyright
+	if (!s.isEmpty())  song->comments += "(C) " + s + "\n\n";
+
+	song->transcriber = readDelphiString();  // Tab
+
+	s = readDelphiString();                  // Instructions
+	if (!s.isEmpty())  song->comments += s + "\n\n";
+
+	// Notice lines
+	int n = readDelphiInteger();
+	for (int i = 0; i < n; i++)
+		song->comments += readDelphiString() + "\n";
+
+	(*stream) >> num;                        // GREYFIX: Shuffle rhythm feel
+
+	// Lyrics
+	readDelphiInteger();                     // GREYFIX: Lyric track number start
+	for (int i = 0; i < LYRIC_LINES_MAX_NUMBER; i++) {
+		readDelphiInteger();                 // GREYFIX: Start from bar
+		readWordPascalString();              // GREYFIX: Lyric line
+	}
+
+	song->tempo = readDelphiInteger();       // Tempo
+	stream->readRawBytes(garbage, 5);        // Mysterious bytes
+}
+
+void ConvertGtp::readTrackDefaults()
+{
+	Q_UINT8 num;
+
+	for (int i = 0; i < TRACK_MAX_NUMBER * 2; i++) {
+		trackPatch[i] = readDelphiInteger(); // MIDI Patch
+		(*stream) >> num;                    // GREYFIX: volume
+		(*stream) >> num;                    // GREYFIX: pan
+		(*stream) >> num;                    // GREYFIX: chorus
+		(*stream) >> num;                    // GREYFIX: reverb
+		(*stream) >> num;                    // GREYFIX: phase
+		(*stream) >> num;                    // GREYFIX: tremolo
+		(*stream) >> num;                    // 2 byte padding: must be 00 00
+		(*stream) >> num;
+	}
+}
+
+void ConvertGtp::readBarProperties()
+{
+	Q_UINT8 bar_bitmask, num;
+
+	int time1 = 4;
+	int time2 = 4;
+
+	kdDebug() << "readBarProperties(): start\n";
+	for (int i = 0; i < numBars; i++) {
+		(*stream) >> bar_bitmask;                    // bar property bitmask
+		if (bar_bitmask != 0)
+			kdDebug() << "BAR #" << i << " - flags " << (int) bar_bitmask << "\n";
+		// GREYFIX: new_time_numerator
+		if (bar_bitmask & 0x01) {
+			(*stream) >> num;
+			time1 = num;
+			kdDebug() << "new time1 signature: " << time1 << ":" << time2 << "\n";
+		}
+		// GREYFIX: new_time_denominator
+		if (bar_bitmask & 0x02) {
+			(*stream) >> num;
+			time2 = num;
+			kdDebug() << "new time2 signature: " << time1 << ":" << time2 << "\n";
+		}
+		// GREYFIX: number_of_repeats
+		if (bar_bitmask & 0x08) {
+			(*stream) >> num;
+			kdDebug() << "repeat " << (int) num << "x\n";
+		}
+		// GREYFIX: alternative_ending_to
+		if (bar_bitmask & 0x10) {
+			(*stream) >> num;
+			kdDebug() << "alternative ending to " << (int) num << "\n";
+		}
+
+		if (bar_bitmask & 0x20)
+			kdWarning() << "0x20 in bar properties!\n";
+		if (bar_bitmask & 0x40) {
+			kdDebug() << "new key signature\n";
+			(*stream) >> num;                // GREYFIX: alterations_number
+			(*stream) >> num;                // GREYFIX: minor
+		}
+		if (bar_bitmask & 0x80)
+			kdWarning() << "0x80 in bar properties!\n";
+	}
+	kdDebug() << "readBarProperties(): end\n";
+}
+
+void ConvertGtp::readTrackProperties()
+{
+	Q_UINT8 num;
+	char garbage[100];
+
+	kdDebug() << "readTrackProperties(): start\n";
+
+	for (int i = 0; i < numTracks; i++) {
+		song->t.append(new TabTrack(TabTrack::FretTab, 0, 0, 0, 0, 6, 24));
+		TabTrack *trk = song->t.current();
+
+		(*stream) >> num;                    // GREYFIX: simulations bitmask
+		trk->name = readPascalString();      // Track name
+		kdDebug() << "Track: " << trk->name << "\n";
+
+		stream->readRawBytes(garbage, 40 - trk->name.length()); // Padding
+
+		// Tuning information
+
+		trk->string = readDelphiInteger();
+
+		// Parse [0..string-1] with real string tune data in reverse order
+		for (int j = trk->string - 1; j >= 0; j--)
+			trk->tune[j] = readDelphiInteger();
+
+		// Throw out the other useless garbage in [string..MAX-1] range
+		for (int j = trk->string; j < STRING_MAX_NUMBER; j++)
+			readDelphiInteger();
+
+		// GREYFIX: auto flag here?
+
+		readDelphiInteger();                 // GREYFIX: MIDI port
+		trk->channel = readDelphiInteger();  // MIDI channel 1
+		readDelphiInteger();                 // GREYFIX: MIDI channel 2
+		trk->frets = readDelphiInteger();    // Frets
+		readDelphiInteger();                 // GREYFIX: Capo
+		readDelphiInteger();                 // GREYFIX: Color
+
+		// Fill remembered values from defaults
+		trk->patch = trackPatch[i];
+	}
+	kdDebug() << "readTrackProperties(): end\n";
+}
+
+void ConvertGtp::readTabs()
+{
+	Q_UINT8 beat_bitmask, stroke_bitmask1, stroke_bitmask2, strings, num;
+	Q_INT8 length, volume, pan, chorus, reverb, phase, tremolo;
+	int x;
+
+	TabTrack *trk = song->t.first();
+	for (int tr = 0; tr < numTracks; tr++) {
+		trk->b.resize(numBars);
+		trk->c.resize(0);
+		trk = song->t.next();
+	}
+
+	for (int j = 0; j < numBars; j++) {
+		TabTrack *trk = song->t.first();
+		for (int tr = 0; tr < numTracks; tr++) {
+			int numBeats = readDelphiInteger();
+			kdDebug() << "TRACK " << tr << ", BAR " << j << " (position: " << stream->device()->at() << ")\n";
+
+			x = trk->c.size();
+			trk->c.resize(trk->c.size() + numBeats);
+			trk->b[j].time1 = trk->b[j].time2 = 4; // GREYFIX: fixed 4:4 time signature
+			trk->b[j].start = x;
+
+			for (int k = 0; k < numBeats; k++) {
+				trk->c[x].flags = 0;
+
+				(*stream) >> beat_bitmask;   // beat bitmask
+				
+				if (beat_bitmask & 0x01)     // dotted column
+					trk->c[x].flags |= FLAG_DOT;
+
+				if (beat_bitmask & 0x40) {
+					(*stream) >> num;        // GREYFIX: pause_kind
+				}
+				
+				// Guitar Pro 4 beat lengths are as following:
+				// -2 = 1    => 480     3-l = 5  2^(3-l)*15
+				// -1 = 1/2  => 240           4
+				//  0 = 1/4  => 120           3
+				//  1 = 1/8  => 60            2
+				//  2 = 1/16 => 30 ... etc    1
+				//  3 = 1/32 => 15            0
+
+				(*stream) >> length;            // length
+				kdDebug() << "beat_bitmask: " << (int) beat_bitmask << "; length: " << length << "\n";
+
+				trk->c[x].l = (1 << (3 - length)) * 15;
+
+				if (beat_bitmask & 0x20) {
+					readDelphiInteger();     // GREYFIX: t for tuples
+				}
+				
+				if (beat_bitmask & 0x04) {
+					kdDebug() << "Text: " << readDelphiString() << "\n"; // GREYFIX: text with a beat
+				}
+				
+				// GREYFIX: stroke bitmasks
+				if (beat_bitmask & 0x08) {
+					(*stream) >> stroke_bitmask1;
+					(*stream) >> stroke_bitmask2;
+					if (stroke_bitmask1 & 0x20)
+						(*stream) >> num;      // GREYFIX: string torture
+					if (stroke_bitmask2 & 0x04)
+						readChromaticGraph();  // GREYFIX: tremolo graph
+					if (stroke_bitmask1 & 0x40) {
+						(*stream) >> num;      // GREYFIX: down stroke length
+						(*stream) >> num;      // GREYFIX: up stroke length
+					}
+					if (stroke_bitmask2 & 0x02) {
+						(*stream) >> num;      // GREYFIX: stroke pick direction
+					}
+				}
+				
+				if (beat_bitmask & 0x10) {     // mixer variations
+					(*stream) >> num;          // GREYFIX: new MIDI patch
+					(*stream) >> volume;       // GREYFIX: new
+					(*stream) >> pan;          // GREYFIX: new
+					(*stream) >> chorus;       // GREYFIX: new
+					(*stream) >> reverb;       // GREYFIX: new
+					(*stream) >> phase;        // GREYFIX: new
+					(*stream) >> tremolo;      // GREYFIX: new
+					int tempo = readDelphiInteger(); // GREYFIX: new tempo
+
+					// GREYFIX: transitions
+					if (volume != -1)   (*stream) >> num;
+					if (pan != -1)      (*stream) >> num;
+					if (chorus != -1)   (*stream) >> num;
+					if (reverb != -1)   (*stream) >> num;
+					if (tremolo != -1)  (*stream) >> num;
+					if (tempo != -1)    (*stream) >> num;
+
+					(*stream) >> num;          // padding
+				}
+				
+				(*stream) >> strings;          // used strings mask
+				
+				for (int y = STRING_MAX_NUMBER - 1; y >= 0; y--) {
+					trk->c[x].e[y] = 0;
+					trk->c[x].a[y] = NULL_NOTE;
+					if (strings & (1 << (y + STRING_MAX_NUMBER - trk->string)))
+						readNote(trk, x, y);
+				}
+				
+				// Dump column
+				QString tmp = "";
+				for (int y = 0; y <= trk->string; y++) {
+					if (trk->c[x].a[y] == -1) {
+						tmp += ".";
+					} else {
+						tmp += '0' + trk->c[x].a[y];
+					}
+				}
+				kdDebug() << "[" << tmp << "]\n";
+				
+				x++;
+			}
+			trk = song->t.next();
+		}
+	}
+}
+
+void ConvertGtp::readNote(TabTrack *trk, int x, int y)
+{
+	Q_UINT8 note_bitmask, variant, num, mod_mask1, mod_mask2;
+
+	(*stream) >> note_bitmask;               // note bitmask
+	(*stream) >> variant;                    // variant
+
+	if (note_bitmask & 0x01) {               // GREYFIX: note != beat
+		(*stream) >> num;                    // length
+		(*stream) >> num;                    // t
+	}
+
+	if (note_bitmask & 0x02) {};             // GREYFIX: note is dotted
+
+	if (note_bitmask & 0x10) {               // GREYFIX: dynamic
+		(*stream) >> num;
+	}
+
+	(*stream) >> num;                        // fret number
+	trk->c[x].a[y] = num;
+
+	if (variant == 2) {                      // link with previous beat
+		trk->c[x].flags |= FLAG_ARC;
+		for (uint i = 0; i < MAX_STRINGS; i++) {
+			trk->c[x].a[i] = NULL_NOTE;
+			trk->c[x].e[i] = 0;
+		}
+	}
+
+	if (variant == 3)                        // dead notes
+		trk->c[x].a[y] = DEAD_NOTE;
+
+	if (note_bitmask & 0x80) {               // GREYFIX: fingering
+		(*stream) >> num;
+		(*stream) >> num;
+	}
+
+	if (note_bitmask & 0x08) {
+		(*stream) >> mod_mask1;
+		(*stream) >> mod_mask2;
+		if (mod_mask1 & 0x01) {
+			readChromaticGraph();            // GREYFIX: bend graph
+		}
+		if (mod_mask1 & 0x02)                // hammer on / pull off
+			trk->c[x].e[y] |= EFFECT_LEGATO;
+		if (mod_mask1 & 0x08)                // let ring
+			trk->c[x].e[y] |= EFFECT_LETRING;
+		if (mod_mask1 & 0x10) {              // GREYFIX: graces
+			(*stream) >> num;                // GREYFIX: grace fret
+			(*stream) >> num;                // GREYFIX: grace dynamic
+			(*stream) >> num;                // GREYFIX: grace transition
+			(*stream) >> num;                // GREYFIX: grace length
+		}
+		if (mod_mask2 & 0x01)                // staccato - we do palm mute
+			trk->c[x].flags |= FLAG_PM;
+		if (mod_mask2 & 0x02)                // palm mute - we mute the whole column
+			trk->c[x].flags |= FLAG_PM;
+		if (mod_mask2 & 0x04) {              // GREYFIX: tremolo
+			(*stream) >> num;                // GREYFIX: tremolo picking length
+		}
+		if (mod_mask2 & 0x08) {              // slide
+			trk->c[x].e[y] |= EFFECT_SLIDE;
+			(*stream) >> num;                // GREYFIX: slide kind
+		}
+		if (mod_mask2 & 0x10) {              // GREYFIX: harmonic
+			(*stream) >> num;                // GREYFIX: harmonic kind
+		}
+		if (mod_mask2 & 0x20) {              // GREYFIX: trill
+			(*stream) >> num;                // GREYFIX: trill fret
+			(*stream) >> num;                // GREYFIX: trill length
+		}
+	}
+}
+
 bool ConvertGtp::load(QString fileName)
 {
 	QFile f(fileName);
@@ -41,216 +473,33 @@ bool ConvertGtp::load(QString fileName)
 	QDataStream s(&f);
 	stream = &s;
 
-	Q_UINT8 num, num2, fx;
-	char c[300];
-
-	// SIGNATURE CHECK
-
-	s >> num;
-	s.readRawBytes(c, num);
-	if (strncmp(c, "FICHIER GUITAR", 14) != 0)
+	if (!readSignature())
 		return FALSE;
 
-	// SEVERAL UNKNOWN BYTES
-
-	num2 = 30 - num;
-	s.readRawBytes(c, num2);
-
-	// SONG ATTRIBUTES
-
-	readDelphiString(c);                       // Song title
-	song->title = QString::fromLocal8Bit(c);
-
-	readDelphiString(c);                       // Author
-	song->author = QString::fromLocal8Bit(c);
-
-	readDelphiString(c);                       // Comments
-	song->comments = QString::fromLocal8Bit(c);
-
-	song->transcriber = QString("KGuitar");
-
-	song->tempo = readDelphiInteger();       // Tempo
-
-	readDelphiInteger();                     // GREYFIX - Triplet feel
-	readDelphiInteger();                     // Unknown 4 bytes
-
-	// TUNING INFORMATION
-
+	// Cleanup
 	song->t.clear();
 
-	for (int i = 0; i < 8; i++) {
-		num = readDelphiInteger();           // Number of strings
-		song->t.append(new TabTrack(TabTrack::FretTab, 0, 0, 0, 0, num, 24));
-		for (int j = 0; j < num; j++)
-			song->t.current()->tune[j] = readDelphiInteger();
-	}
+	readSongAttributes();
+ 	readTrackDefaults();
 
-	int maxbar = readDelphiInteger();        // Quantity of bars
+ 	numBars = readDelphiInteger();           // Number of bars
+ 	numTracks = readDelphiInteger();         // Number of tracks
 
-	// TRACK ATTRIBUTES
+	kdDebug() << "Bars: " << numBars << "\n";
+	kdDebug() << "Tracks: " << numTracks << "\n";
 
-	QListIterator<TabTrack> it(song->t);
-	for (; it.current(); ++it) {
-		TabTrack *trk = it.current();
-		trk->patch = readDelphiInteger();    // MIDI Patch
-		trk->frets = readDelphiInteger();    // Frets
-		readDelphiString(c);                   // Track name
-		trk->name = QString::fromLocal8Bit(c);
-		s >> num;                              // Flags - GREYFIX!
-		readDelphiInteger();                 // Slider: Volume (0-0x7F) - GREYFIX!
-		readDelphiInteger();                 // Slider: Pan
-		readDelphiInteger();                 // Slider: Chorus
-		readDelphiInteger();                 // Slider: Reverb
-		readDelphiInteger();                 // Capo
-	};
+	// Mysterious padding: must be 43 04 04 00 (for 4.00 format)
+	kdDebug() << "PAD: " << readDelphiInteger() << " (must be 263235)\n";
 
-	s.readRawBytes(c, 10);                     // 10 unknown bytes
+ 	readBarProperties();
+ 	readTrackProperties();
+ 	readTabs();
 
-	//	for (
-	it.toFirst();// it.current(); ++it) {
-		TabTrack *trk = it.current();
-
-		trk->b.resize(maxbar);
-		trk->c.resize(0);
-
-		int x = 0;
-
-		for (int xb = 0; xb < maxbar; xb++) {
-			s >> num; trk->b[xb].time1 = num;  // Time signature
-			s >> num; trk->b[xb].time2 = num;
-			trk->b[xb].start = x;
-
-			kdDebug() << "==================== NEW BAR: " <<
-				(int) trk->b[xb].time1 << ":" << (int) trk->b[xb].time2 << ", from " << x << endl;
-
-			s.readRawBytes(c, 8);              // 8 unknown bytes
-
-			int thisbar = readDelphiInteger();// Number of tab columns
-			trk->c.resize(trk->c.size() + thisbar);
-
-			s.readRawBytes(c, 93);             // 93 unknown bytes
-
-			for (int j = 0; j < thisbar; x++, j++) {
-
-				if (s.atEnd())
-					break;
-
-				// Guitar Pro uses overmaxed system for MIDI event
-				// timing. Thus, it sets 480 ticks to be equal to 1/4 of a
-				// whole note. KGuitar has 120 ticks as 1/4, so we need to
-				// divide duration by 4
-
-				trk->c[x].flags = 0;
-				trk->c[x].setFullDuration(readDelphiInteger() / 4);
-
-				s >> num;                      // 1 unknown byte
-				s >> num;                      // type mask
-// 				s >> num2;                     // 1 unknown byte
-
-				kdDebug() << "Read column " << x << ": duration " << trk->c[x].l << " (type mask=" << (int) num << ")" << endl;
-
-				// Here comes "type mask" of a column.
-
-				switch (num) {
-				case 0:
- 					s >> num2;                      // 1 unknown byte
-					break;
-				case 2:
-					readDelphiString(c);
-					kdDebug() << "Chord name [" << c << "]" << endl;
-					printf("%d byte:\n", f.at());
-					s >> num;                      // unknown byte - always 1?
-					if (num != 1)
-						printf("Byte after chord name is not 1!\n");
-					s >> num;                      // chord diagram tonic (0-11) - if 12 then no diagram
-					kdDebug() << "Got tonic " << (int) num << " after 1 after chord name ";
-					if (num != 0xc) {
-						kdDebug() << "=> trying to skip the diagram" << endl;
-						s.readRawBytes(c, 63);     // unknown bytes - diagram data
-					} else {
-						kdDebug() << "=> assuming no chord diagram" << endl;
-						s.readRawBytes(c, 7);      // unknown bytes - C0 + something - 8 bytes
-					}
-					break;
-				case 8:
-					kdDebug() << "Rest 8" << endl;
-					for (int i = 0; i < MAX_STRINGS; i++) {
-						trk->c[x].a[i] = -1;
-						trk->c[x].e[i] = 0;
-					}
-  					s >> num;
-					continue;
-				case 16:
-					kdDebug() << "(dotted note) ";
- 					s >> num;                       // 1 unknown byte
-					break;
-				case 32:
-					kdDebug() << "(triplet note) ";
-					s >> num;
-					s >> num;
-					break;
-				case 64:
-					kdDebug() << "(linked beat) ";
-					for (int i = 0; i < MAX_STRINGS; i++) {
-						trk->c[x].a[i] = -1;
-						trk->c[x].e[i] = 0;
-					}
-					trk->c[x].flags |= FLAG_ARC;
-					s >> num;                       // 1 unknown byte
-					continue;
-				default:
-					kdDebug() << "(unknown typemask) ";
-					s >> num;
-					break;
-				}
-
-				s >> num2;                     // mask of following fret numbers
-				s >> fx;                       // effects
-				s >> num;                      // 1 unknown byte
-
-				kdDebug() << "Frets using mask " << (int) num2 << ", fx " << (int) fx << ": ";
-
-				for (int i = 5; i >= 0; i--) {
-					trk->c[x].e[i] = 0;
-					if (num2 & (1 << i)) {
-						s >> num;              // fret number
-						trk->c[x].a[i] = (num == 100) ? DEAD_NOTE : num; // 100 = GTP's dead note
-						kdDebug() << (int) num;
-						s >> num;              // volume>? - GREYFIX
-						if (fx & (1 << i)) {
-							s >> num;
-							switch (num) {
-							case 1: kdDebug() << "h"; trk->c[x].e[i] = EFFECT_LEGATO; break;
-							case 2: kdDebug() << "p"; trk->c[x].e[i] = EFFECT_LEGATO; break;
-							case 3: kdDebug() << "su"; break;
-							case 4: kdDebug() << "sd"; break;
-							}
-						}
-					} else {
-						trk->c[x].a[i] = -1;
-						kdDebug() << "X";
-					}
-				}
-
-				kdDebug() << endl;
-			}
-		}
-		//    };
-
-	printf("%d byte:\n", f.at());
-	num2 = 0;
-	while (!s.atEnd()) {
-		s >> num;
-		printf("%02x ", num);
-		num2++;
-		if (num2 == 8)
-			printf(" ");
-		if (num2 == 16) {
-			printf("\n");
-			num2 = 0;
-		}
-	}
-	printf("\n");
+	int ex = readDelphiInteger();            // Exit code: 00 00 00 00
+	if (ex != 0)
+		kdWarning() << "File not ended with 00 00 00 00\n";
+	if (!f.atEnd())
+		kdWarning() << "File not ended - there's more data!\n";
 
 	f.close();
 

@@ -32,8 +32,46 @@ public:
 	virtual bool load(QString fileName);
 
 private:
-	void readDelphiString(char *c);
+	bool readSignature();
+	void readSongAttributes();
+	void readTrackDefaults();
+	void readBarProperties();
+	void readTrackProperties();
+	void readTabs();
+	void readNote(TabTrack *trk, int x, int y);
+	void readChromaticGraph();
+
+	/**
+	 * Reads Delphi string in GPro format. Delphi string looks pretty
+	 * much like: <max-length> <real-length> <real-length * bytes -
+	 * string data>
+	 */
+	QString readDelphiString();
+
+	/**
+	 * Reads Pascal-like serialized string
+	 */
+	QString readPascalString();
+
+	/**
+	 * Reads word-sized Pascal-like serialized string
+	 */
+	QString readWordPascalString();
+
+	/**
+	 * Read Delphi-serialized integer
+	 */
 	int readDelphiInteger();
+
+	enum {
+		TRACK_MAX_NUMBER = 32,
+		LYRIC_LINES_MAX_NUMBER = 5,
+		STRING_MAX_NUMBER = 7
+	};
+
+	int numBars, numTracks;
+
+	int trackPatch[TRACK_MAX_NUMBER * 2];
 
 	QDataStream *stream;
 };
