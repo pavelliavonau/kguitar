@@ -57,4 +57,5 @@ dnl output files
 dnl Add all your Makefiles here. These are created by configure
 AC_OUTPUT(Makefile \
          kguitar/Makefile \
-	 kguitar/toolbar/Makefile )
+	 kguitar/toolbar/Makefile \
+	 po/Makefile )
