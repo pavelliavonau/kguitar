@@ -89,7 +89,7 @@ SongView::SongView(KXMLGUIClient *_XMLGUIClient, KCommandHistory *_cmdHist,
 	connect(tp, SIGNAL(trackSelected(TabTrack *)), tv, SLOT(selectTrack(TabTrack *)));
 	connect(tp, SIGNAL(barSelected(uint)), tv, SLOT(selectBar(uint)));
 	connect(tv, SIGNAL(paneChanged()), tp, SLOT(update()));
-	connect(tv, SIGNAL(columnChanged()), tp, SLOT(update()));
+	connect(tv, SIGNAL(barChanged()), tp, SLOT(update()));
 
 	// let higher-level widgets know that we have a changed song if it
 	// was changed in TrackView
@@ -173,7 +173,7 @@ void SongView::trackDelete()
 		m_song->t.remove(tv->trk());
 		tv->setCurrentTrack(newsel);
 		tv->updateRows();
-		tv->update();
+		tv->repaintContents();
 		tl->updateList();
 		tp->updateList();
 
@@ -202,9 +202,8 @@ void SongView::trackBassLine()
 		int note;
 
 		for (uint i = 0; i < origtrk->c.size(); i++) {
-			for (uint k = 0; k < origtrk->string; k++) {
+			for (uint k = 0; k < origtrk->string; k++)
 				cs.setApp(k, origtrk->c[i].a[k]);
-			}
 
 			cs.detectChord();
 
@@ -486,7 +485,7 @@ void SongView::slotPaste()
 	if (TrackDrag::decode(QApplication::clipboard()->data(), trk))
         insertTabs(trk);
 
-	tv->update();
+	tv->repaintContents();
 }
 
 void SongView::slotSelectAll()
@@ -495,7 +494,7 @@ void SongView::slotSelectAll()
 	tv->trk()->x = tv->trk()->c.size() - 1;
 	tv->trk()->sel = TRUE;
 
-	tv->update();
+	tv->repaintContents();
 }
 
 TabTrack *SongView::highlightedTabs()
