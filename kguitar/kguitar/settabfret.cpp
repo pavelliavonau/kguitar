@@ -118,7 +118,7 @@ void SetTabFret::tuneChanged()
     lib->setCurrentItem(found);
 }
 
-void SetTabFret::resizeEvent(QResizeEvent *e)
+void SetTabFret::resizeEvent(QResizeEvent *)
 {
     lib->setGeometry(90, 20, width() - 110, 20);
     reposTuners();
