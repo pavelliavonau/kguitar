@@ -15,12 +15,25 @@
  * See the file COPYING for more information.
  ***************************************************************************/
 
+// TrackPrint prints the contents of a single bar. It is used by both
+// TrackView (draws onscreen) and SongPrint (prints on paper).
+//
+// key and keysig must be printed:
+// - on first bar of line on paper (decided by SongPrint)
+// - or if changed by current bar  (decided by TrackPrint)
+//
+// timesig must be printed:
+// - on first bar of track         (decided by TrackPrint)
+// - or if changed by current bar  (decided by TrackPrint)
+//
+// "TAB" must be replaced by string or drum names:
+// - on first bar of page          (decided by SongPrint)
+// note: set fieldwidth(key + keysig) to max(fw(key)+fw(keysig), fw(names))
+
 // LVIFIX: this file needs to be redesigned
 // - code cleanup
 // - xpos/ypos interface
 // - adapt linewidth to resolution of output device
-
-// LVIFIX: drum abbreviations markings are missing (drum tracks)
 
 #include "settings.h"
 
@@ -62,12 +75,12 @@ int TrackPrint::barExpWidth(int bn, TabTrack *trk)
 	return w;
 }
 
-// return width in pixels of bar br in track trk
+// return width in pixels of bar bn in track trk
 
 int TrackPrint::barWidth(int bn, TabTrack *trk)
 {
 	int w = 0;
-	for (uint t = trk->b[bn].start; (int) t <= trk->lastColumn(bn); t++)
+	for (uint t = trk->b[bn].start; ((int) t) <= trk->lastColumn(bn); t++)
 		w += colWidth(t, trk);
 	// LVIFIX: when KGuitar supports changing the key at the start of any bar,
 	// calculate space for keysig here
@@ -92,7 +105,7 @@ int TrackPrint::barWidth(int bn, TabTrack *trk)
 
 // return width in pixels of column cl in track trk
 // if on screen:
-// depends on note length only
+// depends on note length and font
 // if printing:
 // depends on note length, font and effect
 // magic number "21" scales quarter note to about one centimeter
@@ -201,6 +214,7 @@ void TrackPrint::drawBar(int bn, TabTrack *trk, int es, int& sx, int& sx2)
 		ringing[i] = FALSE;
 	}
 
+/*
 	// print timesig if necessary
 	// LVIFIX: may need to center horizontally
 	if (trk->showBarSig(bn)) {
@@ -251,6 +265,7 @@ void TrackPrint::drawBar(int bn, TabTrack *trk, int es, int& sx, int& sx2)
 			xpos += tsgfw;
 		}
 	}
+*/
 
 	// space before first note
 	xpos += nt0fw;
@@ -772,7 +787,7 @@ void TrackPrint::drawBeam(int x1, int x2, int y, char tp, char dir)
 
 // draw beams of bar bn, all other info to be found in StemInfo stl/stu
 
-void TrackPrint::drawBeams(int bn, char dir,	TabTrack *trk)
+void TrackPrint::drawBeams(int bn, char dir, TabTrack *trk)
 {
 	// cout << "SongPrint::drawBeams(" << bn << ", " << dir << ")" << endl;
 	StemInfo * stxt = 0;
@@ -873,7 +888,7 @@ void TrackPrint::drawBeams(int bn, char dir,	TabTrack *trk)
 // at all other lines the text "TAB"
 // note: print drum names instead in case of drumtrack
 
-void TrackPrint::drawKey(int l, TabTrack *trk)
+void TrackPrint::drawKey(TabTrack *trk, bool flop)
 {
 	if (stNts) {
 		// draw clef
@@ -887,7 +902,7 @@ void TrackPrint::drawKey(int l, TabTrack *trk)
 	if (stTab) {
 		p->setFont(*fTBar1);
 		const int lstStr = trk->string - 1;
-		if (l == 0) {
+		if (flop) {
 			for (int i = 0; i < lstStr + 1; i++) {
 				if (trk->trackMode() == TabTrack::DrumTab) {
 					drawStrCntAt(xpos + tabpp + 3 * br8w / 2,
@@ -925,8 +940,9 @@ static int accPosFlatTab[7]  = {-4,  0, -3,  1, -2,  2, -1};
 
 // draw key signature at xpos,yposst
 
-void TrackPrint::drawKeySig(TabTrack *trk)
+int TrackPrint::drawKeySig(TabTrack *trk, bool doDraw)
 {
+	int res = 0;
 	QString s;
 	if (stNts) {
 		p->setFont(*fFeta);
@@ -936,24 +952,51 @@ void TrackPrint::drawKeySig(TabTrack *trk)
 			sig = 0;
 		}
 		if (sig != 0) {
-			xpos += wNote;
+			if (doDraw) {
+				xpos += wNote;
+			}
+			res += wNote;
 		}
 		if (sig > 0) {
 			s = QChar(0x201c);
 			for (int i = 0; i < sig; i++) {
 				ypos = accPosSharpTab[i];
-				p->drawText(xpos, yposst - (ypos + 5) * ystepst / 2, s);
-				xpos += (int) (0.8 * wNote);
+				if (doDraw) {
+					p->drawText(xpos, yposst - (ypos + 5) * ystepst / 2, s);
+					xpos += (int) (0.8 * wNote);
+				}
+				res += (int) (0.8 * wNote);
 			}
 		} else if (sig < 0) {
 			s = QChar(0x201e);
 			for (int i = 0; i > sig; i--) {
 				ypos = accPosFlatTab[i + 6];
-				p->drawText(xpos, yposst - (ypos + 5) * ystepst / 2, s);
-				xpos += (int) (0.7 * wNote);
+				if (doDraw) {
+					p->drawText(xpos, yposst - (ypos + 5) * ystepst / 2, s);
+					xpos += (int) (0.7 * wNote);
+				}
+				res += (int) (0.7 * wNote);
 			}
 		}
 	}
+	return res;
+}
+
+// draw:
+// - key + keysig (if fbol or changed)
+// - timesig      (if first bar of track or changed)
+// return xpixels used
+// actually draws only when doDraw is true
+
+int TrackPrint::drawKKsigTsig(int bn, TabTrack *trk, bool doDraw, bool fbol, bool flop)
+{
+	int res = 0;
+	if (doDraw) {
+		drawKey(trk, flop);
+	}
+	res += drawKeySig(trk, doDraw);
+	res += drawTimeSig(bn, trk, doDraw);
+	return res;		// LVIFIX: result probably is incorrect
 }
 
 // draw "let ring" with point of arrowhead at x on string y
@@ -1195,6 +1238,68 @@ void TrackPrint::drawStrCntAt(int x, int n, const QString s)
 	p->drawText(x + xoffs, ypostb - n * ysteptb + yOffs, s);
 }
 
+// print timesig if necessary
+// LVIFIX: may need to center horizontally
+int TrackPrint::drawTimeSig(int bn, TabTrack *trk, bool doDraw)
+{
+	int res = 0;
+	if (trk->showBarSig(bn)) {
+		if (doDraw) {
+			int brth;
+			QFontMetrics fm = p->fontMetrics();
+			QString time;
+			int y;
+			if (stNts) {
+				// staff
+				p->setFont(*fFetaNr);
+				fm = p->fontMetrics();
+				// calculate vertical position:
+				// exactly halfway between top and bottom string
+				y = yposst - ystepst * 2;
+				// center the timesig at this height
+				// use spacing of 0.2 * char height
+				time.setNum(trk->b[bn].time1);
+				brth = fm.boundingRect(time).height();
+				y -= (int) (0.1 * brth);
+				p->drawText(xpos + tsgpp, y, time);
+				time.setNum(trk->b[bn].time2);
+				y += (int) (1.2 * brth);
+				p->drawText(xpos + tsgpp, y, time);
+			}
+			if (stTab) {
+				// tab bar
+				p->setFont(*fTSig);
+				fm = p->fontMetrics();
+				// calculate vertical position:
+				// exactly halfway between top and bottom string
+				y = ypostb - ysteptb * (trk->string - 1) / 2;
+				// center the timesig at this height
+				// use spacing of 0.2 * char height
+				time.setNum(trk->b[bn].time1);
+				brth = fm.boundingRect(time).height();
+				y -= (int) (0.1 * brth);
+				p->drawText(xpos + tsgpp, y, time);
+				time.setNum(trk->b[bn].time2);
+				y += (int) (1.2 * brth);
+				p->drawText(xpos + tsgpp, y, time);
+				p->setFont(*fTBar1);
+			}
+			if (stNts || stTab) {
+				xpos += tsgfw;
+			}
+		} else {
+			if (stNts || stTab) {
+				res += tsgfw;
+			}
+		}
+//	} else {
+//		if (onScreen) {
+//			xpos += tsgfw;
+//		}
+	}
+	return res;
+}
+
 // return width (of barline) to erase for string s
 
 int TrackPrint::eraWidth(const QString s)
@@ -1240,6 +1345,18 @@ bool TrackPrint::findHiLo(int cl, int v, TabTrack *trk, int & hi, int & lo)
 		}
 	}
 	return found;
+}
+
+// return x offset in pixels of bar bn's first column in track trk
+// used by TrackView::mousePressEvent() to convert mouse click to column
+// depends on whether key, keysig, timesig and first columns accidentals
+// need to be drawn
+// drawing key and keysig is determined by caller and indicated by fbol
+// (first bar on line)
+
+int TrackPrint::getFirstColOffs(int bn, TabTrack *trk, bool fbol)
+{
+	return (int) (6 * br8w + 0.9 * wNote + 2);	// LVIFIX: correct value
 }
 
 // initialize fonts

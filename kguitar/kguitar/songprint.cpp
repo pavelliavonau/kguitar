@@ -445,6 +445,7 @@ void SongPrint::printSong(KPrinter *printer, TabSong *song)
 			}
 
 			xpos += 1;				// first vertical line
+			/*
 			// LVIFIX: HACK HACK HACK !
 			// drawKey(l, trk);
 			trp->xpos = xpos;
@@ -456,7 +457,12 @@ void SongPrint::printSong(KPrinter *printer, TabSong *song)
 			trp->xpos = xpos;
 			trp->drawKeySig(trk);		// key signature (note: updates xpos)
 			xpos = trp->xpos;
+			*/
 
+			bool doDraw = true;
+			bool fbol = true;
+			bool flop = (l == 0);
+			xpos += trp->drawKKsigTsig(bn, trk, doDraw, fbol, flop);
 			// determine # bars fitting on this line
 			// must be at least 1 (very long bar will be truncated)
 			uint nBarsOnLine = 1;
