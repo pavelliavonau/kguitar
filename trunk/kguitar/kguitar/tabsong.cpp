@@ -558,7 +558,12 @@ bool TabSong::load_from_gtp(QString fileName)
 				
 				for (int i = 5; i >= 0; i--) {
 					if (num2 & (1 << i)) {
-						s >> num; trk->c[x].a[i] = num;// fret number
+						s >> num;              // fret number
+						if (num == 100) {      // 100 = GTP's dead note
+							trk->c[x].a[i] = DEAD_NOTE;
+						} else {
+							trk->c[x].a[i] = num;
+						}						
 						kdDebug() << (int) num;
 						s >> num;              // volume>? - GREYFIX
 						if (fx & (1 << i)) {
