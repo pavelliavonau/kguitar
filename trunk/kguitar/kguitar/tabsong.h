@@ -30,12 +30,14 @@ public:
     bool save_to_mid(QString fileName);
     bool load_from_tab(QString fileName);       // ASCII tabulatures
     bool save_to_tab(QString fileName);
-    bool save_to_tex(QString fileName);         // MusiXTeX/tabdefs.tex tabulatures
+    bool save_to_tex_tab(QString fileName);     // MusiXTeX/tabdefs.tex tabulatures
+	bool save_to_tex_notes(QString fileName);   // MusiXTeX notes
 private:
     void writeCentered(QTextStream *s, QString l);
     Q_UINT16 dot2len(int len, bool dot);
     void len2dot(int l, int *len, bool *dot);
     QString tab(bool chord, int string, int fret);
+	QString getNote(QString note, int duration, bool dot);
 };
 
 #endif
