@@ -12,3 +12,9 @@ QString note_name(int);
 
 extern int global_maj7;
 extern int global_flatplus;
+
+// Features for global options
+
+extern QString maj7name[];
+extern QString flat[];
+extern QString sharp[];
