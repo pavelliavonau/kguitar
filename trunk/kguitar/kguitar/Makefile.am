@@ -26,10 +26,10 @@ bin_PROGRAMS = kguitar
 # Which sources should be compiled for kguitar.
 kguitar_SOURCES	= application.cpp chord.cpp fingers.cpp fingerlist.cpp \
  main.cpp trackview.cpp setsong.cpp track.cpp settrack.cpp settabfret.cpp \
- radiustuner.cpp notespinbox.cpp options.cpp \
+ radiustuner.cpp notespinbox.cpp options.cpp chordlistitem.cpp chordlist.cpp \
  application.moc.cpp chord.moc.cpp fingers.moc.cpp fingerlist.moc.cpp \
  trackview.moc.cpp setsong.moc.cpp settrack.moc.cpp settabfret.moc.cpp \
- radiustuner.moc.cpp notespinbox.moc.cpp options.moc.cpp
+ radiustuner.moc.cpp notespinbox.moc.cpp options.moc.cpp chordlist.moc.cpp
 
 # the library search path
 kguitar_LDFLAGS = @all_libraries@ @KDE_RPATH@
@@ -41,12 +41,13 @@ kguitar_LDADD  = -lkfm -lkfile -lkdeui -lkdecore -lqt -lX11 -lXext @LIBSOCKET@
 # this option you can leave out. Just, if you use "make dist", you need it
 noinst_HEADERS = application.h chord.h fingers.h fingerlist.h trackview.h \
  setsong.h track.h settrack.h settabfret.h radiustuner.h notespinbox.h \
- options.h
+ options.h chordlistitem.h chordlist.h
 
 # just to make sure, automake makes them 
 BUILTSOURCES =	application.moc.cpp chord.moc.cpp fingers.moc.cpp \
  fingerlist.moc.cpp trackview.moc.cpp setsong.moc.cpp settrack.moc.cpp \
- settabfret.moc.cpp radiustuner.moc.cpp notespinbox.moc.cpp options.moc.cpp
+ settabfret.moc.cpp radiustuner.moc.cpp notespinbox.moc.cpp options.moc.cpp \
+ chordlist.moc.cpp
 
 EXTRA_DIST = kguitar.kdelnk kguitar.xpm kguitar-large.xpm
 
@@ -67,9 +68,11 @@ install-data-local:
 	$(mkinstalldirs) $(APPSDIR)
 	$(INSTALL_DATA) kguitar.kdelnk $(APPSDIR)
 	$(mkinstalldirs) $(kde_icondir)
+	$(mkinstalldirs) $(kde_minidir)
+	$(mkinstalldirs) $(kde_icondir)/large
 	$(INSTALL_DATA) kguitar.xpm $(kde_icondir)
 	$(INSTALL_DATA) kguitar-large.xpm $(kde_icondir)/large/kguitar.xpm
-	$(INSTALL_DATA) kguitar-mini.xpm $(kde_icondir)/mini/kguitar.xpm
+	$(INSTALL_DATA) kguitar-mini.xpm $(kde_minidir)/kguitar.xpm
 	$(mkinstalldirs) $(kde_datadir)/kguitar/toolbar/
 	$(INSTALL_DATA) toolbar/chord.xpm $(kde_datadir)/kguitar/toolbar/chord.xpm
 
@@ -77,6 +80,7 @@ install-data-local:
 uninstall-local:
 	-rm -f $(APPSDIR)/kguitar.kdelnk
 	-rm -f $(kde_icondir)/kguitar.xpm
+	-rm -f $(kde_minidir)/kguitar.xpm
 	-rm -f $(kde_icondir)/large/kguitar.xpm
 	-rm -f $(kde_datadir)/kguitar/toolbar/chord.xpm
 
@@ -113,3 +117,7 @@ notespinbox.moc.cpp: notespinbox.h
 
 options.moc.cpp: options.h
 	$(MOC) options.h -o options.moc.cpp
+
+chordlist.moc.cpp: chordlist.h
+	$(MOC) chordlist.h -o chordlist.moc.cpp
+
