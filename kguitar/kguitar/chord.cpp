@@ -516,10 +516,10 @@ void ChordSelector::findChords()
 	//				    1  5  7   9  11 13
 	int toneshift[6] = {0, 7, 10, 2, 5, 9};
 
-	int fb[MAX_STRINGS][parm->frets];	// array with an either -1 or number of note from a chord
+	int fb[MAX_STRINGS][MAX_FRETS];	// array with an either -1 or number of note from a chord
 
-	int hfret[MAX_STRINGS][parm->frets];// numbers of frets to hold on every string
-	int hnote[MAX_STRINGS][parm->frets];// numbers of notes in a chord that make ^^
+	int hfret[MAX_STRINGS][MAX_FRETS];// numbers of frets to hold on every string
+	int hnote[MAX_STRINGS][MAX_FRETS];// numbers of notes in a chord that make ^^
 
 	bool needrecalc;					// needs recalculate max/min
 
