@@ -8,9 +8,9 @@
 #include <klocale.h>
 
 OptionsMusicTheory::OptionsMusicTheory(QWidget *parent, const char *name)
-	: QWidget(parent, name)
+	: OptionsPage(parent, name)
 {
-    // Dominant 7th name selection group
+	// Dominant 7th name selection group
 
 	maj7Group = new QButtonGroup(i18n("Dominant 7th"), this);
 	maj7[0] = new QRadioButton("7M", maj7Group);
