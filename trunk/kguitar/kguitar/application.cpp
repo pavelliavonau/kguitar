@@ -499,11 +499,11 @@ void KGuitarPart::filePrint()
 
 void KGuitarPart::options()
 {
-	Options op(
+	Options op
 #ifdef WITH_TSE3
-		sv->midiScheduler()
+		(sv->midiScheduler())
 #endif
-		);
+		;
 	op.exec();
 	sv->me->drawBackground();
 }
