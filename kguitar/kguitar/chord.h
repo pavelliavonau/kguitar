@@ -8,6 +8,7 @@ class QLineEdit;
 class QListBox;
 class QScrollBar;
 class Fingering;
+class FingerList;
 
 class ChordSelector: public QDialog
 {
@@ -22,6 +23,7 @@ private:
     QListBox *chords;
     Fingering *fng;
     QScrollBar *firstFret;
+    FingerList *fnglist;
 };
 
 
