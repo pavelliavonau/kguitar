@@ -34,6 +34,10 @@
 int global_maj7;
 int global_flatplus;
 int global_notenames;
+int global_tabsize;
+bool global_showbarnumb;
+bool global_showstr;
+bool global_showpagenumb;
 
 ApplicationWindow::ApplicationWindow(): KTMainWindow()
 {
@@ -46,6 +50,11 @@ ApplicationWindow::ApplicationWindow(): KTMainWindow()
 	global_maj7=0;
 	global_flatplus=0;
 	global_notenames=0;
+     global_tabsize=2;
+     global_showbarnumb=TRUE;
+     global_showstr=TRUE;
+     global_showpagenumb=TRUE;
+
 
 	// MAIN WIDGET
 
@@ -97,6 +106,7 @@ ApplicationWindow::ApplicationWindow(): KTMainWindow()
 	QPopupMenu *exp = new QPopupMenu();
 //	  exp->insertItem(i18n("&MIDI file..."), this, SLOT(exportMID()));
 	exp->insertItem(i18n("ASCII &tab..."), this, SLOT(exportTAB()));
+     exp->insertItem(i18n("Musi&XTeX tab..."), this, SLOT(exportTEX()));
 	p->insertItem(i18n("&Export"), exp);
 
 	p->insertSeparator();
@@ -240,6 +250,13 @@ void ApplicationWindow::exportTAB()
 		tv->sng()->save_to_tab(fn);
 }
 
+void ApplicationWindow::exportTEX()
+{
+	QString fn = KFileDialog::getSaveFileName(0,"*.tex",this);
+	if (!fn.isEmpty())
+		tv->sng()->save_to_tex(fn);
+}
+
 void ApplicationWindow::print()
 {
 //	   const int MARGIN = 10;
@@ -347,12 +364,29 @@ void ApplicationWindow::options()
 	op->maj7gr->setButton(global_maj7);
 	op->flatgr->setButton(global_flatplus);
 
+     op->texsizegr->setButton(global_tabsize);
+     op->showbarnumb->setChecked(global_showbarnumb);
+     op->showstr->setChecked(global_showstr);
+     op->showpagenumb->setChecked(global_showpagenumb);
+
 	if (op->exec()) {
 		if (op->maj7[0]->isChecked())  global_maj7=0;
 		if (op->maj7[1]->isChecked())  global_maj7=1;
 		if (op->maj7[2]->isChecked())  global_maj7=2;
 		if (op->flat[0]->isChecked())  global_flatplus=0;
 		if (op->flat[1]->isChecked())  global_flatplus=1;
+
+          for (int i=0;i<=3;i++)
+               if (op->tabsize[i]->isChecked()) global_tabsize=i;
+          if (op->showbarnumb->isChecked())          
+              global_showbarnumb = TRUE;
+            else global_showbarnumb = FALSE;
+          if (op->showstr->isChecked())
+              global_showstr = TRUE;
+            else global_showstr = FALSE;
+          if (op->showpagenumb->isChecked())
+              global_showpagenumb = TRUE;
+            else global_showpagenumb = FALSE ;
 	}
 
 	delete op;
