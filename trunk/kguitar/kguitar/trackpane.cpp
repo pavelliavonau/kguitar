@@ -57,8 +57,8 @@ void TrackPane::drawContents(QPainter *p, int clipx, int /*clipy*/, int clipw, i
 void TrackPane::mousePressEvent(QMouseEvent *e)
 {
 	if (e->button() == LeftButton) {
-		int barnum = e->pos().x() / cellSide;
-		uint tracknum = (e->pos().y() - headerHeight) / cellSide;
+		int barnum = (e->pos().x() + contentsX()) / cellSide;
+		uint tracknum = (e->pos().y() + contentsY() - headerHeight) / cellSide;
 
 		if (tracknum >= song->t.count())
 			return;
@@ -68,4 +68,14 @@ void TrackPane::mousePressEvent(QMouseEvent *e)
 
 		update();
 	}
+}
+
+void TrackPane::repaintTrack(TabTrack *trk)
+{
+	repaintContents();
+}
+
+void TrackPane::repaintCurrentTrack()
+{
+	repaintContents();
 }

@@ -13,6 +13,10 @@ public:
 	TrackPane(TabSong *s, int hh, int rh, QWidget *parent = 0, const char *name = 0);
 	void updateList();
 
+public slots:
+	void repaintTrack(TabTrack *);
+	void repaintCurrentTrack();
+
 signals:
 	void trackSelected(TabTrack *);
 	void barSelected(uint);
