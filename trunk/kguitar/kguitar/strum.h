@@ -16,9 +16,17 @@
 // BS macros reference strings vice versa, from lowest to highest,
 // i.e. BS1 references the bottom tab line with guitar.
 
+// You can give just 0 in this field. This will mean no strings to be
+// strummed (pause) or all strings to be strummed (full chord),
+// depending on second field.
+
 // Second field should be with durations of notes of corresponding
 // bitmasked patterns in the first array, all in MIDI note length
-// notation.
+// notation. If such a duration is given with minus sign, then all
+// strings that are to be strummed due to instructions in the first
+// field are inverted. So, if this field's negative, first field
+// specifies what strings should _not_ be strummed (all others
+// should).
 
 // Third field should be a human-readable name of given strumming
 // scheme.
@@ -30,7 +38,7 @@
 // Both 3rd and 4th fields should be in i18n()'s.
 
 strummer lib_strum[] = {
-	{ {},
+	{ { },
 	  { 1 },
 	  i18n("Chord"),
 	  i18n("Plain single chord, all notes sound at the same time.") },
@@ -116,6 +124,10 @@ strummer lib_strum[] = {
 	  i18n("Normal bass pick with a shuffled, bluesey feel, made by delaying "
 	       "bass notes by an extra 1/8. A good simple rhythm for blues and "
 	       "folk songs.") },
+	{ { 0,    TR1, 0,    TR1, 0 },
+      { -120, -60, -120, -60, -120, 0 },
+	  i18n("4/4 Strumming 1"),
+	  i18n("Shuffle-feeled strumming.") },
 	
 	{ {}, { 0 }, "", "" }
 };
