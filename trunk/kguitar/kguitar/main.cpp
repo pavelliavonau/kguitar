@@ -26,12 +26,15 @@ int main(int argc, char **argv)
 {
 	KAboutData aboutData("kguitar", "KGuitar",
 						 VERSION, DESCRIPTION, KAboutData::License_GPL,
-						 "(C) 2000, 2001, 2002 by KGuitar Development Team", 0,
+						 "(C) 2000-2003 by KGuitar Development Team", 0,
 						 "http://kguitar.sourceforge.net");
 
 	aboutData.addAuthor("Mikhail Yakshin AKA GreyCat", I18N_NOOP("Maintainer and main coder"),
 						"greycat@users.sourceforge.net");
 	aboutData.addAuthor("Alex Brand AKA alinx", 0, "alinx@users.sourceforge.net");
+	aboutData.addAuthor("Leon Vinken", 0, "lvinken@users.sourceforge.net");
+	aboutData.addAuthor("Matt Malone", 0, "marlboro@users.sourceforge.net");
+	aboutData.addAuthor("Sylvain Vignaud", 0, "tfpsly@users.sourceforge.net");
 	aboutData.addCredit("Stephan Borchert", 0, "sborchert@users.sourceforge.net");
 	aboutData.addCredit("Juan Pablo Sousa Bravo AKA gotem", 0, "gotem@users.sourceforge.net");
 	aboutData.addCredit("Wilane Ousmane", 0, "wilane@users.sourceforge.net");
