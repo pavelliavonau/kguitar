@@ -84,7 +84,8 @@ void len2dot(int l, int *len, bool *dot)
 // et='X' - end of track, no more reading track chunks
 // et='T' - tab column: x bytes - raw tab data, 2 bytes - duration of column
 // et='C' - continuation of prev column: 2 bytes - duration addition
-// et='E' - effect column: x bytes - raw FX data
+// et='E' - effect of prev column: x bytes - raw FX data
+// et='F' - flag of prev column: 1 byte - raw flag data
 // et='B' - new bar start
 // et='S' - new time signature: 2 bytes - time1:time2
 
@@ -207,7 +208,7 @@ bool TabSong::load_from_kg(QString fileName)
 				t.current()->c[x-1].l = dur;
 				t.current()->c[x-1].flags = (dot ? FLAG_DOT : 0);
 				break;
-			case 'E':                   // Effect column
+			case 'E':                   // Effects of prev column
 				if (x == 0) {			// Ignore if there were no tab cols
 					kdDebug() << "Warning: FX column with no tab columns, ignoring..." << endl;
 					break;
@@ -216,6 +217,13 @@ bool TabSong::load_from_kg(QString fileName)
 					s >> cn;
 					t.current()->c[x-1].e[k] = cn;
 				}
+				break;
+			case 'F':                   // Flag of prev column
+				if (x == 0) {			// Ignore if there were no tab cols
+					kdDebug() << "Warning: flag with no tab columns, ignoring..." << endl;
+					break;
+				}
+				s >> cn; t.current()->c[x-1].flags = cn;
 				break;
 			case 'L':					// Continuation of previous column
 				x++;
@@ -227,7 +235,7 @@ bool TabSong::load_from_kg(QString fileName)
 				t.current()->c[x-1].l = dur;
 				t.current()->c[x-1].flags = (dot ? FLAG_ARC | FLAG_DOT : FLAG_ARC);
 				break;
-			case 'S':
+			case 'S':                   // New time signature
 				s >> cn; t.current()->b[bar-1].time1 = cn;
 				s >> cn; t.current()->b[bar-1].time2 = cn;
 				break;
@@ -342,6 +350,11 @@ bool TabSong::save_to_kg(QString fileName)
 					for (int i = 0; i < trk->string; i++)
 						s << (Q_UINT8) trk->c[x].e[i];
 				}
+				if (trk->c[x].flags) {
+					s << (Q_UINT8) 'F'; // Flag event
+					s << (Q_UINT8) 1;   // Size of event
+					s << (Q_UINT8) trk->c[x].flags;
+				}
 			}
 		}
 
@@ -356,6 +369,14 @@ bool TabSong::save_to_kg(QString fileName)
 
 bool TabSong::load_from_gtp(QString fileName)
 {
+	QFile f(fileName);
+	if (!f.open(IO_ReadOnly))
+		return FALSE;
+
+	QDataStream s(&f);
+
+
+
     // Loading from Guitar Pro format here
     return FALSE;
 }

@@ -9,8 +9,7 @@
 
 #include "tabtrack.h"
 
-class TabSong
-{
+class TabSong {
 public:
     TabSong(QString _title, int _tempo);
     int tempo;
