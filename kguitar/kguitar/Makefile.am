@@ -41,7 +41,7 @@ rhythmer.cpp accidentals.cpp keysig.cpp trackprint.cpp fretboard.cpp  \
 melodyeditor.cpp options.cpp optionspage.cpp optionsmusictheory.cpp   \
 optionsmelodyeditor.cpp optionsexportmusixtex.cpp optionsmidi.cpp     \
 optionsprinting.cpp playbacktracker.cpp chordanalyzer.cpp	      \
-optionsexportascii.cpp settings.cpp
+optionsexportascii.cpp settings.cpp convertascii.cpp
 
 libkguitarpart_la_LDFLAGS = -module $(KDE_PLUGIN) $(all_libraries)
 libkguitarpart_la_LIBADD  = $(LIB_KPARTS) $(LIB_KFILE) $(LIBTSE3) -lkdeprint
@@ -66,7 +66,8 @@ songviewcommands.h songprint.h musicxml.h rhythmer.h accidentals.h  \
 keysig.h trackprint.h fretboard.h melodyeditor.h options.h	    \
 optionspage.h optionsmelodyeditor.h optionsmusictheory.h	    \
 optionsexportmusixtex.h optionsmidi.h optionsprinting.h		    \
-playbacktracker.h chordanalyzer.h optionsexportascii.h settings.h
+playbacktracker.h chordanalyzer.h optionsexportascii.h settings.h   \
+convertascii.h convertbase.h
 
 #rc_DATA = kguitar_shell.rc kguitar_part.rc kguitar_konq.rc
 
