@@ -184,6 +184,9 @@ KGuitarPart::KGuitarPart(bool bBrowserView, KCommandHistory *_cmdHist, QWidget *
 	slideAct = new KAction(i18n("Slide"), "fx_slide",
 						   KAccel::stringToKey("S"), sv->tv, SLOT(addSlide()),
 						   actionCollection(), "fx_slide");
+	letRingAct = new KAction(i18n("Let Ring"), "fx_let_ring",
+							 KAccel::stringToKey("I"), sv->tv, SLOT(addLetRing()),
+							 actionCollection(), "fx_let_ring");
 	natHarmAct = new KAction(i18n("Natural harmonic"), "fx_harmonic",
 							 KAccel::stringToKey("H"), sv->tv, SLOT(addHarmonic()),
 							 actionCollection(), "fx_nat_harm");
@@ -264,7 +267,7 @@ KGuitarPart::KGuitarPart(bool bBrowserView, KCommandHistory *_cmdHist, QWidget *
 	mainAccel->connectItem("key_period", sv->tv, SLOT(dotNote()));
 	mainAccel->insertItem(i18n("Triplet note"), "key_t", "T");
 	mainAccel->connectItem("key_t", sv->tv, SLOT(tripletNote()));
-	mainAccel->insertItem(i18n("More duration"), "key_equal", "Plus");
+	mainAccel->insertItem(i18n("More duration"), "key_equal", "Equal");
 	mainAccel->connectItem("key_equal", sv->tv, SLOT(keyPlus()));
 	mainAccel->insertItem(i18n("Less duration"), "key_minus", "Minus");
 	mainAccel->connectItem("key_minus", sv->tv, SLOT(keyMinus()));

@@ -20,6 +20,7 @@
 #define EFFECT_ARTHARM  2
 #define EFFECT_LEGATO   3
 #define EFFECT_SLIDE    4
+#define EFFECT_LETRING	5
 
 #define NULL_NOTE       -1
 #define DEAD_NOTE       -2

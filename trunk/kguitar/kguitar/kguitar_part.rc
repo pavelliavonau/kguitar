@@ -35,6 +35,7 @@
     <Action name="fx_slide" />
     <Action name="fx_nat_harm" />
     <Action name="fx_art_harm" />
+    <Action name="fx_let_ring" />
     <Separator/>
     <Action name="fx_palmmute" />
    </Menu>
@@ -100,6 +101,7 @@
   <Action name="fx_slide" />
   <Action name="fx_nat_harm" />
   <Action name="fx_art_harm" />
+  <Action name="fx_let_ring" />
   <Action name="fx_palmmute" />
  </ToolBar>
 </kpartgui>
