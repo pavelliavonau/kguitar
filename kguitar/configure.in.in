@@ -130,7 +130,6 @@ libtse3found="yes"
 AC_NEW_ARG(tse3)
 AC_ARG_ENABLE(midisupport, [  --disable-midisupport      Disable MIDI Support if TSE3 is found],
       USE_MIDISUPPORT=$enableval, USE_MIDISUPPORT=yes)
-AC_ARG_WITH(alt-qtsmanip, [  --with-alt-qtsmanip        If you get conflicts with QTSManip])
 
 
 if test "X$USE_EXCEPTIONS" = "X"
@@ -245,32 +244,13 @@ then
     TSE3INCLUDE="-I$inc_libtse3"
     TSE3LIBS="-L$lib_libtse3"
     LIBTSE3="-ltse3"
-    if test "$with_alt_qtsmanip" = "yes"
-    then
-        echo ""
-        echo "   *************************************************"
-        echo "   *                                               *"
-        echo "   *           KGuitar with MIDI Support           *"
-        echo "   *                                               *"
-        echo "   *************************************************"
-        echo ""
-        CXXFLAGS="$CXXFLAGS -DQT_ALTERNATE_QTSMANIP"
-    else
-        echo ""
-        echo "   *************************************************"
-        echo "   *                                               *"
-        echo "   *           KGuitar with MIDI Support           *"
-        echo "   *                                               *"
-        echo "   *                                               *"
-        echo "   *  -------------------------------------------  *"
-        echo "   *  If you get conflicts while building KGuitar  *"
-        echo "   *        with \"QTSManip ...\" please try:        *"
-        echo "   *                                               *"
-        echo "   *        ./configure --with-alt-qtsmanip        *"
-        echo "   *                                               *"
-        echo "   *************************************************"
-        echo ""
-    fi
+    echo ""
+    echo "   *************************************************"
+    echo "   *                                               *"
+    echo "   *           KGuitar with MIDI Support           *"
+    echo "   *                                               *"
+    echo "   *************************************************"
+    echo ""
 fi
 
 
