@@ -35,6 +35,10 @@ public slots:
 	void songProperties();
 	void playTrack();
 	void stopPlayTrack();
+	void slotCut();
+	void slotCopy();
+	void slotPaste();
+	void slotSelectAll();
 
 private slots:
 	void playMidi(MidiList &ml);

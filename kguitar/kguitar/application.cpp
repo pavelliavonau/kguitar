@@ -676,3 +676,4 @@ void KGuitarBrowserExtension::print()
 {
 	((KGuitarPart *)parent())->filePrint();
 }
+
