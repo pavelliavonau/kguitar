@@ -8,7 +8,7 @@
 #include <qpushbutton.h>
 #include <qcombobox.h>
 
-Strumming::Strumming(int default_scheme, QWidget *parent=0, const char *name=0)
+Strumming::Strumming(int default_scheme, QWidget *parent, const char *name)
 	: QDialog(parent, name, TRUE)
 {
     QVBoxLayout *l = new QVBoxLayout(this, 10);

@@ -9,7 +9,7 @@
 #include <qpushbutton.h>
 #include <qlayout.h>
 
-SetTimeSig::SetTimeSig(QWidget *parent=0, const char *name=0):
+SetTimeSig::SetTimeSig(QWidget *parent, const char *name):
     QDialog(parent, name, TRUE)
 {
     time1 = new QSpinBox(1,32,1,this);

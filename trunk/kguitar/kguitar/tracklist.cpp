@@ -12,7 +12,7 @@
 #include <kxmlgui.h>
 #include <kxmlguiclient.h>
 
-TrackList::TrackList(TabSong *s, KXMLGUIClient *_XMLGUIClient, QWidget *parent = 0, const char *name = 0):
+TrackList::TrackList(TabSong *s, KXMLGUIClient *_XMLGUIClient, QWidget *parent, const char *name):
 	QListView(parent, name)
 {
 	song = s;

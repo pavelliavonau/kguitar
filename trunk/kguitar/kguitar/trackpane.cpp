@@ -6,7 +6,7 @@
 #include <qdrawutil.h>
 #include <qstyle.h>
 
-TrackPane::TrackPane(TabSong *s, int hh, int rh, QWidget *parent = 0, const char *name = 0):
+TrackPane::TrackPane(TabSong *s, int hh, int rh, QWidget *parent, const char *name):
 	QGridView(parent, name)
 {
 	song = s;

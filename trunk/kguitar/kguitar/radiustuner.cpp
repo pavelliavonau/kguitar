@@ -2,7 +2,7 @@
 
 #include <qpainter.h>
 
-RadiusTuner::RadiusTuner(QWidget *parent=0, const char *name=0): QWidget(parent,name)
+RadiusTuner::RadiusTuner(QWidget *parent, const char *name): QWidget(parent,name)
 {
     val = new NoteSpinBox(this);
     connect(val,SIGNAL(valueChanged(int)),SLOT(update()));

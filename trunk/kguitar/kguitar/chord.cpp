@@ -90,15 +90,15 @@ QString maj7name[] = {"7M", "maj7", "dom7"};
 QString flat[] = {"-", "b"};
 QString sharp[] = {"+", "#"};
 
-ChordSelector::ChordSelector(TabTrack *p, QWidget *parent = 0, const char *name = 0):
+ChordSelector::ChordSelector(TabTrack *p, QWidget *parent, const char *name):
 	QDialog(parent, name, TRUE)
 {
 	initChordSelector(p);
 }
 
 #ifdef WITH_TSE3
-ChordSelector::ChordSelector(TSE3::MidiScheduler *_scheduler, TabTrack *p, QWidget *parent = 0,
-							 const char *name = 0): QDialog(parent, name, TRUE)
+ChordSelector::ChordSelector(TSE3::MidiScheduler *_scheduler, TabTrack *p, QWidget *parent,
+							 const char *name): QDialog(parent, name, TRUE)
 {
 	kdDebug() << k_funcinfo << endl;
 

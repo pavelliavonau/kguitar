@@ -43,7 +43,7 @@ TrackView::TrackView(TabSong *s, KXMLGUIClient *_XMLGUIClient, KCommandHistory *
 #ifdef WITH_TSE3
                      TSE3::MidiScheduler *_scheduler,
 #endif
-                     QWidget *parent = 0, const char *name = 0): QGridView(parent, name)
+                     QWidget *parent, const char *name): QGridView(parent, name)
 {
 	setFrameStyle(Panel | Sunken);
 	setBackgroundMode(PaletteBase);
