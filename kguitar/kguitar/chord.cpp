@@ -653,3 +653,9 @@ void ChordSelector::findChords()
 	fnglist->switchAuto(TRUE);
 	fnglist->repaint();
 }
+
+void ChordSelector::resizeEvent(QResizeEvent *e)
+{
+	QDialog::resizeEvent(e);
+	findChords();
+}
