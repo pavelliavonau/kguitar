@@ -51,14 +51,14 @@ shellrc_DATA = kguitar_shell.rc
 #messages:
 #    $(XGETTEXT) -C -ki18n $(kguitar_SOURCES) -o ../po/kguitar.pot
 
-messages:
-	LIST=`find . -name \*.h -o -name \*.cpp`; \
-	if test -n "$$LIST"; then \
-		$(XGETTEXT) -ki18n $$LIST -o ../po/kguitar-0.4.9.pot; \
-	fi
+#messages:
+#	LIST=`find . -name \*.h -o -name \*.cpp`; \
+#	if test -n "$$LIST"; then \
+#		$(XGETTEXT) -ki18n $$LIST -o ../po/kguitar-0.4.9.pot; \
+#	fi
 
-#messages: rc.cpp
-#	$(XGETTEXT) *.cpp -o $(podir)/kguitar.pot
+messages: rc.cpp
+	$(XGETTEXT) *.cpp -j -o $(podir)/kguitar.pot
 
 #########################################################################
 # MusiXTeX SUPPORT SECTION
