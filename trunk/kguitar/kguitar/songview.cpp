@@ -475,3 +475,65 @@ void SongView::playMidi(MidiList &ml)
 #endif
 }
 
+void SongView::slotCut()
+{
+	if (!tv->trk()->sel){
+		KMessageBox::error(this, i18n("There is no selection!"));
+		return;
+	}
+
+	int px = tv->trk()->x;
+	int pxsel = tv->trk()->xsel;
+
+	kdDebug() << "      x: " << px << endl;
+	kdDebug() << "   xsel: " << pxsel << endl;
+	kdDebug() << "    " << tv->trk()->sel << endl;
+
+	int pdelta;
+
+	if (px <= pxsel)
+		pdelta = pxsel - px;
+	else pdelta = px - pxsel;
+
+	pdelta++;
+
+	kdDebug() << "   pdelta: " << pdelta << endl;
+}
+
+void SongView::slotCopy()
+{
+	if (!tv->trk()->sel){
+		KMessageBox::error(this, i18n("There is no selection!"));
+		return;
+	}
+
+	int px = tv->trk()->x;
+	int pxsel = tv->trk()->xsel;
+	kdDebug() << "      x: " << px << endl;
+	kdDebug() << "   xsel: " << pxsel << endl;
+	kdDebug() << "    " << tv->trk()->sel << endl;
+
+	int pdelta;
+
+	if (px <= pxsel)
+		pdelta = pxsel - px;
+	else pdelta = px - pxsel;
+
+	pdelta++;
+
+	kdDebug() << "   pdelta: " << pdelta << endl;
+}
+
+void SongView::slotPaste()
+{
+}
+
+void SongView::slotSelectAll()
+{
+	tv->trk()->xsel = 0;
+	tv->trk()->x =  tv->trk()->c.size() - 1;
+	tv->trk()->sel = TRUE;
+
+	tv->update();
+}
+

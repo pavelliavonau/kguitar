@@ -55,6 +55,12 @@ KGuitarShell::KGuitarShell()
 							 SLOT(openBrowser()), actionCollection(), "open_browser");
 
 
+	// Cut-n-Paste
+	KStdAction::cut(m_kgpart->sv, SLOT(slotCut()), actionCollection(), "edit_cut");
+	KStdAction::copy(m_kgpart->sv, SLOT(slotCopy()), actionCollection(), "edit_copy");
+	KStdAction::paste(m_kgpart->sv, SLOT(slotPaste()), actionCollection(), "edit_paste");
+	KStdAction::selectAll(m_kgpart->sv, SLOT(slotSelectAll()), actionCollection(), "edit_selectAll");
+
 	showMainTBAct = KStdAction::showToolbar(this, SLOT(slotToggleMainTB()),
 											actionCollection(), "tog_mainTB");
 	showMainTBAct->setText(i18n("Main Toolbar"));
