@@ -568,7 +568,7 @@ void KGuitarPart::filePrint()
 // LVIFIX: enable status message
 //  slotStatusMsg(i18n("Printing..."));
 
-	KPrinter printer;
+	KPrinter printer(true, QPrinter::HighResolution);
 	if (printer.setup()) {
 		sv->print(&printer);
 	}
