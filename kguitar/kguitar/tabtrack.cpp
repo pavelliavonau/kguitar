@@ -40,6 +40,9 @@ TabTrack::TabTrack(TrackMode _tm, QString _name, int _channel,
 	x = 0;
 	xb = 0;
 	y = 0;
+
+	sel = FALSE;
+	xsel = 0;
 }
 
 // Pretty sophisticated expression that determines if we can omit the time sig
@@ -96,7 +99,7 @@ void TabTrack::insertColumn(uint n)
 			 c[x + i].a[j] = -1;
 }
 
-// Inserts a chord, stated in chord array, 
+// Inserts a chord, stated in chord array,
 void TabTrack::insertStrum(int sch, int *chord)
 {
 	if (sch == 0) { // Special "chord" scheme
@@ -120,7 +123,7 @@ void TabTrack::insertStrum(int sch, int *chord)
 					if (inv)
 						c[x + j].a[i] = (mask & (1 << r)) ? -1 : chord[i];
 					else
-						c[x + j].a[i] = (mask & (1 << r)) ? chord[i] : -1;						
+						c[x + j].a[i] = (mask & (1 << r)) ? chord[i] : -1;
 					c[x + j].e[i] = 0;
 					if (chord[i] != -1)
 						r++;
@@ -132,7 +135,7 @@ void TabTrack::insertStrum(int sch, int *chord)
 					if (inv)
 						c[x + j].a[i] = (mask & (1 << r)) ? -1 : chord[i];
 					else
-						c[x + j].a[i] = (mask & (1 << r)) ? chord[i] : -1;						
+						c[x + j].a[i] = (mask & (1 << r)) ? chord[i] : -1;
 					c[x + j].e[i] = 0;
 					if (chord[i] != -1)
 						r++;
@@ -259,9 +262,9 @@ void TabTrack::arrangeBars()
 			an[nn-1].l += cl;
 		}
 	}
-	
+
 	// RECONSTRUCTING BARS & COLUMNS ARRAYS
-	
+
 	i = 0;
 	uint ln;
 	uint cbl;
@@ -275,7 +278,7 @@ void TabTrack::arrangeBars()
 	for (nn=0; nn<an.size(); nn++) {
 		cl = an[nn].l;
 		firstnote = TRUE;
-		
+
 		while (cl>0) {
 			if (cl<cbl) {
 				ADD_NEW_COLUMN(cl);
@@ -285,7 +288,7 @@ void TabTrack::arrangeBars()
 				ADD_NEW_COLUMN(cbl);
 				cl -= cbl;
 				cbl = barlen;
-				
+
 				barnum++;
 				b.resize(barnum+1);
 				b[barnum].start = i;
@@ -295,15 +298,15 @@ void TabTrack::arrangeBars()
 			}
 		}
 	}
-	
+
 	// Clean up last bar if it's empty
 	if (b[barnum].start == i)
 		b.resize(barnum);
-	
+
 	// Make sure that cursor x is in legal range
 	if (x>=c.size())
 		x = c.size()-1;
-	
+
 	// Find the bar the cursor is in
 	updateXB();
 
