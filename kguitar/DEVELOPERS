@@ -37,6 +37,7 @@ Remember, the tags look like "rel0-1".
 Update translations
 ===================
 * Change in top source directory
+* Do "make clean" (because we didn't translate *.moc.cpp files)
 * Do "make package-messages"
 * Change to 'po' directory
 * Update xx.po
