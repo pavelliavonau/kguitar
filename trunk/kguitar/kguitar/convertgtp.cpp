@@ -94,6 +94,47 @@ void ConvertGtp::readChromaticGraph()
 	}
 }
 
+void ConvertGtp::readChord()
+{
+	int x1, x2, x3, x4;
+	Q_UINT8 num;
+	QString text;
+	char garbage[50];
+	// GREYFIX: currently just skips over chord diagram
+
+	// GREYFIX: chord diagram
+	x1 = readDelphiInteger();
+	if (x1 != 257)
+		kdWarning() << "Chord INT1=" << x1 << ", not 257\n";
+	x2 = readDelphiInteger();
+	if (x2 != 0)
+		kdWarning() << "Chord INT2=" << x2 << ", not 0\n";
+	x3 = readDelphiInteger();
+	kdDebug() << "Chord INT3: " << x3 << "\n"; // FF FF FF FF if there is diagram
+	x4 = readDelphiInteger();
+	if (x4 != 0)
+		kdWarning() << "Chord INT4=" << x4 << ", not 0\n";
+	(*stream) >> num;
+	if (num != 0)
+		kdWarning() << "Chord BYTE5=" << (int) num << ", not 0\n";
+	text = readPascalString();
+	kdDebug() << "Chord diagram: " << text << "\n";
+	
+	// Skip garbage after pascal string end
+	stream->readRawBytes(garbage, 25 - text.length());
+	
+	// Chord diagram parameters - for every string
+	for (int i = 0; i < STRING_MAX_NUMBER; i++) {
+		x1 = readDelphiInteger();
+		kdDebug() << x1 << "\n";
+	}
+	
+	// Unknown bytes
+	stream->readRawBytes(garbage, 36);
+
+	kdDebug() << "after chord, position: " << stream->device()->at() << "\n";
+}
+
 bool ConvertGtp::readSignature()
 {
 	char garbage[10];
@@ -210,9 +251,12 @@ void ConvertGtp::readBarProperties()
 			(*stream) >> num;
 			kdDebug() << "alternative ending to " << (int) num << "\n";
 		}
-
-		if (bar_bitmask & 0x20)
-			kdWarning() << "0x20 in bar properties!\n";
+		// GREYFIX: new section
+		if (bar_bitmask & 0x20) {
+			QString text = readDelphiString();
+			readDelphiInteger(); // color?
+			kdDebug() << "new section: " << text << "\n";
+		}
 		if (bar_bitmask & 0x40) {
 			kdDebug() << "new key signature\n";
 			(*stream) >> num;                // GREYFIX: alterations_number
@@ -321,6 +365,9 @@ void ConvertGtp::readTabs()
 					readDelphiInteger();     // GREYFIX: t for tuples
 				}
 				
+				if (beat_bitmask & 0x02)     // Chord diagram
+					readChord();
+
 				if (beat_bitmask & 0x04) {
 					kdDebug() << "Text: " << readDelphiString() << "\n"; // GREYFIX: text with a beat
 				}
