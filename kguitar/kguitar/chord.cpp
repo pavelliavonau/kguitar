@@ -1,5 +1,6 @@
 #include "chord.h"
 #include "fingers.h"
+#include "fingerlist.h"
 
 #include <qpushbutton.h>
 #include <qlistbox.h>
@@ -66,6 +67,9 @@ ChordSelector::ChordSelector(QWidget *parent=0, const char *name=0)
     firstFret = new QScrollBar(1,24-NUMFRETS,1,5,1,QScrollBar::Vertical,this);
     firstFret->setGeometry(fng->x()+fng->width(),fng->y(),15,fng->height());
     connect(firstFret,SIGNAL(valueChanged(int)),fng,SLOT(setFirstFret(int)));
+
+    fnglist = new FingerList(this);
+    fnglist->setGeometry(10,240,420,100);
 
     setFixedSize(450,350);
 }
