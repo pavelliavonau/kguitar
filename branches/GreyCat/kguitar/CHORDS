@@ -1,0 +1,28 @@
+int notenum[7] = {
+    2,                                          // C     M
+    3,                                          // C7    7
+    3,                                          // C7M   7M
+    3,                                          // C6    6
+    2,                                          // Cm    m
+    3,                                          // Cm7   m7
+    3,                                          // Cm7M  m7M
+};
+
+int pattern[7][7] = {
+    {0,4,7},                                    // C     M
+    {0,4,7,10},                                 // C7    7
+    {0,4,7,11},                                 // C7M   7M
+    {0,4,7,9},                                  // C6    6
+    {0,3,7},                                    // Cm    m
+    {0,3,7,10},                                 // Cm7   m7
+    {0,3,7,11},                                 // Cm7M  m7M
+    
+};
+
+Csus2 - C D G
+Csus4 - C F G
+C7sus2 - C D G A#
+C7sus4 - C F G A#
+Cdim - C D# F# A
+Caug - C E G#
+C5 - C G
