@@ -43,26 +43,26 @@ KGuitarShell::KGuitarShell()
 	KStdAction::save(this, SLOT(slotFileSave()), actionCollection(), "file_save");
 	KStdAction::saveAs(this, SLOT(slotFileSaveAs()), actionCollection(), "file_saveAs");
 
-	openRecentAct = KStdAction::openRecent(this, SLOT(openURL(const KURL&)), actionCollection(), 
+	openRecentAct = KStdAction::openRecent(this, SLOT(openURL(const KURL&)), actionCollection(),
 									"file_openRecent");
 
 	KStdAction::print(m_kgpart, SLOT(filePrint()), actionCollection(), "file_print");
 	KStdAction::quit(this, SLOT(slotQuit()), actionCollection(), "file_quit");
 
-	browserAct = new KAction(i18n("Browser..."), KAccel::stringToKey("Shift+B"), this, 
+	browserAct = new KAction(i18n("Browser..."), KAccel::stringToKey("Shift+B"), this,
 							 SLOT(openBrowser()), actionCollection(), "open_browser");
 
 
-	showMainTBAct = KStdAction::showToolbar(this, SLOT(slotToggleMainTB()), 
+	showMainTBAct = KStdAction::showToolbar(this, SLOT(slotToggleMainTB()),
 											actionCollection(), "tog_mainTB");
 	showMainTBAct->setText(i18n("Main Toolbar"));
 
-	showEditTBAct = KStdAction::showToolbar(this, SLOT(slotToggleEditTB()), 
+	showEditTBAct = KStdAction::showToolbar(this, SLOT(slotToggleEditTB()),
 											actionCollection(), "tog_editTB");
 	showEditTBAct->setText(i18n("Edit Toolbar"));
 
 
-	showStatusbarAct = KStdAction::showStatusbar(this, SLOT(slotShowStatusBar()), 
+	showStatusbarAct = KStdAction::showStatusbar(this, SLOT(slotShowStatusBar()),
 												 actionCollection(), "tog_statusbar");
 
 	connect(m_kgpart, SIGNAL(configToolBars()), SLOT(slotConfigTB()));
@@ -161,9 +161,9 @@ void KGuitarShell::slotFileSaveAs()
 		if (filter == "*") {
 			filter = fi->extension();
 			filter = filter.lower();
-			if (!((filter == "kg") || (filter == "mid") || (filter == "gtp") || 
+			if (!((filter == "kg") || (filter == "mid") || (filter == "gtp") ||
 				(filter == "tex") || (filter == "tab"))) {
-				KMessageBox::sorry(this, i18n("Please select a Filter or add an extension."));
+				KMessageBox::sorry(this, i18n("Please select a filter or add an extension."));
 				return;
 			}
 			filter = "*." + filter;
@@ -172,7 +172,7 @@ void KGuitarShell::slotFileSaveAs()
 			(filter == "*.gtp") || (filter == "*.tex")) {
 			KURL url = KURL(fn);
 			saveURL(url);
-		}		
+		}
 	}
 }
 
@@ -200,7 +200,7 @@ void KGuitarShell::openBrowser()
 
 void KGuitarShell::openBrowserURL(const KURL& url)
 {
-	if (openURL(url)) 
+	if (openURL(url))
 		if (fb != 0L) {
 			m_kgpart->tv->updateRows();
 			m_kgpart->tv->repaint();
