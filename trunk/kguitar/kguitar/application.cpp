@@ -222,18 +222,23 @@ KGuitarPart::KGuitarPart(bool bBrowserView, QWidget *parentWidget,
 	mainAccel = new KAccel(sv->tv);
 
 	// ...FOR CURSOR
-	mainAccel->insertItem(i18n("Move cursor right"), "key_right", "Right");
-	mainAccel->connectItem("key_right", sv->tv, SLOT(moveRight()));
 	mainAccel->insertItem(i18n("Move cursor left"), "key_left", "Left");
-	mainAccel->connectItem("key_left", sv->tv, SLOT(moveLeft()));
+	mainAccel->connectItem("key_left", sv->tv, SLOT(keyLeft()));
+	mainAccel->insertItem(i18n("Move cursor right"), "key_right", "Right");
+	mainAccel->connectItem("key_right", sv->tv, SLOT(keyRight()));
 	mainAccel->insertItem(i18n("Move cursor up"), "key_up", "Up");
 	mainAccel->connectItem("key_up", sv->tv, SLOT(moveUp()));
-	mainAccel->insertItem(i18n("Transpose up"), "key_CtrlUp", "Ctrl+Up");
-	mainAccel->connectItem("key_CtrlUp", sv->tv, SLOT(transposeUp()));
 	mainAccel->insertItem(i18n("Move cursor down"), "key_down", "Down");
 	mainAccel->connectItem("key_down", sv->tv, SLOT(moveDown()));
+	mainAccel->insertItem(i18n("Transpose up"), "key_CtrlUp", "Ctrl+Up");
+	mainAccel->connectItem("key_CtrlUp", sv->tv, SLOT(transposeUp()));
 	mainAccel->insertItem(i18n("Transpose down"), "key_CtrlDown", "Ctrl+Down");
 	mainAccel->connectItem("key_CtrlDown", sv->tv, SLOT(transposeDown()));
+	mainAccel->insertItem(i18n("Move and select left"), "key_ShiftLeft", "Shift+Left");
+	mainAccel->connectItem("key_ShiftLeft", sv->tv, SLOT(selectLeft()));
+	mainAccel->insertItem(i18n("Move and select right"), "key_ShiftRight", "Shift+Right");
+	mainAccel->connectItem("key_ShiftRight", sv->tv, SLOT(selectRight()));
+
 
     // ...FOR OTHER KEYS
 	mainAccel->insertItem(i18n("Dead note"), "key_x", "X");

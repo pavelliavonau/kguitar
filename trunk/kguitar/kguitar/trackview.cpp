@@ -287,6 +287,9 @@ void TrackView::paintCell(QPainter *p, int row, int col)
 
 	int xpos = 40, lastxpos = 20, xdelta;
 
+	int selx2coord = -1;
+	selxcoord = -1;
+
 	// Starting bars - very thick and thick one
 
 	if (bn == 0) {
@@ -383,33 +386,23 @@ void TrackView::paintCell(QPainter *p, int row, int col)
 
 		p->setPen(NoPen);
 		for (i = 0; i <= s; i++) {
-			if ((t == curt->x) && (i == curt->y)) {
-				p->setBrush(KGlobalSettings::highlightColor());
-				selxcoord = xpos;
-				p->drawRect(xpos, VERTSPACE + (s - i) * VERTLINE - VERTLINE / 2,
+			if (curt->c[t].a[i] != -1) {
+				if (curt->c[t].a[i] == DEAD_NOTE)
+					tmp = "X";
+				else
+					tmp.setNum(curt->c[t].a[i]);
+				p->drawRect(xpos,VERTSPACE + (s - i) * VERTLINE - VERTLINE / 2,
 							VERTLINE, VERTLINE + 1);
-				p->setBrush(KGlobalSettings::baseColor());
-				if (curt->c[t].a[i] != -1) {
-					if (curt->c[t].a[i] == DEAD_NOTE)
-						tmp = "X";
-					else
-						tmp.setNum(curt->c[t].a[i]);
-					p->setPen(KGlobalSettings::highlightedTextColor());
-					p->drawText(xpos, VERTSPACE + (s - i) * VERTLINE - VERTLINE / 2,
-								VERTLINE, VERTLINE, AlignCenter, tmp);
-					p->setPen(NoPen);
-				}
-			} else {
-				if (curt->c[t].a[i] != -1) {
-					if (curt->c[t].a[i] == DEAD_NOTE)
-						tmp = "X";
-					else
-						tmp.setNum(curt->c[t].a[i]);
-					p->drawRect(xpos,VERTSPACE + (s - i) * VERTLINE - VERTLINE / 2,
-								VERTLINE, VERTLINE + 1);
-					p->drawText(xpos,VERTSPACE + (s - i) * VERTLINE - VERTLINE / 2,
-								VERTLINE, VERTLINE, AlignCenter, tmp);
-				}
+				p->drawText(xpos,VERTSPACE + (s - i) * VERTLINE - VERTLINE / 2,
+							VERTLINE, VERTLINE, AlignCenter, tmp);
+			}
+
+			if (t == curt->x) {
+				selxcoord = xpos;
+			}
+
+			if (t == curt->xsel) {
+				selx2coord = xpos;
 			}
 
 			// Draw effects
@@ -440,6 +433,41 @@ void TrackView::paintCell(QPainter *p, int row, int col)
 	}
 
 	p->drawRect(xpos, VERTSPACE, 1, VERTLINE * s);
+
+	// DRAW SELECTION
+
+	p->setRasterOp(Qt::XorROP);
+// 	p->setBrush(KGlobalSettings::highlightColor());
+	if (curt->sel) {
+		if ((selxcoord != -1) && (selx2coord != -1)) {
+			int x1 = KMIN(selxcoord, selx2coord);
+			int wid = abs(selx2coord - selxcoord) + VERTLINE + 1;
+			p->drawRect(x1, 0, wid, cellHeight());
+		} else if ((selxcoord == -1) && (selx2coord != -1)) {
+			if (curt->x > curt->lastColumn(bn))
+				p->drawRect(selx2coord, 0, cellWidth(), cellHeight());
+			else
+				p->drawRect(0, 0, selx2coord + VERTLINE + 1, cellHeight());		
+		} else if ((selxcoord != -1) && (selx2coord == -1)) {
+			if (curt->xsel > curt->lastColumn(bn))
+				p->drawRect(selxcoord, 0, cellWidth(), cellHeight());
+			else
+				p->drawRect(0, 0, selxcoord + VERTLINE + 1, cellHeight());		
+		} else { // both are -1
+			int x1 = KMIN(curt->x, curt->xsel);
+			int x2 = KMAX(curt->x, curt->xsel);
+			if ((x1 < curt->b[bn].start) && (x2 > curt->lastColumn(bn)))
+				p->drawRect(0, 0, cellWidth(), cellHeight());
+		}
+	}
+
+	if (selxcoord != -1) {
+		p->drawRect(selxcoord, VERTSPACE + (s - curt->y) * VERTLINE - VERTLINE / 2,
+					VERTLINE, VERTLINE + 1);
+	}
+
+// 	p->setBrush(KGlobalSettings::baseColor());
+	p->setRasterOp(Qt::CopyROP);
 
 	p->setBrush(SolidPattern);
 }
@@ -513,6 +541,26 @@ void TrackView::timeSig()
 	lastnumber = -1;
 }
 
+void TrackView::keyLeft()
+{
+	if (curt->sel) {
+		curt->sel = FALSE;
+		repaint();
+	} else {
+		moveLeft();
+	}
+}
+
+void TrackView::keyRight()
+{
+	if (curt->sel) {
+		curt->sel = FALSE;
+		repaint();
+	} else {
+		moveRight();
+	}
+}
+
 void TrackView::moveLeft()
 {
 	if (curt->x > 0) {
@@ -560,6 +608,28 @@ void TrackView::moveRight()
 		repaintCurrentCell();
 	}
 	lastnumber = -1;
+}
+
+void TrackView::selectLeft()
+{
+	if (!curt->sel) {
+		curt->sel = TRUE;
+		curt->xsel = curt->x;
+		repaintCurrentCell();
+	} else {
+		moveLeft();
+	}
+}
+
+void TrackView::selectRight()
+{
+	if (!curt->sel) {
+		curt->sel = TRUE;
+		curt->xsel = curt->x;
+		repaintCurrentCell();
+	} else {
+		moveRight();
+	}
 }
 
 void TrackView::moveUp()
@@ -769,6 +839,8 @@ void TrackView::mousePressEvent(QMouseEvent *e)
                     curt->y = 0;
                 if (curt->y>=curt->string)
                     curt->y = curt->string-1;
+
+				curt->sel = FALSE;
 
                 emit statusBarChanged();
                 found = TRUE;

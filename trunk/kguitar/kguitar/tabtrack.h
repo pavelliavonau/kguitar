@@ -70,6 +70,9 @@ public:
 	uint xb;                            // Current tab bar
 	int y;                              // Current tab string
 
+	bool sel;                           // Selection mode enabled
+	uint xsel;                          // If yes, then selection start column
+
 	int lastColumn(uint n);
 	bool showBarSig(uint n);
 	bool barStatus(uint n);
