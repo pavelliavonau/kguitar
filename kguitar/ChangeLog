@@ -1,3 +1,66 @@
+2003-08-27 Mikhail Yakshin <greycat@users.sourceforge.net>
+
+	* Release 0.4.9
+
+	* First release in a very long time. Lots of work-in-progress
+	features, could be buggy somewhere, could lacks obvious features,
+	etc, etc. However, it's a major step to 0.5 since year-ago
+	0.4.1. Lots of new and unique great features.
+
+	* Official port to KDE3. Now KGuitar requires KDE 3.x and Qt 3.x
+	to build and run. Also we've transitioned to newer build tools -
+	automake 1.7, autoconf 2.5, gcc 3.2.
+
+	* Introduced basic KDE help center documentation. Needs much more
+	work, any volunteers are certainly welcome. However, current
+	documentation covers as much as possible from old simple README
+	file.
+
+	* More usability features. Now, KGuitar has Ctrl-Minus and
+	Ctrl-Plus shortcuts to zoom in and zoom out horizontal scale of
+	tabulatures. More generic navigation keys working: Home and End go
+	to the start and the end of current bar respectively, Ctrl-Home
+	and Ctrl-End go to the start & end of current track.
+
+	* Melody editor - a brand new tool to help entering tabulature
+	with mouse. Somewhat loosely resembles Cakewalk's tab staff
+	fretboard, but much more useful & flexible. Editor looks like
+	fretboard where you can set fingers with mouse, add power chords
+	or enter solos really fast by just clicking necessary block
+	patterns on the fret in order. Fully customizable, now supports
+	several inlay types. Work in progress, so more to come.
+
+	* Rhythm constructor - it's a tool that helps you find and
+	understand the given rhythm. You just tap the necessary rhythmic
+	pattern using your mouse or keyboard button, wizard records all
+	delays between taps in real time and then uses sophisticated
+	algorithm to help you determine that's the right tempo to that
+	beat and what note durations should you use. If you want, you can
+	apply resulting beats to your tabulature columns - a great way to
+	add rhythmic information to ASCII tabs without such info!
+	
+	* Support for native Qt tabulature printing - pretty complete,
+	with effects and, what's more important, with additional fonts it
+	can output standard notescore notation from tabulatures. Support
+	for key signatures is a bit simplified, work-in-progress.
+
+	* More complete MIDI playback feature - now with monitoring of
+	what's played, however, slightly buggy. For best results, try
+	playing from the very beginning of the song.
+	
+	* More complete MusicXML support.
+
+	* Guitar Pro 3 import support from Sylvian & Thiery
+	Vignaud(s). Doesn't work it all cases, but can handle relatively
+	simple gp3 files well.
+	
+	* Lots of refactoring in internal APIs, classes, etc, including
+	more versatile options interface.
+
+	* Numerous fixes for screen glitches, anti-aliasing, chord
+	constructor, track pane almost completely rewritten to be more
+	robust, etc.
+	
 2002-07-13 Mikhail Yakshin <greycat@users.sourceforge.net>
 
 	* Release 0.4.1
