@@ -1,5 +1,5 @@
 EXTRA_DIST = chord.xpm note1.xpm note2.xpm note4.xpm note8.xpm note16.xpm \
- note32.xpm timesig.xpm arc.xpm fx-legato.xpm fx-harmonic.xpm
+ note32.xpm timesig.xpm arc.xpm fx-legato.xpm fx-harmonic.xpm musixtex.png
 
 install-data-local: 
 	$(mkinstalldirs) $(kde_datadir)/kguitar/toolbar/
