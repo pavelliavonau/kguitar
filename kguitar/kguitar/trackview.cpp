@@ -763,6 +763,7 @@ void TrackView::playMidi(MidiList &ml)
     }
 
     midi->closeDev(); // close MidiDevice for child process
+    delete midi;
 
     int status;
     pid_t m_pid;
@@ -775,8 +776,6 @@ void TrackView::playMidi(MidiList &ml)
         kdDebug() << "    **** Error: can't fork a child process!!" << endl;
         return;
     }
-
-    kdDebug() << "    Parent2 pid: " << getpid() << endl;
 
     if (m_pid == 0) {      // ***** child process *****
 
@@ -809,8 +808,10 @@ void TrackView::playMidi(MidiList &ml)
 
         if (c_midi->initManager() == 0)
             kdDebug() << "      child process: c_midi->initManager()...  OK" << endl;
-        else
+        else {
             kdDebug() << "      child process: c_midi->initManager() FAILED *******" << endl;
+            exit(EXIT_FAILURE);
+        }
 
         MidiMapper *c_map = new MidiMapper(NULL); // alinx - for future option in Optiondialog
                                                   // Maps are stored in:
@@ -871,8 +872,23 @@ void TrackView::playMidi(MidiList &ml)
 
         midiInUse = FALSE;
 
+        kdDebug() << "    -->reopen MidiDevice 'midi'..." << endl;
+
+        kdDebug() << "    -->midi = new DeviceManager(-1)" << endl;
+        midi = new DeviceManager( /*mididev*/ -1);
+
+        if (midi->initManager() == 0)
+            kdDebug() << "    -->midi->initManager()...  OK" << endl;
+        else {
+            kdDebug() << "    -->midi->initManager() FAILED *******" << endl;
+            return;
+        }
+        kdDebug() << "    -->midi->openDev()" << endl;
         midi->openDev();      // reopen MidiDevice
+        kdDebug() << "    -->midi->initDev()" << endl;
         midi->initDev();
+        kdDebug() << "    -->midi->setDefaultDevice(" << defDevice << ")" << endl;
+        midi->setDefaultDevice(defDevice);
     }
 }
 
