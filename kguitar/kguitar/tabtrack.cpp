@@ -1,8 +1,5 @@
 #include "tabtrack.h"
 
-// GREYFIX
-#include <stdio.h>
-
 TabTrack::TabTrack(TrackMode _tm, QString _name, int _channel,
                    int _bank, uchar _patch, uchar _string, uchar _frets)
 {
@@ -13,7 +10,7 @@ TabTrack::TabTrack(TrackMode _tm, QString _name, int _channel,
 	patch=_patch;
 	string=_string;
 	frets=_frets;
-};
+}
 
 // Pretty sophisticated expression that determines if we can omit the time sig
 bool TabTrack::showBarSig(uint n)
@@ -21,29 +18,31 @@ bool TabTrack::showBarSig(uint n)
 	return !((n>0) && (b[n-1].time1==b[n].time1) && (b[n-1].time2==b[n].time2));
 }
 
-// Inserts column before n-th
+// Inserts n columns at current cursor position
 void TabTrack::insertColumn(uint n)
 {
-	c.resize(c.size()+1);
-	for (uint i=c.size()-1;i>n;i--)
-		c[i] = c[i-1];
-	for (uint i=0;i<MAX_STRINGS;i++)
-		c[x].a[i] = -1;
+	c.resize(c.size()+n);
+	for (uint i=c.size()-n;i>x;i--)
+		c[i] = c[i-n];
+	for (uint i=0;i<n;i++)
+		for (uint j=0;j<MAX_STRINGS;j++)
+			 c[x+i].a[j] = -1;
 }
 
-// Removes column n-th
+// Removes n columns starting with current cursor position
 void TabTrack::removeColumn(uint n)
 {
-	for (uint i=n;i<c.size()-1;i++)
-		c[i]=c[i+1];
+	for (uint i=x;i<c.size()-n;i++)
+		c[i]=c[i+n];
 
-	// Need to remove last bar or not?
-	if (c.size()-1==b[b.size()-1].start)
+	// Remove empty bars
+	while (c.size()-n<=b[b.size()-1].start)
 		b.resize(b.size()-1);
 
-	c.resize(c.size()-1);
+	c.resize(c.size()-n);
 }
 
+// Toggles effect FX on current cursor position
 void TabTrack::addFX(char fx)
 {
 	if (c[x].a[y]>=0) {
@@ -54,6 +53,7 @@ void TabTrack::addFX(char fx)
 	}
 }
 
+// Find what measure the cursor is in by searching measure list
 void TabTrack::updateXB()
 {
 	if (x>=b[b.size()-1].start)
@@ -191,7 +191,7 @@ void TabTrack::arrangeBars()
 	if (x>=c.size())
 		x = c.size()-1;
 	
-	// Find the bar the cursor in
+	// Find the bar the cursor is in
 	updateXB();
 
 	// All should be done now.

@@ -29,10 +29,10 @@ TrackView::TrackView(QWidget *parent,const char *name): QTableView(parent,name)
 
 	curt = song->t.first();
 
-	uchar standtune[6]={40,45,50,55,59,64};
+	uchar standtune[6] = {40, 45, 50, 55, 59, 64};
 
 	for (int i=0;i<6;i++)
-		curt->tune[i]=standtune[i];
+		curt->tune[i] = standtune[i];
 
 	curt->c.resize(1);
 	curt->b.resize(1);
@@ -226,8 +226,7 @@ void TrackView::paintCell(QPainter *p, int row, int col)
 		
 		p->setPen(NoPen);
 		for (i=0;i<=s;i++) {
-			if ((t==curt->x) && 
-				(curt->y==i)) {
+			if ((t==curt->x) && (i==curt->y)) {
 				p->setBrush(KApplication::getKApplication()->selectColor);
 				p->drawRect(xpos,VERTSPACE+(s-i)*VERTLINE-VERTLINE/2,
 							VERTLINE,VERTLINE+1);
@@ -458,7 +457,7 @@ void TrackView::keyPressEvent(QKeyEvent *e)
 	case Key_Delete:
 		if (e->state()==ControlButton) {
 			if (curt->c.size()>1) {
-				curt->removeColumn(curt->x);
+				curt->removeColumn(1);
 				if (curt->x==curt->c.size())
 					curt->x--;
 				updateRows();
@@ -469,7 +468,7 @@ void TrackView::keyPressEvent(QKeyEvent *e)
 		}
 		break;
 	case Key_Insert:
-		curt->insertColumn(curt->x);
+		curt->insertColumn(1);
 		break;
 	case Key_Plus:
 		if (curt->c[curt->x].l<480)
