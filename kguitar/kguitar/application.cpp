@@ -441,11 +441,12 @@ bool KGuitarPart::slotOpenFile(QString fn)
 			if (sv->sng()->load_from_gtp(fn)) {
 				sv->sng()->filename = "";
 				setWinCaption(i18n("Unnamed"));
+				sv->refreshView();
 				ret = TRUE;
 			} else {
-				KMessageBox::sorry(p, i18n("This feature is at this time not implemented.\n"
-										   "If you would help to implement this feature\n"
-										   "please write an email to: greycat@users.sourceforge.net"));
+				KMessageBox::sorry(p, i18n("Error happened while reading Guitar Pro file.\n"
+										   "Check if it is really a GTP file, and if it still\n"
+										   "doesn't work, write an email to: greycat@users.sourceforge.net"));
 				return FALSE;
 			}
 		}
