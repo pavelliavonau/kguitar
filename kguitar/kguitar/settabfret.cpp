@@ -9,8 +9,8 @@
 #include <qspinbox.h>
 #include <qlabel.h>
 
-SetTabFret::SetTabFret(QWidget *parent=0, const char *name=0):
-    QGroupBox(i18n("Fret tabulature"), parent, name)
+SetTabFret::SetTabFret(QWidget *parent=0, const char *name=0)
+	: QWidget(parent, name)
 {
     // Controls
 
@@ -39,7 +39,7 @@ SetTabFret::SetTabFret(QWidget *parent=0, const char *name=0):
 
     // Tuners
 
-    for (int i=0;i<MAX_STRINGS;i++) {
+    for (int i = 0; i < MAX_STRINGS; i++) {
 		tuner[i] = new RadiusTuner(this);
 		connect(tuner[i], SIGNAL(valueChanged(int)), SLOT(tuneChanged()));
     }
@@ -48,30 +48,30 @@ SetTabFret::SetTabFret(QWidget *parent=0, const char *name=0):
 
 void SetTabFret::setLibTuning(int n)
 {
-    if (n!=0) {
-	st->setValue(lib_tuning[n].strings);
-	for (int i=0;i<lib_tuning[n].strings;i++)
-	    tuner[i]->setValue(lib_tuning[n].shift[i]);
+    if (n) {
+		st->setValue(lib_tuning[n].strings);
+		for (int i = 0; i < lib_tuning[n].strings; i++)
+			tuner[i]->setValue(lib_tuning[n].shift[i]);
     } else {
-	tuneChanged();
+		tuneChanged();
     }
 }
 
 void SetTabFret::stringChanged(int n)
 {
-    if (oldst==n)
-	return;
-
+    if (oldst == n)
+		return;
+	
     if (oldst<n) {       // Need to add
-		for (int i=oldst;i<n;i++)
+		for (int i = oldst; i < n; i++)
 			tuner[i]->show();
     } else {             // Need to delete
-		for (int i=n;i<oldst;i++)
+		for (int i = n; i < oldst; i++)
 			tuner[i]->hide();
     }
-    oldst=n;
+    oldst = n;
 
-    setMinimumSize(QMAX(330, 20+RADTUNER_W*n), 90+RADTUNER_H);
+    setMinimumSize(QMAX(330, 20 + RADTUNER_W * n), 90+RADTUNER_H);
     reposTuners();
 }
 

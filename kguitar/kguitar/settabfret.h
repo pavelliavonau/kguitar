@@ -1,7 +1,7 @@
 #ifndef SETTABFRET_H
 #define SETTABFRET_H
 
-#include <qgroupbox.h>
+#include <qwidget.h>
 #include "global.h"
 
 #include <qspinbox.h>
@@ -9,8 +9,7 @@
 
 class QComboBox;
 
-class SetTabFret: public QGroupBox
-{
+class SetTabFret: public QWidget {
     Q_OBJECT
 public:
     SetTabFret(QWidget *parent=0, const char *name=0);
