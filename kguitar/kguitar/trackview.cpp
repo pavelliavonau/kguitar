@@ -65,7 +65,7 @@ TrackView::TrackView(TabSong *s, KXMLGUIClient *_XMLGUIClient, QWidget *parent =
     m_XMLGUIClient = _XMLGUIClient;
 
 	song = s;
-	curt = s->t.first();
+	setCurt(s->t.first());
 
 	updateRows();
 
@@ -113,6 +113,12 @@ TrackView::~TrackView()
 
 	kdDebug() << "Deleting devicemanager" << endl;
 	//	delete midi;
+}
+
+void TrackView::setCurt(TabTrack *trk)
+{
+	curt = trk;
+	emit newTrackSelected();
 }
 
 void TrackView::updateRows()
@@ -578,56 +584,6 @@ void TrackView::arrangeTracks()
 	update();
 }
 
-void TrackView::key1()
-{
-	insertTab(1);
-}
-
-void TrackView::key2()
-{
-	insertTab(2);
-}
-
-void TrackView::key3()
-{
-	insertTab(3);
-}
-
-void TrackView::key4()
-{
-	insertTab(4);
-}
-
-void TrackView::key5()
-{
-	insertTab(5);
-}
-
-void TrackView::key6()
-{
-	insertTab(6);
-}
-
-void TrackView::key7()
-{
-	insertTab(7);
-}
-
-void TrackView::key8()
-{
-	insertTab(8);
-}
-
-void TrackView::key9()
-{
-	insertTab(9);
-}
-
-void TrackView::key0()
-{
-	insertTab(0);
-}
-
 void TrackView::insertTab(int num)
 {
 	lastnumber = curt->c[curt->x].a[curt->y];
@@ -747,7 +703,7 @@ void TrackView::selectTrack(QListViewItem *item)
 
 	QListIterator<TabTrack> it(song->t);
 	for (int n = 1; n != num; ++it) { n++; };
-	curt = it.current();
+	setCurt(it.current());
 	updateRows();
 	repaint();
 }
