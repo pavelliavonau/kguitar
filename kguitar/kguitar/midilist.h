@@ -16,7 +16,9 @@ enum {
 };
 
 enum {
+	META_COPYRIGHT			= 0x02,
 	META_SEQUENCE_NAME		= 0x03,
+	META_END_TRACK     		= 0x2f,
 	META_TEMPO				= 0x51,
 	META_TIMESIG			= 0x58
 };

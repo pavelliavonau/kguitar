@@ -489,10 +489,65 @@ bool TabSong::save_to_mid(QString fileName)
     // HEADER SIGNATURE
 
     s.writeRawBytes("MThd", 4);
-    s << (Q_INT32) 6;                   // Length?
-    s << (Q_INT16) 0;                   // Format 0 - GREYFIX
-    s << (Q_INT16) t.count();           // Number of tracks
-    s << (Q_INT16) 120;                 // Divisions
+    s << (Q_UINT32) 6;                  // Length?
+    s << (Q_UINT16) 1;                  // Format 1 - GREYFIX
+    s << (Q_UINT16) (t.count() + 1);    // Number of tracks plus 1 tempo track
+    s << (Q_UINT16) 120;                // Divisions
+
+	// TRACK VARIABLES
+
+	int sizepos;                        // Where to write track size in file
+	int curpos;                         // Where we end up writing track
+
+	// TEMPO TRACK
+
+	s.writeRawBytes("MTrk", 4);
+	sizepos = f.at();                   // Remember where to write track size
+	s << (Q_UINT32) 0;                  // Store 0 as size temporarily
+
+	// Song name
+	s << (Q_UINT8) 0;
+	s << (Q_UINT8) MIDI_META;
+	s << (Q_UINT8) META_SEQUENCE_NAME;
+	writeVarLen(&s, title.length());
+	s.writeRawBytes(title, title.length());
+
+	// Copyright
+	s << (Q_UINT8) 0;
+	s << (Q_UINT8) MIDI_META;
+	s << (Q_UINT8) META_SEQUENCE_NAME;
+	writeVarLen(&s, author.length());
+	s.writeRawBytes(author, author.length());
+
+	// First time signature
+	s << (Q_UINT8) 0;
+	s << (Q_UINT8) 0xff;
+	s << (Q_UINT8) 0x58;
+	s << (Q_UINT8) 4;
+	s << (Q_UINT8) t.first()->b[0].time1;
+	s << (Q_UINT8) /*trk->b[0].time2*/ 2; // GREYFIX
+	s << (Q_UINT8) 24;
+	s << (Q_UINT8) 8;
+
+	// Tempo
+	s << (Q_UINT8) 0;
+	s << (Q_UINT8) 0xff;
+	s << (Q_UINT8) 0x51;
+	s << (Q_UINT8) 3;
+	writeTempo(&s, 60000000 / tempo);
+
+	// End of track marker
+	s << (Q_UINT8) 0;
+	s << (Q_UINT8) MIDI_META;
+	s << (Q_UINT8) META_END_TRACK;
+	s << (Q_UINT8) 0;
+	
+	curpos = f.at();
+	f.at(sizepos);
+	s << (Q_UINT32) (curpos - sizepos - 4);
+	f.at(curpos);
+
+	printf("curpos = %d, sizepos = %d, size of track = %d\n", curpos, sizepos, curpos - sizepos - 4);
 
     // TRACK DATA
 
@@ -504,10 +559,8 @@ bool TabSong::save_to_mid(QString fileName)
 		TabTrack *trk = it.current();
 
 		s.writeRawBytes("MTrk", 4);     // Track header
-		int sizepos = f.at();           // Remember where to write track size
-		s << (Q_INT32) 0;               // Store 0 as size temporarily
-
-		int tl = 0;                     // Track length (header doesn't count)
+		sizepos = f.at();               // Remember where to write track size
+		s << (Q_UINT32) 0;              // Store 0 as size temporarily
 
  		s << (Q_UINT8) 0;               // Track name
  		s << (Q_UINT8) MIDI_META;
@@ -515,47 +568,16 @@ bool TabSong::save_to_mid(QString fileName)
  		writeVarLen(&s, trk->name.length());
 		s.writeRawBytes(trk->name, trk->name.length());
 		
-/*		s << trk->c.count();            // Track columns
-
-		s << (Q_UINT8) trk->trackmode();// Track properties
-		s << trk->name;
-		s << (Q_UINT8) trk->channel;
-		s << (Q_UINT16) trk->bank;
-		s << (Q_UINT8) trk->patch;
-		s << (Q_UINT8) trk->string;
-		s << (Q_UINT8) trk->frets;
-		for (int i = 0; i<trk->string; i++)
-			s << (Q_UINT8) trk->tune[i];
-*/		
 		// TRACK EVENTS
-
-		// First time signature
-		s << (Q_UINT8) 0;
-		s << (Q_UINT8) 0xff;
-		s << (Q_UINT8) 0x58;
-		s << (Q_UINT8) 4;
-		s << (Q_UINT8) trk->b[0].time1;
-		s << (Q_UINT8) /*trk->b[0].time2*/ 2; // GREYFIX
-		s << (Q_UINT8) 24;
-		s << (Q_UINT8) 8;
-
-		// Tempo
-		s << (Q_UINT8) 0;
-		s << (Q_UINT8) 0xff;
-		s << (Q_UINT8) 0x51;
-		s << (Q_UINT8) 3;
-		writeTempo(&s, 60000000 / tempo);
-//		printf("Wrote tempo signature = %d\n", 60000000 / tempo);
 
 		// Patch select
 		s << (Q_UINT8) 0;
-		s << (Q_UINT8) MIDI_PROGRAM_CHANGE;
+		s << (Q_UINT8) (MIDI_PROGRAM_CHANGE | (trk->channel - 1));
 		s << (Q_UINT8) trk->patch;
 		
 		ml.clear();
 		timer = 0;
 		uchar noteon = MIDI_NOTEON | (trk->channel - 1);
-		uchar noteoff = MIDI_NOTEOFF | (trk->channel - 1);
 		int midilen = 0, duration;
 
 		uchar pitch;
@@ -594,46 +616,25 @@ bool TabSong::save_to_mid(QString fileName)
 				}
 
 				ml.inSort(new MidiEvent(timer, noteon, pitch, 0x60));
-				ml.inSort(new MidiEvent(timer + duration, noteoff, pitch, 0x60));
+				ml.inSort(new MidiEvent(timer + duration, noteon, pitch, 0));
 			}
 			timer += midilen;
 		}
 
 		MidiEvent *e;
-		int last = 0;
+		Q_UINT8 lastevent = 0;
+		int laststamp = 0;
 		for (e = ml.first(); e != 0; e = ml.next()) {
-			writeVarLen(&s, e->timestamp - last);
-			s << (Q_UINT8) e->type;
+			writeVarLen(&s, e->timestamp - laststamp);
+			if (lastevent != e->type)
+				s << (Q_UINT8) e->type;
 			s << (Q_UINT8) e->data1;
 			s << (Q_UINT8) e->data2;
 
-			tl += 4;
-			last = e->timestamp;
+			lastevent = e->type;
+			laststamp = e->timestamp;
 		}
-/*
-					s << (Q_UINT8) 0;
-					s << (Q_UINT8) (0x80 | trk->channel);
-					s << (Q_UINT8) trk->c[x].a[i] + trk->tune[i];
-					s << (Q_UINT8) 0x40;
-					tl += 8; // 4+4 bytes - add for note off here also
 
-			first = TRUE;
-
-			// Note off event
-			for (int i = 0; i < trk->string; i++)
-				if (trk->c[x].a[i] != -1) {
-					if (first) {
-						writeVarLen(&s,
-									dot2len(trk->c[x].l, trk->c[x].flags & FLAG_DOT));
-						first = FALSE;
-					} else {
-						s << (Q_UINT8) 0;
-					}
-					s << (Q_UINT8) (0x90 | trk->channel);
-					s << (Q_UINT8) trk->c[x].a[i] + trk->tune[i];
-					s << (Q_UINT8) 0x40;
-				}
-*/
 /*			if (trk->c[x].flags & FLAG_ARC) {
 				s << (Q_UINT8) 'L';		// Continue of previous event
 				s << (Q_UINT8) 2;		// Size of event
@@ -658,15 +659,14 @@ bool TabSong::save_to_mid(QString fileName)
 	    }
 */
 		
-		s << (Q_UINT8) 0;
-		s << (Q_UINT8) 0xff;
-		s << (Q_UINT8) 0x2f; // End of track marker
+		s << (Q_UINT8) 0;               // End of track marker
+		s << (Q_UINT8) MIDI_META;
+		s << (Q_UINT8) META_END_TRACK;
 		s << (Q_UINT8) 0;
 
-		tl += 4;
-		int curpos = f.at();
+		curpos = f.at();
 		f.at(sizepos);
-		s << (Q_UINT32) tl;
+		s << (Q_UINT32) (curpos - sizepos - 4);
 		f.at(curpos);
 	}
 
