@@ -79,11 +79,11 @@ TrackView::TrackView(QWidget *parent, const char *name): QTableView(parent, name
 
 TrackView::~TrackView()
 {
-//	kdDebug() << "Closing device" << endl;
-//	midi->closeDev();
+	kdDebug() << "Closing device" << endl;
+	midi->closeDev();
 
-	kdDebug() << "Deleting devicemanager" << endl;
-	delete midi;
+//	kdDebug() << "Deleting devicemanager" << endl;
+//	delete midi;
 
 	kdDebug() << "Deleting song..." << endl;
 	delete song;
