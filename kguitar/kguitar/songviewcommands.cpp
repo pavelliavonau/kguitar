@@ -57,10 +57,11 @@ SetTrackPropCommand::SetTrackPropCommand(TrackView *_tv, TrackList *_tl, TrackPa
 	tl     = _tl;
 	tp     = _tp;
 	trk    = _trk;
-	x      = trk->x;
-	y      = trk->y;
-	xsel   = trk->xsel;
-	sel    = trk->sel;
+	x      = _newtrk->x;
+	oldy   = trk->y;
+	newy   = _newtrk->y;
+	xsel   = _newtrk->xsel;
+	sel    = _newtrk->sel;
 
 	//Save data
 	oldname    = trk->name;
@@ -86,7 +87,6 @@ SetTrackPropCommand::SetTrackPropCommand(TrackView *_tv, TrackList *_tl, TrackPa
 
 	for (int i = 0; i < _newtrk->string; i++)
 		newtune[i] = _newtrk->tune[i];
-
 }
 
 SetTrackPropCommand::~SetTrackPropCommand()
@@ -96,7 +96,7 @@ SetTrackPropCommand::~SetTrackPropCommand()
 void SetTrackPropCommand::execute()
 {
 	trk->x = x;
-	trk->y = y;
+	trk->y = newy;
 	trk->xsel = xsel;
 	trk->sel  = sel;
 
@@ -120,7 +120,7 @@ void SetTrackPropCommand::execute()
 void SetTrackPropCommand::unexecute()
 {
 	trk->x = x;
-	trk->y = y;
+	trk->y = oldy;
 	trk->xsel = xsel;
 	trk->sel  = sel;
 
