@@ -35,11 +35,19 @@ using namespace std;		// required for cout and friends
 #include "tabtrack.h"
 #include "trackprint.h"
 
+// TrackPrint constructor. Initialize font metrics with reasonable guesstimates, as required
+// by TrackView::updateRows(). Correct values will later be set by initMetrics.
+
 TrackPrint::TrackPrint()
 {
 //	cout << "TrackPrint::TrackPrint() @ " << this << endl;
-	p = 0;
+	br8h     = 10;
+	br8w     = 10;
 	onScreen = FALSE;
+	p        = 0;
+	wNote    = 10;
+	ystepst  = 10;
+	ysteptb  = 10;
 }
 
 // return expandable width in pixels of bar bn in track trk
@@ -177,7 +185,7 @@ int TrackPrint::colWidth(int cl, TabTrack *trk)
 
 void TrackPrint::drawBar(int bn, TabTrack *trk, int es, int& sx, int& sx2)
 {
-//	cout << "TrackPrint::drawBar(" << bn << ", " << trk << ", " << es << ")" << endl;
+//	cout << "TrackPrint::drawBar(" << bn << ", " << trk << ", " << es << ")" << " xpos=";
 
 	TabTrack *curt = trk;		// LVIFIX
 
@@ -506,6 +514,7 @@ void TrackPrint::drawBar(int bn, TabTrack *trk, int es, int& sx, int& sx2)
 			p->setFont(*fTBar1);
 			int ew_2 = 0;			// used for positioning effects
 			QString note = "";
+//			cout << " " << xpos;
 			for (unsigned int i = 0; i < trk->string; i++) {
 				if (trk->c[t].a[i] != -1) {
 					if (curt->c[t].a[i] == DEAD_NOTE)
@@ -668,6 +677,8 @@ void TrackPrint::drawBar(int bn, TabTrack *trk, int es, int& sx, int& sx2)
 		barExpWidthLeft -= colWidth(t, trk);
 
 	} // end for (uint t ... (end loop t over all columns ...)
+
+//	cout << endl;
 
 	// draw beams
 	if (stNts) {
@@ -1254,6 +1265,7 @@ void TrackPrint::initMetrics()
 	QFontMetrics fm  = p->fontMetrics();
 	br8h = fm.boundingRect("8").height();
 	br8w = fm.boundingRect("8").width();
+//	cout << "br8w=" << br8w;
 	ysteptb = (int) (0.9 * fm.ascent());
 	tabfw = 4 * br8w;
 	tabpp =     br8w;
@@ -1280,6 +1292,7 @@ void TrackPrint::initMetrics()
 		ystepst = 0;
 		wNote   = 0;
 	}
+//	cout << " wNote=" << wNote << endl;
 }
 
 // initialize pens

@@ -33,19 +33,6 @@
 #include <iostream>		// required for cout and friends
 using namespace std;		// required for cout and friends
 
-#define VERTSPACE                      230 // between top of cell and first line
-#define VERTLINE                        10 // between horizontal tabulature lines
-#define HORDUR                          4
-#define HORCELL                         14 // horizontal size of tab numbers column
-#define TIMESIGSIZE                     14 // horizontal time sig size
-#define ABBRLENGTH                      25 // drum abbreviations horizontal size
-
-#define BOTTOMDUR   VERTSPACE+VERTLINE*(s+1)
-
-#define NORMAL_FONT_FACTOR              0.8
-#define TIME_SIG_FONT_FACTOR            1.4
-#define SMALL_CAPTION_FONT_FACTOR       0.7
-
 // LVIFIX: note differences between "old" (in trackview.cpp) and "new" drawing code (in trackprint.cpp):
 // - erase width around tab column numbers is "as tight as possible", while the cursor is a bit wider,
 //   which leads to minor reverse-video artefacts under the cursor
@@ -57,6 +44,29 @@ using namespace std;		// required for cout and friends
 // Undefine to use only the "new" drawing code
 #undef USE_BOTH_OLD_AND_NEW
 // #define USE_BOTH_OLD_AND_NEW
+
+#ifdef USE_BOTH_OLD_AND_NEW
+#define VERTSPACE                      230 // between top of cell and first line
+#define VERTLINE                        10 // between horizontal tabulature lines
+#define HORDUR                          4
+#define HORCELL                         14 // horizontal size of tab numbers column
+#define TIMESIGSIZE                     14 // horizontal time sig size
+#define ABBRLENGTH                      25 // drum abbreviations horizontal size
+
+#define BOTTOMDUR   VERTSPACE+VERTLINE*(s+1)
+#endif
+
+#define NORMAL_FONT_FACTOR              0.8
+#define TIME_SIG_FONT_FACTOR            1.4
+#define SMALL_CAPTION_FONT_FACTOR       0.7
+
+// definitions for the "new" drawing code layout
+#define TOPSPTB                         3   // top space tabbar in ysteptb units
+#define BOTSPTB                         3   // bottom space tabbar in ysteptb units
+#define ADDSPST                         1.5 // additional top space staff in ystepst units
+#define TOPSPST                         7.5 // top space staff in ystepst units
+#define BOTSPST                         1.5 // bottom space staff in ystepst units
+#define NLINEST                         5   // number of staff lines
 
 TrackView::TrackView(TabSong *s, KXMLGUIClient *_XMLGUIClient, KCommandHistory *_cmdHist,
 #ifdef WITH_TSE3
@@ -76,8 +86,6 @@ TrackView::TrackView(TabSong *s, KXMLGUIClient *_XMLGUIClient, KCommandHistory *
 
 	song = s;
 	setCurrentTrack(s->t.first());
-
-	updateRows();
 
 	normalFont = new QFont(KGlobalSettings::generalFont());
 	if (normalFont->pointSize() == -1) {
@@ -115,6 +123,8 @@ TrackView::TrackView(TabSong *s, KXMLGUIClient *_XMLGUIClient, KCommandHistory *
 
 	trp = new TrackPrint;
 	trp->setOnScreen();
+
+	updateRows();		// depends on trp's font metrics
 }
 
 TrackView::~TrackView()
@@ -185,15 +195,17 @@ void TrackView::zoomLevelDialog()
 
 void TrackView::updateRows()
 {
-	int ch = 110;		// LVIFIX: should be font-size dependent
+	int ch = (int) ((TOPSPTB + curt->string - 1 + BOTSPTB) * trp->ysteptb);
 #ifdef USE_BOTH_OLD_AND_NEW
 	// note: cannot make row height dependent on viewscore without making too many
 	// changes to the "old" drawing code: use fixed height
 	ch += 3 * VERTLINE * 2 + VERTLINE * (curt->string - 1);
-	ch += 100;	// LVIFIX: should be font-size dependent
+	ch += (int) ((TOPSPST + NLINEST - 1 + BOTSPST) * trp->ystepst);
+	ch += (int) (ADDSPST * trp->ystepst);
 #else
 	if (viewscore && fetaFont) {
-		ch += 100;	// LVIFIX: should be font-size dependent
+		ch += (int) ((TOPSPST + NLINEST - 1 + BOTSPST) * trp->ystepst);
+		ch += (int) (ADDSPST * trp->ystepst);
 	}
 #endif
 	setNumRows(curt->b.size());
@@ -428,14 +440,20 @@ void TrackView::rhythmer()
 }
 
 // Determine horizontal offset between two columns - n and n+1
+// LVIFIX: replace body by call to trackprint::colwidth()
 int TrackView::horizDelta(uint n)
 {
+#ifdef USE_BOTH_OLD_AND_NEW
 	int res = curt->c[n].fullDuration() * HORCELL / zoomLevel;
 // 	if (res < HORCELL)
 // 		res = HORCELL;
+#else
+	int res = trp->colWidth(n, curt);	// LVIFIX: zoomLevel
+#endif
 	return res;
 }
 
+#ifdef USE_BOTH_OLD_AND_NEW
 void TrackView::drawLetRing(QPainter *p, int x, int y)
 {
 	p->setPen(SolidLine);
@@ -443,8 +461,7 @@ void TrackView::drawLetRing(QPainter *p, int x, int y)
 	p->drawLine(x, y, x - HORCELL / 3, y + VERTLINE / 3);
 	p->setPen(NoPen);
 }
-
-// LVIFIX: magic constants such as yposst etc. should be font-size dependent
+#endif
 
 void TrackView::paintCell(QPainter *p, int row, int /*col*/)
 {
@@ -470,22 +487,32 @@ void TrackView::paintCell(QPainter *p, int row, int /*col*/)
 	curt->calcVoices();
 	curt->calcStepAltOct();
 	curt->calcBeams();
-	trp->yposst = 80;
+	trp->yposst = 0;
 	trp->xpos = -1;
 	if (viewscore && fetaFont) {
 		trp->initPrStyle(2);
+		trp->yposst = (int) ((TOPSPST + NLINEST - 1) * trp->ystepst);
 		trp->drawStLns(width());
-		trp->ypostb = 180;
 	} else {
 		trp->initPrStyle(0);
-		trp->ypostb = 80;
 	}
+	trp->ypostb = trp->yposst
+	              + (int) (BOTSPST * trp->ystepst)
+	              + (int) ((TOPSPTB + curt->string) * trp->ysteptb);
 #ifdef USE_BOTH_OLD_AND_NEW
 	// force new tabbar position close to old one
-	trp->ypostb = 180;
+	trp->ypostb = (int) ((TOPSPST + NLINEST - 1) * trp->ystepst)
+	              + (int) (BOTSPST * trp->ystepst)
+	              + (int) ((TOPSPTB + curt->string) * trp->ysteptb);
 #endif
 	trp->drawBarLns(width(), curt);
 	trp->drawBar(row, curt, 0, selxcoord, selx2coord);
+
+	// connect tabbar and staff with vertical line at end of bar
+	if (viewscore && fetaFont) {
+		p->setPen(trp->pLnBl);
+		p->drawLine(trp->xpos - 1, trp->yposst, trp->xpos - 1, trp->ypostb);
+	}
 
 	// DRAW SELECTION
 
@@ -1276,14 +1303,15 @@ void TrackView::mousePressEvent(QMouseEvent *e)
 		clickpt.setX(contentsX() + e->pos().x());
 		clickpt.setY(contentsY() + e->pos().y());
 
-		int xpos=40, xdelta, lastxpos = 20;
+		int xpos = (int) (6 * trp->br8w + 0.9 * trp->wNote + 2);	// LVIFIX: this should be supplied by trackprint
+		int xdelta = 0;
+		int lastxpos = 0;
 
 		for (uint j=curt->b[tabrow].start;
 			 j < (tabrow < curt->b.size()-1 ? curt->b[tabrow+1].start : curt->c.size());
 			 j++) {
 
 			// Length of interval to next column - adjusted if dotted
-
 			xdelta = horizDelta(j);
 
 			// Current column X area is half of the previous duration and
@@ -1296,8 +1324,9 @@ void TrackView::mousePressEvent(QMouseEvent *e)
 				// would just use what we know.
 				curt->xb = tabrow;
 
-				curt->y = curt->string - 1 -
-						  ((int) (clickpt.y() - tabrow * cellHeight()) - VERTSPACE) / VERTLINE;
+				const int vertline = trp->ysteptb;
+				const int vertspace = trp->ypostb; // LVIFIX: better name, this is not the vertical space but the lowest tab line's y coord
+				curt->y = - ((int) (clickpt.y() - vertline / 2 - tabrow * cellHeight()) - vertspace) / vertline;
 
 				if (curt->y<0)
 					curt->y = 0;
