@@ -3,9 +3,9 @@ Makefile.in
 kguitar
 .deps
 .libs
-libkguitar.la
-libkguitar.la.closure
-libkguitar_la_meta_unload.cpp
+libkguitarpart.la
+libkguitarpart.la.closure
+libkguitarpart_la_meta_unload.cpp
 kguitar_meta_unload.cpp
 *.moc.cpp
 *.lo
