@@ -56,7 +56,7 @@ void TrackView::SetLengthCommand::execute()
 	trk->y = y;
 	trk->sel = FALSE;
 	trk->c[x].l = len;
-	tv->repaintCurrentCell();
+	tv->repaintCurrentBar();
 
 	emit tv->songChanged();
 }
@@ -68,7 +68,7 @@ void TrackView::SetLengthCommand::unexecute()
 	trk->xsel = xsel;
 	trk->sel = sel;
 	trk->c[x].l = oldlen;
-	tv->repaintCurrentCell();
+	tv->repaintCurrentBar();
 }
 
 TrackView::InsertTabCommand::InsertTabCommand(TrackView *_tv, TabTrack *&_trk, int t)
@@ -92,7 +92,7 @@ void TrackView::InsertTabCommand::execute()
 	trk->y = y;
 	trk->sel = FALSE;
 	trk->c[x].a[y] = totab;
-	tv->repaintCurrentCell();
+	tv->repaintCurrentBar();
 
 	emit tv->songChanged();
 }
@@ -104,7 +104,7 @@ void TrackView::InsertTabCommand::unexecute()
 	trk->xsel = xsel;
 	trk->sel = sel;
 	trk->c[x].a[y] = oldtab;
-	tv->repaintCurrentCell();
+	tv->repaintCurrentBar();
 }
 
 TrackView::MoveFingerCommand::MoveFingerCommand(TrackView *_tv, TabTrack *&_trk,
@@ -143,7 +143,7 @@ void TrackView::MoveFingerCommand::execute()
 	trk->sel = FALSE;
 
 	emit tv->songChanged();
-	tv->repaintCurrentCell();
+	tv->repaintCurrentBar();
 }
 
 void TrackView::MoveFingerCommand::unexecute()
@@ -160,7 +160,7 @@ void TrackView::MoveFingerCommand::unexecute()
 	trk->xsel = xsel;
 	trk->sel = sel;
 
-	tv->repaintCurrentCell();
+	tv->repaintCurrentBar();
 }
 
 TrackView::AddFXCommand::AddFXCommand(TrackView *_tv, TabTrack *&_trk, char _fx)
@@ -203,7 +203,7 @@ void TrackView::AddFXCommand::execute()
 	trk->y = y;
     trk->addFX(fx);
 	emit tv->songChanged();
-	tv->repaintCurrentCell();
+	tv->repaintCurrentBar();
 }
 
 void TrackView::AddFXCommand::unexecute()
@@ -214,7 +214,7 @@ void TrackView::AddFXCommand::unexecute()
 	trk->sel = sel;
 
     trk->addFX(fx);
-	tv->repaintCurrentCell();
+	tv->repaintCurrentBar();
 }
 
 TrackView::SetFlagCommand::SetFlagCommand(TrackView *_tv, TabTrack *&_trk, int _flag)
@@ -272,7 +272,7 @@ void TrackView::SetFlagCommand::execute()
 	}
 
 	emit tv->songChanged();
-	tv->repaintCurrentCell();
+	tv->repaintCurrentBar();
 }
 
 void TrackView::SetFlagCommand::unexecute()
@@ -294,7 +294,7 @@ void TrackView::SetFlagCommand::unexecute()
 			}
 	}
 
-	tv->repaintCurrentCell();
+	tv->repaintCurrentBar();
 }
 
 TrackView::DeleteNoteCommand::DeleteNoteCommand(TrackView *_tv, TabTrack *&_trk)
@@ -320,7 +320,7 @@ void TrackView::DeleteNoteCommand::execute()
 	trk->c[x].e[y] = 0;
 	trk->sel = FALSE;
 	emit tv->songChanged();
-	tv->repaintCurrentCell();
+	tv->repaintCurrentBar();
 }
 
 void TrackView::DeleteNoteCommand::unexecute()
@@ -331,7 +331,7 @@ void TrackView::DeleteNoteCommand::unexecute()
 	trk->sel = sel;
 	trk->c[x].a[y] = a;
 	trk->c[x].e[y] = e;
-	tv->repaintCurrentCell();
+	tv->repaintCurrentBar();
 }
 
 TrackView::AddColumnCommand::AddColumnCommand(TrackView *_tv, TabTrack *&_trk)
@@ -373,7 +373,7 @@ void TrackView::AddColumnCommand::execute()
 	tv->updateRows();
 	tv->ensureCurrentVisible();
 	emit tv->songChanged();
-	tv->repaintCurrentCell();
+	tv->repaintCurrentBar();
 }
 
 void TrackView::AddColumnCommand::unexecute()
@@ -387,7 +387,7 @@ void TrackView::AddColumnCommand::unexecute()
 
 	tv->updateRows();
 	tv->ensureCurrentVisible();
-	tv->repaintCurrentCell();
+	tv->repaintCurrentBar();
 }
 
 TrackView::DeleteColumnCommand::DeleteColumnCommand(TrackView *_tv, TabTrack *&_trk)
@@ -513,7 +513,7 @@ void TrackView::DeleteColumnCommand::execute()
 
 	tv->update();
 	emit tv->songChanged();
-	tv->repaintCurrentCell();
+	tv->repaintCurrentBar();
 }
 
 void TrackView::DeleteColumnCommand::unexecute()
@@ -584,7 +584,7 @@ void TrackView::DeleteColumnCommand::unexecute()
 	trk->sel = sel;
 	tv->updateRows();
 	tv->update();
-	tv->repaintCurrentCell();
+	tv->repaintCurrentBar();
 }
 
 TrackView::SetTimeSigCommand::SetTimeSigCommand(TrackView *_tv, TabTrack *&_trk,
@@ -620,7 +620,7 @@ void TrackView::SetTimeSigCommand::execute()
 	trk->sel = FALSE;
 	tv->update();
 	emit tv->songChanged();
-	tv->repaintCurrentCell(); //for emit paneChanded
+	tv->repaintCurrentBar(); //for emit paneChanded
 }
 
 void TrackView::SetTimeSigCommand::unexecute()
@@ -639,7 +639,7 @@ void TrackView::SetTimeSigCommand::unexecute()
 	trk->sel = sel;
 	trk->xb = xb;
 	tv->update();
-	tv->repaintCurrentCell(); //for emit paneChanded
+	tv->repaintCurrentBar(); //for emit paneChanded
 }
 
 TrackView::InsertColumnCommand::InsertColumnCommand(TrackView *_tv, TabTrack *&_trk)
@@ -661,7 +661,7 @@ void TrackView::InsertColumnCommand::execute()
 	trk->sel = FALSE;
 	tv->update();
 	emit tv->songChanged();
-	tv->repaintCurrentCell();
+	tv->repaintCurrentBar();
 }
 
 void TrackView::InsertColumnCommand::unexecute()
@@ -672,7 +672,7 @@ void TrackView::InsertColumnCommand::unexecute()
 	trk->sel = sel;
 	trk->removeColumn(1);
 	tv->update();
-    tv->repaintCurrentCell();
+    tv->repaintCurrentBar();
 }
 
 TrackView::InsertStrumCommand::InsertStrumCommand(TrackView *_tv, TabTrack *&_trk,
@@ -779,7 +779,7 @@ void TrackView::InsertStrumCommand::execute()
 
 	tv->update();
 	emit tv->songChanged();
-	tv->repaintCurrentCell();
+	tv->repaintCurrentBar();
 }
 
 void TrackView::InsertStrumCommand::unexecute()
@@ -807,7 +807,7 @@ void TrackView::InsertStrumCommand::unexecute()
 	}
 
 	tv->update();
-	tv->repaintCurrentCell();
+	tv->repaintCurrentBar();
 }
 
 TrackView::InsertRhythm::InsertRhythm(TrackView *_tv, TabTrack *&_trk, QListBox *quantized)
