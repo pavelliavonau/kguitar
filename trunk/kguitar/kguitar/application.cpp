@@ -43,16 +43,16 @@ ApplicationWindow::ApplicationWindow(): KTMainWindow()
     toolBar()->insertButton(chordIcon,1,SIGNAL(clicked()),this,SLOT(inschord()),TRUE,"Insert chord");
     
     QPopupMenu * file = new QPopupMenu();
-    menuBar()->insertItem("&File", file);
+    menuBar()->insertItem(i18n("&File"), file);
 
-    file->insertItem( "New", this, SLOT(newDoc()), CTRL+Key_N );
-    file->insertItem( openIcon, "Open", this, SLOT(load()), CTRL+Key_O );
-    file->insertItem( saveIcon, "Save", this, SLOT(save()), CTRL+Key_S );
+    file->insertItem(i18n("&New"), this, SLOT(newDoc()), CTRL+Key_N );
+    file->insertItem(openIcon,i18n("&Open"), this, SLOT(load()), CTRL+Key_O );
+    file->insertItem(saveIcon, "Save", this, SLOT(save()), CTRL+Key_S );
     file->insertSeparator();
-    file->insertItem( printIcon, "Print", this, SLOT(print()), CTRL+Key_P );
+    file->insertItem(printIcon, "Print", this, SLOT(print()), CTRL+Key_P );
     file->insertSeparator();
-    file->insertItem( "Close", this, SLOT(closeDoc()), CTRL+Key_W );
-    file->insertItem( "Quit", qApp, SLOT(quit()), CTRL+Key_Q );
+    file->insertItem("Close", this, SLOT(closeDoc()), CTRL+Key_W );
+    file->insertItem("Quit", qApp, SLOT(quit()), CTRL+Key_Q );
 
     insertMenu = new QPopupMenu();
     menuBar()->insertItem("&Insert",insertMenu);
