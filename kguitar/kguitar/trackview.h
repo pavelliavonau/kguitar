@@ -60,7 +60,8 @@ public slots:
 	void deleteColumn(QString name);
 	void insertColumn();
 	void palmMute();
-	void keyPeriod();
+	void dotNote();
+	void tripletNote();
 	void keyPlus();
 	void keyMinus();
 	void arrangeTracks();

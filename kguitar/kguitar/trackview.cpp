@@ -220,8 +220,7 @@ void TrackView::insertChord()
 // Determine horizontal offset between two columns - n and n+1
 int TrackView::horizDelta(uint n)
 {
-	int res = (curt->c[n].flags & FLAG_DOT ?
-	           curt->c[n].l*3/2 : curt->c[n].l) / HORSCALE * HORCELL;
+	int res = curt->c[n].fullDuration() / HORSCALE * HORCELL;
 	if (res < HORCELL)
 		res = HORCELL;
 	return res;
@@ -319,14 +318,50 @@ void TrackView::paintCell(QPainter *p, int row, int col)
 		case 240: // 1/2
 			p->drawLine(xpos + VERTLINE / 2, BOTTOMDUR + 3,
 						xpos + VERTLINE / 2, BOTTOMDUR + VERTLINE);
-		case 480: // whole
-			break;
+		case 480:; // whole
 		}
 
 		// Draw dot
 
 		if (curt->c[t].flags & FLAG_DOT)
 			p->drawRect(xpos + VERTLINE / 2 + 3, BOTTOMDUR + 5, 2, 2);
+
+		// Draw triplet - GREYFIX: ugly code, needs to be fixed
+		// somehow... Ideally, triplets should be drawn in a second
+		// loop, after everything else would be done.
+
+		if (curt->c[t].flags & FLAG_TRIPLET) {
+ 			if ((curt->c.size() >= t + 1) && (t) &&
+ 				(curt->c[t - 1].flags & FLAG_TRIPLET) &&
+ 				(curt->c[t + 1].flags & FLAG_TRIPLET) &&
+				(curt->c[t - 1].l == curt->c[t].l) &&
+				(curt->c[t + 1].l == curt->c[t].l)) {
+				p->drawLine(lastxpos + VERTLINE / 2, BOTTOMDUR + VERTLINE + 5,
+							xpos * 2 - lastxpos + VERTLINE / 2, BOTTOMDUR + VERTLINE + 5);
+				p->drawLine(lastxpos + VERTLINE / 2, BOTTOMDUR + VERTLINE + 2,
+							lastxpos + VERTLINE / 2, BOTTOMDUR + VERTLINE + 5);
+				p->drawLine(xpos * 2 - lastxpos + VERTLINE / 2, BOTTOMDUR + VERTLINE + 2,
+							xpos * 2 - lastxpos + VERTLINE / 2, BOTTOMDUR + VERTLINE + 5);
+				p->setFont(*smallCaptionFont);
+				p->drawText(xpos, BOTTOMDUR + VERTLINE + 7, VERTLINE, VERTLINE, AlignHCenter | AlignTop, "3");
+				p->setFont(KGlobalSettings::generalFont());
+ 			} else {
+				if (!(((curt->c.size() >= t + 2) &&
+					   (curt->c[t + 1].flags & FLAG_TRIPLET) &&
+					   (curt->c[t + 2].flags & FLAG_TRIPLET) &&
+					   (curt->c[t + 1].l == curt->c[t].l) &&
+					   (curt->c[t + 2].l == curt->c[t].l)) ||
+					  ((t >= 2) &&
+					   (curt->c[t - 1].flags & FLAG_TRIPLET) &&
+					   (curt->c[t - 2].flags & FLAG_TRIPLET) &&
+					   (curt->c[t - 1].l == curt->c[t].l) &&
+					   (curt->c[t - 2].l == curt->c[t].l)))) {
+					p->setFont(*smallCaptionFont);
+					p->drawText(xpos, BOTTOMDUR + VERTLINE + 7, VERTLINE, VERTLINE, AlignHCenter | AlignTop, "3");
+					p->setFont(KGlobalSettings::generalFont());					
+				}
+			}
+		}
 
 		// Draw arcs to backward note
 
@@ -362,15 +397,15 @@ void TrackView::paintCell(QPainter *p, int row, int col)
 							VERTLINE, VERTLINE, AlignCenter, tmp);
 			}
 
-			if (t == curt->x) {
+			if (t == curt->x)
 				selxcoord = xpos;
-			}
 
-			if (t == curt->xsel) {
+			if (t == curt->xsel)
 				selx2coord = xpos;
-			}
 
 			// Draw effects
+			// GREYFIX - use lastxpos, not xdelta
+
 			switch (curt->c[t].e[i]) {
 			case EFFECT_HARMONIC:
  				p->setFont(*smallCaptionFont);
@@ -672,9 +707,15 @@ void TrackView::palmMute()
 	lastnumber = -1;
 }
 
-void TrackView::keyPeriod()
+void TrackView::dotNote()
 {
 	m_cmdHist->addCommand(new SetFlagCommand(this, curt, FLAG_DOT));
+	lastnumber = -1;
+}
+
+void TrackView::tripletNote()
+{
+	m_cmdHist->addCommand(new SetFlagCommand(this, curt, FLAG_TRIPLET));
 	lastnumber = -1;
 }
 
