@@ -86,7 +86,7 @@ ChordSelector::ChordSelector(QWidget *parent=0, const char *name=0)
     connect(fng,SIGNAL(chordChange()),SLOT(detectChord()));
 
     chords = new QListBox(this);
-    chords->setGeometry(400,10,80,150);
+    chords->setGeometry(400,10,100,150);
 
     // CHORD FINDER OUTPUT
 
@@ -117,9 +117,10 @@ int tune[6]={40,45,50,55,59,64};
 void ChordSelector::detectChord()
 {
     bool cn[12];
-    int i,j,numnotes;
+    int i,j,numnotes,noteok;
     QString name;
-    
+    int s3,s5,s7,s9,s11;
+
     for (i=0;i<12;i++)
 	cn[i]=FALSE;
     numnotes=0; // number of different notes in a chord
@@ -137,6 +138,137 @@ void ChordSelector::detectChord()
     
     chords->clear();
     
+    printf("=============================\n");
+
+    for (i=0;i<12;i++)  if (cn[i]) {
+
+	// Initializing
+	s3=-1;s5=-1;s7=-1;s9=-1;s11=-1;noteok=numnotes-1;
+
+	// Detecting thirds
+	if (cn[(i+4)%12]) {
+	    s3=4;noteok--;               // Major
+	} else if (cn[(i+3)%12]) {
+	    s3=3;noteok--;               // Minor
+	} else if (cn[(i+5)%12]) {
+	    s3=5;noteok--;               // Sus4
+	} else if (cn[(i+2)%12]) {
+	    s3=2;noteok--;               // Sus2
+	}
+
+	// Detecting fifths
+	if (cn[(i+7)%12]) {
+	    s5=7;noteok--;               // 5
+	} else if (cn[(i+6)%12]) {
+	    s5=6;noteok--;               // 5-
+	} else if (cn[(i+8)%12]) {
+	    s5=8;noteok--;               // 5+
+	}
+
+	// Detecting sevenths
+	if (cn[(i+10)%12]) {
+	    s7=10;noteok--;              // 7
+	} else if (cn[(i+11)%12]) {
+	    s7=11;noteok--;              // 7M
+	} else if (cn[(i+9)%12]) {
+	    s7=9;noteok--;               // 6
+	}
+
+	// Detecting 9ths
+	if ((cn[(i+2)%12]) && (s3!=2)) {
+	    s9=2;noteok--;               // 9
+	} else if ((cn[(i+3)%12]) && (s3!=3)) {
+	    s9=3;noteok--;               // 9+
+	} else if (cn[(i+1)%12]) {
+	    s9=1;noteok--;               // 9-
+	}
+
+	// Detecting 11ths
+	if ((cn[(i+5)%12]) && (s3!=5)) {
+	    s11=5;noteok--;               // 11
+	} else if ((cn[(i+4)%12]) && (s3!=4)) {
+	    s11=4;noteok--;               // 11-
+	} else if ((cn[(i+6)%12]) && (s5!=6)) {
+	    s11=6;noteok--;
+	}
+
+	printf("%s trying: 3\'=%d 5\'=%d 7\'=%d 9\'=%d 11\'=%d, noteok=%d\n",(const char*) (note_name(i)),
+	       s3,s5,s7,s9,s11,noteok);
+
+	if (noteok==0) {
+	    name=note_name(i);
+
+	    // Special cases
+	    if ((s3==-1) && (s5==7) && (s7==-1) && (s9==-1) && (s11==-1)) {
+		chords->insertItem(name+"5");
+		continue;
+	    }
+	    if ((s3==4) && (s5==8) && (s7==-1) && (s9==-1) && (s11==-1)) {
+		chords->insertItem(name+"aug");
+		continue;
+	    }
+
+	    if ((s3==3) && (s5==6) && (s7==9)) {
+		name=name+"dim";
+	    } else {
+		if (s3==3)
+		    name=name+"m";
+		
+		if (s5==6)
+		    name=name+"/5-";
+		if (s5==8)
+		    name=name+"/5+";
+		if (((s5==6) || (s5==8)) && ((s7!=-1) || (s9!=-1) && (s11!=-1)))
+		    name=name+"/";
+		
+		if ((s7==10) && (s9==-1))
+		    name=name+"7";
+		if (s7==11)
+		    name=name+"7M";
+		if (s7==9)
+		    name=name+"6";
+		if (((s7==11) || (s7==9)) && ((s9!=-1) || (s11!=-1)))			   
+		    name=name+"/";
+	    }
+
+	    if ((s7==-1)  && (s9!=-1))
+		name=name+"add";
+	    if ((s9==2) && (s11==-1))
+		name=name+"9";
+	    if (s9==1)
+		name=name+"9-";
+	    if (s9==3)
+		name=name+"9+";
+	    if (((s9==1) || (s9==3)) && (s11!=-1))
+		name=name+"/";
+
+	    if ((s9==-1) && (s11!=-1))
+		name=name+"add";
+	    if (s11==5)
+		name=name+"11";
+	    if (s11==6)
+		name=name+"11+";
+	    if (s11==4)
+		name=name+"11-";
+
+	    if (s3==2)
+		name=name+"sus2";
+	    if (s3==5)
+		name=name+"sus4";
+
+	    if ((s3==-1) && (s5==-1)) {
+		name=name+" (no3no5)";
+	    } else {
+		if (s3==-1)
+		    name=name+" (no3)";
+		if (s5==-1)
+		    name=name+" (no5)";
+	    }
+	    chords->insertItem(name);
+	}
+    }
+
+/*
     // 2 note chord - C5
     if (numnotes==2) {
 	for (i=0;i<12;i++) {
@@ -192,6 +324,7 @@ void ChordSelector::detectChord()
 	    }
 	}
     }
+*/
 }
 
 void ChordSelector::findChords()
