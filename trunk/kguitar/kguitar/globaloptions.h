@@ -18,6 +18,12 @@ extern int globalMidiPort;
 // Printing
 extern int globalPrSty;
 
+// Melody editor
+extern int globalMelodyEditorInlay;
+extern int globalMelodyEditorWood;
+extern int globalMelodyEditorAction[3];
+extern bool globalMelodyEditorAdvance[3];
+
 // Features for global options
 
 extern QString maj7name[];
