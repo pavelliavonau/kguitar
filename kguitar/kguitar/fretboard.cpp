@@ -16,6 +16,8 @@
 #define INLAY_RADIUS     7
 #define FINGER_RADIUS    8
 #define SIDE_BORDER      2
+#define SCALE_BORDER     5
+#define SCALE_ROUND      99
 
 #define INLAY_FILL_COLOR qRgb(205, 214, 221)
 // #define FRET_COLOR_1     qRgb(144, 151, 166)
@@ -32,23 +34,46 @@ int marks[] = { 0, 0, 0, 1, 0, 1, 0, 1, 0, 1, 0, 0, 2,
 // =========== 13 14 15 16 17 18 19 20 21 22 23 24
                 0, 0, 1, 0, 1, 0, 1, 0, 1, 0, 0, 2 };
 
+
+int steptemplate[][12] = {
+// == C  C# D  D# E  F  F# G  G# A  A# B
+	{ 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0 }, // Nothing
+	{ 1, 0, 2, 0, 3, 0, 0, 5, 0, 0, 0, 7 }, // C Pentatonic
+	{ 1, 0, 2, 0, 3, 4, 0, 5, 0, 6, 0, 7 }, // C Natural Major
+	{ 1, 0, 2, 3, 0, 4, 0, 5, 6, 0, 7, 0 }, // C Natural Minor
+	{ 1, 0, 2, 0, 3, 4, 0, 5, 6, 0, 0, 7 }, // C Harmonic Major (major 6-)
+	{ 1, 0, 2, 3, 0, 4, 0, 5, 6, 0, 0, 7 }, // C Harmonic Minor (minor 7+)
+	{ 1, 0, 2, 0, 3, 4, 0, 5, 0, 6, 0, 7 }, // C Melodic Major
+	{ 1, 0, 2, 0, 3, 4, 0, 5, 0, 6, 0, 7 }, // C Melodic Minor // GREYFIX
+	{ 1, 0, 2, 0, 3, 4, 0, 5, 0, 6, 7, 0 }, // C Mixolydian     (major 7-)
+	{ 1, 0, 2, 0, 3, 0, 4, 5, 0, 6, 0, 7 }, // C Lydian         (major 4+)
+	{ 1, 0, 2, 3, 0, 4, 0, 5, 0, 6, 7, 0 }, // C Dorian         (minor 6+)
+	{ 1, 2, 0, 3, 0, 4, 0, 5, 6, 0, 7, 0 }, // C Phrygian       (minor 2-)
+	{ 1, 0, 2, 0, 3, 4, 0, 5, 0, 6, 0, 7 }, // C Locrian       // GREYFIX
+};
+
 Fretboard::Fretboard(TabTrack *_trk, QWidget *parent, const char *name)
 	: QWidget(parent, name)
 {
 	resize(600, 128);
 	setTrack(_trk);
 
+	scaleback = new QPixmap(width(), height());
 	back = new QPixmap(width(), height());
 	wood = new QPixmap(locate("data", "kguitar/pics/rosewood.jpg"));
 	fret = new QImage(locate("data", "kguitar/pics/fret.png"));
 	zeroFret = new QImage(locate("data", "kguitar/pics/zerofret.png"));
 	drawBackground();
 
+	tonic = 0;
+	mode = 0;
+
 	setFocusPolicy(WheelFocus); // the strongest focus gainer
 }
 
 Fretboard::~Fretboard()
 {
+	delete scaleback;
 	delete back;
 	delete wood;
 }
@@ -212,5 +237,64 @@ void Fretboard::drawBackground()
 
 	p.end();
 
-	setPaletteBackgroundPixmap(*back);
+	drawScaleBack();
+}
+
+void Fretboard::drawScaleBack()
+{
+	QPainter p;
+	scaleback->resize(width(), height());
+
+	p.begin(scaleback);
+	p.drawPixmap(0, 0, *back);
+
+	// Calculate mode scale steps
+
+	// Array by all possible notes, 0 = not used, 1 = root, 2 = second, etc
+	int step[12];
+	int now; // pointer for current value in step[] array
+
+	now = tonic;
+	for (int i = 0; i < 12; i++) {
+		step[now] = steptemplate[mode][i];
+		now = (now + 1) % 12;
+	}
+
+	// Mark notes in scale, as designated by step[] array
+	int y = height() - STRING_HEIGHT + SCALE_BORDER;
+
+	for (int i = 0; i < trk->string; i++) {
+		now = trk->tune[i] % 12;
+		for (int j = 0; j < trk->frets; j++) {
+			if (step[now]) {
+				p.setBrush(qRgb(239, 207, 0));
+				int x = (j == 0) ? SCALE_BORDER : fr[j - 1] + SCALE_BORDER;
+				p.drawRoundRect(x, y, fr[j] - x - SCALE_BORDER,
+				                STRING_HEIGHT - 2 * SCALE_BORDER,
+				                SCALE_ROUND, SCALE_ROUND);
+			}
+			now = (now + 1) % 12;
+		}
+		y -= STRING_HEIGHT;
+	}
+
+	p.end();
+
+	setPaletteBackgroundPixmap(*scaleback);
+}
+
+void Fretboard::setTonic(int tonic_)
+{
+	if (tonic != tonic_) {
+		tonic = tonic_;
+		drawScaleBack();
+	}
+}
+
+void Fretboard::setMode(int mode_)
+{
+	if (mode != mode_) {
+		mode = mode_;
+		drawScaleBack();
+	}
 }

@@ -14,10 +14,13 @@ class Fretboard: public QWidget {
 public:
     Fretboard(TabTrack *, QWidget *parent = 0, const char *name = 0);
 	~Fretboard();
-	void drawBackground();
 
 public slots:
 	void setTrack(TabTrack *);
+	void setTonic(int);
+	void setMode(int);
+	void drawBackground();
+	void drawScaleBack();
 
 signals:
 	void buttonPress(int, int, ButtonState);
@@ -37,8 +40,11 @@ private:
 
 	TabTrack *trk;
 	double fr[MAX_FRETS + 1]; // Proper physical fret positions
-	QPixmap *back, *wood;
+	QPixmap *scaleback, *back, *wood;
 	QImage *fret, *zeroFret;
+
+	int tonic;
+	int mode;
 };
 
 #endif
