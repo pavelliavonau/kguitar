@@ -41,6 +41,15 @@
 // LVIFIX:
 // check if dots are read back correctly
 
+// LVIFIX:
+// saving a file with empty "author" property results in an empty <encoder>,
+// which is read back as three blanks
+
+// LVIFIX:
+// reading an xml file with size 0 results in sig 11
+// reading an xml file without part-list results in sig 11
+// reading an xml file without midi-instrument results in chn=bank=patch=0
+
 #include "global.h"
 #include "accidentals.h"
 #include "musicxml.h"
@@ -158,7 +167,22 @@ bool MusicXMLParser::startElement( const QString&, const QString&,
                                    const QString& qName, 
                                    const QXmlAttributes& attributes)
 {
-    if (qName == "note") {
+	if (qName == "measure") {
+		// add a bar (measure) to the track
+		// if not first bar: copy attributes from previous bar
+		// note: first bar's default attributes set in TabTrack's constructor
+		// LVIFIX: maybe don't add first measure here
+		// (already done in TabTrack's constructor)
+		if (trk) {
+			bar++;
+			trk->b.resize(bar);
+			trk->b[bar-1].start=x;
+			if (bar > 1) {
+				trk->b[bar-1].time1=trk->b[bar-2].time1;
+				trk->b[bar-1].time2=trk->b[bar-2].time2;
+			}
+		}
+    } else if (qName == "note") {
     	// re-init note specific variables
 		initStNote();
 	} else if (qName == "part") {
@@ -204,14 +228,8 @@ bool MusicXMLParser::endElement( const QString&, const QString&,
                                   const QString& qName)
 {
 	if (qName == "attributes") {
-		// LVIFIX: attributes is optional, detect start of measure differently,
-		// so it also works for measures without attributes
-		
-		// start of measure found
+		// update this bar's attributes
 		if (trk) {
-			bar++;
-			trk->b.resize(bar);
-			trk->b[bar-1].start=x;
 			trk->b[bar-1].time1=stBts.toInt();
 			trk->b[bar-1].time2=stBtt.toInt();
 		}
@@ -234,10 +252,12 @@ bool MusicXMLParser::endElement( const QString&, const QString&,
 		ts->author      = stCrt;
 		ts->transcriber = stEnc;
 		ts->comments    = "";
+	} else if (qName == "midi-bank") {
+	    stPmb = stCha;
 	} else if (qName == "midi-channel") {
 	    stPmc = stCha;
-	} else if (qName == "midi-instrument") {
-	    stPmi = stCha;
+	} else if (qName == "midi-program") {
+	    stPmp = stCha;
 	} else if (qName == "note") {
 	    return addNote();
 	} else if (qName == "part") {
@@ -354,8 +374,8 @@ bool MusicXMLParser::addTrack()
 		FretTab,				// _tm LVIFIX: no support for drumtrack
 		stPnm,					// _name
 		stPmc.toInt(),			// _channel
-		0,						// _bank LVIFIX: TBD
-		stPmi.toInt(),			// _patch
+		stPmb.toInt(),			// _bank
+		stPmp.toInt(),			// _patch (=program)
 		6,						// _string (default value)
 		24						// _frets (default value)
 	));
@@ -384,8 +404,9 @@ void MusicXMLParser::initStNote()
 void MusicXMLParser::initStScorePart()
 {
     stPid = "";
+    stPmb = "";
     stPmc = "";
-    stPmi = "";
+    stPmp = "";
     stPnm = "";
 }
 
@@ -438,13 +459,23 @@ void MusicXMLWriter::write(QTextStream& os)
 	for (unsigned int it = 0; it < ts->t.count(); it++) {
 		os << "\t\t<score-part id=\"P" << it+1 << "\">\n";
 		os << "\t\t\t<part-name>" << ts->t.at(it)->name << "</part-name>\n";
-		os << "\t\t\t<score-instrument id=\"S" << it+1 << "\">\n";
-		// LVIFIX: add instrument-name ???
+		// LVIFIX: add score-instrument if instrument-name is known
+		// note: in DTD 0.6 score-instrument may appear zero or more times
+		//       within a score-part
+		// os << "\t\t\t<score-instrument id=\"P" << it+1
+		//    << "-I" << it+1 << "\">\n";
+		// os << "\t\t\t\t<instrument-name>" << "TBD"
+		//    << "</instrument-name>\n";
+		// os << "\t\t\t</score-instrument>\n";
+		os << "\t\t\t<midi-instrument id=\"P" << it+1
+		   << "-I" << it+1 << "\">\n";
 		os << "\t\t\t\t<midi-channel>" << ts->t.at(it)->channel
 		   << "</midi-channel>\n";
-		os << "\t\t\t\t<midi-instrument>" << ts->t.at(it)->patch
-		   << "</midi-instrument>\n";
-		os << "\t\t\t</score-instrument>\n";
+		os << "\t\t\t\t<midi-bank>" << ts->t.at(it)->bank
+		   << "</midi-bank>\n";
+		os << "\t\t\t\t<midi-program>" << ts->t.at(it)->patch
+		   << "</midi-program>\n";
+		os << "\t\t\t</midi-instrument>\n";
 		os << "\t\t</score-part>\n";
 	}
 	os << "\t</part-list>\n";
