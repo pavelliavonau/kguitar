@@ -87,8 +87,14 @@ int SongPrint::colWidth(int cl, TabTrack *trk)
 	// make sure effects fit in column
 	const int lstStr = trk->string - 1;
 	for (int i = 0; i < lstStr + 1; i++) {
-		if (trk->c[cl].e[i] == EFFECT_LEGATO
+		if (   trk->c[cl].e[i] == EFFECT_ARTHARM
+			|| trk->c[cl].e[i] == EFFECT_HARMONIC
+			|| trk->c[cl].e[i] == EFFECT_LEGATO
 			|| trk->c[cl].e[i] == EFFECT_SLIDE)
+			if (w < 2 * ystep)
+				w = 2 * ystep;
+	}
+	if (trk->c[cl].flags & FLAG_PM) {
 			if (w < 2 * ystep)
 				w = 2 * ystep;
 	}
@@ -227,12 +233,14 @@ void SongPrint::drawBar(int bn, TabTrack *trk, int es)
 
 		// Draw palm muting
 
+		/* LVIFIX: moved to "draw effects" ...
 		if (curt->c[t].flags & FLAG_PM) {
 			p->setFont(fTBar2);
 			QString pm = "PM";
 			drawStrFccAt(xpos, trk->string, pm);
 			p->setFont(fTBar1);
 		}
+		*/
 
 		// Draw the number column
 		for (int i = 0; i < trk->string; i++) {
@@ -261,16 +269,43 @@ void SongPrint::drawBar(int bn, TabTrack *trk, int es)
 
 			switch (curt->c[t].e[i]) {
 			case EFFECT_HARMONIC:
-				// LVIFIX: replace 6 by (font-dependent) calculation
-				p->setFont(fTBar2);
-				drawStrFccAt(xpos + 6, i, " H");
-				p->setFont(fTBar1);
+				{
+					QPointArray a(4);
+					// leftmost point of diamond
+					// LVIFIX: replace 4 by (font-dependent) calculation
+					int x = xpos + 4;
+					int y = ypos - i * ystep; // + ystep / 2;
+					// initialize diamond shape
+					a.setPoint(0, x,   y  );
+					a.setPoint(1, x+2, y+2);
+					a.setPoint(2, x+4, y  );
+					a.setPoint(3, x+2, y-2);
+					// erase tab line
+					p->setPen(Qt::white);
+					p->drawLine(x, y, x+4, y);
+					p->setPen(Qt::black);
+					// draw (empty) diamond
+					p->drawPolygon(a);
+				}
 				break;
 			case EFFECT_ARTHARM:
-				// LVIFIX: replace 6 by (font-dependent) calculation
-				p->setFont(fTBar2);
-				drawStrFccAt(xpos + 6, i, " AH");
-				p->setFont(fTBar1);
+				{
+					QPointArray a(4);
+					// leftmost point of diamond
+					// LVIFIX: replace 4 by (font-dependent) calculation
+					int x = xpos + 4;
+					int y = ypos - i * ystep; // + ystep / 2;
+					// initialize diamond shape
+					a.setPoint(0, x,   y  );
+					a.setPoint(1, x+2, y+2);
+					a.setPoint(2, x+4, y  );
+					a.setPoint(3, x+2, y-2);
+					// draw filled diamond
+					QBrush blbr(Qt::black);
+					p->setBrush(blbr);
+					p->drawPolygon(a);
+					p->setBrush(Qt::NoBrush);
+				}
 				break;
 			case EFFECT_LEGATO:
 				// draw arc to next note
@@ -283,14 +318,6 @@ void SongPrint::drawBar(int bn, TabTrack *trk, int es)
 					p->drawArc(xpos + 4, ypos - i * ystep - ystep / 2,
 							   xdelta + extSpAftNote - 2 * 4, ystep / 2,
 							   0, 180 * 16);
-					p->setFont(fTBar2);
-					// LVIFIX: draw HO/PO centered over arc
-					if (curt->c[t + 1].a[i] > curt->c[t].a[i]) {
-						drawStrFccAt(xpos + xdelta / 2, trk->string, "HO");
-					} else if (curt->c[t + 1].a[i] < curt->c[t].a[i]) {
-						drawStrFccAt(xpos + xdelta / 2, trk->string, "PO");
-					}
-					p->setFont(fTBar1);
 				}
 				break;
 			case EFFECT_SLIDE:
@@ -309,16 +336,22 @@ void SongPrint::drawBar(int bn, TabTrack *trk, int es)
 									xpos + xdelta + extSpAftNote - 4,
 									ypos - i * ystep + ystep / 2 - 2);
 					}
-					p->setFont(fTBar2);
-					// LVIFIX: draw SL centered over line
-					drawStrFccAt(xpos + xdelta / 2, trk->string, "SL");
-					p->setFont(fTBar1);
 				}
 				break;
 			case EFFECT_LETRING:
 				ringing[i] = TRUE;
 				break;
 			} // end switch (curt->c[t].e[i])
+
+			// draw palm muting as little cross behind note
+			if (curt->c[t].flags & FLAG_PM
+				&& trk->c[t].a[i] != -1) {
+				// LVIFIX: replace 4 by (font-dependent) calculation
+				int x = xpos + 4;
+				int y = ypos - i * ystep; // + ystep / 2;
+				p->drawLine(x, y-2, x+4, y+2);
+				p->drawLine(x, y+2, x+4, y-2);
+			}
 			
 		} // end for (int i = 0 ...
 		
