@@ -1,0 +1,28 @@
+Instructions for new developers or just casual users
+====================================================
+
+Building KGuitar module, checked out from CVS
+=============================================
+
+After a checkout, you'll get a directory, named "kguitar" (that's where this
+file resides). To build KGuitar from just checked out module, do the following:
+
+1) make -f Makefile.dist
+
+That would create all required autoconf's configure scripts and automake's
+Makefile.in makefiles.
+
+2) ./configure; make; make install
+
+As usual.
+
+Releasing a new version
+=======================
+
+1) Update version numbers everywhere
+2) Commit everything to CVS repository
+3) Export everything from CVS
+4) Do "make -f Makefile.dist dist"
+5) Changed main directory name to "kguitar-versionnumber"
+6) Pack all the thing into tarball
+7) Test new release
