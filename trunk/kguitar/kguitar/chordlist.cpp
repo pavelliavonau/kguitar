@@ -1,7 +1,7 @@
 #include "chordlist.h"
 
-ChordList::ChordList(QWidget *parent=0, const char *name=0):
-    QListBox(parent, name)
+ChordList::ChordList(QWidget *parent=0, const char *name=0)
+	: QListBox(parent, name)
 {
 }
 
@@ -11,10 +11,10 @@ void ChordList::inSort(ChordListItem *it)
     uint best = 0;
 
     for (uint i=0;i<count();i++) {
-	if (((QString) item(i)->text()).length()<l)
-	    best++;
-	else
-	    break;
+		if (((QString) item(i)->text()).length()<l)
+			best++;
+		else
+			break;
     }
 
     insertItem(it,best);
