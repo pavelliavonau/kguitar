@@ -23,8 +23,8 @@ Options::Options(QWidget *parent=0, const char *name=0): QTabDialog(parent,name,
 
     QVBoxLayout *vb1 = new QVBoxLayout(maj7gr,15,10);
     vb1->addSpacing(5); // Cosmetic space
-    for (int i=0;i<3;i++)
-	vb1->addWidget(maj7[i]);
+    for (int i = 0; i < 3; i++)
+		vb1->addWidget(maj7[i]);
     vb1->activate();
 
     // Chord step alterations selection group
@@ -41,7 +41,6 @@ Options::Options(QWidget *parent=0, const char *name=0): QTabDialog(parent,name,
     vb2->activate();
 
     addTab(cd,i18n("&Chords"));
-
 
     ///////////////////////////////////////////////////////////////////
     // MusiXTeX Settings Tab  - alinx
@@ -60,28 +59,19 @@ Options::Options(QWidget *parent=0, const char *name=0): QTabDialog(parent,name,
 
     texsizegr = new QButtonGroup(i18n("Tab Size"),tex);
     texsizegr->setGeometry(200,10,175,130);
-    tabsize[0] = new QRadioButton(i18n("smallest"),texsizegr);
-    tabsize[1] = new QRadioButton(i18n("small"),texsizegr);
-    tabsize[2] = new QRadioButton(i18n("normal"),texsizegr);
-    tabsize[3] = new QRadioButton(i18n("big"),texsizegr);
+    tabsize[0] = new QRadioButton(i18n("Smallest"),texsizegr);
+    tabsize[1] = new QRadioButton(i18n("Small"),texsizegr);
+    tabsize[2] = new QRadioButton(i18n("Normal"),texsizegr);
+    tabsize[3] = new QRadioButton(i18n("Big"),texsizegr);
 
     QVBoxLayout *texvb1 = new QVBoxLayout(texsizegr,15,10);
     texvb1->addSpacing(5); // Cosmetic space
-    for (int i=0;i<4;i++)
+    for (int i = 0; i < 4; i++)
 	    texvb1->addWidget(tabsize[i]);
     texvb1->activate();
 
     addTab(tex, i18n("MusiXTeX Export"));
 
-
-    //////////////////////////////////////////////////////////////////
-    // SOME OTHER SETTINGS TAB
-    //////////////////////////////////////////////////////////////////
-
-    QWidget *so = new QWidget(this);
-    
-    addTab(so,i18n("Others"));
-    
     //////////////////////////////////////////////////////////////////
     // REST OF TABDIALOG SETTINS
     //////////////////////////////////////////////////////////////////

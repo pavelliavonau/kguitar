@@ -39,7 +39,7 @@ QString notes_jz3[12] = {"C",  "Db", "D",  "Eb", "E",  "F",
 // Note names
 QString note_name(int num)
 {
-	if ((num<0) || (num>11))
+	if ((num < 0) || (num > 11))
 		return "Unknown";
 
 	switch (global_notenames) {
@@ -75,29 +75,29 @@ QString maj7name[] = {"7M", "maj7", "dom7"};
 QString flat[] = {"-", "b"};
 QString sharp[] = {"+", "#"};
 
-ChordSelector::ChordSelector(TabTrack *p, QWidget *parent=0, const char *name=0)
-	:QDialog(parent,name,TRUE)
+ChordSelector::ChordSelector(TabTrack *p, QWidget *parent = 0,
+							 const char *name = 0): QDialog(parent, name, TRUE)
 {
 	parm = p;
 
 	chname = new QLineEdit(this);
-	chname->setGeometry(10,10,210,20);
+	chname->setGeometry(10, 10, 210, 20);
 
 	// CHORD SELECTOR FOR FINDER WIDGETS
 
 	tonic = new QListBox(this);
-	for (int i=0;i<12;i++)
+	for (int i = 0; i < 12; i++)
 		tonic->insertItem(note_name(i));
-	tonic->setGeometry(10,40,50,200);
-	connect(tonic,SIGNAL(highlighted(int)),SLOT(findChords()));
+	tonic->setGeometry(10, 40, 50, 200);
+	connect(tonic, SIGNAL(highlighted(int)), SLOT(findChords()));
 
 	step3 = new QListBox(this);
 	step3->insertItem("M");
 	step3->insertItem("m");
 	step3->insertItem("sus2");
 	step3->insertItem("sus4");
-	step3->setGeometry(70,40,80,70);
-	connect(step3,SIGNAL(highlighted(int)),SLOT(setStep3()));
+	step3->setGeometry(70, 40, 80, 70);
+	connect(step3, SIGNAL(highlighted(int)), SLOT(setStep3()));
 
 	stephigh = new QListBox(this);
 	stephigh->insertItem("");
@@ -110,8 +110,8 @@ ChordSelector::ChordSelector(TabTrack *p, QWidget *parent=0, const char *name=0)
 	stephigh->insertItem("aug");
 	stephigh->insertItem("dim");
 	stephigh->insertItem("5");
-	stephigh->setGeometry(160,40,60,200);
-	connect(stephigh,SIGNAL(highlighted(int)),SLOT(setHighSteps()));
+	stephigh->setGeometry(160, 40, 60, 200);
+	connect(stephigh, SIGNAL(highlighted(int)), SLOT(setHighSteps()));
 
 	// st array holds values for each step:
 	// st[0] - 3'	 st[1] - 5'	   st[2] - 7'
@@ -119,28 +119,28 @@ ChordSelector::ChordSelector(TabTrack *p, QWidget *parent=0, const char *name=0)
 
 	QLabel *stlabel[7];
 	QString tmp;
-	for (int i=0;i<7;i++) {
-		tmp.setNum(i*2+1);
-		tmp=tmp+"\'";
-		stlabel[i] = new QLabel(tmp,this);
-		stlabel[i]->setGeometry(230+i*STEPSIZE,170,STEPSIZE,20);
+	for (int i = 0; i < 7; i++) {
+		tmp.setNum(i * 2 + 1);
+		tmp = tmp + "\'";
+		stlabel[i] = new QLabel(tmp, this);
+		stlabel[i]->setGeometry(230 + i * STEPSIZE, 170, STEPSIZE, 20);
 		stlabel[i]->setAlignment(AlignCenter);
 		
 		cnote[i] = new QLabel(this);
-		cnote[i]->setGeometry(230+i*STEPSIZE,210,STEPSIZE,20);
+		cnote[i]->setGeometry(230 + i * STEPSIZE, 210, STEPSIZE, 20);
 		cnote[i]->setAlignment(AlignCenter);
 		
-		if (i>0) {
-			st[i-1] = new QComboBox(FALSE,this);
-			st[i-1]->setGeometry(230+i*STEPSIZE,190,STEPSIZE,20);
-			st[i-1]->insertItem("x");
-			if ((i==2) || (i>=4)) {
-				st[i-1]->insertItem(flat[global_flatplus]);
-				st[i-1]->insertItem("0");
-				st[i-1]->insertItem(sharp[global_flatplus]);
+		if (i > 0) {
+			st[i - 1] = new QComboBox(FALSE,this);
+			st[i - 1]->setGeometry(230+i*STEPSIZE, 190, STEPSIZE, 20);
+			st[i - 1]->insertItem("x");
+			if ((i == 2) || (i >= 4)) {
+				st[i - 1]->insertItem(flat[global_flatplus]);
+				st[i - 1]->insertItem("0");
+				st[i - 1]->insertItem(sharp[global_flatplus]);
 			}
-			connect(st[i-1],SIGNAL(activated(int)),SLOT(findSelection()));
-			connect(st[i-1],SIGNAL(activated(int)),SLOT(findChords()));
+			connect(st[i - 1], SIGNAL(activated(int)), SLOT(findSelection()));
+			connect(st[i - 1], SIGNAL(activated(int)), SLOT(findChords()));
 		}
 	}
 	
@@ -153,7 +153,7 @@ ChordSelector::ChordSelector(TabTrack *p, QWidget *parent=0, const char *name=0)
 	st[2]->insertItem(flat[global_flatplus]);
 	st[2]->insertItem("7");
 
-	inv = new QComboBox(FALSE,this);
+	inv = new QComboBox(FALSE, this);
 	inv->insertItem(i18n("Root"));
 	inv->insertItem(i18n("Inv #1"));
 	inv->insertItem(i18n("Inv #2"));
@@ -161,25 +161,25 @@ ChordSelector::ChordSelector(TabTrack *p, QWidget *parent=0, const char *name=0)
 	inv->insertItem(i18n("Inv #4"));
 	inv->insertItem(i18n("Inv #5"));
 	inv->insertItem(i18n("Inv #6"));
-	inv->setGeometry(70,120,80,20);
+	inv->setGeometry(70, 120, 80, 20);
 	connect(inv,SIGNAL(activated(int)),SLOT(findChords()));
 
 	complexity = new QButtonGroup(this);
-	complexity->setGeometry(70,150,80,70);
-	complexer[0] = new QRadioButton(i18n("Usual"),complexity);
-	complexer[0]->setGeometry(5,5,70,20);
-	complexer[1] = new QRadioButton(i18n("Rare"),complexity);
-	complexer[1]->setGeometry(5,25,70,20);
-	complexer[2] = new QRadioButton(i18n("All"),complexity);
-	complexer[2]->setGeometry(5,45,70,20);
+	complexity->setGeometry(70, 150, 80, 70);
+	complexer[0] = new QRadioButton(i18n("Usual"), complexity);
+	complexer[0]->setGeometry(5, 5, 70, 20);
+	complexer[1] = new QRadioButton(i18n("Rare"), complexity);
+	complexer[1]->setGeometry(5, 25, 70, 20);
+	complexer[2] = new QRadioButton(i18n("All"), complexity);
+	complexer[2]->setGeometry(5, 45, 70, 20);
 	complexity->setButton(0);
-	connect(complexity,SIGNAL(clicked(int)),SLOT(findChords()));
+	connect(complexity, SIGNAL(clicked(int)), SLOT(findChords()));
 
 	// CHORD ANALYZER
 
-	fng = new Fingering(p,this);
-	fng->move(230,10);
-	connect(fng,SIGNAL(chordChange()),SLOT(detectChord()));
+	fng = new Fingering(p, this);
+	fng->move(230, 10);
+	connect(fng, SIGNAL(chordChange()), SLOT(detectChord()));
 
 	chords = new ChordList(this);
 	chords->setGeometry(fng->x()+fng->width()+10,10,120,150);
@@ -196,37 +196,36 @@ ChordSelector::ChordSelector(TabTrack *p, QWidget *parent=0, const char *name=0)
 	
 	QPushButton *ok, *cancel;
 
-	ok = new QPushButton(i18n("OK"),this);
-	ok->setGeometry(520,250,75,30);
-	connect(ok,SIGNAL(clicked()),SLOT(accept()));
+	ok = new QPushButton(i18n("OK"), this);
+	ok->setGeometry(520, 250, 75, 30);
+	connect(ok, SIGNAL(clicked()), SLOT(accept()));
 
 	cancel = new QPushButton(i18n("Cancel"),this);
-	cancel->setGeometry(520,290,75,30);
-	connect(cancel,SIGNAL(clicked()),SLOT(reject()));
+	cancel->setGeometry(520, 290, 75, 30);
+	connect(cancel, SIGNAL(clicked()), SLOT(reject()));
 
 	setCaption(i18n("Chord constructor"));
-	setFixedSize(600,400);
+	setFixedSize(600, 400);
 }
-
 
 // Try to detect some chord forms from a given applicature.
 void ChordSelector::detectChord()
 {
 	bool cn[12];
-	int i,j,numnotes,noteok,bassnote=255,bass;
+	int i, j, numnotes, noteok, bassnote=255, bass;
 	QString name;
-	int s3,s5,s7,s9,s11,s13;
+	int s3, s5, s7, s9, s11, s13;
 
-	for (i=0;i<12;i++)
-	cn[i]=FALSE;
+	for (i = 0; i < 12; i++)
+		cn[i] = FALSE;
 	numnotes=0; // number of different notes in a chord
 
-	for (i=0;i<parm->string;i++) {
-		j=fng->app(i);
-		if (j!=-1) {
-			j=(j+parm->tune[i])%12;
+	for (i = 0; i < parm->string; i++) {
+		j = fng->app(i);
+		if (j != -1) {
+			j = (j + parm->tune[i]) % 12;
 			if (!cn[j]) {
-				cn[j]=TRUE;
+				cn[j] = TRUE;
 				numnotes++;
 			}
 		}
@@ -236,47 +235,48 @@ void ChordSelector::detectChord()
 	chords->clearSelection();
 	chords->clear();
 	
-	for (i=0;i<12;i++)  if (cn[i]) {
+	for (i = 0; i < 12; i++)  if (cn[i]) {
 
 		// Initializing
-		s3=-1;s5=-1;s7=-1;s9=-1;s11=-1;s13=-1;noteok=numnotes-1;
+		s3 = -1; s5 = -1; s7 = -1; s9 = -1; s11 = -1; s13 = -1;
+		noteok = numnotes - 1;
 
 		// Detecting thirds
-		if (cn[(i+4)%12]) {
-			s3=4;noteok--;				 // Major
-		} else if (cn[(i+3)%12]) {
-			s3=3;noteok--;				 // Minor
-		} else if (cn[(i+5)%12]) {
-			s3=5;noteok--;				 // Sus4
-		} else if (cn[(i+2)%12]) {
-			s3=2;noteok--;				 // Sus2
+		if (cn[(i + 4) % 12]) {
+			s3 = 4; noteok--;			// Major
+		} else if (cn[(i + 3) % 12]) {
+			s3 = 3; noteok--;			// Minor
+		} else if (cn[(i + 5) % 12]) {
+			s3 = 5; noteok--;			// Sus4
+		} else if (cn[(i + 2) % 12]) {
+			s3 = 2; noteok--;			// Sus2
 		}
 		
 		// Detecting fifths
-		if (cn[(i+7)%12]) {
-			s5=7;noteok--;				 // 5
-		} else if (cn[(i+6)%12]) {
-			s5=6;noteok--;				 // 5-
-		} else if (cn[(i+8)%12]) {
-			s5=8;noteok--;				 // 5+
+		if (cn[(i + 7) % 12]) {
+			s5 = 7; noteok--;			// 5
+		} else if (cn[(i+6) % 12]) {
+			s5 = 6; noteok--;			// 5-
+		} else if (cn[(i+8) % 12]) {
+			s5 = 8; noteok--;			// 5+
 		}
 		
 		// Detecting sevenths
-		if (cn[(i+10)%12]) {
-			s7=10;noteok--;				 // 7
-		} else if (cn[(i+11)%12]) {
-			s7=11;noteok--;				 // 7M
-		} else if (cn[(i+9)%12]) {
-			s7=9;noteok--;				 // 6
+		if (cn[(i + 10) % 12]) {
+			s7 = 10;noteok--;			// 7
+		} else if (cn[(i + 11) % 12]) {
+			s7 = 11;noteok--;			// 7M
+		} else if (cn[(i + 9) % 12]) {
+			s7 = 9;noteok--;			// 6
 		}
 		
 		// Detecting 9ths
-		if ((cn[(i+2)%12]) && (s3!=2)) {
-			s9=2;noteok--;				 // 9
-		} else if ((cn[(i+3)%12]) && (s3!=3)) {
-			s9=3;noteok--;				 // 9+
-		} else if (cn[(i+1)%12]) {
-			s9=1;noteok--;				 // 9-
+		if ((cn[(i + 2) % 12]) && (s3 != 2)) {
+			s9 = 2;noteok--;			// 9
+		} else if ((cn[(i + 3) % 12]) && (s3 != 3)) {
+			s9 = 3;noteok--;			// 9+
+		} else if (cn[(i + 1) % 12]) {
+			s9 = 1;noteok--;			// 9-
 		}
 		
 		// Detecting 11ths
@@ -297,8 +297,9 @@ void ChordSelector::detectChord()
 			s13=10;noteok--;
 		}
 		
-		if (noteok==0) {
-			ChordListItem *item = new ChordListItem(i,bass,s3,s5,s7,s9,s11,s13);
+		if (noteok == 0) {
+			ChordListItem *item = new ChordListItem(i, bass, s3, s5,
+			                                        s7, s9, s11, s13);
 			chords->inSort(item);
 		}
 	}
@@ -310,10 +311,10 @@ void ChordSelector::detectChord()
 void ChordSelector::setStep3()
 {
 	switch (step3->currentItem()) {
-	case 0: st[0]->setCurrentItem(3);break;				   // Major
-	case 1: st[0]->setCurrentItem(2);break;				   // Minor
-	case 2: st[0]->setCurrentItem(1);break;				   // Sus2
-	case 3: st[0]->setCurrentItem(4);break;				   // Sus4
+	case 0: st[0]->setCurrentItem(3); break;				// Major
+	case 1: st[0]->setCurrentItem(2); break;				// Minor
+	case 2: st[0]->setCurrentItem(1); break;				// Sus2
+	case 3: st[0]->setCurrentItem(4); break;				// Sus4
 	}
 
 	findSelection();
@@ -325,8 +326,8 @@ void ChordSelector::setStepsFromChord()
 	ChordListItem *it = chords->currentItemPointer();
 
 	tonic->setCurrentItem(it->tonic());
-	for (int i=0;i<6;i++)
-	st[i]->setCurrentItem(it->step(i));
+	for (int i = 0; i < 6; i++)
+		st[i]->setCurrentItem(it->step(i));
 
 	findSelection();
 	findChords();
@@ -336,11 +337,11 @@ void ChordSelector::setHighSteps()
 {
 	int j = stephigh->currentItem();
 
-	if (j==-1)
-	return;
+	if (j == -1)
+		return;
 
-	for (int i=0;i<6;i++)
-		if (stemplate[j][i]!=-1)
+	for (int i = 0; i < 6; i++)
+		if (stemplate[j][i] != -1)
 			st[i]->setCurrentItem(stemplate[j][i]);
 
 	findSelection();
@@ -352,17 +353,18 @@ void ChordSelector::findSelection()
 	bool ok = TRUE;
 
 	switch (st[0]->currentItem()) {
-	case 0: step3->clearSelection();break;				   // no3
-	case 1: step3->setCurrentItem(2);break;				   // Sus2
-	case 2: step3->setCurrentItem(1);break;				   // Minor
-	case 3: step3->setCurrentItem(0);break;				   // Major
-	case 4: step3->setCurrentItem(3);break;				   // Sus4
+	case 0: step3->clearSelection(); break;					// no3
+	case 1: step3->setCurrentItem(2); break;				// Sus2
+	case 2: step3->setCurrentItem(1); break;				// Minor
+	case 3: step3->setCurrentItem(0); break;				// Major
+	case 4: step3->setCurrentItem(3); break;				// Sus4
 	}
 
-	for (uint j=stephigh->count()-1;j>0;j--) {
+	for (uint j = stephigh->count() - 1; j > 0; j--) {
 		ok = TRUE;
-		for (int i=0;i<6;i++) {
-			if ((stemplate[j][i]!=-1) && (stemplate[j][i]!=st[i]->currentItem())) {
+		for (int i = 0; i < 6; i++) {
+			if ((stemplate[j][i] != -1) &&
+				(stemplate[j][i] != st[i]->currentItem())) {
 				ok = FALSE;
 				break;
 			}
@@ -378,12 +380,12 @@ void ChordSelector::findSelection()
 
 void ChordSelector::findChords()
 {
-	int i,j,k=0,min,max,bass=0,muted=0;
+	int i, j, k = 0, min, max, bass = 0, muted = 0;
 	int app[MAX_STRINGS];				// raw fingering itself
 	int ind[MAX_STRINGS];				// indexes in hfret array
 
-	//				  1 5 7 9 11 13 
-	int toneshift[6]={0,7,10,2,5,9};
+	//				    1  5  7   9  11 13 
+	int toneshift[6] = {0, 7, 10, 2, 5, 9};
 
 	int fb[MAX_STRINGS][parm->frets];	// array with an either -1 or number of note from a chord
 
@@ -399,17 +401,17 @@ void ChordSelector::findChords()
 	int t = tonic->currentItem();
 
 	if (t==-1)							// no calculations without tonic
-	return;
+		return;
 
 	int notenum=1;
 	need[0]=t;
 	cnote[0]->setText(note_name(t));
 
 	switch (st[0]->currentItem()) {
-	case 1: need[1]=(t+2)%12;notenum++;break;	  // 2
-	case 2: need[1]=(t+3)%12;notenum++;break;	  // 3-
-	case 3: need[1]=(t+4)%12;notenum++;break;	  // 3+
-	case 4: need[1]=(t+5)%12;notenum++;break;	  // 4
+	case 1: need[1] = (t + 2) % 12; notenum++; break;	  // 2
+	case 2: need[1] = (t + 3) % 12; notenum++; break;	  // 3-
+	case 3: need[1] = (t + 4) % 12; notenum++; break;	  // 3+
+	case 4: need[1] = (t + 5) % 12; notenum++; break;	  // 4
 	}
 
 	if (st[0]->currentItem()!=0) {
@@ -418,14 +420,14 @@ void ChordSelector::findChords()
 		cnote[1]->clear();
 	}
 
-	for (i=1;i<6;i++) {
-		j=st[i]->currentItem();
+	for (i = 1; i < 6; i++) {
+		j = st[i]->currentItem();
 		if (j) {
-			need[notenum]=(t+toneshift[i]+(j-2))%12;
-			cnote[i+1]->setText(note_name(need[notenum]));
+			need[notenum] = (t + toneshift[i] + (j - 2)) % 12;
+			cnote[i + 1]->setText(note_name(need[notenum]));
 			notenum++;
 		} else {
-			cnote[i+1]->clear();
+			cnote[i + 1]->clear();
 		}
 	}
 	

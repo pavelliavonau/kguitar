@@ -50,11 +50,10 @@ ApplicationWindow::ApplicationWindow(): KTMainWindow()
 	global_maj7=0;
 	global_flatplus=0;
 	global_notenames=0;
-     global_tabsize=2;
-     global_showbarnumb=TRUE;
-     global_showstr=TRUE;
-     global_showpagenumb=TRUE;
-
+	global_tabsize=2;
+	global_showbarnumb=TRUE;
+	global_showstr=TRUE;
+	global_showpagenumb=TRUE;
 
 	// MAIN WIDGET
 
@@ -157,8 +156,8 @@ ApplicationWindow::ApplicationWindow(): KTMainWindow()
 	menuBar()->insertSeparator();
 	menuBar()->insertItem(i18n("&Help"), p);
 
-	statusBar()->insertItem(QString(i18n("Bar: "))+"1",1);
-	connect(tv,SIGNAL(statusBarChanged()),SLOT(updateStatusBar()));
+	statusBar()->insertItem(QString(i18n("Bar: ")) + "1", 1);
+	connect(tv, SIGNAL(statusBarChanged()), SLOT(updateStatusBar()));
 }
 
 ApplicationWindow::~ApplicationWindow()
@@ -169,14 +168,14 @@ ApplicationWindow::~ApplicationWindow()
 
 void ApplicationWindow::updateMenu()
 {
-	for (int i=0;i<9;i++)
-	nnMenu->setItemChecked(ni[i], i==global_notenames);
+	for (int i = 0; i < 9; i++)
+		nnMenu->setItemChecked(ni[i], i == global_notenames);
 }
 
 void ApplicationWindow::updateStatusBar()
 {
 	QString tmp;
-	tmp.setNum(tv->trk()->xb+1);
+	tmp.setNum(tv->trk()->xb + 1);
 	tmp = i18n("Bar: ") + tmp;
 	statusBar()->changeItem(tmp,1);
 }
@@ -186,8 +185,8 @@ bool ApplicationWindow::jazzWarning()
 	return KMsgBox::yesNo(this, "KGuitar",
 						  i18n("Jazz note names are very special and should be\n"
 							   "used only if really know what you do. Usage of jazz\n"
-							   "note names without a purpose would confuse or mislead\n"		
-							   "anyone reading the music who did not have a knowledge\n"	  
+							   "note names without a purpose would confuse or mislead\n"
+							   "anyone reading the music who did not have a knowledge\n"
 							   "of jazz note naming.\n\n"
 							   "Are you sure you want to use jazz notes?"))==1;
 }
@@ -201,14 +200,14 @@ void ApplicationWindow::newDoc()
 
 void ApplicationWindow::load()
 {
-	QString fn = KFileDialog::getOpenFileName(0,"*.kg",this);
+	QString fn = KFileDialog::getOpenFileName(0, "*.kg", this);
 	if (!fn.isEmpty()) {
 		if (tv->sng()->load_from_kg(fn)) {
 			setCaption(fn);
 			tv->setCurt(tv->sng()->t.first());
-			tv->sng()->t.first()->x=0;
-			tv->sng()->t.first()->y=0;
-			tv->sng()->filename=fn;
+			tv->sng()->t.first()->x = 0;
+			tv->sng()->t.first()->y = 0;
+			tv->sng()->filename = fn;
 			tv->updateRows();
 		}
 	}
@@ -223,7 +222,7 @@ void ApplicationWindow::save()
 
 	if (!fn.isEmpty()) {
 		tv->sng()->save_to_kg(tv->sng()->filename);
-		tv->sng()->filename=fn;
+		tv->sng()->filename = fn;
 	}
 }
 
@@ -232,7 +231,7 @@ void ApplicationWindow::saveAs()
 	QString fn = KFileDialog::getSaveFileName(0,"*.kg",this);
 	if (!fn.isEmpty()) {
 		tv->sng()->save_to_kg(fn);
-		tv->sng()->filename=fn;
+		tv->sng()->filename = fn;
 	}
 }
 
