@@ -470,10 +470,16 @@ void ChordSelector::findSelection()
 void ChordSelector::findChords()
 {
     int i,j,k,min,max,bass,muted;
-    int app[MAX_STRINGS];
+    int app[MAX_STRINGS];               // raw fingering itself
+    int ind[MAX_STRINGS];               // indexes in hfret array
     int toneshift[6]={0,7,10,2,5,9};
 
     int fb[MAX_STRINGS][parm->frets];  // array with an either -1 or number of note from a chord
+
+    int hfret[MAX_STRINGS][parm->frets]; // numbers of frets to hold on every string
+    int hnote[MAX_STRINGS][parm->frets]; // numbers of notes in a chord that make ^^
+
+    bool needrecalc;                     // needs recalculate max/min
 
     // CALCULATION OF REQUIRED NOTES FOR A CHORD FROM USER STEP INPUT
 
@@ -534,10 +540,32 @@ void ChordSelector::findChords()
 	    }
 	}
     }
-    
+
+    for (i=0;i<parm->string;i++) {
+	k=1;
+	hfret[i][0]=-1;
+	hnote[i][0]=-2;
+	for (j=0;j<=parm->frets;j++)
+	    if (fb[i][j]!=-1) {
+		hfret[i][k]=j;
+		hnote[i][k]=fb[i][j];
+		k++;
+	    }
+	hnote[i][k]=-1;
+    }
+
+    // After all the previous funky calculations, we would have 2 arrays:
+    // hfret[string][index] with numbers of frets where we can hold the string,
+    //                      (any other fret would make a chord unacceptable)
+    // hnote[string][index] with numbers of notes in the chord that correspond
+    //                      to each hfret array's fret. -1 means end of string,
+    //                      -2 means muted string.
+
     for (i=0;i<parm->string;i++)
-	 app[i]=-1;
-    
+	ind[i]=0;
+
+    min=-1;max=-1;needrecalc=FALSE;
+
     fnglist->switchAuto(FALSE);
     fnglist->clear();
     
@@ -545,31 +573,40 @@ void ChordSelector::findChords()
 
     i=0;
     do {
-	if (app[i]<=parm->frets) {
-	    min=parm->frets+1;max=0;
-	    for (k=0;k<notenum;k++)
-		got[k]=0;
-	    k=0;bass=255;muted=0;
-	    for (j=0;j<parm->string;j++) {
-		if (app[j]>0) {
-		    if (app[j]<min)  min=app[j];
-		    if (app[j]>max)  max=app[j];
-		}
-		if (max-min>=span)
-		    break;
-		if (app[j]>=0) {
-		    if (parm->tune[j]+app[j]<bass)
-			bass=parm->tune[j]+app[j];
-		    if (!got[fb[j][app[j]]]) {
-			got[fb[j][app[j]]]=1;
-			k++;
+	// end of string not reached
+	if (hnote[i][ind[i]]!=-1) {
+	    if (needrecalc) {
+		min=parm->frets+1;max=0;
+		for (j=0;j<parm->string;j++) {
+		    if (hfret[j][ind[j]]>0) {
+			if (hfret[j][ind[j]]<min)  min=hfret[j][ind[j]];
+			if (hfret[j][ind[j]]>max)  max=hfret[j][ind[j]];
 		    }
-		} else {
-		    muted++;
+		    if (max-min>=span)
+			break;
+		}
+	    }
+	    if (max-min<span) {
+		for (k=0;k<notenum;k++)
+		    got[k]=0;
+		k=0;bass=255;muted=0;
+		for (j=0;j<parm->string;j++) {
+		    if (hfret[j][ind[j]]>=0) {
+			if (parm->tune[j]+hfret[j][ind[j]]<bass)
+			bass=parm->tune[j]+hfret[j][ind[j]];
+			if (!got[hnote[j][ind[j]]]) {
+			    got[hnote[j][ind[j]]]=1;
+			    k++;
+			}
+		    } else {
+			muted++;
+		    }
 		}
 	    }
 	    
 	    if ((k==notenum) && (max-min<span) && (bass%12==need[inv->currentItem()])) {
+		for (j=0;j<parm->string;j++)
+		    app[j]=hfret[j][ind[j]];
 		if (complexer[0]->isChecked()) {
 		    if ((muted==0) ||                                       // No muted strings
 			((muted==1) && (app[0]==-1)) ||                     // Last string muted
@@ -582,14 +619,22 @@ void ChordSelector::findChords()
 	    }
 	    
 	    i=0;
-	} else {
-	    app[i]=-1;i++;
+	} else {                        // end of string reached
+	    ind[i]=0;i++;
+	    needrecalc=TRUE;
 	    if (i>=parm->string)
 		break;
 	}
-	app[i]++;
-	while ((fb[i][app[i]]==-1) && (app[i]<=parm->frets))
-	    app[i]++;
+
+	if (hfret[i][ind[i]]>min) {
+	    ind[i]++;
+	    if (hfret[i][ind[i]]>max)
+		max = hfret[i][ind[i]];	    
+	    needrecalc=FALSE;
+	} else {
+	    ind[i]++;
+	    needrecalc=TRUE;
+	}
     } while (TRUE);
     
     fnglist->switchAuto(TRUE);
