@@ -29,117 +29,19 @@ class QString;
 class TabSong;
 class TabTrack;
 
+class ConvertXml;
 
-class MusicXMLParser;
-
-class MusicXMLErrorHandler : public QXmlErrorHandler
-{
+class MusicXMLErrorHandler: public QXmlErrorHandler {
 public:
 	MusicXMLErrorHandler();
 	bool warning(const QXmlParseException& exception);
 	bool error(const QXmlParseException& exception);
 	bool fatalError(const QXmlParseException& exception);
 	QString errorString();
-	void setParser(MusicXMLParser * p);
+	void setParser(ConvertXml * p);
 private:
 	bool fatalReported;
-	MusicXMLParser * parser;
-};
-
-class MusicXMLParser : public QXmlDefaultHandler
-{
-public:
-	MusicXMLParser(TabSong *);
-	bool startDocument();
-	bool startElement(const QString&, const QString&, const QString&,
-	                  const QXmlAttributes&);
-	bool endElement(const QString&, const QString&, const QString&);
-	bool characters(const QString& ch);
-	void reportError(const QString& err);
-	void setDocumentLocator(QXmlLocator * locator);
-
-private:
-	bool addNote();
-	bool addTrack();
-	void initStNote();
-	void initStScorePart();
-	void initStStaffTuning();
-	void reportAll(const QString& lvl, const QString& err);
-	void reportWarning(const QString& err);
-	
-	TabSong * ts;				// pointer to calling tabsong
-	TabTrack * trk;				// pointer to current track
-	QVector<QString> partIds;	// part (track) id's
-	int x;						// current column
-	int bar;					// current bar
-	Accidentals accSt;			// accidental state
-	int iDiv;					// divisions
-	int tStartCur;				// start time current note
-	int tEndCur;				// end time current note
-	QXmlLocator * lctr;
-
-	// state variables for parsing
-	// general -- initialized in startDocument()
-	QString stCha;				// characters collected
-	// identification -- initialized in startDocument()
-	QString stCrt;				// creator
-	QString stEnc;				// encoder
-	QString stTtl;				// title
-	// measure -- initialized in startDocument()
-	QString stBts;				// beats
-	QString stBtt;				// beat-type
-	QString stDiv;				// divisions
-	QString stFif;				// fifths
-	// note (including forward/backup) -- initialized in initStNote()
-	QString stAlt;				// alter
-	QString	stAno;				// actual notes
-	bool    stCho;				// chord with previous note
-	int     stDts;				// dots (count)
-	QString stDur;				// duration
-	QString stFrt;				// fret
-	bool    stGls;				// glissando
-	bool    stHmr;				// hammer-on
-	QString	stNno;				// normal notes
-	QString stOct;				// octave
-	bool    stPlo;				// pull-off
-	bool    stRst;				// rest
-	QString stStp;				// step
-	QString stStr;				// string
-	bool    stTie;				// tie stop
-	QString stTyp;				// type
-	// part (== track) -- initialized in initStScorePart()
-	QString stPid;				// ID
-	QString stPmb;				// MIDI bank
-	QString stPmc;				// MIDI channel
-	QString stPmp;				// MIDI program
-	QString stPnm;				// name
-	// tuning -- initialized in initStStaffTuning()
-	QString stPtl;				// tuning line
-	QString stPtn;				// tuning number of lines
-	QString stPto;				// tuning octave
-	QString stPts;				// tuning step
-};
-
-class MusicXMLWriter
-{
-public:
-	MusicXMLWriter(TabSong *);
-	void write(QTextStream&);
-private:
-	void calcDivisions();
-	QString strAccid(Accidentals::Accid);
-	void writeBeams(QTextStream&, TabTrack *, int, int);
-	int writeCol(QTextStream&, TabTrack *, int, int, bool);
-	void writePitch(QTextStream&, int, QString, QString);
-	void writeStaffDetails(QTextStream&, TabTrack *);
-	void writeTime(QTextStream&, int, int);
-	Accidentals accSt;			// accidental state
-	int divisions;				// divisions
-	TabSong * ts;				// pointer to calling tabsong
-	// following variables are used by writeCol only
-	int tEndPrev;				// end time of previous note
-	int trpCnt;					// triplet count (0=none, 1=1st...3=3rd)
-	int tStartCur;				// start time current note
+	ConvertXml * parser;
 };
 
 #endif
