@@ -91,12 +91,14 @@ KGuitarShell::KGuitarShell()
 
 KGuitarShell::~KGuitarShell()
 {
+	kdDebug() << "KGuitarShell::~KGuitarShell()" << endl;
 	writeSettings();
 	delete m_kgpart;
 }
 
 void KGuitarShell::slotQuit()
 {
+	kdDebug() << "KGuitarShell::slotQuit()" << endl;
 	kapp->closeAllWindows();
 }
 
