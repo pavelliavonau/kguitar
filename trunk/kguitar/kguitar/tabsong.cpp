@@ -1,14 +1,19 @@
 #include "tabsong.h"
-#include "global.h"
 #include "application.h"
-
-#include "midilist.h"
 
 #include "musicxml.h"
 
 #include <qxml.h>
 #include <qfile.h>
 #include <qdatastream.h>
+
+#ifdef WITH_TSE3
+#include <tse3/Track.h>
+#include <tse3/Part.h>
+#include <tse3/MidiFile.h>
+#include <tse3/TSE3MDL.h>
+#include <string>
+#endif
 
 //GREYFIX
 #include <iostream.h>
@@ -796,152 +801,23 @@ void TabSong::writeTempo(QDataStream *s, uint value)
 	(*s) << (Q_UINT8) value;
 }
 
-bool TabSong::save_to_mid(QString fileName)
+#ifdef WITH_TSE3
+bool TabSong::save_to_mid(QString filename)
 {
-    QFile f(fileName);
-
-    if (!f.open(IO_WriteOnly))
-		return FALSE;
-
-    QDataStream s(&f);
-
-    // HEADER SIGNATURE
-
-    s.writeRawBytes("MThd", 4);
-    s << (Q_UINT32) 6;                  // Length?
-    s << (Q_UINT16) 1;                  // Format 1 - GREYFIX
-    s << (Q_UINT16) (t.count() + 1);    // Number of tracks plus 1 tempo track
-    s << (Q_UINT16) 120;                // Divisions
-
-	// TRACK VARIABLES
-
-	int sizepos;                        // Where to write track size in file
-	int curpos;                         // Where we end up writing track
-
-	// TEMPO TRACK
-
-	s.writeRawBytes("MTrk", 4);
-	sizepos = f.at();                   // Remember where to write track size
-	s << (Q_UINT32) 0;                  // Store 0 as size temporarily
-
-	// Song name
-	s << (Q_UINT8) 0;
-	s << (Q_UINT8) MIDI_META;
-	s << (Q_UINT8) META_SEQUENCE_NAME;
-	writeVarLen(&s, title.length());
-	s.writeRawBytes(title, title.length());
-
-	// Copyright
-	s << (Q_UINT8) 0;
-	s << (Q_UINT8) MIDI_META;
-	s << (Q_UINT8) META_SEQUENCE_NAME;
-	writeVarLen(&s, author.length());
-	s.writeRawBytes(author, author.length());
-
-	// First time signature
-	s << (Q_UINT8) 0;
-	s << (Q_UINT8) 0xff;
-	s << (Q_UINT8) 0x58;
-	s << (Q_UINT8) 4;
-	s << (Q_UINT8) t.first()->b[0].time1;
-	// Time signature denominator
-	Q_UINT8 denom  = 1;
-	switch (t.first()->b[0].time2) {
-	case 1:	 denom = 0; break;
-	case 2:	 denom = 1; break;
-	case 4:	 denom = 2; break;
-	case 8:	 denom = 3; break;
-	case 16: denom = 4; break;
-	case 32: denom = 5; break;
-	}
-	s << denom;
-	s << (Q_UINT8) 24;
-	s << (Q_UINT8) 8;
-
-	// Tempo
-	s << (Q_UINT8) 0;
-	s << (Q_UINT8) 0xff;
-	s << (Q_UINT8) 0x51;
-	s << (Q_UINT8) 3;
-	writeTempo(&s, 60000000 / tempo);
-
-	// End of track marker
-	s << (Q_UINT8) 0;
-	s << (Q_UINT8) MIDI_META;
-	s << (Q_UINT8) META_END_TRACK;
-	s << (Q_UINT8) 0;
-
-	curpos = f.at();
-	f.at(sizepos);
-	s << (Q_UINT32) (curpos - sizepos - 4);
-	f.at(curpos);
-
-    // TRACK DATA
-
-	MidiList ml;                          // Sorted list of events
-
-    QListIterator<TabTrack> it(t);
-	for (; it.current(); ++it) {		  // For every track
-		TabTrack *trk = it.current();
-
-		s.writeRawBytes("MTrk", 4);		  // Track header
-		sizepos = f.at();				  // Remember where to write track size
-		s << (Q_UINT32) 0;				  // Store 0 as size temporarily
-
-		s << (Q_UINT8) 0;				  // Track name
-		s << (Q_UINT8) MIDI_META;
-		s << (Q_UINT8) META_SEQUENCE_NAME;
-		writeVarLen(&s, trk->name.length());
-		s.writeRawBytes(trk->name, trk->name.length());
-
-		// TRACK EVENTS
-
-		// Bank & patch select
-		s << (Q_UINT8) 0;				// No delta time
-		s << (Q_UINT8) (MIDI_CONTROL_CHANGE | (trk->channel - 1));
-		s << (Q_UINT8) 0;				// Controller 0 - high bank byte
-		s << (Q_UINT8) (trk->bank >> 8);
-		s << (Q_UINT8) 1;				// Slight delay
-		s << (Q_UINT8) 32;				// Controller 32 - low bank byte
-		s << (Q_UINT8) (trk->bank & 0xff);
-		s << (Q_UINT8) 1;				// Slight delay
-		s << (Q_UINT8) (MIDI_PROGRAM_CHANGE | (trk->channel - 1));
-		s << (Q_UINT8) trk->patch;
-
-		ml.clear();
-
-		MidiData::getMidiList((TabTrack *) trk, ml);
-
-		MidiEvent *e;
-		Q_UINT8 lastevent = 0;
-		long laststamp = 0;
-
-		for (e = ml.first(); e != 0; e = ml.next()) {
-			writeVarLen(&s, e->timestamp - laststamp);
-			if (lastevent != e->type)
-				s << e->type;
-			s << e->data1;
-			s << e->data2;
-
-			lastevent = e->type;
-			laststamp = e->timestamp;
-		}
-
-		s << (Q_UINT8) 0;               // End of track marker
-		s << (Q_UINT8) MIDI_META;
-		s << (Q_UINT8) META_END_TRACK;
-		s << (Q_UINT8) 0;
-
-		curpos = f.at();
-		f.at(sizepos);
-		s << (Q_UINT32) (curpos - sizepos - 4);
-		f.at(curpos);
-	}
-
-    f.close();
-
-    return TRUE;
+	TSE3::MidiFileExport exp;
+	exp.save((const char *) filename.local8Bit(), midiSong());
+	// GREYFIX: pretty ugly unicode string to standard string hack
+	return TRUE;
 }
+
+bool TabSong::save_to_tse3(QString filename)
+{
+	TSE3::TSE3MDL mdl("KGuitar", 2);
+	mdl.save((const char *) filename.local8Bit(), midiSong());
+	// GREYFIX: pretty ugly unicode string to standard string hack
+	return TRUE;
+}
+#endif
 
 //////////////////////////////////////////////////////////////////////
 // ASCII TAB loading/saving stuff
@@ -1439,3 +1315,26 @@ bool TabSong::save_to_tex_notes(QString fileName)
 	f.close();
 	return TRUE;
 }
+
+#ifdef WITH_TSE3
+// Assembles the whole TSE song from various tracks, generated with
+// corresponding midiTrack() calls.
+TSE3::Song *TabSong::midiSong()
+{
+	TSE3::Song *song = new TSE3::Song(0);
+
+	QListIterator<TabTrack> it(t);
+	for (; it.current(); ++it) {
+		TSE3::Track *trk = new TSE3::Track();
+		TSE3::PhraseEdit *trackData = it.current()->midiTrack();
+		TSE3::Phrase *phrase = trackData->createPhrase(song->phraseList());
+		TSE3::Part *part = new TSE3::Part(0, trackData->lastClock());
+		part->setPhrase(phrase);
+		trk->insert(part);
+		song->insert(trk);
+		delete trackData;
+	}
+
+	return song;
+}
+#endif

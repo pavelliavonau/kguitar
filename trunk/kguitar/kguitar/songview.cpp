@@ -16,7 +16,6 @@
 #include "chord.h"
 #include "chordlist.h"
 #include "chordlistitem.h"
-#include "midilist.h"
 #include "songprint.h"
 
 #include <kapp.h>
@@ -325,10 +324,10 @@ void SongView::songProperties()
 	delete ss;
 }
 
+#ifdef WITH_TSE3
 // Start playing the song or stop it if it already plays
 void SongView::playSong()
 {
-#ifdef WITH_TSE3
 	kdDebug() << "SongView::playSong" << endl;
 
 	if (midiInUse) {
@@ -339,90 +338,23 @@ void SongView::playSong()
 	midiInUse = TRUE;
 	midiStopPlay = FALSE;
 
-	midiList.clear();
-
-	QListIterator<TabTrack> it(song->t);
-	for (; it.current(); ++it) {
-		TabTrack *trk = it.current();
-		MidiData::getMidiList(trk, midiList, TRUE);
-	}
-
-	playMidi(midiList);
-#endif
-}
-
-void SongView::stopPlay()
-{
-#ifdef WITH_TSE3
-	kdDebug() << "SongView::stopPlayTrack" << endl;
-	if (midiInUse)  midiStopPlay = TRUE;
-#endif
-}
-
-void SongView::playMidi(MidiList &ml)
-{
-#ifdef WITH_TSE3
-	kdDebug() << "SongView::playMidi" << endl;
-
-	if (ml.isEmpty()) {
-		midiStopPlay = TRUE;
-		midiInUse = FALSE;
-		kdDebug() << "    MidiList is empty!! Nothing to play." << endl;
-		return;
-	}
-
-	if (!scheduler)
+	if (!scheduler) {
 		if (!initScheduler()) {
 			KMessageBox::error(this, i18n("Error opening MIDI device!"));
 			midiInUse = FALSE;
 			return;
 		}
-
-	kdDebug() << "  Scheduler: " << scheduler << endl;
-
-	MidiEvent *e;
-	TSE3::PhraseEdit phraseEdit;
-
-	QListIterator<TabTrack> it(song->t);
-	for (; it.current(); ++it) {
-		TabTrack *trk = it.current();
-		phraseEdit.insert(TSE3::MidiEvent(TSE3::MidiCommand(TSE3::MidiCommand_ProgramChange,
-															trk->channel - 1, globalMidiPort,
-															trk->patch), 0));
-		//## and MIDI commands for Volume, Chorus, etc.
 	}
 
-	long lasttimestamp = 0;
-	int lastduration = 0;
-	Q_UINT8 lastchn = 0;
-
-	for (e = ml.first(); e != 0; e = ml.next()) {
-		phraseEdit.insert(TSE3::MidiEvent(TSE3::MidiCommand(TSE3::MidiCommand_NoteOn, e->chn, globalMidiPort,
-															e->data1/*note*/, e->data2 /*velocity*/),
-										  e->timestamp, 0/*velocity*/, e->timestamp + e->duration));
-		lasttimestamp = e->timestamp;
-		lastduration = e->duration;
-		lastchn = e->chn;
-	}
-
-	lasttimestamp += lastduration;
-	phraseEdit.insert(TSE3::MidiEvent(TSE3::MidiCommand(TSE3::MidiCommand_NoteOn, lastchn, globalMidiPort,
-														0, 0), lasttimestamp, 0, lasttimestamp + lastduration));
-
-	// Now assemble the Song
-	TSE3::Song _song(1);
-	TSE3::Phrase *phrase = phraseEdit.createPhrase(_song.phraseList());
-	TSE3::Part *part   = new TSE3::Part(0, phraseEdit.lastClock());
-	part->setPhrase(phrase);
-	_song[0]->insert(part);
+	// Get song object
+	TSE3::Song *tsong = song->midiSong();
 
 	// Create transport objects
 	TSE3::Metronome metronome;
-
 	TSE3::Transport transport(&metronome, scheduler);
 
-    // Play and wait for the end
-	transport.play(&_song, 0);
+	// Play and wait for the end
+	transport.play(tsong, 0);
 
 	while (transport.status() != TSE3::Transport::Resting) {
 		kapp->processEvents();
@@ -432,13 +364,17 @@ void SongView::playMidi(MidiList &ml)
 			transport.poll();
 	}
 
-	midiInUse = FALSE;
-	phraseEdit.clearSelection();
+	delete tsong;
 
-#endif
+	midiInUse = FALSE;
 }
 
-#ifdef WITH_TSE3
+void SongView::stopPlay()
+{
+	kdDebug() << "SongView::stopPlay" << endl;
+	if (midiInUse)  midiStopPlay = TRUE;
+}
+
 bool SongView::initScheduler()
 {
 	if (!scheduler) {
