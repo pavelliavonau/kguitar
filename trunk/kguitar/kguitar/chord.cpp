@@ -127,7 +127,7 @@ void ChordSelector::initChordSelector(TabTrack *p)
 	tonic = new QListBox(this);
 	for (int i = 0; i < 12; i++)
 		tonic->insertItem(note_name(i));
-//	tonic->setFixedVisibleLines(12);
+	//	tonic->setRowMode(12);
 	tonic->setMinimumWidth(40);
 	connect(tonic, SIGNAL(highlighted(int)), SLOT(findChords()));
 
@@ -379,19 +379,20 @@ void ChordSelector::playMidi()
 									  time, 0, time + duration));
 
 
-	TSE3::Song   m_song(1);
-	TSE3::Phrase *phrase = phraseEdit.createPhrase(m_song.phraseList());
+	TSE3::Song   tsong(1);
+	TSE3::Phrase *phrase = phraseEdit.createPhrase(tsong.phraseList());
 	TSE3::Part   *part   = new TSE3::Part(0, phraseEdit.lastClock());
 	part->setPhrase(phrase);
-	m_song[0]->insert(part);
+	tsong[0]->insert(part);
 
 	TSE3::Metronome metronome;
 	TSE3::Transport transport(&metronome, scheduler);
 
     // Play and wait for the end
-	transport.play(&m_song, 0);
-	while (transport.status() != TSE3::Transport::Resting)
+	transport.play(&tsong, 0);
+	while (transport.status() != TSE3::Transport::Resting) {
 		transport.poll();
+	}
 #endif
 }
 
