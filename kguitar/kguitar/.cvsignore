@@ -5,6 +5,7 @@ kguitar
 .libs
 libkguitar.la
 libkguitar.la.closure
+libkguitar_la_meta_unload.cpp
 *.moc.cpp
 *.lo
 *.moc.lo
