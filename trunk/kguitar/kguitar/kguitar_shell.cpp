@@ -126,7 +126,7 @@ void KGuitarShell::slotSetCaption(const QString& caption)
 bool KGuitarShell::openURL(const KURL& url)
 {
 	bool ret = m_kgpart->openURL(url);
-	if(ret)
+	if (ret)
 		openRecentAct->addURL(url);
 	return ret;
 }
@@ -143,6 +143,7 @@ void KGuitarShell::slotFileOpen()
 											   "*.tab|ASCII files (*.tab)\n"
 											   "*.mid|MIDI files (*.mid)\n"
 											   "*.gtp|Guitar Pro files (*.gtp)\n"
+	                                           "*.xml|MusicXML files (*.xml)\n"
 											   "*|All files"), this);
 	if (!url.isEmpty())
 		openURL(url);
@@ -153,8 +154,10 @@ void KGuitarShell::slotFileSaveAs()
 	KFileDialog *dlg=new KFileDialog(0, i18n("*.kg|KGuitar files (*.kg)\n"
 											 "*.tab|ASCII files (*.tab)\n"
 											 "*.mid|MIDI files (*.mid)\n"
+	                                         "*.tse3|TSE3MDL files (*.tse3)\n"
 											 "*.gtp|Guitar Pro files (*.gtp)\n"
 											 "*.tex|MusiXTeX (*.tex)\n"
+	                                         "*.xml|MusicXML files (*.xml)\n"
 											 "*|All files"), this, 0, TRUE);
 	dlg->setCaption(i18n("Save as..."));
 
@@ -178,14 +181,14 @@ void KGuitarShell::slotFileSaveAs()
 			filter = fi->extension();
 			filter = filter.lower();
 			if (!((filter == "kg") || (filter == "mid") || (filter == "gtp") ||
-				(filter == "tex") || (filter == "tab"))) {
+				  (filter == "tex") || (filter == "tab") || (filter == "xml") || (filter == "tse3"))) {
 				KMessageBox::sorry(this, i18n("Please select a filter or add an extension."));
 				return;
 			}
 			filter = "*." + filter;
 		}
 		if ((filter == "*.kg") || (filter == "*.tab") || (filter == "*.mid") ||
-			(filter == "*.gtp") || (filter == "*.tex")) {
+			(filter == "*.gtp") || (filter == "*.tex") || (filter == "*.xml") || (filter = "*.tse3")) {
 			KURL url = KURL(fn);
 			saveURL(url);
 		}
