@@ -30,7 +30,7 @@ void FingerList::switchAuto(bool update)
   setAutoUpdate(update);
 }
 
-void FingerList::addFingering(const int a[MAX_STRINGS], bool update=TRUE)
+void FingerList::addFingering(const int a[MAX_STRINGS], bool update)
 {
   for (int i=0;i<MAX_STRINGS;i++)
     appl[num][i]=a[i];
