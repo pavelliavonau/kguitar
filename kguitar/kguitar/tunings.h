@@ -1,3 +1,6 @@
+#ifndef TUNINGS_H
+#define TUNINGS_H
+
 // tunings.h - library of stringed instrument tunings
 
 #include <klocale.h>
@@ -82,3 +85,5 @@ tuning lib_tuning[] = {
 
 	{ 0, {}, 0 }
 };
+
+#endif

@@ -1,3 +1,6 @@
+#ifndef STRUM_H
+#define STRUM_H
+
 // STRUM.H - library of various strumming patterns
 
 #include "strumlib.h"
@@ -131,3 +134,5 @@ strummer lib_strum[] = {
 
 	{ {}, { 0 }, "", "" }
 };
+
+#endif
