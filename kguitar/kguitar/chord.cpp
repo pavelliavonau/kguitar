@@ -108,7 +108,9 @@ ChordSelector::ChordSelector(TSE3::MidiScheduler *_scheduler, TabTrack *p, QWidg
 	if (scheduler) {
 		play->setEnabled(TRUE);
 		kdDebug() << "   Found MidiScheduler" << endl;
-	} else kdDebug() << "   No MidiScheduler found" << endl;
+	} else {
+		kdDebug() << "   No MidiScheduler found" << endl;
+	}
 }
 #endif
 
@@ -343,8 +345,9 @@ void ChordSelector::playMidi()
 	TSE3::Clock time = 0;
 	int duration = TSE3::Clock::PPQN;
 
-	phraseEdit.insert(TSE3::MidiEvent(TSE3::MidiCommand(TSE3::MidiCommand_ProgramChange, 0,
-														0 /*port*/, parm->patch), 0)); //ALINXFIX: port is an option
+	phraseEdit.insert(TSE3::MidiEvent(TSE3::MidiCommand(TSE3::MidiCommand_ProgramChange,
+														0, globalMidiPort, parm->patch),
+									  0));
 
 	int note;
 
@@ -353,8 +356,9 @@ void ChordSelector::playMidi()
 		if (fng->app(i) != -1) {
 			note = fng->app(i) + parm->tune[i];
 
-			phraseEdit.insert(TSE3::MidiEvent(TSE3::MidiCommand(TSE3::MidiCommand_NoteOn, 0, 0/*port*/,
-																note, 96), time, 96, time + duration));
+			phraseEdit.insert(TSE3::MidiEvent(TSE3::MidiCommand(TSE3::MidiCommand_NoteOn,
+																0, globalMidiPort, note, 96),
+											  time, 96, time + duration));
 			time += duration;
 		}
 
@@ -363,17 +367,19 @@ void ChordSelector::playMidi()
 		if (fng->app(i) != -1) {
 			note = fng->app(i) + parm->tune[i];
 
-			phraseEdit.insert(TSE3::MidiEvent(TSE3::MidiCommand(TSE3::MidiCommand_NoteOn, 0, 0/*port*/,
-																note, 96), time, 96, time + duration * 3));
+			phraseEdit.insert(TSE3::MidiEvent(TSE3::MidiCommand(TSE3::MidiCommand_NoteOn,
+																0, globalMidiPort, note, 96),
+											  time, 96, time + duration * 3));
 		}
 
 
 	time += duration;
-	phraseEdit.insert(TSE3::MidiEvent(TSE3::MidiCommand(TSE3::MidiCommand_NoteOn, 0, 0/*port*/,
-														0, 0), time, 0, time + duration));
+	phraseEdit.insert(TSE3::MidiEvent(TSE3::MidiCommand(TSE3::MidiCommand_NoteOn,
+														0, globalMidiPort, 0, 0),
+									  time, 0, time + duration));
 
 
-	TSE3::Song    m_song(1);
+	TSE3::Song   m_song(1);
 	TSE3::Phrase *phrase = phraseEdit.createPhrase(m_song.phraseList());
 	TSE3::Part   *part   = new TSE3::Part(0, phraseEdit.lastClock());
 	part->setPhrase(phrase);
@@ -386,7 +392,6 @@ void ChordSelector::playMidi()
 	transport.play(&m_song, 0);
 	while (transport.status() != TSE3::Transport::Resting)
 		transport.poll();
-
 #endif
 }
 

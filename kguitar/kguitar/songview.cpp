@@ -39,14 +39,13 @@
 #include <qdir.h>
 
 #ifdef WITH_TSE3
+#include <tse3/MidiScheduler.h>
 #include <tse3/Song.h>
 #include <tse3/PhraseEdit.h>
 #include <tse3/Part.h>
 #include <tse3/Track.h>
 #include <tse3/Metronome.h>
 #include <tse3/MidiScheduler.h>
-#include <tse3/plt/Alsa.h>
-#include <tse3/plt/OSS.h>
 #include <tse3/Transport.h>
 #include <tse3/Error.h>
 #endif
@@ -58,9 +57,6 @@ SongView::SongView(KXMLGUIClient *_XMLGUIClient, KCommandHistory *_cmdHist,
 				   QWidget *parent = 0, const char *name = 0): QWidget(parent, name)
 {
 #ifdef WITH_TSE3
-	AlsaFactory = new TSE3::Plt::AlsaMidiSchedulerFactory();
-	OSSFactory = new TSE3::Plt::OSSMidiSchedulerFactory();
-
 	scheduler = 0L;
 	initScheduler();
 #endif
@@ -102,11 +98,7 @@ SongView::SongView(KXMLGUIClient *_XMLGUIClient, KCommandHistory *_cmdHist,
 
 SongView::~SongView()
 {
-	delete song;
-#ifdef WITH_TSE3
-	delete AlsaFactory, OSSFactory;
-#endif
-	delete sp;
+	delete song, sp;
 }
 
 // Refreshes all the views and resets all minor parameters in the
@@ -333,34 +325,14 @@ void SongView::songProperties()
 	delete ss;
 }
 
-void SongView::playTrack()
-{
-#ifdef WITH_TSE3
-	kdDebug() << "SongView::playTrack" << endl;
-
-	if (midiInUse) {
-		kdDebug() << "   ** Sorry you are playing a track/song!!" << endl;
-		return;
-	}
-
-	midiInUse = TRUE;
-	midiStopPlay = FALSE;
-
-	midiList.clear();
-
-	MidiData::getMidiList(tv->trk(), midiList, TRUE);
-
-	playMidi(midiList, FALSE);
-#endif
-}
-
+// Start playing the song or stop it if it already plays
 void SongView::playSong()
 {
 #ifdef WITH_TSE3
 	kdDebug() << "SongView::playSong" << endl;
 
 	if (midiInUse) {
-		kdDebug() << "   ** Sorry you are playing a track/song!!" << endl;
+		stopPlay();
 		return;
 	}
 
@@ -379,16 +351,15 @@ void SongView::playSong()
 #endif
 }
 
-void SongView::stopPlayTrack()
+void SongView::stopPlay()
 {
 #ifdef WITH_TSE3
 	kdDebug() << "SongView::stopPlayTrack" << endl;
-
-	if (midiInUse) midiStopPlay = TRUE;
+	if (midiInUse)  midiStopPlay = TRUE;
 #endif
 }
 
-void SongView::playMidi(MidiList &ml, bool playSong = TRUE)
+void SongView::playMidi(MidiList &ml)
 {
 #ifdef WITH_TSE3
 	kdDebug() << "SongView::playMidi" << endl;
@@ -412,19 +383,12 @@ void SongView::playMidi(MidiList &ml, bool playSong = TRUE)
 	MidiEvent *e;
 	TSE3::PhraseEdit phraseEdit;
 
-	if (playSong) {
-		QListIterator<TabTrack> it(song->t);
-		for (; it.current(); ++it) {
-			TabTrack *trk = it.current();
-			phraseEdit.insert(TSE3::MidiEvent(TSE3::MidiCommand(TSE3::MidiCommand_ProgramChange,
-																trk->channel - 1, 0 /*port*/,
-																trk->patch), 0));
-			//## and MIDI commands for Volume, Chorus, etc.
-		}
-	} else {
+	QListIterator<TabTrack> it(song->t);
+	for (; it.current(); ++it) {
+		TabTrack *trk = it.current();
 		phraseEdit.insert(TSE3::MidiEvent(TSE3::MidiCommand(TSE3::MidiCommand_ProgramChange,
-															tv->trk()->channel - 1, 0 /*port*/,
-															tv->trk()->patch), 0));
+															trk->channel - 1, globalMidiPort,
+															trk->patch), 0));
 		//## and MIDI commands for Volume, Chorus, etc.
 	}
 
@@ -433,7 +397,7 @@ void SongView::playMidi(MidiList &ml, bool playSong = TRUE)
 	Q_UINT8 lastchn = 0;
 
 	for (e = ml.first(); e != 0; e = ml.next()) {
-		phraseEdit.insert(TSE3::MidiEvent(TSE3::MidiCommand(TSE3::MidiCommand_NoteOn, e->chn, 0/*port*/,
+		phraseEdit.insert(TSE3::MidiEvent(TSE3::MidiCommand(TSE3::MidiCommand_NoteOn, e->chn, globalMidiPort,
 															e->data1/*note*/, e->data2 /*velocity*/),
 										  e->timestamp, 0/*velocity*/, e->timestamp + e->duration));
 		lasttimestamp = e->timestamp;
@@ -442,7 +406,7 @@ void SongView::playMidi(MidiList &ml, bool playSong = TRUE)
 	}
 
 	lasttimestamp += lastduration;
-	phraseEdit.insert(TSE3::MidiEvent(TSE3::MidiCommand(TSE3::MidiCommand_NoteOn, lastchn, 0/*port*/,
+	phraseEdit.insert(TSE3::MidiEvent(TSE3::MidiCommand(TSE3::MidiCommand_NoteOn, lastchn, globalMidiPort,
 														0, 0), lasttimestamp, 0, lasttimestamp + lastduration));
 
 	// Now assemble the Song
@@ -478,19 +442,12 @@ void SongView::playMidi(MidiList &ml, bool playSong = TRUE)
 bool SongView::initScheduler()
 {
 	if (!scheduler) {
+		TSE3::MidiSchedulerFactory factory;
 		try {
-			scheduler = OSSFactory->createScheduler();
-			kdDebug() << "TSE3 OSS MIDI Scheduler created" << endl;
+			scheduler = factory.createScheduler();
+			kdDebug() << "MIDI Scheduler created" << endl;
 		} catch (TSE3::MidiSchedulerError e) {
-			kdDebug() << "cannot create an OSS MIDI Scheduler" << endl;
-		}
-		if (!scheduler) {
-			try {
-				scheduler = AlsaFactory->createScheduler();
-				kdDebug() << "TSE3 ALSA MIDI Scheduler created" << endl;
-			} catch (TSE3::MidiSchedulerError e) {
-				kdDebug() << "cannot create an ALSA MIDI Scheduler" << endl;
-			}
+			kdDebug() << "cannot create MIDI Scheduler" << endl;
 		}
 
 		if (!scheduler) {

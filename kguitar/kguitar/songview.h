@@ -8,12 +8,6 @@
 
 #include <kcommand.h>
 
-#ifdef WITH_TSE3
-#include <tse3/MidiScheduler.h>
-#include <tse3/plt/Alsa.h>
-#include <tse3/plt/OSS.h>
-#endif
-
 class TrackView;
 class TrackList;
 class TrackPane;
@@ -23,6 +17,10 @@ class KXMLGUIClient;
 class KCommandHistory;
 class KPrinter;
 class SongPrint;
+
+#ifdef WITH_TSE3
+#include <tse3/MidiScheduler.h>
+#endif
 
 class SongView: public QWidget {
 	Q_OBJECT
@@ -38,7 +36,9 @@ public:
 	TrackPane *tp;
 
 	TabSong* sng() { return song; }
-//##	DeviceManager* devMan() { return midi; }
+#ifdef WITH_TSE3
+	TSE3::MidiScheduler* midiScheduler() { return scheduler; }
+#endif
 
 public slots:
 	bool trackNew();
@@ -46,16 +46,15 @@ public slots:
 	bool trackProperties();
 	void trackBassLine();
 	void songProperties();
-	void playTrack();
 	void playSong();
-	void stopPlayTrack();
+	void stopPlay();
 	void slotCut();
 	void slotCopy();
 	void slotPaste();
 	void slotSelectAll();
 
 private slots:
-	void playMidi(MidiList &ml, bool playSong = TRUE);
+	void playMidi(MidiList &ml);
 
 private:
 	TabTrack *highlightedTabs();
@@ -73,8 +72,6 @@ private:
 
 #ifdef WITH_TSE3
 	TSE3::MidiScheduler *scheduler;
-	TSE3::Plt::AlsaMidiSchedulerFactory *AlsaFactory;
-	TSE3::Plt::OSSMidiSchedulerFactory *OSSFactory;
 	bool initScheduler();
 #endif
 };

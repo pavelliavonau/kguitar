@@ -34,7 +34,6 @@
 #include <qradiobutton.h>
 #include <qfileinfo.h>
 
-
 // Global variables - real declarations
 
 // General
@@ -49,10 +48,8 @@ bool globalShowStr;
 bool globalShowPageNumb;
 int globalTexExpMode;
 
-// ALSA
-int globalAlsaClient;
-int globalAlsaPort;
-
+// MIDI
+int globalMidiPort;
 bool globalHaveMidi;
 
 QString drum_abbr[128];
@@ -153,9 +150,6 @@ KGuitarPart::KGuitarPart(bool bBrowserView, KCommandHistory *_cmdHist, QWidget *
 	arrTrkAct = new KAction(i18n("&Arrange Track"), KAccel::stringToKey("Shift+A"), sv->tv,
 							SLOT(arrangeTracks()), actionCollection(), "arrange_trk");
 
-//	midiPlayAct = new KAction(i18n("&Play"), KAccel::stringToKey("Space"), sv->tv,
-//							  SLOT(midiPlay()), actionCollection(), "midi_play");
-
 	// SET UP DURATION
 	len1Act = new KAction(i18n("Whole"), "note1", KAccel::stringToKey("Ctrl+1"),
 						  sv->tv, SLOT(setLength1()), actionCollection(), "set_len1");
@@ -217,17 +211,13 @@ KGuitarPart::KGuitarPart(bool bBrowserView, KCommandHistory *_cmdHist, QWidget *
 								   SLOT(setJZmixed()), actionCollection(), "jazz_mix");
 
     // SET UP MIDI-PLAY
-	midiPlayTrackAct = new KAction(i18n("&Play Track"), "1rightarrow",
-								   KAccel::stringToKey("Shift+P"), sv, SLOT(playTrack()),
-								   actionCollection(), "midi_playtrack");
-	midiPlaySongAct = new KAction(i18n("P&lay Song"), "1rightarrow",
-								   KAccel::stringToKey("Shift+S"), sv, SLOT(playSong()),
+	midiPlaySongAct = new KAction(i18n("&Play / stop"), "1rightarrow",
+								   KAccel::stringToKey("Space"), sv, SLOT(playSong()),
 								   actionCollection(), "midi_playsong");
 	midiStopPlayAct = new KAction(i18n("&Stop"), "player_stop",
-								  KAccel::stringToKey("Ctrl+Shift+P"), sv, SLOT(stopPlayTrack()),
+								  KAccel::stringToKey("Ctrl+Shift+P"), sv, SLOT(stopPlay()),
 								  actionCollection(), "midi_stopplay");
 #ifndef WITH_TSE3
-	midiPlayTrackAct->setEnabled(FALSE);
 	midiPlaySongAct->setEnabled(FALSE);
 	midiStopPlayAct->setEnabled(FALSE);
 #endif
@@ -304,8 +294,9 @@ KGuitarPart::KGuitarPart(bool bBrowserView, KCommandHistory *_cmdHist, QWidget *
 		sngPropAct->setText(i18n("Song Properties..."));
 		trkPropAct->setText(i18n("Track Properties..."));
 		setXMLFile("kguitar_konq.rc");
-	} else
+	} else {
 		setXMLFile("kguitar_part.rc");
+	}
 
 	// READ CONFIGS
 	readOptions();
@@ -550,7 +541,11 @@ void KGuitarPart::filePrint()
 
 void KGuitarPart::options()
 {
-	Options *op = new Options(/*sv->devMan()*/); //##
+	Options *op = new Options(
+#ifdef WITH_TSE3
+							  sv->midiScheduler()
+#endif
+							  );
 
 	op->maj7gr->setButton(globalMaj7);
 	op->flatgr->setButton(globalFlatPlus);
@@ -592,13 +587,8 @@ void KGuitarPart::readOptions()
 	globalShowPageNumb = config->readBoolEntry("ShowPageNumb", TRUE);
 	globalTexExpMode = config->readNumEntry("TexExpMode", 0);
 
-// 	config->setGroup("ALSA");
-// 	globalAlsaClient = config->readNumEntry("client", 64);
-// 	globalAlsaPort = config->readNumEntry("port", 0);
-
-//##	config->setGroup("MIDI");
-//##	int d = config->readNumEntry("Device", 0);
-//##	sv->devMan()->setDefaultDevice(d);
+ 	config->setGroup("TSE3");
+ 	globalMidiPort = config->readNumEntry("Port", 64);
 }
 
 void KGuitarPart::saveOptions()
@@ -624,12 +614,8 @@ void KGuitarPart::saveOptions()
 	config->writeEntry("ShowPageNumb", globalShowPageNumb);
 	config->writeEntry("TexExpMode", globalTexExpMode);
 
-// 	config->setGroup("ALSA");
-// 	config->writeEntry("Client", globalAlsaClient);
-// 	config->writeEntry("Port", globalAlsaPort);
-
-//##	config->setGroup("MIDI");
-//##	config->writeEntry("Device", sv->devMan()->defaultDevice());
+ 	config->setGroup("TSE3");
+ 	config->writeEntry("Port", globalMidiPort);
 
 	config->sync();
 

@@ -9,29 +9,30 @@
 #include <qbuttongroup.h>
 #include <qradiobutton.h>
 
-#ifdef HAVE_LIBASOUND
-#include <sys/asoundlib.h>
+#ifdef WITH_TSE3
 #include <qframe.h>
 #include <qlistview.h>
 #include <qlabel.h>
 #include <qpushbutton.h>
 #endif
 
-//## #include <libkmid/deviceman.h>
-
-Options::Options(/*DeviceManager *_dm,*/ QWidget *parent = 0, char *name = 0, bool modal) //##
+Options::Options(
+#ifdef WITH_TSE3
+				 TSE3::MidiScheduler *_sch,
+#endif
+				 QWidget *parent = 0, char *name = 0, bool modal)
 	: KDialogBase(IconList, i18n("Preferences"), Help|Default|Ok|Apply|Cancel,
 				  Ok, parent, name, modal, TRUE)
 {
-//##	dm = _dm;
-
-	//Setup Tabs
+	// Setup Tabs
 	setupTheoryTab();
 	setupMusixtexTab();
-#ifdef HAVE_LIBASOUND
-	setupAlsaTab();
+
+#ifdef WITH_TSE3
+	sch = _sch;
+	setupMidiTab();
 #endif
-//##	setupKmidTab();
+
 	resize(530, 300);
 	connect(this, SIGNAL(defaultClicked()), SLOT(defaultBtnClicked()));
 	connect(this, SIGNAL(okClicked()), SLOT(applyBtnClicked()));
@@ -129,119 +130,53 @@ void Options::setupMusixtexTab()
 	vbtex->activate();
 }
 
-// LibKMid settings setup
-void Options::setupKmidTab()
+#ifdef WITH_TSE3
+void Options::setupMidiTab()
 {
-//##>
-// 	QFrame *kmid = addPage(i18n("MIDI Device Support"), 0,
-// 						   DesktopIcon("kcmmidi", KIcon::SizeMedium));
+	QFrame *midi = addPage(i18n("MIDI"), 0, DesktopIcon("kcmmidi", KIcon::SizeMedium));
 
-// 	QBoxLayout *kmidl = new QHBoxLayout(kmid, 15, 10);
+	midiport = new QListView(midi);
+	midiport->setSorting(-1); // no text sorting
+	midiport->setFrameStyle(QFrame::Panel | QFrame::Sunken);
+	midiport->addColumn(i18n("Port"));
+	midiport->addColumn(i18n("Info"));
+	midiport->setMinimumSize(350, 100);
 
-// 	kmidport = new QListBox(kmid);
+	fillMidiBox();
 
-// 	char temp[200];
-// 	for (int i = 0; i < dm->midiPorts() + dm->synthDevices(); i++) {
-// 		if (strcmp(dm->type(i), "") != 0)
-// 			sprintf(temp,"%s - %s", dm->name(i), dm->type(i));
-// 		else
-// 			sprintf(temp,"%s", dm->name(i));
+	QLabel *midiport_l = new QLabel(midiport, i18n("MIDI &output port"), midi);
+	midiport_l->setMinimumSize(100, 15);
 
-// 		kmidport->insertItem(temp,i);
-// 	};
-// 	int selecteddevice = dm->defaultDevice();
-// 	kmidport->setCurrentItem(selecteddevice);
+	QPushButton *midirefresh = new QPushButton(i18n("&Refresh"), midi);
+	connect(midirefresh, SIGNAL(clicked()), SLOT(fillMidiBox()));
+	midirefresh->setMinimumSize(75, 30);
 
-// 	kmidl->addWidget(kmidport);
-// 	kmidl->activate();
-//##<
+	QVBoxLayout *midivb = new QVBoxLayout(midi, 10, 5);
+	midivb->addWidget(midiport_l);
+	midivb->addWidget(midiport, 1);
+	midivb->addWidget(midirefresh);
+	midivb->activate();
 }
 
-void Options::setupAlsaTab()
+void Options::fillMidiBox()
 {
-#ifdef HAVE_LIBASOUND
-    //////////////////////////////////////////////////////////////////
-	// ALSA MIDI SETTINGS
-    //////////////////////////////////////////////////////////////////
+	std::vector<int> portNums;
+	sch->portNumbers(portNums);
 
-	QFrame *alsa = addPage(i18n("ALSA"), 0, DesktopIcon("kcmmidi", KIcon::SizeMedium));
+	midiport->clear();
 
-	alsaport = new QListView(alsa);
-	alsaport->setSorting(-1); // no text sorting
-	alsaport->setFrameStyle(QFrame::Panel | QFrame::Sunken);
-	alsaport->addColumn(i18n("Port"));
-	alsaport->addColumn(i18n("Client Info"));
-	alsaport->addColumn(i18n("Port Info"));
-	alsaport->setMinimumSize(350, 100);
+	QListViewItem *lastItem = NULL;
 
-	fillAlsaBox();
-
-	QLabel *alsaport_l = new QLabel(alsaport, i18n("MIDI &output port"), alsa);
-	alsaport_l->setMinimumSize(100, 15);
-
-	QPushButton *alsarefresh = new QPushButton(i18n("&Refresh"), alsa);
-	connect(alsarefresh, SIGNAL(clicked()), SLOT(fillAlsaBox()));
-	alsarefresh->setMinimumSize(75, 30);
-
-	QVBoxLayout *alsavb = new QVBoxLayout(alsa, 10, 5);
-	alsavb->addWidget(alsaport_l);
-	alsavb->addWidget(alsaport, 1);
-	alsavb->addWidget(alsarefresh);
-	alsavb->activate();
-
+	for (size_t i = 0; i < sch->numPorts(); i++) {
+		lastItem = new QListViewItem(midiport,
+									 lastItem,
+									 QString::number(portNums[i]),
+									 sch->portName(portNums[i]));
+		if (globalMidiPort == portNums[i])
+			midiport->setCurrentItem(lastItem);
+	}
+}
 #endif
-}
-
-
-void Options::fillAlsaBox()
-{
-#ifdef HAVE_LIBASOUND
-	snd_seq_client_info_t cinfo;
-	snd_seq_port_info_t pinfo;
-	snd_seq_system_info_t sysinfo;
-	int client;
-	int port;
-	int err;
-	snd_seq_t *handle;
-
-	QString tmp, tmp2;
-
-	alsaport->clear();
-
-	err = snd_seq_open(&handle, SND_SEQ_OPEN);
-	if (err < 0) {
-		perror("Could not open sequencer");
-		return;
-	}
-
-	err = snd_seq_system_info(handle, &sysinfo);
-	if (err < 0) {
-		perror("Could not get sequencer information");
-		return;
-	}
-
-	int cap = (SND_SEQ_PORT_CAP_SUBS_WRITE | SND_SEQ_PORT_CAP_WRITE);
-
-	for (client = 0; client < sysinfo.clients; client++) {
-		err = snd_seq_get_any_client_info(handle, client, &cinfo);
-		if (err < 0)
-			continue;
-
-		for (port = 0; port < sysinfo.ports; port++) {
-			err = snd_seq_get_any_port_info(handle, client, port, &pinfo);
-			if (err < 0)
-				continue;
-
-			if ((pinfo.capability & cap) == cap) {
-				tmp.setNum(pinfo.client);
-				tmp2.setNum(pinfo.port);
-				tmp = tmp + ":" + tmp2;
-				(void) new QListViewItem(alsaport, tmp, cinfo.name, pinfo.name);
-			}
-		}
-	}
-#endif
-}
 
 void Options::applyBtnClicked()
 {
@@ -262,7 +197,8 @@ void Options::applyBtnClicked()
 	if (expmode[0]->isChecked()) globalTexExpMode = 0;
 	if (expmode[1]->isChecked()) globalTexExpMode = 1;
 
-//##	dm->setDefaultDevice(kmidport->currentItem());
+	if (midiport->currentItem())
+		globalMidiPort = midiport->currentItem()->text(0).toInt();
 }
 
 void Options::defaultBtnClicked()

@@ -10,13 +10,19 @@ class QRadioButton;
 class QListView;
 class QListBox;
 class QSlider;
-//##class DeviceManager;
 
-class Options: public KDialogBase
-{
+#ifdef WITH_TSE3
+#include <tse3/MidiScheduler.h>
+#endif
+
+class Options: public KDialogBase {
     Q_OBJECT
 public:
-    Options(/*DeviceManager *_dm,*/ QWidget *parent = 0, char *name = 0,//##
+    Options(
+#ifdef WITH_TSE3
+			TSE3::MidiScheduler *_sch,
+#endif
+			QWidget *parent = 0, char *name = 0,//##
 			bool modal = TRUE);
 
     QButtonGroup *maj7gr,*flatgr, *texlygr, *texsizegr, *texexpgr;
@@ -26,20 +32,18 @@ public:
 protected:
     void setupTheoryTab();
     void setupMusixtexTab();
-    void setupAlsaTab();
-	void setupKmidTab();
+    void setupMidiTab();
 
-// Though these aren't used in any compilation, they're here
-private slots:
-	void fillAlsaBox();
-    void applyBtnClicked();
-    void defaultBtnClicked();
+protected slots:
+	void fillMidiBox();
+	void applyBtnClicked();
+	void defaultBtnClicked();
 
 private:
-	QListBox *kmidport;
-	QListView *alsaport;
-
-//##	DeviceManager *dm;
+#ifdef WITH_TSE3
+	QListView *midiport;
+	TSE3::MidiScheduler *sch;
+#endif
 };
 
 #endif
