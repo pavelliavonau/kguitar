@@ -15,7 +15,7 @@ public:
 	void updateList();
 
 signals:
-	void newTrackSelected(TabTrack *);
+	void trackChanged(TabTrack *);
 	void newBarSelected(uint);
 
 protected:

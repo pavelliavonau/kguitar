@@ -52,7 +52,7 @@ private slots:
 	void saveOptions();
 	void slotConfigToolBars();
 	void configKeys();
-	void updateForNewTrack();
+	void updateToolbars(TabTrack *);
 
 	void setUSsharp() { globalNoteNames = 0; updateMenu(); };
 	void setUSflats() { globalNoteNames = 1; updateMenu(); };

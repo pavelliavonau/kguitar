@@ -82,5 +82,5 @@ void TrackList::selectNewTrack(QListViewItem *item)
 		return;
 
 	int num = item->text(0).toInt() - 1;
-	emit newTrackSelected(song->t.at(num));
+	emit trackChanged(song->t.at(num));
 }
