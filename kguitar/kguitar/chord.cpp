@@ -204,7 +204,7 @@ void ChordSelector::findChords()
                 if (!ok)  break;
 	};
 	if ((ok) && (max-min<3))
-	  fnglist->addFingering(app);
+	  fnglist->addFingering(app,TRUE);
       }
     } while (!finished);
 
