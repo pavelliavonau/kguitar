@@ -34,14 +34,15 @@ QString note_name(int num)
 }
 
 //                     3  5  7  9  11 13
-int stemplate[8][6]={ {-1,2, 0, 0, 0, 0 },
+int stemplate[9][6]={ {-1,2, 0, 0, 0, 0 },
 		      {-1,2, 2, 0, 0, 0 },
 		      {-1,2, 3, 0, 0, 0 },
 		      {-1,2, 1, 0, 0, 0 },
 		      {3, 3, 0, 0, 0, 0 },
 		      {2, 1, 1, 0, 0, 0 },
 		      {-1,2, 2, 2, 0, 0 },
-		      {-1,2, 2, 2, 2, 0 } };
+		      {-1,2, 2, 2, 2, 0 },
+                      {0, 2, 0, 0, 0, 0 } };
 
 ChordSelector::ChordSelector(QWidget *parent=0, const char *name=0)
     :QDialog(parent,name,TRUE)
@@ -74,6 +75,7 @@ ChordSelector::ChordSelector(QWidget *parent=0, const char *name=0)
     stephigh->insertItem("dim");
     stephigh->insertItem("9");
     stephigh->insertItem("11");
+    stephigh->insertItem("5");
     stephigh->setGeometry(160,40,60,200);
     connect(stephigh,SIGNAL(highlighted(int)),SLOT(setHighSteps()));
 
@@ -173,7 +175,7 @@ void ChordSelector::detectChord()
     bool cn[12];
     int i,j,numnotes,noteok;
     QString name;
-    int s3,s5,s7,s9,s11;
+    int s3,s5,s7,s9,s11,s13;
 
     for (i=0;i<12;i++)
 	cn[i]=FALSE;
@@ -195,7 +197,7 @@ void ChordSelector::detectChord()
     for (i=0;i<12;i++)  if (cn[i]) {
 
 	// Initializing
-	s3=-1;s5=-1;s7=-1;s9=-1;s11=-1;noteok=numnotes-1;
+	s3=-1;s5=-1;s7=-1;s9=-1;s11=-1;s13=-1;noteok=numnotes-1;
 
 	// Detecting thirds
 	if (cn[(i+4)%12]) {
@@ -241,18 +243,29 @@ void ChordSelector::detectChord()
 	} else if ((cn[(i+4)%12]) && (s3!=4)) {
 	    s11=4;noteok--;               // 11-
 	} else if ((cn[(i+6)%12]) && (s5!=6)) {
-	    s11=6;noteok--;
+	    s11=6;noteok--;               // 11+
+	}
+
+	// Detecting 13ths
+	if ((cn[(i+9)%12]) && (s7!=9)) {
+	    s13=9;noteok--;
+	} else if ((cn[(i+8)%12]) && (s5!=8)) {
+	    s13=8;noteok--;
+	} else if ((cn[(i+10)%12]) && (s7!=10)) {
+	    s13=10;noteok--;
 	}
 
 	if (noteok==0) {
 	    name=note_name(i);
 
 	    // Special cases
-	    if ((s3==-1) && (s5==7) && (s7==-1) && (s9==-1) && (s11==-1)) {
+	    if ((s3==-1) && (s5==7) && (s7==-1) &&
+		(s9==-1) && (s11==-1) && (s13==-1)) {
 		chords->insertItem(name+"5");
 		continue;
 	    }
-	    if ((s3==4) && (s5==8) && (s7==-1) && (s9==-1) && (s11==-1)) {
+	    if ((s3==4) && (s5==8) && (s7==-1) &&
+		(s9==-1) && (s11==-1) && (s13==-1)) {
 		chords->insertItem(name+"aug");
 		continue;
 	    }
@@ -267,7 +280,8 @@ void ChordSelector::detectChord()
 		    name=name+"/5-";
 		if (s5==8)
 		    name=name+"/5+";
-		if (((s5==6) || (s5==8)) && ((s7!=-1) || (s9!=-1) && (s11!=-1)))
+		if (((s5==6) || (s5==8)) && ((s7!=-1) || (s9!=-1) ||
+					     (s11!=-1) || (s13!=-1)))
 		    name=name+"/";
 		
 		if ((s7==10) && (s9==-1))
@@ -276,7 +290,7 @@ void ChordSelector::detectChord()
 		    name=name+"7M";
 		if (s7==9)
 		    name=name+"6";
-		if (((s7==11) || (s7==9)) && ((s9!=-1) || (s11!=-1)))			   
+		if (((s7==11) || (s7==9)) && ((s9!=-1) || (s11!=-1) || (s13!=-1)))
 		    name=name+"/";
 	    }
 
@@ -288,17 +302,28 @@ void ChordSelector::detectChord()
 		name=name+"9-";
 	    if (s9==3)
 		name=name+"9+";
-	    if (((s9==1) || (s9==3)) && (s11!=-1))
+	    if (((s9==1) || (s9==3)) && ((s11!=-1) || (s13!=-1)))
 		name=name+"/";
 
 	    if ((s9==-1) && (s11!=-1))
 		name=name+"add";
-	    if (s11==5)
+	    if ((s11==5) && (s13==-1))
 		name=name+"11";
 	    if (s11==6)
 		name=name+"11+";
 	    if (s11==4)
 		name=name+"11-";
+	    if (((s11==4) || (s11==6)) && (s13!=-1))
+		name=name+"/";
+
+	    if ((s11==-1) && (s13!=-1))
+		name=name+"add";
+	    if (s13==9)
+		name=name+"13";
+	    if (s13==10)
+		name=name+"13+";
+	    if (s13==8)
+		name=name+"13-";
 
 	    if (s3==2)
 		name=name+"sus2";
@@ -416,7 +441,7 @@ void ChordSelector::findSelection()
     case 4: step3->setCurrentItem(3);break;                // Sus4
     }
 
-    for (int j=0;j<8;j++) {
+    for (int j=0;j<stephigh->count();j++) {
 	ok = TRUE;
 	for (int i=0;i<6;i++) {
 	    if ((stemplate[j][i]!=-1) && (stemplate[j][i]!=st[i]->currentItem())) {
