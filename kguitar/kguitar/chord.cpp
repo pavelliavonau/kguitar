@@ -14,7 +14,7 @@
 #include <kapp.h>
 
 #include <qpushbutton.h>
-#include <qbuttongroup.h>
+#include <qvbuttongroup.h>
 #include <qradiobutton.h>
 #include <qlistbox.h>
 #include <qlineedit.h>
@@ -121,21 +121,21 @@ void ChordSelector::initChordSelector(TabTrack *p)
 	strum_scheme = 0;
 
 	chname = new QLineEdit(this);
-	chname->setMinimumHeight(20);
 
 	// CHORD SELECTOR FOR FINDER WIDGETS
 
 	tonic = new QListBox(this);
 	for (int i = 0; i < 12; i++)
 		tonic->insertItem(note_name(i));
-	//	tonic->setRowMode(12);
-	tonic->setMinimumWidth(40);
+//     tonic->setHScrollBarMode(QScrollView::AlwaysOff);
+//     tonic->setVScrollBarMode(QScrollView::AlwaysOff);
+	tonic->setRowMode(12);
+// 	tonic->setMinimumWidth(tonic->maxItemWidth());
 	connect(tonic, SIGNAL(highlighted(int)), SLOT(findChords()));
 
 	bassnote = new QComboBox(FALSE, this);
 	for (int i = 0; i < 12; i++)
 		bassnote->insertItem(note_name(i));
-	bassnote->setMinimumSize(40, 20);
 
 	step3 = new QListBox(this);
 	step3->insertItem("M");
@@ -208,21 +208,16 @@ void ChordSelector::initChordSelector(TabTrack *p)
 	inv->insertItem(i18n("Inv #6"));
 	connect(inv, SIGNAL(activated(int)), SLOT(findChords()));
 
-	complexity = new QButtonGroup(this);
-	complexity->setMinimumSize(90, 70);
+	complexity = new QVButtonGroup(this);
 	complexer[0] = new QRadioButton(i18n("Usual"), complexity);
-	complexer[0]->setGeometry(5, 5, 80, 20);
 	complexer[1] = new QRadioButton(i18n("Rare"), complexity);
-	complexer[1]->setGeometry(5, 25, 80, 20);
 	complexer[2] = new QRadioButton(i18n("All"), complexity);
-	complexer[2]->setGeometry(5, 45, 80, 20);
 	complexity->setButton(0);
 	connect(complexity, SIGNAL(clicked(int)), SLOT(findChords()));
 
 	// CHORD ANALYZER
 
 	fng = new Fingering(p, this);
-	fng->move(230, 10);
 	connect(fng, SIGNAL(chordChange()), SLOT(detectChord()));
 
 	chords = new ChordList(this);
@@ -231,28 +226,24 @@ void ChordSelector::initChordSelector(TabTrack *p)
 
 	// CHORD FINDER OUTPUT
 
-	fnglist = new FingerList(p,this);
-	connect(fnglist,SIGNAL(chordSelected(const int *)),
-	        fng,SLOT(setFingering(const int *)));
+	fnglist = new FingerList(p, this);
+	connect(fnglist, SIGNAL(chordSelected(const int *)),
+	        fng, SLOT(setFingering(const int *)));
 
 	// DIALOG BUTTONS
 
 	QPushButton *ok, *cancel, *strumbut;
 
 	ok = new QPushButton(i18n("OK"), this);
-	ok->setMinimumSize(75, 30);
 	connect(ok, SIGNAL(clicked()), SLOT(accept()));
 
 	cancel = new QPushButton(i18n("Cancel"), this);
-	cancel->setMinimumSize(75, 30);
 	connect(cancel, SIGNAL(clicked()), SLOT(reject()));
 
 	strumbut = new QPushButton(i18n("&Strum..."), this);
-	strumbut->setMinimumSize(75, 30);
 	connect(strumbut, SIGNAL(clicked()), SLOT(askStrum()));
 
 	play = new QPushButton(i18n("&Play"), this);
-	play->setMinimumSize(75, 30);
 	connect(play, SIGNAL(clicked()), SLOT(playMidi()));
     play->setEnabled(FALSE);
 
