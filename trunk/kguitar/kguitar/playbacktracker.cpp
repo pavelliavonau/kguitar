@@ -2,8 +2,7 @@
 #include "songview.h"
 #include "tabtrack.h"
 
-// GREYFIX
-#include <stdio.h>
+#include <kdebug.h>
 
 PlaybackTracker::PlaybackTracker(SongView *_sv): TransportCallback()
 {
@@ -13,14 +12,14 @@ PlaybackTracker::PlaybackTracker(SongView *_sv): TransportCallback()
 void PlaybackTracker::Transport_MidiOut(TSE3::MidiCommand c)
 {
 	int track, x;
+	kdDebug() << "TICK: cmd=" << c.status << " port=" << c.port
+	          << " data1=" << c.data1 << " data2=" << c.data2
+	          << " ch=" << c.channel << endl;
 	if (c.status == KGUITAR_MIDI_COMMAND && c.port == KGUITAR_MIDI_PORT) {
-		printf("TICK: cmd=%d port=%d data1=%d data2=%d ch=%d\n", c.status, c.port, c.data1, c.data2, c.channel);
 		TabTrack::decodeTimeTracking(c, track, x);
-		printf("TICK -----------> T%d, x=%d\n", track, x);
+		kdDebug() << "TICK -----------> T" << track << ", x=" << x << endl;
 		sv->playbackColumn(track, x);
-	} else {
-		printf("MIDI: cmd=%d port=%d data1=%d data2=%d ch=%d\n", c.status, c.port, c.data1, c.data2, c.channel);
 	}
 }
 
-void PlaybackTracker::Transport_MidiIn(TSE3::MidiCommand c) {}
+void PlaybackTracker::Transport_MidiIn(TSE3::MidiCommand) {}
