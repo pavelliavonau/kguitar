@@ -33,7 +33,7 @@
 #include <iostream>		// required for cout and friends
 using namespace std;		// required for cout and friends
 
-#define VERTSPACE                       30 // between top of cell and first line
+#define VERTSPACE                      230 // between top of cell and first line
 #define VERTLINE                        10 // between horizontal tabulature lines
 #define HORDUR                          4
 #define HORCELL                         14 // horizontal size of tab numbers column
@@ -45,6 +45,18 @@ using namespace std;		// required for cout and friends
 #define NORMAL_FONT_FACTOR              0.8
 #define TIME_SIG_FONT_FACTOR            1.4
 #define SMALL_CAPTION_FONT_FACTOR       0.7
+
+// LVIFIX: note differences between "old" (in trackview.cpp) and "new" drawing code (in trackprint.cpp):
+// - erase width around tab column numbers is "as tight as possible", while the cursor is a bit wider,
+//   which leads to minor reverse-video artefacts under the cursor
+// - starting bars (very thick and thick one) not implemented
+// - harmonics use a diamond instead of text in the new code
+// - palm muting uses a small cross instead of text in the new code
+
+// Define if both "old" and "new" drawing code must be used at the same time
+// Undefine to use only the "new" drawing code
+#undef USE_BOTH_OLD_AND_NEW
+// #define USE_BOTH_OLD_AND_NEW
 
 TrackView::TrackView(TabSong *s, KXMLGUIClient *_XMLGUIClient, KCommandHistory *_cmdHist,
 #ifdef WITH_TSE3
@@ -129,7 +141,7 @@ void TrackView::selectTrack(TabTrack *trk)
 
 void TrackView::selectBar(uint n)
 {
-	if (n != curt->xb && n < curt->b.size()) {
+	if (n != (uint) curt->xb && n < curt->b.size()) {
 		curt->x = curt->b[n].start;
 		curt->xb = n;
 		ensureCurrentVisible();
@@ -173,14 +185,17 @@ void TrackView::zoomLevelDialog()
 
 void TrackView::updateRows()
 {
-	int ch = VERTSPACE * 2 + VERTLINE * (curt->string - 1);
-	if (viewscore) {
-		if (fetaFont) {
-			ch *= 3;	// LVIFIX
-		} else {
-			ch *= 2;	// LVIFIX
-		}
+	int ch = 110;		// LVIFIX: should be font-size dependent
+#ifdef USE_BOTH_OLD_AND_NEW
+	// note: cannot make row height dependent on viewscore without making too many
+	// changes to the "old" drawing code: use fixed height
+	ch += 3 * VERTLINE * 2 + VERTLINE * (curt->string - 1);
+	ch += 100;	// LVIFIX: should be font-size dependent
+#else
+	if (viewscore && fetaFont) {
+		ch += 100;	// LVIFIX: should be font-size dependent
 	}
+#endif
 	setNumRows(curt->b.size());
 	setMinimumHeight(ch);
 	setCellHeight(ch);
@@ -429,99 +444,106 @@ void TrackView::drawLetRing(QPainter *p, int x, int y)
 	p->setPen(NoPen);
 }
 
+// LVIFIX: magic constants such as yposst etc. should be font-size dependent
+
 void TrackView::paintCell(QPainter *p, int row, int /*col*/)
 {
 //	cout << "TrackView::paintCell(row=" << row << ")" << endl;
 
-	int s = curt->string - 1;
-	int selx2coord = -1;
+	uint bn = row;                      // Drawing only this bar
 
+	int selx2coord = -1;
+	selxcoord = -1;
+	
 	if (row >= int(curt->b.size())) {
 		kdDebug() << "Drawing the bar out of limits!" << endl;
 		return;
 	}
 
-	if (viewscore /* LVIFIX && fetaFont */) {
-		selxcoord = -1;
-		trp->setPainter(p);
-		// LVIFIX: initmetrics may be expensive but depends on p, init only once ?
-		trp->initMetrics();
-		const int lw = 1;
-		trp->pLnBl = QPen(Qt::black, lw);
-		trp->pLnWh = QPen(Qt::white, lw);
-		trp->initPrStyle();
-		// LVIFIX: do following calculations for the current bar only
-		curt->calcVoices();
-		curt->calcStepAltOct();
-		curt->calcBeams();
-		trp->yposst = 170;
-		trp->xpos = -1;
-		if (fetaFont) {
-			trp->drawStLns(width());
-			trp->ypostb = 270;
-		} else {
-			trp->ypostb = 170;
-		}
-		trp->drawBarLns(width(), curt);
-		trp->drawBar(row, curt, 0, selxcoord, selx2coord);
+	trp->setPainter(p);
+	// LVIFIX: initmetrics may be expensive but depends on p, init only once ?
+	trp->initMetrics();
+	const int lw = 1;
+	trp->pLnBl = QPen(Qt::black, lw);
+	trp->pLnWh = QPen(Qt::white, lw);
+	// LVIFIX: do following calculations for the current bar only
+	curt->calcVoices();
+	curt->calcStepAltOct();
+	curt->calcBeams();
+	trp->yposst = 80;
+	trp->xpos = -1;
+	if (viewscore && fetaFont) {
+		trp->initPrStyle(2);
+		trp->drawStLns(width());
+		trp->ypostb = 180;
+	} else {
+		trp->initPrStyle(0);
+		trp->ypostb = 80;
+	}
+#ifdef USE_BOTH_OLD_AND_NEW
+	// force new tabbar position close to old one
+	trp->ypostb = 180;
+#endif
+	trp->drawBarLns(width(), curt);
+	trp->drawBar(row, curt, 0, selxcoord, selx2coord);
 
-		// DRAW SELECTION
+	// DRAW SELECTION
 
-		p->setRasterOp(Qt::XorROP);
-		p->setBrush(KGlobalSettings::baseColor());
+	p->setRasterOp(Qt::XorROP);
+	p->setBrush(KGlobalSettings::baseColor());
 
-		if (playbackCursor) {
-			// Draw MIDI playback cursor
-			if (selxcoord != -1)
-				p->drawRect(selxcoord, 0, HORCELL + 1, cellHeight());
+	const int horcell = (int) (2.6 * trp->br8w);
+	const int vertline = trp->ysteptb;
+	const int vertspace = trp->ypostb;
 
-		} else {
+	if (playbackCursor) {
+		// Draw MIDI playback cursor
+		if (selxcoord != -1)
+			p->drawRect(selxcoord - horcell / 2, 0, horcell + 1, cellHeight());
 
-			// Draw selection between selxcoord and selx2coord (if it exists)
-			/* LVIFIX: enable when original drawing code is removed
-			           (xor for selection should be executed only once)
-			if (curt->sel) {
-				if ((selxcoord != -1) && (selx2coord != -1)) {
-					int x1 = KMIN(selxcoord, selx2coord);
-					int wid = abs(selx2coord - selxcoord) + HORCELL + 1;
-					p->drawRect(x1, 0, wid, cellHeight());
-				} else if ((selxcoord == -1) && (selx2coord != -1)) {
-					if (curt->x > curt->lastColumn(bn))
-						p->drawRect(selx2coord, 0, cellWidth(), cellHeight());
-					else
-						p->drawRect(0, 0, selx2coord + HORCELL + 1, cellHeight());
-				} else if ((selxcoord != -1) && (selx2coord == -1)) {
-					if (curt->xsel > curt->lastColumn(bn))
-						p->drawRect(selxcoord, 0, cellWidth(), cellHeight());
-					else
-						p->drawRect(0, 0, selxcoord + HORCELL + 1, cellHeight());
-				} else { // both are -1
-					int x1 = KMIN(curt->x, curt->xsel);
-					int x2 = KMAX(curt->x, curt->xsel);
-					if ((x1 < curt->b[bn].start) && (x2 > curt->lastColumn(bn)))
-						p->drawRect(0, 0, cellWidth(), cellHeight());
-				}
-			}
-			*/
+	} else {
 
-			// Draw original cursor (still inverted)
-			if (selxcoord != -1) {
-//				p->drawRect(selxcoord, VERTSPACE + (s - curt->y) * VERTLINE - VERTLINE / 2 - 1,
-//							HORCELL + 1, VERTLINE + 2);
-				p->drawRect(selxcoord - (int) (1.3 * trp->br8w), trp->ypostb + (0 - curt->y) * trp->ysteptb - trp->ysteptb / 2 - 2,
-							(int) (2.6 * trp->br8w), trp->ysteptb + 3);
+		// Draw selection between selxcoord and selx2coord (if it exists)
+		if (curt->sel) {
+			if ((selxcoord != -1) && (selx2coord != -1)) {
+				int x1 = KMIN(selxcoord, selx2coord);
+				int wid = abs(selx2coord - selxcoord) + horcell + 1;
+				p->drawRect(x1 - horcell / 2, 0, wid, cellHeight());
+			} else if ((selxcoord == -1) && (selx2coord != -1)) {
+				if (curt->x > curt->lastColumn(bn))
+					p->drawRect(selx2coord - horcell / 2, 0, cellWidth(), cellHeight());
+				else
+					p->drawRect(0, 0, selx2coord + horcell / 2 + 1, cellHeight());
+			} else if ((selxcoord != -1) && (selx2coord == -1)) {
+				if (curt->xsel > curt->lastColumn(bn))
+					p->drawRect(selxcoord - horcell / 2, 0, cellWidth(), cellHeight());
+				else
+					p->drawRect(0, 0, selxcoord + horcell / 2 + 1, cellHeight());
+			} else { // both are -1
+				int x1 = KMIN(curt->x, curt->xsel);
+				int x2 = KMAX(curt->x, curt->xsel);
+				if ((x1 < curt->b[bn].start) && (x2 > curt->lastColumn(bn)))
+					p->drawRect(0, 0, cellWidth(), cellHeight());
 			}
 		}
-
-		p->setRasterOp(Qt::CopyROP);
+		// Draw original cursor (still inverted)
+		if (selxcoord != -1) {
+			p->drawRect(selxcoord - horcell / 2,
+				    vertspace + (0 - curt->y) * vertline - vertline / 2 - 2,
+				    horcell,
+				    vertline + 3);
+		}
 	}
 
-	uint bn = row;                      // Drawing only this bar
+	p->setRasterOp(Qt::CopyROP);
 
+#ifdef USE_BOTH_OLD_AND_NEW
 	QString tmp;
 	bool ringing[MAX_STRINGS];
 	int trpCnt = 0;                     // triplet count
 	int lastPalmMute = 0;
+
+	int s = curt->string - 1;
 
 	for (int i = 0; i <= s; i++) {
 		p->drawLine(0, VERTSPACE + (s - i) * VERTLINE,
@@ -818,53 +840,18 @@ void TrackView::paintCell(QPainter *p, int row, int /*col*/)
 	p->setPen(SolidLine);
 	p->drawRect(xpos, VERTSPACE, 1, VERTLINE * s);
 
-	// DRAW SELECTION
-
+	// Draw original cursor (still inverted)
 	p->setRasterOp(Qt::XorROP);
 // 	p->setBrush(KGlobalSettings::highlightColor());
-
-	if (playbackCursor) {
-		// Draw MIDI playback cursor
-		if (selxcoord != -1)
-			p->drawRect(selxcoord, 0, HORCELL + 1, cellHeight());
-
-	} else {
-
-		// Draw selection between selxcoord and selx2coord (if it exists)
-		if (curt->sel) {
-			if ((selxcoord != -1) && (selx2coord != -1)) {
-				int x1 = KMIN(selxcoord, selx2coord);
-				int wid = abs(selx2coord - selxcoord) + HORCELL + 1;
-				p->drawRect(x1, 0, wid, cellHeight());
-			} else if ((selxcoord == -1) && (selx2coord != -1)) {
-				if (curt->x > curt->lastColumn(bn))
-					p->drawRect(selx2coord, 0, cellWidth(), cellHeight());
-				else
-					p->drawRect(0, 0, selx2coord + HORCELL + 1, cellHeight());
-			} else if ((selxcoord != -1) && (selx2coord == -1)) {
-				if (curt->xsel > curt->lastColumn(bn))
-					p->drawRect(selxcoord, 0, cellWidth(), cellHeight());
-				else
-					p->drawRect(0, 0, selxcoord + HORCELL + 1, cellHeight());
-			} else { // both are -1
-				int x1 = KMIN(curt->x, curt->xsel);
-				int x2 = KMAX(curt->x, curt->xsel);
-				if ((x1 < curt->b[bn].start) && (x2 > curt->lastColumn(bn)))
-					p->drawRect(0, 0, cellWidth(), cellHeight());
-			}
-		}
-
-		// Draw original cursor (still inverted)
-		if (selxcoord != -1) {
-			p->drawRect(selxcoord, VERTSPACE + (s - curt->y) * VERTLINE - VERTLINE / 2 - 1,
-						HORCELL + 1, VERTLINE + 2);
-		}
+	if (selxcoord != -1) {
+		p->drawRect(selxcoord, VERTSPACE + (s - curt->y) * VERTLINE - VERTLINE / 2 - 1,
+					HORCELL + 1, VERTLINE + 2);
 	}
 
 // 	p->setBrush(KGlobalSettings::baseColor());
 	p->setRasterOp(Qt::CopyROP);
-
 	p->setBrush(SolidPattern);
+#endif // USE_BOTH_OLD_AND_NEW
 }
 
 void TrackView::resizeEvent(QResizeEvent *e)
@@ -1032,11 +1019,11 @@ void TrackView::moveLeft()
 
 void TrackView::moveRight()
 {
-	if (curt->x + 1 == curt->c.size()) {
+	if (((uint) (curt->x + 1)) == curt->c.size()) {
 		cmdHist->addCommand(new AddColumnCommand(this, curt));
 		emit columnChanged();
 	} else {
-		if (curt->b.size() == curt->xb + 1)
+		if (curt->b.size() == (uint) curt->xb + 1)
 			curt->x++;
 		else {
 			if (curt->b[curt->xb + 1].start == curt->x + 1) {
@@ -1336,7 +1323,7 @@ void TrackView::mousePressEvent(QMouseEvent *e)
 
 void TrackView::setX(int x)
 {
-	if (x < curt->c.size()) {
+	if (x < (int) curt->c.size()) {
 		curt->x = x;
 		int oldxb = curt->xb;
 		curt->updateXB();
