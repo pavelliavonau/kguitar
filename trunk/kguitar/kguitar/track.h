@@ -33,7 +33,7 @@ public:
 class TabTrack
 {
 public:
-    TabTrack(TrackMode _tm, int bank, uchar patch, uchar str) { tm=_tm;mbank=bank;mpatch=patch;_string=str;c.setAutoDelete(TRUE); };
+    TabTrack(TrackMode _tm, int _bank, uchar _patch, uchar str) { tm=_tm;bank=_bank;patch=_patch;_string=str;c.setAutoDelete(TRUE); };
     QList<TabColumn> c;                 // Tab columns
 
     void setTuning(const uchar t[MAX_STRINGS]) { for (int i=0;i<_string;i++)  _tune[i]=t[i]; };
@@ -42,17 +42,17 @@ public:
 
     TrackMode trackmode() { return tm; }
 
-    int bank() { return mbank; }
-    int patch() { return mpatch; }
+    int bank;                           // MIDI bank
+    uchar patch;                        // MIDI patch
 
 //    QListIterator<TabColumn> xi(QListT<TabColumn>);        // Current tab col iterator
+
+    QString name;                       // Track text name
 
     int x;                              // Current tab col
     int y;                              // Current tab row
 private:
     TrackMode tm;                       // Track mode
-    int mbank;                          // MIDI bank
-    uchar mpatch;                       // MIDI patch
     uchar _string;                      // Number of strings
     uchar _tune[MAX_STRINGS];           // Tuning, if appicable
 };
