@@ -77,6 +77,8 @@ ApplicationWindow::ApplicationWindow(): KMainWindow()
 										actionCollection());
 	KRecentFilesAction *openRecentAct = KStdAction::openRecent(this, 0,
 															   actionCollection());
+	KAction *browserAct = new KAction(i18n("&Browser..."), 0, this,
+									  SLOT(openBrowser()), actionCollection());
 	KAction *saveAct = KStdAction::save(this, SLOT(fileSave()),
 										actionCollection());
 	KAction *saveAsAct = KStdAction::saveAs(this, SLOT(fileSaveAs()),
@@ -90,9 +92,14 @@ ApplicationWindow::ApplicationWindow(): KMainWindow()
 	KAction *preferencesAct = KStdAction::preferences(this, SLOT(options()),
 													  actionCollection());
 
+	KAction *propertiesAct = new KAction(i18n("&Browser..."), 0, this,
+										 SLOT(openBrowser()), actionCollection());
+
+
 	// SET UP EDITING TOOLBAR
 	toolBar("Edit")->insertButton("chord.xpm", 1, SIGNAL(clicked()),
-								  this,SLOT(insertChord()),TRUE,i18n("Insert chord"));
+								  this, SLOT(insertChord()), TRUE,
+								  i18n("Insert chord"));
 	toolBar("Edit")->insertButton("note1.xpm", 1, SIGNAL(clicked()),
 								  tv,SLOT(setLength1()),TRUE,i18n("Whole"));
 	toolBar("Edit")->insertButton("note2.xpm", 1, SIGNAL(clicked()),
@@ -121,7 +128,9 @@ ApplicationWindow::ApplicationWindow(): KMainWindow()
 
 	// SET UP MAIN MENU AND TOOLBARS
 
-	QPopupMenu *p = new QPopupMenu();
+	QPopupMenu *p;
+
+	p = new QPopupMenu();
 	newAct->plug(p); newAct->plug(toolBar());
 	openAct->plug(p); openAct->plug(toolBar());
 	openRecentAct->plug(p);
@@ -137,7 +146,8 @@ ApplicationWindow::ApplicationWindow(): KMainWindow()
 // 	for (uint i = 0; i < recentFiles.count(); i++)
 // 		recMenu->insertItem(recentFiles.at(i));
 
-	p->insertItem(i18n("Browser..."), this, SLOT(openBrowser()));
+	browserAct->plug(p);
+// 	p->insertItem(i18n("Browser..."), this, SLOT(openBrowser()));
 	p->insertSeparator();
 
 // 	QPopupMenu *imp = new QPopupMenu();
@@ -145,10 +155,10 @@ ApplicationWindow::ApplicationWindow(): KMainWindow()
 // 	p->insertItem(i18n("&Import"), imp);
 
 	QPopupMenu *exp = new QPopupMenu();
-	exp->insertItem(i18n("&MIDI file..."), this, SLOT(exportMID()));
-	exp->insertItem(i18n("ASCII &tab..."), this, SLOT(exportTAB()));
-	exp->insertItem(i18n("&MusiXTeX tab..."), this, SLOT(exportTEXTAB()));
-	//exp->insertItem(i18n("Musi&XTeX notes..."), this, SLOT(exportTEXNOTES()));
+	exp->insertItem(i18n("&MIDI file..."), this, SLOT(fileExportMid()));
+	exp->insertItem(i18n("ASCII &tab..."), this, SLOT(fileExportTab()));
+	exp->insertItem(i18n("&MusiXTeX tab..."), this, SLOT(fileExportTexTab()));
+	//exp->insertItem(i18n("Musi&XTeX notes..."), this, SLOT(fileExportTexNotes()));
 	p->insertItem(i18n("&Export"), exp);
 
 	p->insertSeparator();
@@ -278,7 +288,11 @@ void ApplicationWindow::fileNew()
 
 void ApplicationWindow::fileOpen()
 {
-	QString fn = KFileDialog::getOpenFileName(0, "*.kg", this);
+	QString fn = KFileDialog::getOpenFileName(0,
+											  "*.kg|KGuitar files (*.kg)\n"
+											  "*.mid|MIDI files (*.mid)\n"
+											  "*.gtp|Guitar Pro files (*.gtp)\n"
+											  "*|All files", this);
 	if (!fn.isEmpty()) {
 		if (tv->sng()->load_from_kg(fn)) {
 			setCaption(fn);
