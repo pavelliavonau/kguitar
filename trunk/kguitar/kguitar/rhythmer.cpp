@@ -7,9 +7,6 @@
 #include <qspinbox.h>
 #include <qcheckbox.h>
 
-// GREYFIX
-#include <stdio.h>
-
 #include <klocale.h>
 
 Rhythmer::Rhythmer(
@@ -139,7 +136,7 @@ void Rhythmer::tempoState(bool state)
 
 void Rhythmer::quantize()
 {
-	double L4, newL4, sumL4;
+	double L4, newL4, sumL4 = 0;
 
 	quantized->clear();
 	quantized->insertItem(i18n("< STARTED >"));
@@ -150,7 +147,7 @@ void Rhythmer::quantize()
 		L4 = 60000.0 / tempo->value();
 	}
 
-	for (int i = 1; i < original->count(); i++) {
+	for (uint i = 1; i < original->count(); i++) {
 		double t = original->text(i).toDouble();
 		int d = 0;
 
@@ -172,15 +169,15 @@ void Rhythmer::quantize()
 
 		if (!d)  d = 15; // we don't support stuff less than 1/32th of a bar
 
-		printf("t=%f, L4=%f, so it looks like %d\n", t, L4, d);
-		
+		kdDebug() << "t=" << t << ", L4=" << L4 << ", so it looks like " << d << endl;
+
 		quantized->insertItem(QString::number(d));
 
 		newL4 = t / d * 120;
 		sumL4 += newL4;
 		L4 = sumL4 / i;
 
-		printf("newL4=%f, so shift works, now L4=%f\n", newL4, L4);
+		kdDebug() << "newL4=" << newL4 << ", so shift works, now L4=" << L4 << endl;
 	}
 
 	tempo->setValue(int(60000.0 / L4));
