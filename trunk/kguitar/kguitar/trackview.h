@@ -9,11 +9,12 @@ class TabSong;
 class TabTrack;
 class DeviceManager;
 class QListViewItem;
+class KXMLGUIClient;
 
 class TrackView: public QTableView {
     Q_OBJECT
 public:
-    TrackView(TabSong* s, QWidget *parent = 0, const char *name = 0);
+    TrackView(TabSong* s, KXMLGUIClient *_XMLGUIClient, QWidget *parent = 0, const char *name = 0);
     ~TrackView();
 
     TabTrack* trk() { return curt; }
@@ -89,6 +90,7 @@ private:
     TabSong *song;
     TabTrack *curt;
 	DeviceManager *midi;
+    KXMLGUIClient *m_XMLGUIClient;
 
     uchar lastnumber;
 

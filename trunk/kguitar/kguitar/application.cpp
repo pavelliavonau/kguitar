@@ -8,7 +8,7 @@
 #include "options.h"
 #include "global.h"
 
-#include <qpopupmenu.h>
+//#include <qpopupmenu.h>
 
 #include <kapp.h>
 #include <kmenubar.h>
@@ -23,6 +23,9 @@
 #include <kurl.h>
 #include <kkeydialog.h>
 #include <kdebug.h>
+
+#include <qwidget.h>
+#include <qcursor.h>
 
 #include <qpixmap.h>
 #include <qkeycode.h>
@@ -111,7 +114,7 @@ KGuitarPart::KGuitarPart(bool bBrowserView, QWidget *parentWidget,
 	setInstance(KGuitarFactory::instance());
 
 	// MAIN WIDGET
-	sv = new SongView(parentWidget);
+	sv = new SongView(this, parentWidget);
 	setWidget(sv);
 	sv->setFocus();
 

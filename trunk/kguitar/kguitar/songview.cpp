@@ -13,6 +13,9 @@
 #include "chordlistitem.h"
 
 #include <klocale.h>
+#include <kdebug.h>
+#include <kxmlgui.h>
+#include <kxmlguiclient.h>
 
 #include <qsplitter.h>
 #include <qlayout.h>
@@ -25,7 +28,8 @@
 
 #include <kdebug.h>
 
-SongView::SongView(QWidget *parent = 0, const char *name = 0): QWidget(parent, name)
+SongView::SongView(KXMLGUIClient *_XMLGUIClient, QWidget *parent = 0, const char *name = 0)
+    : QWidget(parent, name)
 {
 	song = new TabSong(i18n("Unnamed"), 120);
 	song->t.append(new TabTrack(FretTab, i18n("Guitar"), 1, 0, 25, 6, 24));
@@ -33,8 +37,8 @@ SongView::SongView(QWidget *parent = 0, const char *name = 0): QWidget(parent, n
  	split = new QSplitter(this);
  	split->setOrientation(QSplitter::Vertical);
 
-	tv = new TrackView(song, split);
-	tl = new TrackList(song, split);
+	tv = new TrackView(song, _XMLGUIClient, split);
+	tl = new TrackList(song, _XMLGUIClient, split);
 
 	connect(tl, SIGNAL(selectionChanged(QListViewItem*)), tv, SLOT(selectTrack(QListViewItem*)));
 

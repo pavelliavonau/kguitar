@@ -4,13 +4,19 @@
 #include "tabsong.h"
 
 #include <qheader.h>
+
 #include <kdebug.h>
+#include <kpopupmenu.h>
+#include <kxmlgui.h>
+#include <kxmlguiclient.h>
+
 #include <iostream.h>
 
-TrackList::TrackList(TabSong *s, QWidget *parent = 0, const char *name = 0):
+TrackList::TrackList(TabSong *s, KXMLGUIClient *_XMLGUIClient, QWidget *parent = 0, const char *name = 0):
 	QListView(parent, name)
 {
 	song = s;
+    m_XMLGUIClient = _XMLGUIClient;
 
 	setFocusPolicy(QWidget::StrongFocus);
     setAllColumnsShowFocus(TRUE);
@@ -47,3 +53,24 @@ void TrackList::updateList()
 
 // 	setMaximumHeight(header()->height() + viewport()->height());
 }
+
+void TrackList::contentsMousePressEvent(QMouseEvent *e)
+{
+    QListView::contentsMousePressEvent(e);
+
+    if (e->button() == RightButton) {
+        QWidget *tmpWidget = 0;
+        tmpWidget = m_XMLGUIClient->factory()->container("tracklistpopup", m_XMLGUIClient);
+
+        if (!tmpWidget || !tmpWidget->inherits("KPopupMenu")) {
+            kdDebug() << "TrackList::contentsMousePressEvent => wrong container widget" << endl;
+            return;
+        }
+
+        KPopupMenu *menu(static_cast<KPopupMenu*>(tmpWidget));
+        menu->popup(QCursor::pos());
+    }
+}
+
+
+

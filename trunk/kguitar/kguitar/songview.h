@@ -8,11 +8,12 @@ class TrackList;
 class DeviceManager;
 class TabSong;
 class QSplitter;
+class KXMLGUIClient;
 
 class SongView: public QWidget {
 	Q_OBJECT
 public:
-	SongView(QWidget *parent = 0, const char *name = 0);
+	SongView(KXMLGUIClient *_XMLGUIClient, QWidget *parent = 0, const char *name = 0);
 	~SongView();
 	void refreshView();
 

@@ -13,7 +13,6 @@
 #include "globaloptions.h"
 
 class KToolBar;
-class QPopupMenu;
 class QLabel;
 
 class KGuitarBrowserExtension;
