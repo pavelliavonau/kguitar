@@ -70,7 +70,11 @@ SongView::SongView(KXMLGUIClient *_XMLGUIClient, KCommandHistory *_cmdHist,
 	split = new QSplitter(this);
 	split->setOrientation(QSplitter::Vertical);
 
+#ifdef WITH_TSE3
 	tv = new TrackView(m_song, _XMLGUIClient, _cmdHist, scheduler, split);
+#else
+	tv = new TrackView(m_song, _XMLGUIClient, _cmdHist, split);
+#endif
 
 	splitv = new QSplitter(split);
  	splitv->setOrientation(QSplitter::Horizontal);

@@ -9,11 +9,17 @@
 #include <qpushbutton.h>
 #include <kconfig.h>
 
+#ifdef WITH_TSE3
 OptionsMidi::OptionsMidi(TSE3::MidiScheduler *_sch, KConfig *conf, QWidget *parent, const char *name)
 	: OptionsPage(conf, parent, name)
 {
 	sch = _sch;
-
+#else
+OptionsMidi::OptionsMidi(KConfig *conf, QWidget *parent, const char *name)
+	: OptionsPage(conf, parent, name)
+{
+#endif
+	
 	// Create option widgets
 
 	midiport = new QListView(this);
@@ -40,6 +46,7 @@ OptionsMidi::OptionsMidi(TSE3::MidiScheduler *_sch, KConfig *conf, QWidget *pare
 
 void OptionsMidi::fillMidiBox()
 {
+#ifdef WITH_TSE3
 	std::vector<int> portNums;
 	if (!sch)
 		return;
@@ -56,6 +63,7 @@ void OptionsMidi::fillMidiBox()
 		if (Settings::midiPort() == portNums[i])
 			midiport->setCurrentItem(lastItem);
 	}
+#endif
 }
 
 void OptionsMidi::defaultBtnClicked()
