@@ -20,7 +20,9 @@
 
 // LVIFIX missing features:
 // harmonics
-// input error reporting
+
+// LVIFIX:
+// improve error reporting
 
 // LVIFIX:
 // add bounds checking on all toInt() results
@@ -37,6 +39,8 @@
 // channel 0..15
 // patch (== program): 0..127
 // KGuitar ???
+// Note: the KGuitar user interface does not limit bank, channel and program
+// to specific ranges and the instrument name is just a text input field
 
 // LVIFIX:
 // saving a file with empty "author" property results in an empty <encoder>,
@@ -64,13 +68,26 @@
 // LVIFIX:
 // check value of <backup>
 
+// remarks on Qt's error handling (tested on Qt 2.3.1 and 3.0.5)
+// - MusicXMLErrorHandler::warning(), error() and errorString() are not called
+//   by Qt's parser, only fatalError() is called
+// - when one of MusicXMLParser's handlers returns false, fatalError is called
+//   with msg="error triggered by consumer"
+// - a single error may result in many fatalError() calls
+// - when fatalError() is called, the parseException contains valid columnnr,
+//   linenr and message, but public and systemId are empty
+// - failure to properly match start en end elements (e.g. <aaa></bbb>)
+//   results in a "tag mismatch" error. To be able to report which tags
+//   don't match, startElement/endElement would have to maintain a stack.
+
 #include "global.h"
 #include "accidentals.h"
 #include "musicxml.h"
 #include "tabsong.h"
 #include "tabtrack.h"
 
-// #include <iostream.h>		// for cout
+#include <iostream>		// for cout and friends
+using namespace std;		// for cout and friends
 #include <qstring.h>
 #include <qvaluelist.h>
 
@@ -195,6 +212,72 @@ static bool allocStrFrt(int pitch, TabTrack * trk, int col,
 	return TRUE;
 }
 
+
+// Class MusicXMLErrorHandler
+
+MusicXMLErrorHandler::MusicXMLErrorHandler()
+{
+	fatalReported = false;
+	parser = 0;
+}
+
+bool MusicXMLErrorHandler::warning(const QXmlParseException& exception)
+{
+	cerr << "MusicXMLErrorHandler::warning"
+		<< " col=" << exception.columnNumber()
+		<< " line=" << exception.lineNumber()
+		<< " msg=" << exception.message()
+		<< " pid=" << exception.publicId()
+		<< " sid=" << exception.systemId()
+		<< endl;
+	return true;	// continue parsing
+}
+
+bool MusicXMLErrorHandler::error(const QXmlParseException& exception)
+{
+	cerr << "MusicXMLErrorHandler::error"
+		<< " col=" << exception.columnNumber()
+		<< " line=" << exception.lineNumber()
+		<< " msg=" << exception.message()
+		<< " pid=" << exception.publicId()
+		<< " sid=" << exception.systemId()
+		<< endl;
+	return true;	// continue parsing
+}
+
+bool MusicXMLErrorHandler::fatalError(const QXmlParseException& exception)
+{
+	if (exception.message() == "error triggered by consumer") {
+		// no need to report this: should already have been done
+		// by MusicXMLParser's handler
+		fatalReported = true;
+	} else {
+		if (!fatalReported) {
+			if (parser) {
+				parser->reportError(exception.message());
+			} else {
+				cerr << "MusicXMLErrorHandler::fatalError"
+					<< " parser=0" << endl;
+			}
+			fatalReported = true;
+		}
+	}
+	return false;	// do not continue parsing
+}
+
+QString MusicXMLErrorHandler::errorString()
+{
+	return "KGuitar musicxmlimport error string";
+}
+
+void MusicXMLErrorHandler::setParser(MusicXMLParser * p)
+{
+	parser = p;
+}
+
+
+// Class MusicXMLParser
+
 // MusicXMLParser constructor
 
 MusicXMLParser::MusicXMLParser(TabSong * tsp)
@@ -202,6 +285,13 @@ MusicXMLParser::MusicXMLParser(TabSong * tsp)
 {
 	// need to remember tabsong for callbacks
 	ts = tsp;
+}
+
+// set document locator handler
+
+void MusicXMLParser::setDocumentLocator(QXmlLocator *locator)
+{
+	lctr = locator;
 }
 
 // start of document handler
@@ -236,11 +326,41 @@ bool MusicXMLParser::startDocument()
 
 // start of element handler
 
+// Note: on reading the following input
+//
+// <score-part id="P1">
+//   <part-name></part-name>
+//     <score-instrument id="P1-I1">
+//       <instrument-name>Voice</instrument-name>
+//
+// the parser calls
+//
+// startElement("score-part")
+// characters("\n")
+// characters("  ")
+// startElement("part-name")
+// endElement("part-name")
+// characters("\n")
+// characters("    ")
+// startElement("score-instrument")
+// characters("\n")
+// characters("      ")
+// startElement("instrument-name")
+// characters("Voice")
+// endElement("instrument-name")
+//
+// As characters() is not called between startElement("part-name") and
+// endElement("part-name"), stCha needs to be cleared at each startElement().
+// Failing to do so results in reading (previous) whitespace for empty
+// elements such as the part-name in this example.
+
 bool MusicXMLParser::startElement( const QString&, const QString&,
                                    const QString& qName,
                                    const QXmlAttributes& attributes)
 {
-	if (qName == "glissando") {
+	stCha = "";		// see note above
+	if (false) {
+	} else if (qName == "glissando") {
 		QString tp = attributes.value("type");
 		if (tp == "start") {
 			stGls = TRUE;
@@ -322,6 +442,7 @@ bool MusicXMLParser::startElement( const QString&, const QString&,
 bool MusicXMLParser::endElement( const QString&, const QString&,
                                   const QString& qName)
 {
+	QString Str;
 	if (qName == "actual-notes") {
 	    stAno = stCha;
 	} else if (qName == "alter") {
@@ -398,6 +519,9 @@ bool MusicXMLParser::endElement( const QString&, const QString&,
 	    // re-init score part specific variables
 		initStScorePart();
 		return res;
+	} else if (qName == "score-timewise") {
+			reportError("not supported: score-timewise");
+			return false;
 	} else if (qName == "staff-lines") {
 		stPtn = stCha;
 		if (trk) {
@@ -426,7 +550,24 @@ bool MusicXMLParser::endElement( const QString&, const QString&,
 	    stTyp = stCha;
 	} else if (qName == "work-title") {
 	    stTtl = stCha;
+	// following elements are explicitly ignored, usually because sub-
+	// and superelements handle all the work, sometimes because features
+	// are not supported by KGuitar and sometimes they are
+	// simply not necessary
+	} else if (
+			   qName == "accidental-mark"	// not supported by KG
+			|| qName == "articulations"
+			// LVIFIX: add more ...
+			|| qName == "work"		// not supported by KG
+			|| qName == "work-number"	// not supported by KG
+//			|| qName == ""
+		  ) {
 	} else {
+		// LVIFIX: define what to do, e.g. silently ignore unknown
+		// elements, or report these as warning
+		// for the time being, the last option is chosen
+		Str = "skipping <" + qName + ">";
+		reportWarning(Str);
 	    // ignore
 	}
 	return TRUE;
@@ -531,7 +672,7 @@ bool MusicXMLParser::addNote()
 			trk->c[x-1].e[kgStr] = EFFECT_LETRING;
 			// stop ringing at column x+ncols-1 (if it exists)
 			// needed only if x-1 has note and x+ncols-1 hasn't
-			if (x < (trk->c.size() - ncols + 1)) {
+			if ((unsigned) x < (trk->c.size() - ncols + 1)) {
 				if (trk->c[x+ncols-1].a[kgStr] < 0) {
 					trk->c[x+ncols-1].e[kgStr] = EFFECT_STOPRING;
 				}
@@ -633,6 +774,48 @@ void MusicXMLParser::initStStaffTuning()
     stPts = "";
 }
 
+
+// helpers for the parser
+
+// report all (fatal and non-fatal) errors
+// LVIFIX: in future, might show a dialog
+
+void MusicXMLParser::reportAll(const QString& lvl, const QString& err)
+{
+//	QString filename(parser_params.fname);
+	QString filename("<add filename>");	// LVIFIX
+	QString fullErr;
+	QString linenr;
+	linenr.setNum(lctr->lineNumber());
+	fullErr  = "";
+	fullErr += lvl;
+	fullErr += ": In ";
+	fullErr += filename;
+	fullErr += " line ";
+	fullErr += linenr;
+	fullErr += ": ";
+	fullErr += err;
+	fullErr += "\n";
+	cerr << fullErr;
+}
+
+
+// report a warning (non-fatal error, i.e. one which allows parsing to continue)
+
+void MusicXMLParser::reportWarning(const QString& err)
+{
+	reportAll("Warning", err);
+}
+
+
+// report a fatal error
+
+void MusicXMLParser::reportError(const QString& err)
+{
+	reportAll("Error", err);
+}
+
+
 // helpers for NMusicXMLExport::calcDivisions
 
 typedef QValueList<int> IntVector;
@@ -678,8 +861,6 @@ static void divideBy(int div) {
 
 void MusicXMLWriter::calcDivisions() {
 //	cout << "MusicXMLWriter::calcDivisions()" << endl;
-	int i;
-	int len;
 	IntVector::Iterator it;
 
 	// init
@@ -712,7 +893,7 @@ void MusicXMLWriter::calcDivisions() {
 				if ((i == 1) || trk->hasMultiVoices()) {
 //					cout << "voice number=" << i + 1 << endl;
 					// loop over all columns in this bar
-					for (uint x = trk->b[ib].start;
+					for (int x = trk->b[ib].start;
 							x <= trk->lastColumn(ib); /* nothing */) {
 /*
 						int tp;
@@ -768,7 +949,7 @@ void MusicXMLWriter::write(QTextStream& os)
 	os << "<?xml version=\"1.0\" encoding=\"UTF-8\" standalone=\"no\"?>"
 	   << endl;
 	os << "<!DOCTYPE score-partwise PUBLIC" << endl;
-	os << "    \"-//Recordare//DTD MusicXML 0.7a Partwise//EN\"" << endl;
+	os << "    \"-//Recordare//DTD MusicXML 1.0 Partwise//EN\"" << endl;
 	os << "    \"http://www.musicxml.org/dtds/partwise.dtd\">" << endl;
 	os << endl;
 	os << "<score-partwise>\n";
@@ -862,7 +1043,7 @@ void MusicXMLWriter::write(QTextStream& os)
 				// write all voices in multi voice tracks
 				if ((i == 1) || trk->hasMultiVoices()) {
 					// loop over all columns in this bar
-					for (uint x = trk->b[ib].start;
+					for (int x = trk->b[ib].start;
 							x <= trk->lastColumn(ib); /* nothing */) {
 /*
 						int tp;
