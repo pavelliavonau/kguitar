@@ -10,8 +10,6 @@
 #include <kxmlgui.h>
 #include <kxmlguiclient.h>
 
-#include <iostream.h>
-
 TrackList::TrackList(TabSong *s, KXMLGUIClient *_XMLGUIClient, QWidget *parent = 0, const char *name = 0):
 	QListView(parent, name)
 {
