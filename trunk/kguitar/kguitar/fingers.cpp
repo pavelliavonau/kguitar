@@ -30,7 +30,7 @@ Fingering::Fingering(TabTrack *p, QWidget *parent, const char *name):
 void Fingering::clear()
 {
     for (int i=0;i<parm->string;i++)
-	appl[i]=0;
+	appl[i]=-1;
     repaint();
     emit chordChange();
 }
