@@ -62,20 +62,22 @@ SongView::SongView(KXMLGUIClient *_XMLGUIClient, KCommandHistory *_cmdHist,
 	midiInUse = FALSE;
 	midiStopPlay = FALSE;
 
-	song = new TabSong(i18n("Unnamed"), 120);
-	song->t.append(new TabTrack(FretTab, i18n("Guitar"), 1, 0, 25, 6, 24));
+	ro = FALSE;
+
+	m_song = new TabSong(i18n("Unnamed"), 120);
+	m_song->t.append(new TabTrack(FretTab, i18n("Guitar"), 1, 0, 25, 6, 24));
 
 	split = new QSplitter(this);
 	split->setOrientation(QSplitter::Vertical);
 
-	tv = new TrackView(song, _XMLGUIClient, _cmdHist, scheduler, split);
+	tv = new TrackView(m_song, _XMLGUIClient, _cmdHist, scheduler, split);
 
 	splitv = new QSplitter(split);
  	splitv->setOrientation(QSplitter::Horizontal);
 
-	tl = new TrackList(song, _XMLGUIClient, splitv);
+	tl = new TrackList(m_song, _XMLGUIClient, splitv);
 	tl->setSelected(tl->firstChild(), TRUE);
-	tp = new TrackPane(song, tl->header()->height(), tl->firstChild()->height(), splitv);
+	tp = new TrackPane(m_song, tl->header()->height(), tl->firstChild()->height(), splitv);
 
 	me = new MelodyEditor(tv, split);
 
@@ -98,7 +100,7 @@ SongView::SongView(KXMLGUIClient *_XMLGUIClient, KCommandHistory *_cmdHist,
 
 SongView::~SongView()
 {
-	delete song;
+	delete m_song;
 	delete sp;
 
 #ifdef WITH_TSE3
@@ -117,7 +119,7 @@ SongView::~SongView()
 // or imported.
 void SongView::refreshView()
 {
-	tv->setCurrentTrack(song->t.first());
+	tv->setCurrentTrack(m_song->t.first());
 	tv->updateRows();
 	tv->repaint();
 	tl->updateList();
@@ -129,9 +131,9 @@ void SongView::refreshView()
 bool SongView::trackNew()
 {
 	TabTrack* oldtr = tv->trk();
-	TabTrack* newtr = new TabTrack(FretTab, "", song->freeChannel(), 0, 25, 6, 24);
+	TabTrack* newtr = new TabTrack(FretTab, "", m_song->freeChannel(), 0, 25, 6, 24);
 
-	song->t.append(newtr);
+	m_song->t.append(newtr);
 	tv->setCurrentTrack(newtr);
 
 	// Special case - if user declined track properties dialog during
@@ -140,7 +142,7 @@ bool SongView::trackNew()
 
 	if (!setTrackProperties()) {
 		tv->setCurrentTrack(oldtr);
-		song->t.removeLast();
+		m_song->t.removeLast();
 		return FALSE;
 	}
 
@@ -151,18 +153,18 @@ bool SongView::trackNew()
 void SongView::trackDelete()
 {
 	// Check that we won't delete the only last track in the list
-	if (song->t.getFirst() != song->t.getLast()) {
+	if (m_song->t.getFirst() != m_song->t.getLast()) {
 		TabTrack *newsel;
 
 		// If we delete the last track, make sure we'll get the item
-		if (song->t.last() == tv->trk()) {
-			newsel = song->t.prev();
+		if (m_song->t.last() == tv->trk()) {
+			newsel = m_song->t.prev();
 		} else {
-			song->t.findRef(tv->trk());
-			newsel = song->t.next();
+			m_song->t.findRef(tv->trk());
+			newsel = m_song->t.next();
 		}
 
-		song->t.remove(tv->trk());
+		m_song->t.remove(tv->trk());
 		tv->setCurrentTrack(newsel);
 		tv->updateRows();
 		tv->update();
@@ -317,25 +319,26 @@ bool SongView::setTrackProperties()
 // Dialog to set song's properties
 void SongView::songProperties()
 {
-	SetSong *ss = new SetSong();
-	ss->title->setText(song->title);
-// 	ss->title->setReadOnly(isBrowserView);
-	ss->author->setText(song->author);
-// 	ss->author->setReadOnly(isBrowserView);
-	ss->transcriber->setText(song->transcriber);
-// 	ss->transcriber->setReadOnly(isBrowserView);
-	ss->comments->setText(song->comments);
-// 	ss->comments->setReadOnly(isBrowserView);
-	ss->tempo->setValue(song->tempo);
-// 	ss->tempo->setReadOnly(isBrowserView); // GREYFIX
+	SetSong ss;
+	ss.title->setText(m_song->title);
+ 	ss.title->setReadOnly(ro);
+	ss.author->setText(m_song->author);
+ 	ss.author->setReadOnly(ro);
+	ss.transcriber->setText(m_song->transcriber);
+ 	ss.transcriber->setReadOnly(ro);
+	ss.comments->setText(m_song->comments);
+ 	ss.comments->setReadOnly(ro);
+	ss.tempo->setValue(m_song->tempo);
+//  	ss.tempo->setReadOnly(ro); // GREYFIX - what the heck about KIntNumInput???
 
-	if (ss->exec()) {
-		cmdHist->addCommand(new SetSongPropCommand(song, ss->title->text(), ss->author->text(),
-												   ss->transcriber->text(), ss->comments->text(),
-												   ss->tempo->value()));
+	if (ss.exec()) {
+		cmdHist->addCommand(
+			new SetSongPropCommand(
+				this, ss.title->text(), ss.author->text(),
+				ss.transcriber->text(), ss.comments->text(),
+				ss.tempo->value())
+			);
 	}
-
-	delete ss;
 }
 
 // Start playing the song or stop it if it already plays
@@ -362,12 +365,12 @@ void SongView::playSong()
 	}
 
 	// Get song object
-	TSE3::Song *tsong = song->midiSong(TRUE);
+	TSE3::Song *tsong = m_song->midiSong(TRUE);
 
 	int startclock = tv->trk()->cursortimer;
 
 	// Init cursors
-	for (TabTrack *trk = song->t.first(); trk; trk = song->t.next()) {
+	for (TabTrack *trk = m_song->t.first(); trk; trk = m_song->t.next()) {
 		if (trk->cursortimer < startclock) {
 			trk->x--;
 			trk->updateXB();
@@ -584,14 +587,14 @@ void SongView::insertTabs(TabTrack* trk)
 
 void SongView::print(KPrinter *printer)
 {
-	sp->printSong(printer, song);
+	sp->printSong(printer, m_song);
 }
 
 // Advances to the next column to monitor playback when event comes
 // thru PlaybackTracker
 void SongView::playbackColumn(int track, int x)
 {
- 	TabTrack *trk = song->t.at(track);
+ 	TabTrack *trk = m_song->t.at(track);
 	if (tv->trk() == trk)
 		tv->setX(x);
 }

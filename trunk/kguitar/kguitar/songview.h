@@ -40,10 +40,15 @@ public:
 	TrackPane *tp;
 	MelodyEditor *me;
 
-	TabSong* sng() { return song; }
+	TabSong *song() { return m_song; }
 #ifdef WITH_TSE3
 	TSE3::MidiScheduler* midiScheduler() { return scheduler; }
 #endif
+
+	// Forwards declarations of all undo/redo commands
+	class SetSongPropCommand;
+	class SetTrackPropCommand;
+	class InsertTabsCommand;
 
 public slots:
 	bool trackNew();
@@ -58,7 +63,7 @@ public slots:
 	void slotPaste();
 	void slotSelectAll();
 
-	void setReadOnly(bool) {}; // GREYFIX
+	void setReadOnly(bool _ro) { ro = _ro; };
 
 	void playbackColumn(int track, int advance);
 
@@ -71,9 +76,11 @@ private:
 	bool setTrackProperties();
 
 	QSplitter *split, *splitv;
-	TabSong *song;
+	TabSong *m_song;
 	KCommandHistory *cmdHist;
 	SongPrint *sp;
+
+	bool ro;
 
 	// MIDI stuff
 	bool midiInUse, midiStopPlay;

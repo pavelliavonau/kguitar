@@ -10,50 +10,46 @@
 #include "trackpane.h"
 
 #include <klocale.h>
-#include <kdebug.h>
 
-
-SetSongPropCommand::SetSongPropCommand(TabSong* _song, QString _title, QString _author,
+SongView::SetSongPropCommand::SetSongPropCommand(SongView *_sv, QString _title, QString _author,
                                        QString _trans, QString _com, int _tempo)
 	: KNamedCommand(i18n("Set song properties"))
 {
-    song        = _song;
+    sv          = _sv;
 	title       = _title;
 	author      = _author;
 	transcriber = _trans;
 	comments    = _com;
 	tempo       = _tempo;
 
-	oldtitle       = song->title;
-	oldauthor      = song->author;
-	oldtranscriber = song->transcriber;
-	oldcomments    = song->comments;
-	oldtempo       = song->tempo;
+	oldtitle       = sv->song()->title;
+	oldauthor      = sv->song()->author;
+	oldtranscriber = sv->song()->transcriber;
+	oldcomments    = sv->song()->comments;
+	oldtempo       = sv->song()->tempo;
 }
 
-SetSongPropCommand::~SetSongPropCommand()
+void SongView::SetSongPropCommand::execute()
 {
+	sv->song()->title       = title;
+	sv->song()->author      = author;
+	sv->song()->transcriber = transcriber;
+	sv->song()->comments    = comments;
+	sv->song()->tempo       = tempo;
+
+	emit sv->songChanged();
 }
 
-void SetSongPropCommand::execute()
+void SongView::SetSongPropCommand::unexecute()
 {
-	song->title       = title;
-	song->author      = author;
-	song->transcriber = transcriber;
-	song->comments    = comments;
-	song->tempo       = tempo;
+	sv->song()->title       = oldtitle;
+	sv->song()->author      = oldauthor;
+	sv->song()->transcriber = oldtranscriber;
+	sv->song()->comments    = oldcomments;
+	sv->song()->tempo       = oldtempo;
 }
 
-void SetSongPropCommand::unexecute()
-{
-	song->title       = oldtitle;
-	song->author      = oldauthor;
-	song->transcriber = oldtranscriber;
-	song->comments    = oldcomments;
-	song->tempo       = oldtempo;
-}
-
-SetTrackPropCommand::SetTrackPropCommand(TrackView *_tv, TrackList *_tl, TrackPane *_tp,
+SongView::SetTrackPropCommand::SetTrackPropCommand(TrackView *_tv, TrackList *_tl, TrackPane *_tp,
 										 TabTrack *_trk, TabTrack *_newtrk):
 	KNamedCommand(i18n("Set track properties"))
 {
@@ -93,11 +89,7 @@ SetTrackPropCommand::SetTrackPropCommand(TrackView *_tv, TrackList *_tl, TrackPa
 		newtune[i] = _newtrk->tune[i];
 }
 
-SetTrackPropCommand::~SetTrackPropCommand()
-{
-}
-
-void SetTrackPropCommand::execute()
+void SongView::SetTrackPropCommand::execute()
 {
 	trk->x = x;
 	trk->y = newy;
@@ -121,7 +113,7 @@ void SetTrackPropCommand::execute()
 	tp->updateList();
 }
 
-void SetTrackPropCommand::unexecute()
+void SongView::SetTrackPropCommand::unexecute()
 {
 	trk->x = x;
 	trk->y = oldy;
@@ -145,8 +137,8 @@ void SetTrackPropCommand::unexecute()
 	tp->updateList();
 }
 
-InsertTabsCommand::InsertTabsCommand(TrackView *_tv, TabTrack *_trk, TabTrack *_tabs):
-	KNamedCommand(i18n("Insert from clipboard"))
+SongView::InsertTabsCommand::InsertTabsCommand(TrackView *_tv, TabTrack *_trk, TabTrack *_tabs)
+	: KNamedCommand(i18n("Insert from clipboard"))
 {
 	trk  = _trk;
 	tv   = _tv;
@@ -157,12 +149,7 @@ InsertTabsCommand::InsertTabsCommand(TrackView *_tv, TabTrack *_trk, TabTrack *_
 	sel  = trk->sel;
 }
 
-InsertTabsCommand::~InsertTabsCommand()
-{
-
-}
-
-void InsertTabsCommand::execute()
+void SongView::InsertTabsCommand::execute()
 {
 	trk->x = x;
 	trk->y = y;
@@ -186,7 +173,7 @@ void InsertTabsCommand::execute()
 	tv->update();
 }
 
-void InsertTabsCommand::unexecute()
+void SongView::InsertTabsCommand::unexecute()
 {
 	trk->x = x;
 	trk->y = y;
