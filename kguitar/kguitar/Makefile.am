@@ -18,61 +18,64 @@ INCLUDES = $(all_includes) $(TSE3INCLUDE)
 # if you don't have subdirectories, comment it
 SUBDIRS = toolbar pics
 
-####### This part is very kguitar specific
-# you can add here more. This one gets installed
-bin_PROGRAMS = kguitar
-lib_LTLIBRARIES = libkguitar.la
-
-# Which sources should be compiled for kguitar.
-libkguitar_la_SOURCES = application.cpp songview.cpp chord.cpp	    \
-fingers.cpp fingerlist.cpp trackview.cpp setsong.cpp tabsong.cpp    \
-tabtrack.cpp tabcolumn.cpp settrack.cpp settabmidibase.ui	    \
-settabmidi.cpp settabfret.cpp settabdrum.cpp radiustuner.cpp	    \
-notespinbox.cpp chordlistitem.cpp chordlist.cpp timesig.cpp	    \
-strumming.cpp filebrowser.cpp tracklist.cpp trackpane.cpp	    \
-trackdrag.cpp trackviewcommands.cpp songviewcommands.cpp	    \
-kguitar_shell.cpp songprint.cpp musicxml.cpp rhythmer.cpp	    \
-accidentals.cpp keysig.cpp trackprint.cpp fretboard.cpp		    \
-melodyeditor.cpp options.cpp optionspage.cpp optionsmusictheory.cpp \
-optionsmelodyeditor.cpp optionsexportmusixtex.cpp optionsmidi.cpp   \
-optionsprinting.cpp playbacktracker.cpp chordanalyzer.cpp
-
+# let automoc handle all of the meta source files (moc)
 METASOURCES = AUTO
 
-# the library search path.
-kguitar_SOURCES = main.cpp
-kguitar_LDFLAGS = $(KDE_RPATH) $(all_libraries)
+KDE_ICON = AUTO
 
-# the libraries to link against. Be aware of the order. First the libraries,
-# that depend on the following ones.
-kguitar_LDADD = $(LIB_KFILE) libkguitar.la
+# this Makefile creates both a KPart application and a KPart
+#########################################################################
+# KPART SECTION
+#########################################################################
+kde_module_LTLIBRARIES = libkguitarpart.la
+
+# the Part's source, library search path, and link libraries
+libkguitarpart_la_SOURCES = kguitar_part.cpp songview.cpp chord.cpp    \
+fingers.cpp fingerlist.cpp trackview.cpp setsong.cpp tabsong.cpp       \
+tabtrack.cpp tabcolumn.cpp settrack.cpp settabmidibase.ui	       \
+settabmidi.cpp settabfret.cpp settabdrum.cpp radiustuner.cpp	       \
+notespinbox.cpp chordlistitem.cpp chordlist.cpp timesig.cpp	       \
+strumming.cpp filebrowser.cpp tracklist.cpp trackpane.cpp	       \
+trackdrag.cpp trackviewcommands.cpp songviewcommands.cpp songprint.cpp \
+musicxml.cpp rhythmer.cpp accidentals.cpp keysig.cpp trackprint.cpp    \
+fretboard.cpp melodyeditor.cpp options.cpp optionspage.cpp	       \
+optionsmusictheory.cpp optionsmelodyeditor.cpp			       \
+optionsexportmusixtex.cpp optionsmidi.cpp optionsprinting.cpp	       \
+playbacktracker.cpp chordanalyzer.cpp optionsexportascii.cpp
+
+libkguitarpart_la_LDFLAGS = -module $(KDE_PLUGIN) $(all_libraries)
+libkguitarpart_la_LIBADD  = $(LIB_KPARTS) $(LIB_KFILE) $(LIBTSE3) -lkdeprint
+
+#libkguitar_la_LDFLAGS = $(all_libraries) -module -no-undefined
+
+# this is where the desktop file will go 
+partdesktopdir   = $(kde_servicesdir)
+partdesktop_DATA = kguitar_part.desktop
+
+# this is where the part's XML-GUI resource file goes
+partrcdir   = $(kde_datadir)/kguitar
+partrc_DATA = kguitar_part.rc
 
 # this option you can leave out. Just, if you use "make dist", you need it
-noinst_HEADERS = application.h songview.h chord.h fingers.h	      \
+noinst_HEADERS = kguitar_part.h songview.h chord.h fingers.h	      \
 fingerlist.h trackview.h setsong.h tabsong.h tabtrack.h tabcolumn.h   \
 settabmidi.h settrack.h settabfret.h settabdrum.h radiustuner.h	      \
 notespinbox.h chordlistitem.h chordlist.h timesig.h strumming.h	      \
 filebrowser.h tracklist.h trackpane.h trackdrag.h trackviewcommands.h \
-songviewcommands.h kguitar_shell.h songprint.h musicxml.h rhythmer.h  \
+songviewcommands.h songprint.h musicxml.h rhythmer.h	      \
 accidentals.h keysig.h trackprint.h fretboard.h melodyeditor.h	      \
 options.h optionspage.h optionsmelodyeditor.h optionsmusictheory.h    \
 optionsexportmusixtex.h optionsmidi.h optionsprinting.h		      \
-playbacktracker.h chordanalyzer.h
+playbacktracker.h chordanalyzer.h optionsexportascii.h
 
-libkguitar_la_LDFLAGS = $(all_libraries) -module -no-undefined
-libkguitar_la_LIBADD = $(LIB_KFILE) $(LIBTSE3) -lkparts -lkdeprint
-
-rcdir = $(kde_datadir)/kguitar
-rc_DATA = kguitarui.rc kguitar_part.rc kguitar_konq.rc
-
-applnkdir = $(kde_appsdir)/Multimedia
-applnk_DATA = kguitar.desktop
+#rc_DATA = kguitar_shell.rc kguitar_part.rc kguitar_konq.rc
 
 mimedir = $(kde_mimedir)/application
 mime_DATA = x-kguitar.desktop
 
-servicesdir = $(kde_servicesdir)
-services_DATA = kguitar_component.desktop
+#########################################################################
+# MISC SECTION
+#########################################################################
 
 #messages:
 #    $(XGETTEXT) -C -ki18n $(kguitar_SOURCES) -o ../po/kguitar.pot
@@ -86,32 +89,6 @@ messages:
 #messages: rc.cpp
 #	$(XGETTEXT) *.cpp -o $(podir)/kguitar.pot
 
-KDE_ICON = AUTO
-
 #here we need exceptions
 songview.lo: songview.cpp
 	$(LTCXXCOMPILE) $(USE_EXCEPTIONS) -c $<
-
-
-#
-# Install kgtabs.tex if configure found TeTeX
-#
-install-data-local: $(INSTALLKGTABS)
-
-
-uninstall-local: $(UNINSTALLKGTABS)
-
-
-$(INSTALL_KGTABS):
-	@echo "Copy kgtabs.tex to $(TEXMF)/tex/generic/kgtabs"
-	$(mkinstalldirs) $(TEXMF)/tex/generic/kgtabs
-	$(INSTALL_DATA) $(srcdir)/kgtabs.tex $(TEXMF)/tex/generic/kgtabs/kgtabs.tex
-	@echo "Running texhash..."
-	@texhash
-
-$(UNINSTALL_KGTABS):
-	@echo "Delete kgtabs.tex"
-	-rm -f $(TEXMF)/tex/generic/kgtabs/kgtabs.tex
-	@echo "Running texhash..."
-	@texhash
-
