@@ -11,7 +11,7 @@
 OptionsMidi::OptionsMidi(TSE3::MidiScheduler *_sch, QWidget *parent, const char *name)
 	: OptionsPage(parent, name)
 {
-    sch = _sch;
+	sch = _sch;
 
 	midiport = new QListView(this);
 	midiport->setSorting(-1); // no text sorting
@@ -46,9 +46,9 @@ void OptionsMidi::fillMidiBox()
 
 	for (size_t i = 0; i < sch->numPorts(); i++) {
 		lastItem = new QListViewItem(midiport,
-									 lastItem,
-									 QString::number(portNums[i]),
-									 sch->portName(portNums[i]));
+		                             lastItem,
+		                             QString::number(portNums[i]),
+		                             sch->portName(portNums[i]));
 		if (globalMidiPort == portNums[i])
 			midiport->setCurrentItem(lastItem);
 	}
