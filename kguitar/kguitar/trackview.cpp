@@ -5,9 +5,13 @@
 
 #include "globaloptions.h"
 
+#include "midilist.h"
+
 #include <kglobalsettings.h>
 #include <kstddirs.h>
 #include <kdebug.h>
+#include <kmessagebox.h>
+#include <klocale.h>
 
 #include <qwidget.h>
 #include <qpainter.h>
@@ -97,6 +101,8 @@ TrackView::TrackView(QWidget *parent, const char *name): QTableView(parent, name
     midi->openDev();
     midi->initDev();
 
+    midiInUse = FALSE;
+    midiStopPlay = FALSE;
 }
 
 TrackView::~TrackView()
@@ -690,5 +696,80 @@ void TrackView::mousePressEvent(QMouseEvent *e)
 
 		}
 	}
+}
+
+void TrackView::playTrack()
+{
+    kdDebug() << "TrackView::playTrack" << endl;
+
+    if (midiInUse) {
+        kdDebug() << "   ** Sorry you are playing a track!!" << endl;
+        return;
+    }
+
+    if (midi->checkInit() == -1) {
+        KMessageBox::error(this, i18n("Can't open /dev/sequenzer !!\n"
+                                      "Probably there is another program using it."));
+        return;
+	}
+
+    midiInUse = TRUE;
+    midiStopPlay = FALSE;
+
+    midiList.clear();
+
+    MidiData::getMidiList(curt, midiList); // ALINXFIX: at this time only one track...
+
+	midi->chnPatchChange(0, curt->patch);
+    playMidi(midiList);
+}
+
+void TrackView::stopPlayTrack()
+{
+    kdDebug() << "TrackView::stopPlayTrack" << endl;
+
+    if (midiInUse) midiStopPlay = TRUE;
+}
+
+void TrackView::playMidi(MidiList &ml)
+{
+    /*****************************************************************
+    * TODO:
+    *  - make it possible to use the GUI ( !! Stop MIDI play !! )
+    *  - handle other MidiEvents/KG_Effecs
+    *  - make something configurable (Tempo, TPCN)
+    *  - use real noteOff event (also in MidiData::getMidiList)
+    *  - find a callback to make played note visible on TrackView
+    ******************************************************************/
+
+    kdDebug() << "TrackView::playMidi" << endl;
+
+    if (ml.isEmpty()) {
+        midiStopPlay = TRUE;
+        midiInUse = FALSE;
+        kdDebug() << "    MidiList is empty !!!" << endl;
+        return;
+    }
+
+    long tempo;
+    int tpcn = 4;          // ALINXFIX: TicksPerCuarterNote: make it as option
+    midi->tmrStart(tpcn);
+
+    MidiEvent *e;
+
+
+    for (e = ml.first(); e != 0; e = ml.next()) {
+        tempo = e->timestamp * 2;     // ALINXFIX: make the tempo as option
+
+        //kdDebug() << "  tempo: " << tempo << endl;
+        midi->wait(tempo);
+        midi->noteOn(0, e->data1, e->data2);
+    }
+    midi->wait(0);
+    midi->sync();
+
+    midiInUse = FALSE;
+    midi->tmrStop();
+
 }
 

@@ -1,11 +1,18 @@
+#ifndef MIDILIST_H
+#define MIDILIST_H
+
 #include <qlist.h>
+
+#include "tabtrack.h"
+
 
 // GREYFIX!
 #include <stdio.h>
 
+
 enum {
 	MIDI_NOTEOFF			= 0x80,
-	MIDI_NOTEON				= 0x90,	
+	MIDI_NOTEON				= 0x90,
 	MIDI_POLY_AFTERTOUCH	= 0xa0,
 	MIDI_CONTROL_CHANGE		= 0xb0,
 	MIDI_PROGRAM_CHANGE		= 0xc0,
@@ -30,6 +37,8 @@ enum {
 	META_KEYSIG				= 0x59
 };
 
+
+
 class MidiEvent
 {
 public:
@@ -43,12 +52,24 @@ public:
 	Q_UINT8 type, data1, data2;
 };
 
+
+
 class MidiList: public QList<MidiEvent>
 {
 public:
 	MidiList() { setAutoDelete(TRUE); }
 protected:
-	virtual int compareItems(QCollection::Item e1, QCollection::Item e2) {
-		return ((MidiEvent *) e1)->timestamp - ((MidiEvent *) e2)->timestamp;
-	}
+	virtual int compareItems(QCollection::Item e1, QCollection::Item e2);
 };
+
+
+
+class MidiData {
+
+public:
+    static void getMidiList(TabTrack *&trk, MidiList &ml);
+
+};
+
+
+#endif // MIDILIST_H

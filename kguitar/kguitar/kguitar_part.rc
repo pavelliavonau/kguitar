@@ -32,6 +32,11 @@
     <Action name="fx_art_harm" />
    </Menu>
   </Menu>
+  <Menu noMerge="1" name="play" >
+   <text>&amp;Play</text>
+    <Action name="midi_playtrack" />
+    <Action name="midi_stopplay" />
+  </Menu>
   <Menu noMerge="1" name="settings" >
    <text>&amp;Settings</text>
    <Separator/>
