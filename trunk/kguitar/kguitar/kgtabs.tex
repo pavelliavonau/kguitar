@@ -1,0 +1,365 @@
+% FILE: kgtabs.tex
+% This file contains some macro definitions for use with MusiXTeX.
+% It was tested with MusiXTeX T.98.
+%
+% Most symbols will look ugly on your dvi-viewer, because I put in
+% some postscript code to put a white box behind them. The postscript
+% file will look a lot better. Special thanks to Stanislav Kneifl
+% for helping Ronald Gelten with this.
+%
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+% This file is based on tabdefs.tex Version 0.1 1998 
+% by Ronald Gelten, tgakrg@chem.tue.nl
+%
+% Special Thanks to R. Gelten who allowed us to make
+% changes.
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+%
+% This file is needed by KGuitar for the MusiXTeX tabs export
+%
+% http://kguitar.sourceforge.net
+
+\immediate\write10{KGuitarTABdefs 0.1.1\space<2000>}%
+\immediate\write10{based on tabdefs.tex by R. Gelten}%
+
+\chardef\tabnil=0
+\chardef\tabone=1
+\chardef\tabtwo=2
+\chardef\tabthr=3
+\chardef\tabfou=4
+\chardef\tabfiv=5
+\chardef\tabsix=6
+\chardef\tabsev=7
+\chardef\tabeig=8
+\chardef\tabnin=9
+\let\tabreverse\tabnil
+\def\reversestrings{\let\tabreverse\tabone}
+\def\guitarstrings{\let\tabreverse\tabnil}
+
+\newcount\tabinstrument
+\def\settab#1{%
+  \tabinstrument=#1%
+  \setlines#1 6%
+  \setclefsymbol#1\tabclef%
+}
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+% define fonts for later use %
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+\font\tabfntiii=cmss3
+\font\tabfntiv=cmss4
+\font\tabfntv=cmss5
+\font\tabfntvi=cmss6
+\font\tabfntvii=cmss7
+\font\tabfntviii=cmss8
+\font\tabfntix=cmss9
+\font\tabfntx=cmss10
+\font\tabfntxi=cmss11
+\font\tabfntxii=cmss12
+\font\tabfntxiv=cmss14
+%
+\font\tabbfntvi=cmssdc6
+\font\tabbfntvii=cmssdc7
+\font\tabbfntviii=cmssdc8
+\font\tabbfntix=cmssdc9
+\font\tabbfntx=cmssdc10
+\font\tabbfntxi=cmssdc11
+\font\tabbfntxii=cmssdc12
+\font\tabbfntxiv=cmssdc14
+%
+\font\tablrfntviii=cmss8
+\font\tablrfntx=cmss10
+\font\tablrfntxi=cmss11
+\font\tablrfntxii=cmss12
+\font\tablrfntxiv=cmss14
+%
+\font\tabbbfntviii=cmssdc8
+\font\tabbbfntx=cmssdc10
+\font\tabbbfntxi=cmssdc11
+\font\tabbbfntxii=cmssdc12
+\font\tabbbfntxiv=cmssdc14
+%
+\font\disclaimerfont=cmsl8
+\let\mymetertinyfont\eightbf
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+% Define tabsizes. These set fonts and distances for staff lines %
+% similar to \smallmusicsize etc. \largetabsize is default.      %
+% Also set number of stafflines to 6.                            %
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+\def\Largetabsize{%
+  \setsize1{1.44} % \Largevalue
+  \let\tabmeterfnt\meterlargefont
+  \let\tabcleffnt\tabbfntxiv
+  \let\tabfnt\tabfntx
+  \let\tabbfnt\tabbfntx
+  \let\tablrfnt\tablrfntx
+  \let\tabbbfnt\tabbbfntx
+  \let\chordfnt\tabfntxii
+  \let\chordbfnt\tabbfntxii
+  \let\stringfnt\tabfntix
+}
+\def\largetabsize{%
+  \setsize1{1.2} % = \largevalue}
+  \let\tabmeterfnt\meterbigfont
+  \let\tabcleffnt\tabbfntxii
+  \let\tabfnt\tabfntix
+  \let\tabbfnt\tabbfntix
+  \let\tablrfnt\tablrfntix
+  \let\tabbbfnt\tabbbfntix
+  \let\chordfnt\tabfntxi
+  \let\chordbfnt\tabbfntxi
+  \let\stringfnt\tabfntviii
+}
+\def\normaltabsize{%
+  \setsize1{1} % = \normalvalue
+  \let\tabmeterfnt\meternorfont
+  \let\tabcleffnt\tabbfntx
+  \let\tabfnt\tabfntvii
+  \let\tabbfnt\tabbfntvii
+  \let\tablrfnt\tablrfntvii
+  \let\tabbbfnt\tabbbfntvii
+  \let\tabbbfnt\tabbbfntvii
+  \let\chordfnt\tabfntx
+  \let\chordbfnt\tabbfntx
+  \let\stringfnt\tabfntvi
+}
+\def\smalltabsize{%
+  \setsize1{.8} % = \smallvalue
+  \let\tabmeterfnt\metersmallfont
+  \let\tabcleffnt\tabbfntviii
+  \let\tabfnt\tabfntvi
+  \let\tabbfnt\tabbfntvi
+  \let\tablrfnt\tablrfntvi
+  \let\tabbbfnt\tabbbfntvi
+  \let\tabbbfnt\tabbbfntvi
+  \let\chordfnt\tabfntviii
+  \let\chordbfnt\tabbfntviii
+  \let\stringfnt\tabfntv
+}
+\largetabsize
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+% \showstrings prints the string names at the left of the first %
+% tabulature staff.                                             %
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+\def\showstrings#1#2#3#4#5#6{%
+  \setbox0\hbox{\stringfnt{D}}%
+  \setbox1\vbox{\baselineskip=1.5\internote%
+    \hbox to 1.1\wd0{\hfil{\stringfnt{#1}}\hfil}
+    \hbox to 1.1\wd0{\hfil{\stringfnt{#2}}\hfil}
+    \hbox to 1.1\wd0{\hfil{\stringfnt{#3}}\hfil}
+    \hbox to 1.1\wd0{\hfil{\stringfnt{#4}}\hfil}
+    \hbox to 1.1\wd0{\hfil{\stringfnt{#5}}\hfil}
+    \hbox to 1.1\wd0{\hfil{\stringfnt{#6}}\hfil}
+  }%
+  %\parindent=0pt
+  \setname\tabinstrument{\box1}%
+}
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+% Macros for tablature. They put numbers on the TAB-lines.          %
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+% \tabbox ensures a white background for the tab number in the ps-file
+% (the stafflines don't overrun the number). Symbols are centered.
+\def\tabbox#1#2{\setbox0=\hbox{\tabfnt #2}%
+  \special{ps: 1 setgray}%
+  \ccharnote{#1}{\vrule height \ht0 width \wd0 depth \dp0}%
+  \special{ps: 0 setgray}%
+  \ccharnote{#1}{\box0}%
+}
+% \ltabbox does the same as \tabbox, except that it produces 
+% left-outlined symbols
+\def\ltabbox#1#2{\setbox0=\hbox{\tabfnt #2}%
+  \special{ps: 1 setgray}%
+  \zcharnote{#1}{\vrule height \ht0 width \wd0 depth \dp0}%
+  \special{ps: 0 setgray}%
+  \zcharnote{#1}{\box0}%
+}
+% \rtabbox does the same as \tabbox, except that it produces 
+% right-outlined symbols
+\def\rtabbox#1#2{\setbox0=\hbox{\tabfnt #2}%
+  \special{ps: 1 setgray}%
+  \lcharnote{#1}{\vrule height \ht0 width \wd0 depth \dp0}%
+  \special{ps: 0 setgray}%
+  \lcharnote{#1}{\box0}%
+}
+% \tab takes two arguments. 
+% #1 is the string number 
+% #2 is the symbol to be put on the string
+% the symbols are horizontally centered and a \sk is put behind it,
+% to jump to the position of the next symbol
+% expandafter<token>: TeX first reads the token that comes
+% immediately after \expandafter, without expanding it. Let's call this
+% token t. Then TeX reads the token that comes after t (and possibly
+% more tokens, if that token has an argument), replacing it by its
+% expansion. Finally TeX puts t back in front of that expansion.
+\def\tab#1#2{%
+  \ifcase\tabreverse
+  \expandafter\tabbox{\ifcase#1\or n\or l\or j\or h\or f\or d\fi}{#2}\sk%
+  \or
+  \expandafter\tabbox{\ifcase#1\or d\or f\or h\or j\or l\or n\fi}{#2}\sk%
+  \fi
+}
+% left spilling \tab
+\def\ltab#1#2{%
+  \ifcase\tabreverse
+  \expandafter\ltabbox{\ifcase#1\or n\or l\or j\or h\or f\or d\fi}{#2}\sk%
+  \or
+  \expandafter\ltabbox{\ifcase#1\or d\or f\or h\or j\or l\or n\fi}{#2}\sk%
+  \fi
+}
+% right spilling  \tab
+\def\rtab#1#2{%
+  \ifcase\tabreverse
+  \expandafter\rtabbox{\ifcase#1\or n\or l\or j\or h\or f\or d\fi}{#2}\sk%
+  \or
+  \expandafter\rtabbox{\ifcase#1\or d\or f\or h\or j\or l\or n\fi}{#2}\sk%
+  \fi
+}
+% \chord-tab symbol. Same as \tab, but no \sk is given, so multiple 
+% symbols can be placed above one another
+\def\chotab#1#2{%
+  \ifcase\tabreverse
+  \expandafter\tabbox{\ifcase#1\or n\or l\or j\or h\or f\or d\fi}{#2}%
+  \or
+  \expandafter\tabbox{\ifcase#1\or d\or f\or h\or j\or l\or n\fi}{#2}%
+  \fi
+}
+% left spilling \chotab
+\def\lchotab#1#2{%
+  \ifcase\tabreverse
+  \expandafter\ltabbox{\ifcase#1\or n\or l\or j\or h\or f\or d\fi}{#2}%
+  \or
+  \expandafter\ltabbox{\ifcase#1\or d\or f\or h\or j\or l\or n\fi}{#2}%
+  \fi
+}
+% right spilling \chotab
+\def\rchotab#1#2{%
+  \ifcase\tabreverse
+  \expandafter\rtabbox{\ifcase#1\or n\or l\or j\or h\or f\or d\fi}{#2}%
+  \or
+  \expandafter\rtabbox{\ifcase#1\or d\or f\or h\or j\or l\or n\fi}{#2}%
+  \fi
+}
+%
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+% define macros to put chords above lyrics %
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+\def\minvskip{\vskip -0.2\baselineskip}
+\def\plsvskip{\vskip 0.2\baselineskip}
+\def\chord#1{\tabfnt #1}
+%
+\def\above#1#2#3#4{\setbox0=\hbox{#1}\setbox1=\hbox{#2}%
+\ifnum\wd0>\wd1\vbox{\plsvskip \hbox to \wd0{#3#2#4} \minvskip \hbox{#1}}%
+\else\vbox{\plsvskip \hbox{#2} \minvskip \hbox to \wd1{#3#1#4}}\fi}
+\def\cabove#1#2{\above{#1}{\tabfnt #2}{\hfil}{\hfil}}
+\def\labove#1#2{\above{#1}{\tabfnt #2}{}{\hfil}}
+\def\rabove#1#2{\above{#1}{\tabfnt #2}{\hfil}{}}
+%
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+% define a new clefsymbol \tabclef for tablature %
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+\def\tabclef{%
+  \setbox0=\hbox{\tabcleffnt T}
+  \setbox1=\vbox{\baselineskip=0.5\baselineskip
+    \hbox to 1.1\wd0{{\tabcleffnt T}\hfil}
+    \hbox to 1.1\wd0{{\tabcleffnt A}\hfil}
+    \hbox to 1.1\wd0{{\tabcleffnt B}\hfil}
+  }
+  %\special{ps: 1 setgray}%
+  %\zcharnote{d}{\vrule height 0.9\ht1 width \wd0 depth \dp0}%
+  %\special{ps: 0 setgray}%
+  \lower1.5\internote\box1}
+%%%%%%%%%%%%%%%%%%%%%%%
+% Macros to set meter %
+%%%%%%%%%%%%%%%%%%%%%%%
+\makeatletter
+\def\meterfrac#1#2{%
+  \ifnum\noinstrum@nt=\tabinstrument% adapted copy from musixtex.tex
+    \setbox\toks@box\vbox{\hbox{~\tabmeterfnt#1}%
+    \hbox{~\tabmeterfnt #2}}\raise\internote%
+    \vbox\@to\@ight\internote{\offinterlineskip%
+    \vss\hbox\@to\wd\toks@box{\hss\tabmeterfnt#1\hss}\vskip1.5\internote%
+    \vss\hbox\@to\wd\toks@box{\hss\tabmeterfnt#2\hss}\vss}%
+  \else% copy from musixtex.tex
+    \setbox\toks@box\vbox{\hbox{~\meterfont#1}%
+    \hbox{~\meterfont #2}}%
+    \vbox\@to\@ight\internote{\offinterlineskip%
+    \vss\hbox\@to\wd\toks@box{\hss\meterfont#1\hss}\vss%
+    \vss\hbox\@to\wd\toks@box{\hss\meterfont#2\hss}\vss}%
+  \fi%
+}
+\def\allabreve{% -> 2/2
+  \ifnum\noinstrum@nt=\tabinstrument\raise5\internote\hbox{\keychar82}%
+  \else\raise4\internote\hbox{\keychar82}\fi}
+\def\reverseallabreve{%
+  \ifnum\noinstrum@nt=\tabinstrument\raise5\internote\hbox{\keychar123}%
+  \else\raise5\internote\hbox{\keychar123}\fi}
+\def\meterC{% -> 4/4
+  \ifnum\noinstrum@nt=\tabinstrument%
+  \raise5\internote\hbox{\musickeyfont\@lxxxiii}%
+  \else\raise4\internote\hbox{\musickeyfont\@lxxxiii}\fi}
+\def\reverseC{% -> 4/2
+  \ifnum\noinstrum@nt=\tabinstrument\raise5\internote\hbox{\keychar84}%
+  \else\raise4\internote\hbox{\keychar84}\fi}
+\makeatother
+%%%%%%%%%%%
+% repeats %
+%%%%%%%%%%%
+% source copied from musixtex.tex
+% writ@colons is redefined so that it still uses \tabcoli for the
+% tabulature-instrument, but keeps using \w@coli for all other instruments.
+\makeatletter
+\def\writ@colons{\n@loop{\ifnum\noinstrum@nt=\tabinstrument\tabcoli%
+                         \else\w@coli\fi}\repeat%
+}
+% \tabcoli places two dots, it is a slightly adapted version of \w@coli
+\newskip\tabcolskip
+\tabcolskip1.2\internote
+\def\tabcoli{\p@loop\raise\altportee%
+  \hbox{%
+    \raise5\internote\rlap{\kernm\tabcolskip\hbox{\keychar24}}%
+    \raise1\internote\rlap{\kernm\tabcolskip\hbox{\keychar24}}%\kernm\tabcolskip
+  }\count@portee\repeat%
+}
+\makeatother
+%%%%%%%%%%%%%%%%%%
+% set disclaimer %
+%%%%%%%%%%%%%%%%%%
+\def\disclaimerbox#1#2#3{\setbox0=\hbox{#1}\setbox1=\hbox{#2}%
+\ifnum\wd1>\wd0\vbox{\hbox to \wd1{#3#1} \vskip -.5\baselineskip \hbox{#2}}%
+\else\vbox{\hbox{#1} \vskip -.5\baselineskip \hbox to \wd0{#3#2}}\fi}
+%
+\def\disclaimer{\shipout\vbox{\vbox to \vsize{%
+\vss\pagecontents\vss}\line{%
+\hfill\disclaimerbox%
+{\disclaimerfont{This transcription is the author's own interpretation.}}%
+{\disclaimerfont{It may only be used for private study, scholarship, %
+                or research.}}%
+\hfil%
+}}}
+%
+\def\disclineone{This transcription is the author's own interpretation.}
+\def\disclinetwo{It may only be used for private study, scholarship, or
+                 research.}
+\def\putdisclaimer{\advance\vsize-24pt\footline{%
+\hfill\disclaimerbox%
+{\disclaimerfont{\disclineone}}%
+{\disclaimerfont{\disclinetwo}}%
+\hfill
+}}
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+% some symbols defined for personal use. %
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+\def\x{$\times$}
+\def\forte{\zcharnote r{\f}}
+\def\ppiano{\zcharnote r{\pp}}
+\def\n{\hfil\break}
+\def\slidesymbol{\,\slide{e}{1}{5}~}
+\def\noslide{\setbox0=\hbox{$\slidesymbol$ }\hbox to \wd0{~}}
+\def\narslide{\slide{e}{1}{5}}
+\def\arpsymbol{\,\,\,\arpeggio d 2}
+\def\tuning#1#2{\hbox to 1.5cm{\circleit{#1}\quad = #2\hfil}}
+\def\legend#1#2{\setbox0\hbox{\circleit{1}\quad = }%
+    \hbox{\hbox to \wd0{\hfil #1 =} \hbox{#2}}}
+\def\bprime{{\chordbfnt{'}}}
+\def\chord#1{{\chordfnt{#1}}}
+\def\chordb#1{{\chordbfnt{#1}}}
+\def\upchord#1{\zcharnote q{\chordfnt{#1}}}
