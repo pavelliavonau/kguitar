@@ -43,11 +43,10 @@ typedef struct {
     uchar time1,time2;                  // Time signature
 } TabBar;
 
-class TabTrack
-{
+class TabTrack {
 public:
     TabTrack(TrackMode _tm, QString _name, int _channel,
-	     int _bank, uchar _patch, uchar _string, uchar _frets);
+	         int _bank, uchar _patch, uchar _string, uchar _frets);
 
     QArray<TabColumn> c;                // Array of columns
     QArray<TabBar> b;                   // Array of bars

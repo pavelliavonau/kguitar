@@ -14,6 +14,32 @@ TabTrack::TabTrack(TrackMode _tm, QString _name, int _channel,
 	patch=_patch;
 	string=_string;
 	frets=_frets;
+
+	// Simple & brutal initialization follows
+	// GREYFIX: change to something that makes more sense
+
+	uchar standtune[6] = {40, 45, 50, 55, 59, 64};
+
+	for (int i = 0; i < 6; i++)
+		tune[i] = standtune[i];
+
+	c.resize(1);
+	b.resize(1);
+
+	for (int i = 0; i < MAX_STRINGS; i++) {
+		c[0].a[i] = -1;
+		c[0].e[i] = 0;
+	}
+	c[0].l = 120;
+	c[0].flags = 0;
+
+	b[0].start = 0;
+	b[0].time1 = 4;
+	b[0].time2 = 4;
+
+	x = 0;
+	xb = 0;
+	y = 0;
 }
 
 // Pretty sophisticated expression that determines if we can omit the time sig
