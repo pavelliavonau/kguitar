@@ -37,7 +37,7 @@
 #define BOTTOMDUR	VERTSPACE+VERTLINE*(s+1)
 
 TrackView::TrackView(TabSong *s, KXMLGUIClient *_XMLGUIClient, KCommandHistory* _cmdHist,
-					 DeviceManager *_dm, QWidget *parent = 0, const char *name = 0):
+					 /*DeviceManager *_dm,*/ QWidget *parent = 0, const char *name = 0): //##
 	QTableView(parent, name)
 {
 	setTableFlags(Tbl_autoVScrollBar | Tbl_smoothScrolling);
@@ -50,7 +50,7 @@ TrackView::TrackView(TabSong *s, KXMLGUIClient *_XMLGUIClient, KCommandHistory* 
 
 	m_XMLGUIClient = _XMLGUIClient;
 	m_cmdHist = _cmdHist;
-	midi = _dm;
+//##	midi = _dm;
 
 	song = s;
 	setCurt(s->t.first());
@@ -179,7 +179,7 @@ void TrackView::insertChord()
 {
 	int a[MAX_STRINGS];
 
-	ChordSelector cs(midi, curt);
+	ChordSelector cs(/*midi,*/ curt); //##
 	for (int i = 0; i < curt->string; i++)
 		cs.setApp(i, curt->c[curt->x].a[i]);
 

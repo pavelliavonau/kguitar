@@ -39,14 +39,16 @@ enum {
 
 class MidiEvent {
 public:
-	MidiEvent(long _timestamp, uchar _chn, uchar _type, uchar _data1, uchar _data2) {
+	MidiEvent(long _timestamp, int _duration, uchar _chn, uchar _type, uchar _data1, uchar _data2) {
 		timestamp = _timestamp;
+		duration = _duration;
 		chn = _chn;
 		type = _type;
 		data1 = _data1;
 		data2 = _data2;
 	};
 	long timestamp;
+	int duration;
 	Q_UINT8 chn, type, data1, data2;
 };
 
@@ -59,7 +61,7 @@ protected:
 
 class MidiData {
 public:
-	static void getMidiList(TabTrack *trk, MidiList &ml);
+	static void getMidiList(TabTrack *trk, MidiList &ml, bool useTSE3 = FALSE);
 };
 
 

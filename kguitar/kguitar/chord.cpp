@@ -18,8 +18,8 @@
 #include <qlabel.h>
 #include <qlayout.h>
 
-#include <libkmid/deviceman.h>
-#include <libkmid/player.h>
+//## #include <libkmid/deviceman.h>
+//## #include <libkmid/player.h>
 
 QString notes_us1[12] = {"C",  "C#", "D",  "D#", "E",  "F",
 						 "F#", "G",	 "G#", "A",	 "A#", "B"};
@@ -80,12 +80,12 @@ QString maj7name[] = {"7M", "maj7", "dom7"};
 QString flat[] = {"-", "b"};
 QString sharp[] = {"+", "#"};
 
-ChordSelector::ChordSelector(DeviceManager *_dm, TabTrack *p, QWidget *parent = 0,
+ChordSelector::ChordSelector(/*DeviceManager *_dm,*/ TabTrack *p, QWidget *parent = 0, //##
 							 const char *name = 0): QDialog(parent, name, TRUE)
 {
 	parm = p;
 	strum_scheme = 0;
-	dm = _dm;
+//##	dm = _dm;
 
 	chname = new QLineEdit(this);
 	chname->setMinimumHeight(20);
@@ -308,33 +308,34 @@ void ChordSelector::askStrum()
 void ChordSelector::playMidi()
 {
 //	dm->setDefaultDevice(1);
+//##>
+// 	if (dm->checkInit() == -1) {
+// 		KMessageBox::error(this, i18n("Can't open /dev/sequencer !!\n"
+// 									  "Probably there is another program using it."));
+// 		return;
+// 	}
 
-	if (dm->checkInit() == -1) {
-		KMessageBox::error(this, i18n("Can't open /dev/sequencer !!\n"
-									  "Probably there is another program using it."));
-		return;
-	}
+//  	dm->tmrStart(1);
 
- 	dm->tmrStart(1);
+// 	dm->chnPatchChange(0, parm->patch);
 
-	dm->chnPatchChange(0, parm->patch);
+// 	for (int i = 0; i < parm->string; i++)
+// 		if (fng->app(i) != -1) {
+// 			if (i > 0)
+// 				dm->wait(i*70);
+// 			dm->noteOn(0, fng->app(i) + parm->tune[i], 127);
+// 		}
 
-	for (int i = 0; i < parm->string; i++)
-		if (fng->app(i) != -1) {
-			if (i > 0)
-				dm->wait(i*70);
-			dm->noteOn(0, fng->app(i) + parm->tune[i], 127);
-		}
+//  	dm->wait(1000);
 
- 	dm->wait(1000);
+// 	for (int i = 0; i < parm->string; i++)
+// 		if (fng->app(i) != -1)
+// 			dm->noteOff(0, fng->app(i) + parm->tune[i], 127);
 
-	for (int i = 0; i < parm->string; i++)
-		if (fng->app(i) != -1)
-			dm->noteOff(0, fng->app(i) + parm->tune[i], 127);
+// 	dm->sync();
 
-	dm->sync();
-
- 	dm->tmrStop();
+//  	dm->tmrStop();
+//##<
 }
 
 // Try to detect some chord forms from a given applicature.

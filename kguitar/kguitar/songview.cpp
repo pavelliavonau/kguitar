@@ -1,3 +1,5 @@
+#include "config.h"
+
 #include "songview.h"
 #include "songviewcommands.h"
 #include "global.h"
@@ -35,65 +37,44 @@
 #include <qheader.h>
 #include <qdir.h>
 
-#include <libkmid/deviceman.h>
-#include <libkmid/midimapper.h>
-#include <libkmid/fmout.h>
+#ifdef HAVE_MIDI
+#include <tse3/Song.h>
+#include <tse3/PhraseEdit.h>
+#include <tse3/Part.h>
+#include <tse3/Track.h>
+#include <tse3/Metronome.h>
+#include <tse3/MidiScheduler.h>
+#include <tse3/plt/Alsa.h>
+#include <tse3/plt/OSS.h>
+#include <tse3/Transport.h>
+#include <tse3/Error.h>
+#endif
 
-#include <unistd.h>
-#include <stdlib.h>
-#include <stdio.h>
-#include <sys/types.h>
-#include <sys/wait.h>
+//##>
+// #include <libkmid/deviceman.h>
+// #include <libkmid/midimapper.h>
+// #include <libkmid/fmout.h>
 
-#include <signal.h>   // kill is declared on signal.h on bsd, not sys/signal.h
-#include <sys/signal.h>
+// #include <unistd.h>
+// #include <stdlib.h>
+// #include <stdio.h>
+// #include <sys/types.h>
+// #include <sys/wait.h>
+
+// #include <signal.h>   // kill is declared on signal.h on bsd, not sys/signal.h
+// #include <sys/signal.h>
+//##<
 
 SongView::SongView(KXMLGUIClient *_XMLGUIClient,  KCommandHistory* _cmdHist,
 				   QWidget *parent = 0, const char *name = 0): QWidget(parent, name)
 {
-	//MIDI INIT STUFF
-	QString fmPatch, fmPatchDir;
-	fmPatch = locate("data", "kmid/fm/std.o3");
-
-	if (!fmPatch.isEmpty()) {
-		QFileInfo *fi = new QFileInfo(fmPatch);
-		fmPatchDir = fi->dirPath().latin1();
-		fmPatchDir += "/";
-		globalHaveMidi = TRUE;
-
-		FMOut::setFMPatchesDirectory(fmPatchDir);
-
-		kdDebug() << "KGMidiInit: FMPatchesDirectory: " << fmPatchDir << endl;
-	} else {
-		kdDebug() << "KGMidiInit: Can't find FMPatches from KMid !! " << endl;
-		kdDebug() << "            ***** MIDI not ready !! *****" << endl;
-		globalHaveMidi = FALSE;
-	}
-
-	midi = new DeviceManager( /*mididev*/ -1);
-
-	if (midi->initManager() == 0)
-		kdDebug() << "KGMidiInit: midi->initManager()...  OK" << endl;
-
-	MidiMapper *map = new MidiMapper(NULL); // alinx - for future option in Optiondialog
-											// Maps are stored in:
-											// "$DKEDIR/share/apps/kmid/maps/*.map"
-	midi->setMidiMap(map);
-
-	midi->openDev();
-	midi->initDev();
-
-	midiInUse = FALSE;
-	midiStopPlay = FALSE;
-
-
 	song = new TabSong(i18n("Unnamed"), 120);
 	song->t.append(new TabTrack(FretTab, i18n("Guitar"), 1, 0, 25, 6, 24));
 
 	split = new QSplitter(this);
 	split->setOrientation(QSplitter::Vertical);
 
-	tv = new TrackView(song, _XMLGUIClient, _cmdHist, midi, split);
+	tv = new TrackView(song, _XMLGUIClient, _cmdHist, /*midi,*/ split);//##
 	splitv = new QSplitter(split);
  	splitv->setOrientation(QSplitter::Horizontal);
 
@@ -115,12 +96,6 @@ SongView::SongView(KXMLGUIClient *_XMLGUIClient,  KCommandHistory* _cmdHist,
 SongView::~SongView()
 {
 	delete song;
-
-	kdDebug() << "Closing device" << endl;
-	midi->closeDev();
-
-	kdDebug() << "Deleting devicemanager" << endl;
-	delete midi;
 }
 
 // Refreshes all the views and resets all minor parameters in the
@@ -200,7 +175,7 @@ void SongView::trackBassLine()
 	if (trackNew()) {
 		TabTrack *newtrk = tv->trk();
 		newtrk->c.resize(origtrk->c.size());
-		ChordSelector cs(devMan(), origtrk);
+		ChordSelector cs(/*devMan(),*/ origtrk);
 
 		int note;
 		bool havenote;
@@ -360,7 +335,7 @@ void SongView::songProperties()
 void SongView::playTrack()
 {
 #ifdef HAVE_MIDI
-	kdDebug() << "SongView::playTrack with pid:" << getpid() << endl;
+	kdDebug() << "SongView::playTrack with pid:"/* << getpid()*/ << endl; //##
 
 	if (midiInUse) {
 		kdDebug() << "   ** Sorry you are playing a track/song!!" << endl;
@@ -372,7 +347,7 @@ void SongView::playTrack()
 
 	midiList.clear();
 
-	MidiData::getMidiList(tv->trk(), midiList);
+	MidiData::getMidiList(tv->trk(), midiList, TRUE);
 
 	playMidi(midiList, FALSE);
 #endif
@@ -381,7 +356,7 @@ void SongView::playTrack()
 void SongView::playSong()
 {
 #ifdef HAVE_MIDI
-	kdDebug() << "SongView::playSong with pid:" << getpid() << endl;
+	kdDebug() << "SongView::playSong with pid:" << /*getpid() <<*/ endl; //##
 
 	if (midiInUse) {
 		kdDebug() << "   ** Sorry you are playing a track/song!!" << endl;
@@ -396,7 +371,7 @@ void SongView::playSong()
 	QListIterator<TabTrack> it(song->t);
 	for (; it.current(); ++it) {
 		TabTrack *trk = it.current();
-		MidiData::getMidiList(trk, midiList);
+		MidiData::getMidiList(trk, midiList, TRUE);
 	}
 
 	playMidi(midiList);
@@ -424,149 +399,92 @@ void SongView::playMidi(MidiList &ml, bool playSong = TRUE)
 		return;
 	}
 
-	kdDebug() << "    Parent1 pid: " << getpid() << endl;
+	MidiEvent *e;
+	TSE3::PhraseEdit phraseEdit;
 
-	int defDevice = midi->defaultDevice(); // get the device for the child
-	if (defDevice == -1) {
-		kdDebug() << "There is no device available" << endl;
-		return;
+	if (playSong) {
+		QListIterator<TabTrack> it(song->t);
+		for (; it.current(); ++it) {
+			TabTrack *trk = it.current();
+			phraseEdit.insert(TSE3::MidiEvent(TSE3::MidiCommand(TSE3::MidiCommand_ProgramChange, trk->channel - 1,
+																0 /*port*/, trk->patch), 0));
+			//## send chnPatchChange(trk->channel, trk->patch);
+			//## and MIDI commands for Volume, Chorus, etc.
+		}
+	} else {
+		phraseEdit.insert(TSE3::MidiEvent(TSE3::MidiCommand(TSE3::MidiCommand_ProgramChange, tv->trk()->channel - 1,
+																0 /*port*/, tv->trk()->patch), 0));
+		//## send chnPatchChange(tv->trk()->channel, tv->trk()->patch);
+		//## and MIDI commands for Volume, Chorus, etc.
 	}
 
-	midi->closeDev(); // close MidiDevice for child process
-	delete midi;
+//##--	TSE3::Clock time = 0;
+//##--	int duration = TSE3::Clock::PPQN;
 
-	int status;
-	pid_t m_pid;
 
-	QApplication::flushX();
+	for (e = ml.first(); e != 0; e = ml.next()) {
+		phraseEdit.insert(TSE3::MidiEvent(TSE3::MidiCommand(TSE3::MidiCommand_NoteOn, e->chn, 0/*port*/,
+															e->data1/*note*/, e->data2 /*velocity*/),
+										  e->timestamp, 0/*velocity*/, e->timestamp + e->duration));
 
-	m_pid = fork();       // create child process
-
-	if (m_pid == -1) {
-		kdDebug() << "    **** Error: can't fork a child process!!" << endl;
-		return;
 	}
 
-	if (m_pid == 0) {      // ***** child process *****
+	// Now assemble the Song
+	TSE3::Song    m_song(1);
+	TSE3::Phrase *phrase = phraseEdit.createPhrase(m_song.phraseList());
+	TSE3::Part   *part   = new TSE3::Part(0, phraseEdit.lastClock());
+	part->setPhrase(phrase);
+	m_song[0]->insert(part);
 
-		kdDebug() << "    --child process with pid: " << getpid() << " and parent pid: " << getppid() << endl;
+	// Create transport objects
+	TSE3::Metronome metronome;
+//	metronome.setDuration(4);
 
-		// create own MidiDevice for child process
-		QString fmPatch, fmPatchDir;
-		fmPatch = locate("data", "kmid/fm/std.o3");
+	TSE3::Plt::AlsaMidiSchedulerFactory AlsaFactory;
+	TSE3::Plt::OSSMidiSchedulerFactory OSSFactory;
 
-		if (!fmPatch.isEmpty()) {
+	TSE3::MidiScheduler *scheduler;
 
-			QFileInfo *fi = new QFileInfo(fmPatch);
-			fmPatchDir = fi->dirPath().latin1();
-			fmPatchDir += "/";
-			globalHaveMidi = TRUE;
-
-			FMOut::setFMPatchesDirectory(fmPatchDir);
-
-			kdDebug() << "      child process: FMPatchesDirectory: " << fmPatchDir << endl;
-		}
-		else {
-			kdDebug() << "      child process: Can't find FMPatches from KMid !! ** MIDI not ready !! ***" << endl;
-			globalHaveMidi = FALSE;
-		}
-
-		DeviceManager *c_midi;
-
-		kdDebug() << "      child process: c_midi = new DeviceManager(-1)" << endl;
-		c_midi = new DeviceManager(-1);
-
-		if (c_midi->initManager() == 0)
-			kdDebug() << "      child process: c_midi->initManager()...  OK" << endl;
-		else {
-			kdDebug() << "      child process: c_midi->initManager() FAILED *******" << endl;
-			exit(EXIT_FAILURE);
-		}
-
-		MidiMapper *c_map = new MidiMapper(NULL); // alinx - for future option in Optiondialog
-		                                          // Maps are stored in:
-		                                          // "$DKEDIR/share/apps/kmid/maps/*.map"
-
-		kdDebug() << "      child process: c_midi->setMidiMap()" << endl;
-		c_midi->setMidiMap(c_map);
-
-		kdDebug() << "      child process: c_midi->openDev()" << endl;
-		c_midi->openDev();
-		kdDebug() << "      child process: c_midi->initDev()" << endl;
-		c_midi->initDev();
-		kdDebug() << "      child process: c_midi->setDefaultDevice(" << defDevice << ")" << endl;
-		c_midi->setDefaultDevice(defDevice);
-
-		MidiEvent *e;
-		long tempo;
-		int tpcn = 4;          // ALINXFIX: TicksPerCuarterNote: make it as option
-
-		if (playSong) {
-			QListIterator<TabTrack> it(song->t);
-			for (; it.current(); ++it) {
-				TabTrack *trk = it.current();
-				c_midi->chnPatchChange(trk->channel, trk->patch);
-			}
-		} else c_midi->chnPatchChange(tv->trk()->channel, tv->trk()->patch);
-
-		c_midi->tmrStart(tpcn);
-
-		for (e = ml.first(); e != 0; e = ml.next()) {
-			tempo = e->timestamp * 2;     // ALINXFIX: make the tempo as option
-
-			c_midi->wait(tempo);
-			c_midi->noteOn(e->chn, e->data1, e->data2);
-		}
-		c_midi->wait(0);
-		c_midi->sync();
-		c_midi->tmrStop();
-
-		sleep(1);
-		exit(EXIT_SUCCESS);              // exit child process
+	try {
+		scheduler = AlsaFactory.createScheduler();
+		kdDebug() << "TSE3 ALSA MIDI Scheduler created" << endl;
 	}
-	else {                               // ****** parent process ******
-		kdDebug() << "    Parent3 pid: " << getpid() << endl;
+	catch (TSE3::MidiSchedulerError e) {
+		kdDebug() << "cannot create an ALSA MIDI Scheduler" << endl;
+	}
 
-		pid_t child_pid;
-		child_pid = m_pid;   // copy child pid for kill()
-
-		while ((m_pid = waitpid(-1, &status, WNOHANG)) == 0) { //wait for child process
-			kdDebug() << "    wait for child process (pid: " << child_pid << ")" << endl;
-
-			kapp->processEvents();
-
-			if (midiStopPlay) {
-				kdDebug() << "====> try to stop the midi timer..." << endl;
-				kill(child_pid, SIGTERM);
-				waitpid(child_pid, NULL, 0);
-			}
+	if (!scheduler) {
+		try {
+			scheduler = OSSFactory.createScheduler();
+			kdDebug() << "TSE3 OSS MIDI Scheduler created" << endl;
 		}
+		catch (TSE3::MidiSchedulerError e) {
+			kdDebug() << "cannot create an OSS MIDI Scheduler" << endl;
+		}
+	}
 
-		if (WIFEXITED(status) != 0)
-			kdDebug() << "    child process: no error on exit" << endl;
-		else
-			kdDebug() << "    child process exit with error => " << WEXITSTATUS(status) << endl;
-
+	if (!scheduler) {
+		kdDebug() << "ERROR opening MIDI device / Music can't be played" << endl;
+		KMessageBox::error(this, i18n("Error opening MIDI device!"));
 		midiInUse = FALSE;
-
-		kdDebug() << "    -->reopen MidiDevice 'midi'..." << endl;
-
-		kdDebug() << "    -->midi = new DeviceManager(-1)" << endl;
-		midi = new DeviceManager(-1);
-
-		if (midi->initManager() == 0)
-			kdDebug() << "    -->midi->initManager()...  OK" << endl;
-		else {
-			kdDebug() << "    -->midi->initManager() FAILED *******" << endl;
-			return;
-		}
-		kdDebug() << "    -->midi->openDev()" << endl;
-		midi->openDev();      // reopen MidiDevice
-		kdDebug() << "    -->midi->initDev()" << endl;
-		midi->initDev();
-		kdDebug() << "    -->midi->setDefaultDevice(" << defDevice << ")" << endl;
-		midi->setDefaultDevice(defDevice);
+		delete scheduler;
+		return;
 	}
+
+//	TSE3::Plt::OSSMidiScheduler     scheduler;
+	TSE3::Transport transport(&metronome, scheduler);
+
+
+    // Play and wait for the end
+	transport.play(&m_song, 0);
+	while (transport.status() != TSE3::Transport::Resting)
+		transport.poll();
+
+	midiInUse = FALSE;
+	phraseEdit.clearSelection();
+
+	delete scheduler;
+
 #endif
 }
 

@@ -17,13 +17,13 @@
 #include <qpushbutton.h>
 #endif
 
-#include <libkmid/deviceman.h>
+//## #include <libkmid/deviceman.h>
 
-Options::Options(DeviceManager *_dm, QWidget *parent = 0, char *name = 0, bool modal)
-	: KDialogBase(IconList, i18n("Preferences"), Help|Default|Ok|Apply|Cancel, 
+Options::Options(/*DeviceManager *_dm,*/ QWidget *parent = 0, char *name = 0, bool modal) //##
+	: KDialogBase(IconList, i18n("Preferences"), Help|Default|Ok|Apply|Cancel,
 				  Ok, parent, name, modal, TRUE)
 {
-	dm = _dm;
+//##	dm = _dm;
 
 	//Setup Tabs
 	setupTheoryTab();
@@ -31,7 +31,7 @@ Options::Options(DeviceManager *_dm, QWidget *parent = 0, char *name = 0, bool m
 #ifdef HAVE_LIBASOUND
 	setupAlsaTab();
 #endif
-	setupKmidTab();
+//##	setupKmidTab();
 	resize(530, 300);
 	connect(this, SIGNAL(defaultClicked()), SLOT(defaultBtnClicked()));
 	connect(this, SIGNAL(okClicked()), SLOT(applyBtnClicked()));
@@ -132,27 +132,29 @@ void Options::setupMusixtexTab()
 // LibKMid settings setup
 void Options::setupKmidTab()
 {
-	QFrame *kmid = addPage(i18n("MIDI Device Support"), 0,
-						   DesktopIcon("kcmmidi", KIcon::SizeMedium));
+//##>
+// 	QFrame *kmid = addPage(i18n("MIDI Device Support"), 0,
+// 						   DesktopIcon("kcmmidi", KIcon::SizeMedium));
 
-	QBoxLayout *kmidl = new QHBoxLayout(kmid, 15, 10);
+// 	QBoxLayout *kmidl = new QHBoxLayout(kmid, 15, 10);
 
-	kmidport = new QListBox(kmid);
-	
-	char temp[200];
-	for (int i = 0; i < dm->midiPorts() + dm->synthDevices(); i++) {
-		if (strcmp(dm->type(i), "") != 0)
-			sprintf(temp,"%s - %s", dm->name(i), dm->type(i));
-		else
-			sprintf(temp,"%s", dm->name(i));
-		
-		kmidport->insertItem(temp,i);
-	};
-	int selecteddevice = dm->defaultDevice();
-	kmidport->setCurrentItem(selecteddevice);
+// 	kmidport = new QListBox(kmid);
 
-	kmidl->addWidget(kmidport);
-	kmidl->activate();
+// 	char temp[200];
+// 	for (int i = 0; i < dm->midiPorts() + dm->synthDevices(); i++) {
+// 		if (strcmp(dm->type(i), "") != 0)
+// 			sprintf(temp,"%s - %s", dm->name(i), dm->type(i));
+// 		else
+// 			sprintf(temp,"%s", dm->name(i));
+
+// 		kmidport->insertItem(temp,i);
+// 	};
+// 	int selecteddevice = dm->defaultDevice();
+// 	kmidport->setCurrentItem(selecteddevice);
+
+// 	kmidl->addWidget(kmidport);
+// 	kmidl->activate();
+//##<
 }
 
 void Options::setupAlsaTab()
@@ -229,7 +231,7 @@ void Options::fillAlsaBox()
 			err = snd_seq_get_any_port_info(handle, client, port, &pinfo);
 			if (err < 0)
 				continue;
-			
+
 			if ((pinfo.capability & cap) == cap) {
 				tmp.setNum(pinfo.client);
 				tmp2.setNum(pinfo.port);
@@ -260,7 +262,7 @@ void Options::applyBtnClicked()
 	if (expmode[0]->isChecked()) globalTexExpMode = 0;
 	if (expmode[1]->isChecked()) globalTexExpMode = 1;
 
-	dm->setDefaultDevice(kmidport->currentItem());
+//##	dm->setDefaultDevice(kmidport->currentItem());
 }
 
 void Options::defaultBtnClicked()

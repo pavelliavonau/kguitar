@@ -21,12 +21,12 @@ class FingerList;
 class TabTrack;
 class Strumming;
 
-class DeviceManager;
+//##class DeviceManager;
 
 class ChordSelector: public QDialog {
     Q_OBJECT
 public:
-    ChordSelector(DeviceManager *_dm, TabTrack *p, QWidget *parent = 0,
+    ChordSelector(/*DeviceManager *_dm,*/ TabTrack *p, QWidget *parent = 0, //##
 				  const char *name = 0);
     int  app(int x) { return fng->app(x); }
     void setApp(int x, int fret) { fng->setApp(x, fret); }
@@ -57,7 +57,7 @@ private:
     FingerList *fnglist;
 
 	int strum_scheme;
-	DeviceManager *dm;
+//##	DeviceManager *dm;
 };
 
 #endif

@@ -10,13 +10,13 @@ class QRadioButton;
 class QListView;
 class QListBox;
 class QSlider;
-class DeviceManager;
+//##class DeviceManager;
 
 class Options: public KDialogBase
 {
     Q_OBJECT
 public:
-    Options(DeviceManager *_dm, QWidget *parent = 0, char *name = 0,
+    Options(/*DeviceManager *_dm,*/ QWidget *parent = 0, char *name = 0,//##
 			bool modal = TRUE);
 
     QButtonGroup *maj7gr,*flatgr, *texlygr, *texsizegr, *texexpgr;
@@ -39,7 +39,7 @@ private:
 	QListBox *kmidport;
 	QListView *alsaport;
 
-	DeviceManager *dm;
+//##	DeviceManager *dm;
 };
 
 #endif

@@ -10,7 +10,6 @@
 class TrackView;
 class TrackList;
 class TrackPane;
-class DeviceManager;
 class TabSong;
 class QSplitter;
 class KXMLGUIClient;
@@ -29,7 +28,7 @@ public:
 	TrackPane *tp;
 
 	TabSong* sng() { return song; }
-	DeviceManager* devMan() { return midi; }
+//##	DeviceManager* devMan() { return midi; }
 
 public slots:
 	bool trackNew();
@@ -54,7 +53,7 @@ private:
 	bool setTrackProperties();
 
 	QSplitter *split, *splitv;
-	DeviceManager *midi;
+//##	DeviceManager *midi;
 	TabSong *song;
 	KCommandHistory *m_cmdHist;
 

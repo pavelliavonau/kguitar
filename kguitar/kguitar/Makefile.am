@@ -12,7 +12,7 @@
 # kde_wallpaperdir  Where general wallpapers should go to.
 
 # set the include path for X, qt and KDE
-INCLUDES = $(all_includes)
+INCLUDES = $(all_includes) $(TSE3INCLUDE)
 
 # claim, which subdirectories you want to install
 # if you don't have subdirectories, comment it
@@ -26,10 +26,11 @@ lib_LTLIBRARIES = libkguitar.la
 # Which sources should be compiled for kguitar.
 libkguitar_la_SOURCES = application.cpp songview.cpp chord.cpp \
  fingers.cpp fingerlist.cpp trackview.cpp setsong.cpp tabsong.cpp \
- tabtrack.cpp settrack.cpp settabfret.cpp settabdrum.cpp radiustuner.cpp \
- notespinbox.cpp options.cpp chordlistitem.cpp chordlist.cpp timesig.cpp \
- strumming.cpp filebrowser.cpp midilist.cpp tracklist.cpp trackpane.cpp \
- trackdrag.cpp trackviewcommands.cpp songviewcommands.cpp kguitar_shell.cpp
+ tabtrack.cpp settrack.cpp settabmidibase.ui settabmidi.cpp \
+ settabfret.cpp settabdrum.cpp radiustuner.cpp notespinbox.cpp \
+ options.cpp chordlistitem.cpp chordlist.cpp timesig.cpp strumming.cpp \
+ filebrowser.cpp midilist.cpp tracklist.cpp trackpane.cpp trackdrag.cpp \
+ trackviewcommands.cpp songviewcommands.cpp kguitar_shell.cpp
 
 METASOURCES = AUTO
 
@@ -43,13 +44,13 @@ kguitar_LDADD   = $(LIB_KFILE) libkguitar.la
 
 # this option you can leave out. Just, if you use "make dist", you need it
 noinst_HEADERS = application.h songview.h chord.h fingers.h fingerlist.h \
- trackview.h setsong.h tabsong.h tabtrack.h settrack.h settabfret.h settabdrum.h \
- radiustuner.h notespinbox.h options.h chordlistitem.h chordlist.h \
+ trackview.h setsong.h tabsong.h tabtrack.h settabmidi.h settrack.h settabfret.h \
+ settabdrum.h radiustuner.h notespinbox.h options.h chordlistitem.h chordlist.h \
  timesig.h strumming.h filebrowser.h midilist.h tracklist.h \
  trackpane.h trackdrag.h trackviewcommands.h songviewcommands.h kguitar_shell.h
 
 libkguitar_la_LDFLAGS = $(all_libraries) -version-info 1:0:0 -module -no-undefined
-libkguitar_la_LIBADD = $(LIB_KFILE) -lkparts -lkmid
+libkguitar_la_LIBADD = $(LIB_KFILE) $(LIBTSE3) -lkparts
 
 rcdir = $(kde_datadir)/kguitar
 rc_DATA = kguitarui.rc kguitar_part.rc kguitar_konq.rc
@@ -74,6 +75,10 @@ messages:
 
 
 KDE_ICON = AUTO
+
+#here we need exceptions
+songview.lo: songview.cpp
+	$(LTCXXCOMPILE) $(USE_EXCEPTIONS) -c $<
 
 
 #
