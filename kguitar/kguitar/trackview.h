@@ -32,6 +32,9 @@ public slots:
     void setLength32() { setLength(15); };
     void timeSig();
     void linkPrev();
+    void addHarmonic();
+    void addArtHarm();
+    void addLegato();
 
 signals:
     void statusBarChanged();
