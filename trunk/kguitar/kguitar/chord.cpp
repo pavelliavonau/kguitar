@@ -177,74 +177,79 @@ void ChordSelector::findChords()
     int need[3]={0,4,7},got[3];
 
     for (i=0;i<notenum;i++)
-      need[i]=(need[i]+tonic->currentItem())%12;
-
-    int span=4; // maximal fingerspan
-
+	 need[i]=(need[i]+tonic->currentItem())%12;
+    
+    int span=3; // maximal fingerspan
+    
     if (complexer[1]->isChecked())
-      span=4;
+	 span=4;
     if (complexer[2]->isChecked())
-      span=5;    
-
+	 span=5;    
+    
     // PREPARING FOR FINGERING CALCULATION
-
+    
     for (i=0;i<numstr;i++) {
-      for (j=0;j<=maxfret;j++) {
-	fb[i][j]=-1;
-      }
-      for (k=0;k<notenum;k++) {
-	j=(need[k]-tune[i]%12+12)%12;
-	while (j<=maxfret) {
-	  fb[i][j]=k;
-	  j+=12;
-	}
-      }
+	 for (j=0;j<=maxfret;j++) {
+	      fb[i][j]=-1;
+	 }
+	 for (k=0;k<notenum;k++) {
+	      j=(need[k]-tune[i]%12+12)%12;
+	      while (j<=maxfret) {
+		   fb[i][j]=k;
+		   j+=12;
+	      }
+	 }
     }
-
+    
     for (i=0;i<numstr;i++)
-      app[i]=-1;
-
+	 app[i]=-1;
+    
     fnglist->switchAuto(FALSE);
     fnglist->clear();
-
+    
     // MAIN FINGERING CALCULATION LOOP
 
     i=0;
     do {
-      if (app[i]<=maxfret) {
-	min=maxfret+1;max=0;
-	for (k=0;k<notenum;k++)
-	  got[k]=0;
-	k=0;
-	for (j=0;j<numstr;j++) {
-	  if (app[j]>0) {
-	    if (app[j]<min)  min=app[j];
-	    if (app[j]>max)  max=app[j];
-	  }
-	  if (max-min>=span)
-	    break;
-	  if (app[j]>=0) {
-	    if (!got[fb[j][app[j]]]) {
-	      got[fb[j][app[j]]]=1;
-	      k++;
-	    }
-	  }
-	}
-
-	if ((k==notenum) && (max-min<span)) {
-	     
-	  fnglist->addFingering(app,TRUE);
-	}
-
-	i=0;
-      } else {
-	app[i]=-1;i++;
-	if (i>=numstr)
-	  break;
-      }
-      app[i]++;
-      while ((fb[i][app[i]]==-1) && (app[i]<=maxfret))
-	app[i]++;
+	 if (app[i]<=maxfret) {
+	      min=maxfret+1;max=0;
+	      for (k=0;k<notenum;k++)
+		   got[k]=0;
+	      k=0;
+	      for (j=0;j<numstr;j++) {
+		   if (app[j]>0) {
+			if (app[j]<min)  min=app[j];
+			if (app[j]>max)  max=app[j];
+		   }
+		   if (max-min>=span)
+			break;
+		   if (app[j]>=0) {
+			if (!got[fb[j][app[j]]]) {
+			     got[fb[j][app[j]]]=1;
+			     k++;
+			}
+		   }
+	      }
+	      
+	      if ((k==notenum) && (max-min<span)) {
+		   k=255; // finding lowest note in a chord
+		   for (j=0;j<numstr;j++) {
+			if ((app[j]!=-1) && (tune[j]+app[j]<k))
+			     k=tune[j]+app[j];
+		   }
+		   if (k % 12 == need[0])
+			fnglist->addFingering(app,TRUE);
+	      }
+	      
+	      i=0;
+	 } else {
+	      app[i]=-1;i++;
+	      if (i>=numstr)
+		   break;
+	 }
+	 app[i]++;
+	 while ((fb[i][app[i]]==-1) && (app[i]<=maxfret))
+	      app[i]++;
     } while (TRUE);
     
     fnglist->switchAuto(TRUE);
