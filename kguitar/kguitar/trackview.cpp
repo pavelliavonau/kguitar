@@ -4,6 +4,7 @@
 #include "timesig.h"
 
 #include <kglobalsettings.h>
+#include <kdebug.h>
 
 #include <qwidget.h>
 #include <qpainter.h>
@@ -15,6 +16,8 @@
 #include <qcheckbox.h>
 
 #include <libkmid/deviceman.h>
+#include <libkmid/midimapper.h>
+#include <libkmid/fmout.h>
 
 TrackView::TrackView(QWidget *parent, const char *name): QTableView(parent, name)
 {
@@ -58,23 +61,31 @@ TrackView::TrackView(QWidget *parent, const char *name): QTableView(parent, name
 	lastnumber = 0;
 
     // MIDI INIT STUFF
+	FMOut::setFMPatchesDirectory("/usr/share/apps/kmid/fm/"); // ALINXFIX - remove hardcoded path
 
 	midi = new DeviceManager( /*mididev*/ -1);
-	midi->initManager();
+
+	if (midi->initManager() == 0)
+		kdDebug() << "midi->initManager()...  OK" << endl;
+
+	MidiMapper *map = new MidiMapper(NULL); // alinx - for future option in Optiondialog
+	                                        // Maps are stored in:
+                                            // "$DKEDIR/share/apps/kmid/maps/*.map")
+	midi->setMidiMap(map);
 
  	midi->openDev();
- 	midi->initDev();
+	midi->initDev();
 }
 
 TrackView::~TrackView()
 {
-//	printf("Closing device\n");
+//	kdDebug() << "Closing device" << endl;
 //	midi->closeDev();
 
-	printf("Deleting devicemanager\n");
+	kdDebug() << "Deleting devicemanager" << endl;
 	delete midi;
 
-	printf("Deleting song...\n");
+	kdDebug() << "Deleting song..." << endl;
 	delete song;
 }
 
