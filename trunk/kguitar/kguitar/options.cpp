@@ -19,15 +19,13 @@
 
 Options::Options(
 #ifdef WITH_TSE3
-				 TSE3::MidiScheduler *sch,
+                 TSE3::MidiScheduler *sch,
 #endif
                  KConfig *config, QWidget *parent, char *name, bool modal)
-	: KDialogBase(TreeList, i18n("Preferences"), Help|Default|Ok|Apply|Cancel,
+	: KDialogBase(TreeList, i18n("Configure"), Help|Default|Ok|Apply|Cancel,
 	              Ok, parent, name, modal, TRUE)
 {
-	resize(530, 300);
-
-    QFrame *optPage[OPTIONS_PAGES_NUM];
+	QFrame *optPage[OPTIONS_PAGES_NUM];
 
 	optPage[0] = addPage(i18n("Music Theory"), 0, SmallIcon("lookandfeel"));
 	optPage[1] = addPage(i18n("Melody Constructor"), 0, SmallIcon("melodyeditor"));
