@@ -7,9 +7,11 @@
 #include <qpushbutton.h>
 #include <qbuttongroup.h>
 #include <qradiobutton.h>
+#include <qcombobox.h>
 #include <qlistbox.h>
 #include <qlineedit.h>
 #include <qstring.h>
+#include <qlabel.h>
 
 // Note names
 QString note_name(int num)
@@ -31,6 +33,16 @@ QString note_name(int num)
     return "Unknown";
 }
 
+//                     3  5  7  9  11 13
+int stemplate[8][6]={ {-1,2, 0, 0, 0, 0 },
+		      {-1,2, 2, 0, 0, 0 },
+		      {-1,2, 3, 0, 0, 0 },
+		      {-1,2, 1, 0, 0, 0 },
+		      {3, 3, 0, 0, 0, 0 },
+		      {2, 1, 1, 0, 0, 0 },
+		      {-1,2, 2, 2, 0, 0 },
+		      {-1,2, 2, 2, 2, 0 } };
+
 ChordSelector::ChordSelector(QWidget *parent=0, const char *name=0)
     :QDialog(parent,name,TRUE)
 {
@@ -51,7 +63,7 @@ ChordSelector::ChordSelector(QWidget *parent=0, const char *name=0)
     step3->insertItem("sus2");
     step3->insertItem("sus4");
     step3->setGeometry(70,40,80,70);
-    connect(step3,SIGNAL(highlighted(int)),SLOT(findChords()));
+    connect(step3,SIGNAL(highlighted(int)),SLOT(setStep3()));
 
     stephigh = new QListBox(this);
     stephigh->insertItem("");
@@ -63,7 +75,47 @@ ChordSelector::ChordSelector(QWidget *parent=0, const char *name=0)
     stephigh->insertItem("9");
     stephigh->insertItem("11");
     stephigh->setGeometry(160,40,60,200);
-    connect(stephigh,SIGNAL(highlighted(int)),SLOT(findChords()));
+    connect(stephigh,SIGNAL(highlighted(int)),SLOT(setHighSteps()));
+
+    // st array holds values for each step:
+    // st[0] - 3'    st[1] - 5'    st[2] - 7'
+    // st[3] - 9'    st[4] - 11'   st[5] - 13'
+
+    QLabel *stlabel[7];
+    QString tmp;
+    for (int i=0;i<7;i++) {
+	tmp.setNum(i*2+1);
+	tmp=tmp+"\'";
+	stlabel[i] = new QLabel(tmp,this);
+	stlabel[i]->setGeometry(230+i*STEPSIZE,170,STEPSIZE,20);
+	stlabel[i]->setAlignment(AlignCenter);
+
+	cnote[i] = new QLabel(this);
+	cnote[i]->setGeometry(230+i*STEPSIZE,210,STEPSIZE,20);
+	cnote[i]->setAlignment(AlignCenter);
+	
+	if (i>0) {
+	    st[i-1] = new QComboBox(FALSE,this);
+	    st[i-1]->setGeometry(230+i*STEPSIZE,190,STEPSIZE,20);
+	    st[i-1]->insertItem("");
+	    if ((i==2) || (i>=4)) {
+		st[i-1]->insertItem("-");
+		st[i-1]->insertItem("0");
+		st[i-1]->insertItem("+");
+	    }
+	    connect(st[i-1],SIGNAL(activated(int)),SLOT(findSelection()));
+	    connect(st[i-1],SIGNAL(activated(int)),SLOT(findChords()));
+	}
+    }
+
+    st[0]->insertItem("2");
+    st[0]->insertItem("-");
+    st[0]->insertItem("+");
+    st[0]->insertItem("4");
+
+    st[2]->insertItem("6");
+    st[2]->insertItem("-");
+    st[2]->insertItem("+");
 
     complexity = new QButtonGroup(this);
     complexity->setGeometry(70,150,80,70);
@@ -90,9 +142,9 @@ ChordSelector::ChordSelector(QWidget *parent=0, const char *name=0)
     fnglist = new FingerList(this);
     fnglist->setGeometry(10,250,500,140);
     connect(fnglist,SIGNAL(chordSelected(const int *)),fng,SLOT(setFingering(const int *)));
-
+    
     // DIALOG BUTTONS
-
+    
     QPushButton *ok, *cancel;
 
     ok = new QPushButton(i18n("OK"),this);
@@ -319,44 +371,107 @@ void ChordSelector::detectChord()
 */
 }
 
+void ChordSelector::setStep3()
+{
+    switch (step3->currentItem()) {
+    case 0: st[0]->setCurrentItem(3);break;                // Major
+    case 1: st[0]->setCurrentItem(2);break;                // Minor
+    case 2: st[0]->setCurrentItem(1);break;                // Sus2
+    case 3: st[0]->setCurrentItem(4);break;                // Sus4
+    }
+
+    findSelection();
+    findChords();
+}
+
+void ChordSelector::setHighSteps()
+{
+    int j = stephigh->currentItem();
+
+    if (j==-1)
+	return;
+
+    for (int i=0;i<6;i++)
+	if (stemplate[j][i]!=-1)
+	    st[i]->setCurrentItem(stemplate[j][i]);
+
+    findSelection();
+    findChords();
+}
+
+void ChordSelector::findSelection()
+{
+    bool ok;
+
+    switch (st[0]->currentItem()) {
+    case 0: step3->clearSelection();break;                 // no3
+    case 1: step3->setCurrentItem(2);break;                // Sus2
+    case 2: step3->setCurrentItem(1);break;                // Minor
+    case 3: step3->setCurrentItem(0);break;                // Major
+    case 4: step3->setCurrentItem(3);break;                // Sus4
+    }
+
+    for (int j=0;j<8;j++) {
+	ok = TRUE;
+	for (int i=0;i<6;i++) {
+	    if ((stemplate[j][i]!=-1) && (stemplate[j][i]!=st[i]->currentItem())) {
+		ok = FALSE;
+		break;
+	    }
+	}
+	if (ok) {
+	    stephigh->setCurrentItem(j);
+	    break;
+	}
+    }
+    if (!ok)
+	stephigh->clearSelection();
+}
+
 void ChordSelector::findChords()
 {
     int i,j,k,min,max,bass,muted;
     int app[MAX_STRINGS];
+    int toneshift[6]={0,7,10,2,5,9};
 
     int maxfret=24,notenum=3,numstr=6; // GREYFIX!!
 
     int fb[MAX_STRINGS][maxfret];  // array with an either -1 or number of note from a chord
 
-    // CALCULATION OF REQUIRED NOTES FOR A CHORD FROM USER INPUT
+    // CALCULATION OF REQUIRED NOTES FOR A CHORD FROM USER STEP INPUT
 
     int need[6],got[6];
 
-    notenum=3;
+    int t = tonic->currentItem();
+
+    notenum=1;
     need[0]=0;
+    cnote[0]->setText(note_name(t));
 
-    switch (step3->currentItem()) {
-    case 0: need[1]=4;break;              // Major, C
-    case 1: need[1]=3;break;              // Minor, Cm
-    case 2: need[1]=2;break;              // Sus2,  Csus2
-    case 3: need[1]=5;break;	          // Sus4,  Csus4
-    }
-    
-    need[2]=7;
-
-    switch (stephigh->currentItem()) {
-    case 1: need[3]=10;notenum=4;break;                       // 7,   C7
-    case 2: need[3]=11;notenum=4;break;                       // 7M,  C7M
-    case 3: need[3]=9; notenum=4;break;                       // 6,   C6
-    case 4: need[1]=4; need[2]=8;break;                       // aug, Caug
-    case 5: need[1]=3; need[2]=6;need[3]=9;notenum=4;break;   // dim, Cdim
-    case 6: need[3]=10;need[4]=2;notenum=5;break;             // 9,   C9
-    case 7: need[3]=10;need[4]=2;need[5]=5;notenum=6;break;   // 11,  C11
+    switch (st[0]->currentItem()) {
+    case 1: need[1]=(t+2)%12;notenum++;break;     // 2
+    case 2: need[1]=(t+3)%12;notenum++;break;     // 3-
+    case 3: need[1]=(t+4)%12;notenum++;break;     // 3+
+    case 4: need[1]=(t+5)%12;notenum++;break;     // 4
     }
 
-    for (i=0;i<notenum;i++)
-	need[i]=(need[i]+tonic->currentItem())%12;
-    
+    if (st[0]->currentItem()!=0) {
+	cnote[1]->setText(note_name(need[1]));
+    } else {
+	cnote[1]->clear();
+    }
+
+    for (i=1;i<6;i++) {
+	j=st[i]->currentItem();
+	if (j) {
+	    need[notenum]=(t+toneshift[i]+(j-2))%12;
+	    cnote[i+1]->setText(note_name(need[notenum]));
+	    notenum++;
+	} else {
+	    cnote[i+1]->clear();
+	}
+    }
+
     int span=3; // maximal fingerspan
     
     if (complexer[1]->isChecked())
