@@ -1,13 +1,15 @@
 #include "track.h"
+#include "global.h"
 
 #include <qfile.h>
 #include <qdatastream.h>
 
-TabTrack::TabTrack(TrackMode _tm, QString _name, int _bank,
-		   uchar _patch, uchar _string, uchar _frets)
+TabTrack::TabTrack(TrackMode _tm, QString _name, int _channel,
+		   int _bank, uchar _patch, uchar _string, uchar _frets)
 {
     tm=_tm;
     name=_name;
+    channel=_channel;
     bank=_bank;
     patch=_patch;
     string=_string;
@@ -61,7 +63,7 @@ bool TabSong::load_from_kg(QString fileName)
 
     int ccnt;
     Q_UINT16 i16;
-    Q_UINT8 patch,string,frets,tm;
+    Q_UINT8 channel,patch,string,frets,tm;
     Q_INT8 cn;
     QString tn;
 
@@ -71,6 +73,7 @@ bool TabSong::load_from_kg(QString fileName)
 	// GREYFIX - todo track mode check
 
 	s >> tn;                        // Track name
+	s >> channel;
 	s >> i16;                       // Bank
 	s >> patch;
 	s >> string;
@@ -81,7 +84,7 @@ bool TabSong::load_from_kg(QString fileName)
 
 	printf("Read a track of %d strings, bank=%d, patch=%d...\n",string,i16,patch);
 
-	t.append(new TabTrack((TrackMode) tm,tn,i16,patch,string,frets));
+	t.append(new TabTrack((TrackMode) tm,tn,channel,i16,patch,string,frets));
 
 	printf("Appended a track...\n");
 
@@ -139,6 +142,7 @@ bool TabSong::save_to_kg(QString fileName)
 
 	s << (Q_UINT8) trk->trackmode();// Track properties
 	s << trk->name;
+	s << (Q_UINT8) trk->channel;
 	s << (Q_UINT16) trk->bank;
 	s << (Q_UINT8) trk->patch;
 	s << (Q_UINT8) trk->string;
@@ -214,6 +218,127 @@ bool TabSong::save_to_mid(QString fileName)
 		s << (Q_INT8) col->a[i];
 	    s << (Q_INT16) col->l;      // Duration
  	}
+    }
+
+    f.close();
+
+    return TRUE;
+}
+
+//////////////////////////////////////////////////////////////////////
+// ASCII TAB loading/saving stuff
+
+#define twidth          70
+
+// Quick & easy centered text writing function
+void TabSong::writeCentered(QTextStream *s, QString l)
+{
+    for (int i=0;i<(twidth-(int) l.length())/2;i++) {
+	(*s) << ' ';
+    }
+    (*s) << l << '\n';
+}
+
+bool TabSong::load_from_tab(QString fileName)
+{
+    return FALSE;
+}
+
+bool TabSong::save_to_tab(QString fileName)
+{
+    QFile f(fileName);
+    if (!f.open(IO_WriteOnly))
+	return FALSE;
+
+    QTextStream s(&f);
+
+    // SONG HEADER
+
+    writeCentered(&s,title);
+    s << '\n';
+    writeCentered(&s,"Author: "+author);
+    writeCentered(&s,"Transcribed by: "+transcriber);
+
+    // GREYFIX - comments?
+
+    s << "Tempo: " << tempo << "\n\n";
+
+    // TRACK DATA
+
+    QListIterator<TabTrack> it(t);
+
+    int n=1;
+
+    QString lin[MAX_STRINGS];
+    QString tmp;
+
+    for (;it.current();++it) {          // For every track	
+	TabTrack *trk = it.current();
+
+	s << "Track " << n << ": " << trk->name << "\n\n";
+
+	// GREYFIX - channel, bank, patch, string, frets data
+
+// 	for (int i=0;i<trk->string;i++)
+// 	    s << (Q_UINT8) trk->tune[i];
+
+	int minstart=1;
+	for (int i=0;i<trk->string;i++)
+	    if (note_name(trk->tune[i]%12).length()>1)
+		minstart=2;
+	    
+	for (int i=0;i<trk->string;i++) {
+	    lin[i]=note_name(trk->tune[i]%12);
+	    if ((lin[i].length()==1) && (minstart>1))
+		lin[i]=lin[i]+' ';
+	    lin[i]=lin[i]+" |-";
+	}
+
+ 	QListIterator<TabColumn> ic(trk->c);
+	bool lng=FALSE;
+
+ 	for (;ic.current();++ic) {
+ 	    TabColumn *col = ic.current();
+	    lng=FALSE;
+
+	    for (int i=0;i<trk->string;i++)
+		if (col->a[i]>=10)
+		    lng=TRUE;
+
+	    for (int i=0;i<trk->string;i++) {
+		if (col->a[i]==-1) {
+		    if (lng)
+			lin[i]=lin[i]+"--";
+		    else
+			lin[i]=lin[i]+'-';
+		} else {
+		    tmp.setNum(col->a[i]);
+		    if ((lng) && (col->a[i]<10))
+			tmp='-'+tmp;
+		    lin[i]=lin[i]+tmp;
+		}
+		for (uint j=0;j<(col->l/48);j++)
+		    lin[i]=lin[i]+'-';
+	    }
+
+	    if (lin[0].length()>twidth) {
+		for (int i=trk->string-1;i>=0;i--)
+		    s << lin[i] << '\n';
+		s << '\n';
+		for (int i=0;i<trk->string;i++) {
+		    lin[i]=note_name(trk->tune[i]%12);
+		    if ((lin[i].length()==1) && (minstart>1))
+			lin[i]=lin[i]+' ';
+		    lin[i]=lin[i]+" |-";
+		}
+	    }
+ 	}
+
+	for (int i=trk->string-1;i>=0;i--)
+	    s << lin[i] << '\n';
+	s << '\n';
+
+	n++;   // Numerical track counter
     }
 
     f.close();
