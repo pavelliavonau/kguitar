@@ -1,0 +1,258 @@
+2002-07-13 Mikhail Yakshin <greycat@users.sourceforge.net>
+
+	* Release 0.4.1
+
+	* Fixed lots of TSE3 issues. Now KGuitar requires TSE3 0.2.x
+	(0.2.3 or later recommended) to work and its MIDI capabilties are
+	solely based on TSE3. All the stuff that works with MIDI (MIDI
+	export, MIDI song playback, chord player, etc) were unified under
+	the control of single TSE3 library and nothing else. Should work
+	with most if not all available Unix MIDI interfaces: both older
+	and newer ALSA, OSS, aRts, etc.
+
+	* Added configuration options for TSE3 playing and exporting of
+	TSE3MDL file format. MIDI export is rewritten using TSE3
+	functions - now it should be more flexible.
+
+	* Basic MusicXML support. MusicXML is leading interchange format
+	for exchanging musical data between various applications. For more
+	info, see www.recordare.com.
+
+	* Native tabulature printing with Qt/KDE interfaces with effect
+	support, multi-track & multi-page printing.
+
+	* New tabulature effects and features: slide, triplets, let ring.
+
+	* Added basic and pretty faulty, but somewhat working for simple
+	files Guitar Pro 2 import support. Any assistance with hacking on
+	more features of this format is welcome.
+
+	* Slight sorting of chords in chord constructor: better chords are
+	on top.
+	
+	* Lots of bug fixes, more ideological tweaking.
+
+2001-12-10 Mikhail Yakshin <greycat@users.sourceforge.net>
+
+	* Release 0.4
+
+	* Major change in whole application song handling ideology, now
+	it's much straighter. MIDI output reworked to follow new model.
+
+	* Implemented multitracking support -- with all the necessary
+	things list separate track listing panel, inserting/removing
+	unlimited amount of tracks, separate track navigation panel, etc,
+	etc.
+
+	* Implemented basically functional drum track mode.
+
+	* Added special feature for automatic bass line generation from
+	rhythm track.
+	
+	* Added editing options: cut, copy & paste, undo/redo. Selections
+	are possible with Shift + arrow keys.
+
+	* New strumming pattern rule --- much more flexible now, allowing
+	chords or parts of chords rhythms.
+	
+	* Much more accurate and less flicker-prone tabulature redrawing
+	code --- now repaints only things that are needed to be
+	repainted. Many more convenience options, like fast navigation via
+	track navigation panel and ensuring that cursor is always visible.
+
+	* Lots of various bugfixes, especially with chord constructor and
+	track integrity.
+
+2001-09-22 Alexander Brand  <alinx@users.sourceforge.net>
+
+	* Release 0.3-pre
+
+	* Changed automake/autoconf stuff to KDE2 standard one in admin directory.
+
+	* Ported to KParts as browser extension. The KGuitar tab view is now a
+	KPart. KG-files can viewed with Konqueror like PDF-Files.
+
+	* MIDI playback support (required libkmid to compile - it's available in
+	kdelibs-sound package). Basic MIDI playback implemented in chord constructor
+	and tabulature view. It's a new unstable feature and feedback about it (how
+	it works on different systems/soundcards) is highly appreciated.
+
+	* Added option in configure script: MIDI playback for tabs
+	can be enabled with './configure --with-midisupport'
+
+	* Added MIDI options.
+
+	* New strumming shemes are added.
+
+	* Moved file export/import to file save/open.
+
+	* Added drum track mode template - basically function-less, but it's a
+	template for further track modes coming in future.
+
+	* Up-to-date translation for de, fr, it.
+
+
+2000-11-09 Mikhail Yakshin <yakshin@online.ru>
+
+	* Release 0.2.9
+
+	* Port to KDE2
+
+2000-10-14  Mikhail Yakshin  <yakshin@online.ru>
+
+	* Release 0.2.1
+
+	* Lots of work done in separated mini-project (developing ALSA
+	sequencing C++ classes for MIDI playback), though in this branch
+	lots of changes too.
+
+	* Loading and saving options implemented (at last)
+
+	* Working MIDI export - lots of work, but it worthed it. Exports
+	in MIDI files, format 0. Honors all track properties and some
+	effects (harmonics).
+
+	* Renewed resizable chord dialog made with layouts.	
+
+	* Strumming patterns in chord constructor. Now it's possible to
+	insert a chord as an arpegio or picked with pre-defined
+	pattern. Small library of patterns is supplied with this version.
+	
+	* Tabulature printing via MusiXTeX and custom macros. You'll need
+	to export the song via "Export/MusiXTeX tab" and then you get a
+	ready-to-use tex-file. Process it with TeX as usual and print it.
+
+	* Several new tunings in library, including banjo, mandolin and
+	brahms 8-string guitar.
+	
+	* Fixed several bugs, fixed "mixed" notenames (with proper
+	sharp/flat combinations), etc.
+
+2000-09-08  Mikhail Yakshin  <yakshin@online.ru>
+
+	* Release 0.2
+
+	* Second big milestone release. Lots of changes, a month of work.
+
+	* Total rewrite of internal track structures to use dynamic arrays
+	(QArrays) instead of lists. List stuff was really ugly and hard to
+	use (tabs really require direct access due to its nature). These
+	changes touched almost every piece of code, including saving /
+	loading schemes, tab displaying and more.
+	
+	* Tabulature editor: improved greatly.
+
+	* It understands now various time signatures and separation of
+	whole music piece in measures. Columns can have various durations,
+	including dotted durations (1.5x the duration, as in classic
+	notescores) and linked durations (to make possible weird durations
+	such as 5/16 or something like that).
+
+	* Automatical bar arranger that understands splitting notes of bar
+	margins (with linking) and simplifying the tab by joining similiar
+	columns into one. Note duration bars are linked in classic notes
+	manner.
+	
+	* Basic mouse navigation to those who find keyboard navigation
+	hard to use.
+
+	* Basic effect support, just to demonstrate the technology.
+	Current effects include natural and artificial harmonics and
+	legato. More effects should be added soon.
+
+	* Toolbar and statusbar made more functional. Statusbar now shows
+	the current bar number and toolbar pretends to have useful
+	buttons.
+
+	* Various note naming, american (CDEFGAB), european (CDEFGAH) and
+	jazz schemes (CDEFGABH), with various flats & sharps.
+
+	* I18n suport. This release has ru and fr program message i18n
+	files (po-files).
+
+	* Chord construction is improved too: chord list comes sorted now
+	(from the simpliest name to the most sophisticated), selecting a
+	chord name there makes all necessary selections, reduced
+	flickering. Many programming optimizations and clarifications
+	mostly invisible to the user.
+
+	* Tunings: added new tunings, fixed string thickness scale to be
+	more informative.
+
+	* Lots of bug fixes.
+
+2000-08-08  Mikhail Yakshin  <yakshin@glasnet.ru>
+
+	* Release 0.1
+
+	* The first official public version. This one should be announced
+	on Freshmeat and that kind of sites.
+
+	* New basic tabulature editor. It still lacks some extended
+	features like full support of effects, but the basic functionality
+	is here and ready to use. Right now it's controlled only by
+	keyboard, so take a look at the keyboard controls in the README
+	file.
+
+	* Chord finder is optimized much more. On my P200 it works as fast
+	as Guitar Pro's one, but our version has much more features. Chord
+	dialog code was cleanded up a little and new chord inversion
+	control was added - be sure to check it out! Bass note control
+	still isn't here, just because I couldn't find anywhere the
+	accurate music theory definition of alternating bass note chords.
+
+	* Songs could be saved and loaded in KG format (KGuitar native
+	format). This format is pretty extensible and flexible and should
+	be as backward compatible as possible.
+
+	* Songs have the following properties: title, author name,
+	transcriber name, comments.
+
+	* Everything's ready for multiple tracks, though in this release
+	I've not made a multitracking yet. You can edit the properties of
+	each track using Edit/Track dialog, including the number and
+	tuning of strings (be sure to check out the cool string thickness
+	icons), number of frets, etc.
+
+	* Pretty working exporting to ASCII tabs, so you can type in your
+	tabulatures easily in KGuitar and export it to internet text-only
+	form for wide usage. Importing ASCII tabs is on the way.
+
+	* Exporting MIDI code is there, but it has fatal bugs and thereby
+	disabled. If you want to play with it - enable it in sources, but
+	it's broken.
+
+	* Small options dialog just to show what degree of customizability
+	we plan to implement in KGuitar. You can choose what symbols to
+	describe dominant 7th chords you like the most and what symbols
+	should be used for note alteration.
+
+	* Lots of bugfixes, check the CVS logs if you care.
+
+2000-07-15  Mikhail Yakshin  <yakshin@glasnet.ru>
+
+	* Release 0.0.2
+	
+	* A working release, could be helpful for somebody. Includes a pretty	
+	  good chord dialog, with both chord finder and chord analyzer almost
+	  totally rewritten.
+
+	* Chord finder now works *much* faster due to precalculation. Interface
+	  allows to find most chords (like major/minor, 7th, sus2, sus4, 9, 11,
+	  etc). Filter found chord, based on its complexity on 3 basises: usual
+	  chords, rare chords and all chords. Also, takes care about showing
+	  only root forms (tonic note is bass note).
+	
+	* Chord analyzer now works totally different, it tries to disassemble
+	  a chord from a tonic note to steps, and then assembles step record
+	  again into readable chord form, thus detecing very weird (but
+	  sometimes useful chord forms, such as Em6/9sus4 or C7add11 (no3)).
+	  Compared to Guitar Pro chord analyzer that works on similiar concepts,
+	  this chord analyzer detects more chord forms (but currently lacks
+	  changed bass note detection, like Dm/E).
+	
+2000-07-08  Mikhail Yakshin  <yakshin@glasnet.ru>
+
+	* Release 0.0.1
+	
+	* Initial release
