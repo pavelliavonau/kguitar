@@ -1,3 +1,5 @@
+#include "global.h"
+
 #include "kguitar_part.h"
 
 #include "songprint.h"
@@ -11,7 +13,12 @@
 #include "trackdrag.h"
 #include "settings.h"
 
+#include "convertkg.h"
 #include "convertascii.h"
+#include "convertxml.h"
+#include "convertmidi.h"
+#include "converttse3.h"
+#include "converttex.h"
 
 #include "optionsexportascii.h"
 #include "optionsexportmusixtex.h"
@@ -48,54 +55,11 @@
 using namespace std;		// required for cout and friends
 
 typedef KParts::GenericFactory<KGuitarPart> KGuitarPartFactory;
-K_EXPORT_COMPONENT_FACTORY(libkguitarpart, KGuitarPartFactory);
+K_EXPORT_COMPONENT_FACTORY(libkguitarpart, KGuitarPartFactory)
 
 // Global variables - real declarations
 
 QString drum_abbr[128];
-
-// bool isBrowserView;
-
-// extern "C" {
-// 	void *init_libkguitar() { return new KGuitarPartFactory; }
-// };
-
-// KInstance *KGuitarPartFactory::s_instance = 0L;
-
-// KGuitarPartFactory::KGuitarPartFactory()
-// {
-// }
-
-// KGuitarPartFactory::~KGuitarPartFactory()
-// {
-// 	if (s_instance)
-// 		delete s_instance;
-// 	s_instance = 0;
-// }
-
-// KParts::Part *KGuitarPartFactory::createPartObject(QWidget *parentWidget, const char *widgetName,
-//                                                QObject *parent, const char *name, const char *className,
-//                                                const QStringList &)
-// {
-// 	bool bBrowserView = (strcmp(className, "Browser/View") == 0);
-// 	KParts::Part *obj = new KGuitarPart(bBrowserView, 0, parentWidget, widgetName,
-// 	                                    parent, name);
-// 	return obj;
-// }
-
-// KInstance *KGuitarPartFactory::instance()
-// {
-// 	if (!s_instance)
-// 		s_instance = new KInstance("kguitar");
-// 	return s_instance;
-// }
-
-//------------------------------------------------------------------------
-
-// GREYFIX: old code:
-// KGuitarPart::KGuitarPart(bool bBrowserView, KCommandHistory *_cmdHist, QWidget *parentWidget,
-// 						 const char * /*widgetName*/, QObject *parent, const char *name,
-// 						 const QStringList & /*args*/)
 
 KGuitarPart::KGuitarPart(QWidget *parentWidget,
 						 const char * /*widgetName*/, QObject *parent, const char *name,
@@ -104,15 +68,7 @@ KGuitarPart::KGuitarPart(QWidget *parentWidget,
 {
 	Settings::config = KGuitarPartFactory::instance()->config();
 
-//	p = parentWidget;
-// 	isBrowserView = bBrowserView;
-// 	cmdHist = _cmdHist;
-
-// 	if (!cmdHist) {
-		// We have no global KCommandHistory e.g. Part is called by Konqueror
-		// so we create one
-		cmdHist = new KCommandHistory();
-// 	}
+	cmdHist = new KCommandHistory();
 
 	setInstance(KGuitarPartFactory::instance());
 
@@ -130,16 +86,7 @@ KGuitarPart::KGuitarPart(QWidget *parentWidget,
 	connect(sv->tv, SIGNAL(trackChanged(TabTrack *)), SLOT(updateToolbars(TabTrack *)));
 	connect(QApplication::clipboard(), SIGNAL(dataChanged()), SLOT(clipboardDataChanged()));
 
-// 	m_extension = new KGuitarBrowserExtension(this);
-
-// 	if (bBrowserView) {
-// 		mainAccel->setEnabled(FALSE);
-// 		sngPropAct->setText(i18n("Song Properties..."));
-// 		trkPropAct->setText(i18n("Track Properties..."));
-// 		setXMLFile("kguitar_konq.rc");
-// 	} else {
 	setXMLFile("kguitar_part.rc");
-// 	}
 
 	setReadWrite(true);
 	setModified(false);
@@ -209,22 +156,28 @@ bool KGuitarPart::openFile()
 	QString ext = fi.extension();
 	ext = ext.lower();
 
-	if (ext == "kg")
-		success = sv->song()->loadFromKg(m_file);
+	if (ext == "kg") {
+		ConvertKg converter(sv->song());
+		success = converter.load(m_file);
+	}
 	if (ext == "tab") {
 		ConvertAscii converter(sv->song());
 		success = converter.load(m_file);
 	}
 #ifdef WITH_TSE3
-	if (ext == "mid")
-		success = sv->song()->loadFromMid(m_file);
+	if (ext == "mid") {
+		ConvertMidi converter(sv->song());
+		success = converter.load(m_file);
+	}
 #endif
 	if (ext == "gtp")
 		success = sv->song()->loadFromGtp(m_file);
 	if (ext == "gp3")
 		success = sv->song()->loadFromGp3(m_file);
-	if (ext == "xml")
-		success = sv->song()->loadFromXml(m_file);
+	if (ext == "xml") {
+		ConvertXml converter(sv->song());
+		success = converter.load(m_file);
+	}
 
 	if (success) {
 		sv->refreshView();
@@ -249,7 +202,6 @@ bool KGuitarPart::exportOptionsDialog(QString ext)
 	KDialogBase opDialog(0, 0, TRUE, i18n("Additional Export Options"),
 	                     KDialogBase::Help|KDialogBase::Default|
 						 KDialogBase::Ok|KDialogBase::Cancel, KDialogBase::Ok);
-
 
     QVBox *box = opDialog.makeVBoxMainWidget();
 
@@ -293,7 +245,8 @@ bool KGuitarPart::saveFile()
 
 	if (ext == "kg") {
 		sv->tv->arrangeBars(); // GREYFIX !
-		success = sv->song()->saveToKg(m_file);
+		ConvertKg converter(sv->song());
+		success = converter.save(m_file);
 	}
 	if (ext == "tab") {
 		Settings::config->setGroup("ASCII");
@@ -305,28 +258,31 @@ bool KGuitarPart::saveFile()
 		}
 	}
 #ifdef WITH_TSE3
-	if (ext == "mid")
-		success = sv->song()->saveToMid(m_file);
-	if (ext == "tse3")
-		success = sv->song()->saveToTse3(m_file);
+	if (ext == "mid") {
+		ConvertMidi converter(sv->song());
+		success = converter.save(m_file);
+	}
+	if (ext == "tse3") {
+		ConvertTse3 converter(sv->song());
+		success = converter.save(m_file);
+	}
 #endif
 	if (ext == "gtp")
 		success = sv->song()->saveToGtp(m_file);
 	if (ext == "gp3")
 		success = sv->song()->saveToGp3(m_file);
 	if (ext == "tex") {
-		Settings::config->setGroup("MusiXTeX");
 		if (exportOptionsDialog(ext)) {
-			switch (Settings::texExportMode()) {
-			case 0: success = sv->song()->saveToTexTab(m_file); break;
-			case 1: success = sv->song()->saveToTexNotes(m_file); break;
-			}
+			ConvertTex converter(sv->song());
+			success = converter.save(m_file);
 		} else {
 			return FALSE;
 		}
 	}
-	if (ext == "xml")
-		success = sv->song()->saveToXml(m_file);
+	if (ext == "xml") {
+		ConvertXml converter(sv->song());
+		success = converter.save(m_file);
+	}
 
 	if (success) {
 		setWinCaption(m_file);
@@ -554,7 +510,7 @@ void KGuitarPart::setupActions()
 	(void) KStdAction::selectAll(sv, SLOT(slotSelectAll()), actionCollection());
 
 	// VIEW ACTIONS
-	zoomInAct = new KAction(i18n("Zoom in"), "zoom_in", KAccel::stringToKey("Ctrl+="),
+	zoomInAct = new KAction(i18n("Zoom in"), "zoom_in", KKeySequence("Ctrl+="),
 	                        sv->tv, SLOT(zoomIn()), actionCollection(), "zoom_in");
 	zoomOutAct = new KAction(i18n("Zoom out"), "zoom_out", KAccel::stringToKey("Ctrl+-"),
 	                         sv->tv, SLOT(zoomOut()), actionCollection(), "zoom_out");
@@ -670,54 +626,44 @@ void KGuitarPart::setupAccels()
 	mainAccel->insertItem(i18n("Move and select right"), "key_ShiftRight", "Shift+Right");
 	mainAccel->connectItem("key_ShiftRight", sv->tv, SLOT(selectRight()));
 
-	mainAccel->insertItem(i18n("Move cursor up"), "key_up", "Up");
-	mainAccel->connectItem("key_up", sv->tv, SLOT(moveUp()));
-	mainAccel->insertItem(i18n("Move cursor down"), "key_down", "Down");
-	mainAccel->connectItem("key_down", sv->tv, SLOT(moveDown()));
+	mainAccel->insert("key_up", i18n("Move cursor up"), QString::null,
+	                  Key_Up, sv->tv, SLOT(moveUp()));
+	mainAccel->insert("key_down", i18n("Move cursor down"), QString::null,
+	                  Key_Down, sv->tv, SLOT(moveDown()));
 	mainAccel->insertItem(i18n("Transpose up"), "key_CtrlUp", "Ctrl+Up");
 	mainAccel->connectItem("key_CtrlUp", sv->tv, SLOT(transposeUp()));
 	mainAccel->insertItem(i18n("Transpose down"), "key_CtrlDown", "Ctrl+Down");
 	mainAccel->connectItem("key_CtrlDown", sv->tv, SLOT(transposeDown()));
 
     // ...FOR OTHER KEYS
-	mainAccel->insertItem(i18n("Dead note"), "key_x", "X");
-	mainAccel->connectItem("key_x", sv->tv, SLOT(deadNote()));
-	mainAccel->insertItem(i18n("Delete note"), "key_del", "Delete");
-	mainAccel->connectItem("key_del", sv->tv, SLOT(deleteNote()));
-	mainAccel->insertItem(i18n("Delete column"), "key_CtrlDel", "Ctrl+Delete");
-	mainAccel->connectItem("key_CtrlDel", sv->tv, SLOT(deleteColumn()));
-	mainAccel->insertItem(i18n("Insert column"), "key_ins", "Insert");
-	mainAccel->connectItem("key_ins", sv->tv, SLOT(insertColumn()));
-	mainAccel->insertItem(i18n("Dotted note"), "key_period", "Period");
-	mainAccel->connectItem("key_period", sv->tv, SLOT(dotNote()));
-	mainAccel->insertItem(i18n("Triplet note"), "key_t", "T");
-	mainAccel->connectItem("key_t", sv->tv, SLOT(tripletNote()));
-	mainAccel->insertItem(i18n("More duration"), "key_equal", "Equal");
-	mainAccel->connectItem("key_equal", sv->tv, SLOT(keyPlus()));
-	mainAccel->insertItem(i18n("Less duration"), "key_minus", "Minus");
-	mainAccel->connectItem("key_minus", sv->tv, SLOT(keyMinus()));
+	mainAccel->insert("key_x", i18n("Dead note"), QString::null,
+	                  Key_X, sv->tv, SLOT(deadNote()));
+	mainAccel->insert("key_del", i18n("Delete note"), QString::null,
+	                  Key_Delete, sv->tv, SLOT(deleteNote()));
+	mainAccel->insert("key_CtrlDel", i18n("Delete column"), QString::null,
+	                  Key_Control + Key_Delete, sv->tv, SLOT(deleteColumn()));
+	mainAccel->insert("key_ins", i18n("Insert column"), QString::null,
+	                  Key_Insert, sv->tv, SLOT(insertColumn()));
+	mainAccel->insert("key_period", i18n("Dotted note"), QString::null,
+	                  Key_Period, sv->tv, SLOT(dotNote()));
+	mainAccel->insert("key_t", i18n("Triplet note"), QString::null,
+	                  Key_T, sv->tv, SLOT(tripletNote()));
+	mainAccel->insert("key_equal", i18n("More duration"), QString::null,
+	                  Key_Equal, sv->tv, SLOT(keyPlus()));
+	mainAccel->insert("key_minus", i18n("Less duration"), QString::null,
+	                  Key_Minus, sv->tv, SLOT(keyMinus()));
 
     // ...FOR KEY '0' - '9'
-	mainAccel->insertItem(i18n("Key 1"), "key_1", "1");
-	mainAccel->connectItem("key_1", sv->tv, SLOT(key1()));
-	mainAccel->insertItem(i18n("Key 2"), "key_2", "2");
-	mainAccel->connectItem("key_2", sv->tv, SLOT(key2()));
-	mainAccel->insertItem(i18n("Key 3"), "key_3", "3");
-	mainAccel->connectItem("key_3", sv->tv, SLOT(key3()));
-	mainAccel->insertItem(i18n("Key 4"), "key_4", "4");
-	mainAccel->connectItem("key_4", sv->tv, SLOT(key4()));
-	mainAccel->insertItem(i18n("Key 5"), "key_5", "5");
-	mainAccel->connectItem("key_5", sv->tv, SLOT(key5()));
-	mainAccel->insertItem(i18n("Key 6"), "key_6", "6");
-	mainAccel->connectItem("key_6", sv->tv, SLOT(key6()));
-	mainAccel->insertItem(i18n("Key 7"), "key_7", "7");
-	mainAccel->connectItem("key_7", sv->tv, SLOT(key7()));
-	mainAccel->insertItem(i18n("Key 8"), "key_8", "8");
-	mainAccel->connectItem("key_8", sv->tv, SLOT(key8()));
-	mainAccel->insertItem(i18n("Key 9"), "key_9", "9");
-	mainAccel->connectItem("key_9", sv->tv, SLOT(key9()));
-	mainAccel->insertItem(i18n("Key 0"), "key_0", "0");
-	mainAccel->connectItem("key_0", sv->tv, SLOT(key0()));
+	mainAccel->insert("key_1", i18n("Key 1"), QString::null, Key_1, sv->tv, SLOT(key1()));
+	mainAccel->insert("key_2", i18n("Key 2"), QString::null, Key_2, sv->tv, SLOT(key2()));
+	mainAccel->insert("key_3", i18n("Key 3"), QString::null, Key_3, sv->tv, SLOT(key3()));
+	mainAccel->insert("key_4", i18n("Key 4"), QString::null, Key_4, sv->tv, SLOT(key4()));
+	mainAccel->insert("key_5", i18n("Key 5"), QString::null, Key_5, sv->tv, SLOT(key5()));
+	mainAccel->insert("key_6", i18n("Key 6"), QString::null, Key_6, sv->tv, SLOT(key6()));
+	mainAccel->insert("key_7", i18n("Key 7"), QString::null, Key_7, sv->tv, SLOT(key7()));
+	mainAccel->insert("key_8", i18n("Key 8"), QString::null, Key_8, sv->tv, SLOT(key8()));
+	mainAccel->insert("key_9", i18n("Key 9"), QString::null, Key_9, sv->tv, SLOT(key9()));
+	mainAccel->insert("key_0", i18n("Key 0"), QString::null, Key_0, sv->tv, SLOT(key0()));
 }
 
 void KGuitarPart::clipboardDataChanged()
