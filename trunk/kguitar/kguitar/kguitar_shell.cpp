@@ -147,34 +147,34 @@ void KGuitarShell::saveURL(const KURL& url)
 void KGuitarShell::slotFileOpen()
 {
 	openURL(KFileDialog::getOpenURL(0,
-	                                i18n("*.kg *.gtp *.gp3 *.mid *.tab *.xml|All music files\n") +
-	                                i18n("*.kg|KGuitar files (*.kg)\n") +
-	                                i18n("*.tab|ASCII files (*.tab)\n") +
-	                                i18n("*.mid|MIDI files (*.mid)\n") +
-	                                i18n("*.gtp|Guitar Pro files (*.gtp)\n") +
-	                                i18n("*.gp3|Guitar Pro 3 files (*.gp3)\n") +
-	                                i18n("*.xml|MusicXML files (*.xml)\n") +
-	                                i18n("*|All files"), this));
+	                                "*.kg *.gtp *.gp3 *.mid *.tab *.xml|" + i18n("All music files") + "\n"
+	                                "*.kg|" + i18n("KGuitar files") + " (*.kg)\n"
+	                                "*.tab|" + i18n("ASCII files") + " (*.tab)\n"
+	                                "*.mid|" + i18n("MIDI files") + " (*.mid)\n"
+	                                "*.gtp|" + i18n("Guitar Pro files") + " (*.gtp)\n"
+	                                "*.gp3|" + i18n("Guitar Pro 3 files") + " (*.gp3)\n"
+	                                "*.xml|" + i18n("MusicXML files") + " (*.xml)\n"
+	                                "*|" + i18n("All files"), this));
 }
 
 void KGuitarShell::slotFileSaveAs()
 {
 	KFileDialog dlg(0,
-					i18n("*.kg|KGuitar files (*.kg)\n") +
-					i18n("*.tab|ASCII files (*.tab)\n") +
-					i18n("*.mid|MIDI files (*.mid)\n") +
-					i18n("*.tse3|TSE3MDL files (*.tse3)\n") +
-					i18n("*.gtp|Guitar Pro files (*.gtp)\n") +
-					i18n("*.gp3|Guitar Pro 3 files (*.gp3)\n") +
-					i18n("*.tex|MusiXTeX (*.tex)\n") +
-					i18n("*.xml|MusicXML files (*.xml)\n") +
-					i18n("*|All files"), this, 0, TRUE);
+	                "*.kg|" + i18n("KGuitar files") + " (*.kg)\n"
+	                "*.tab|" + i18n("ASCII files") + " (*.tab)\n"
+	                "*.mid|" + i18n("MIDI files") + " (*.mid)\n"
+	                "*.tse3|" + i18n("TSE3MDL files") + " (*.tse3)\n"
+	                "*.gtp|" + i18n("Guitar Pro files") + " (*.gtp)\n"
+	                "*.gp3|" + i18n("Guitar Pro 3 files") + " (*.gp3)\n"
+	                "*.xml|" + i18n("MusicXML files") + " (*.xml)\n"
+	                "*.tex|" + i18n("MusiXTeX") + " (*.tex)\n")
+	                "*|" + i18n("All files"), this, 0, TRUE);
 	dlg.setCaption(i18n("Save as..."));
 
 	if (dlg.exec() == QDialog::Accepted) {
 		QString filter = dlg.currentFilter();
 		QString fn = dlg.selectedFile();
-		
+
 		QFileInfo *fi = new QFileInfo(fn);
 		if (fi->exists())
 			if (KMessageBox::warningYesNo(this, i18n("This file exists! "
@@ -184,7 +184,7 @@ void KGuitarShell::slotFileSaveAs()
 			KMessageBox::sorry(this, i18n("You have no permission to write this file!"));
 			return;
 		}
-		
+
 		if (filter == "*") {
 			filter = fi->extension();
 			filter = filter.lower();
@@ -195,7 +195,7 @@ void KGuitarShell::slotFileSaveAs()
 			}
 			filter = "*." + filter;
 		}
-		
+
 		if ((filter == "*.kg") || (filter == "*.tab") || (filter == "*.mid") ||
 			(filter == "*.gtp") || (filter == "*.gp3") || (filter == "*.tex") || (filter == "*.xml") || (filter = "*.tse3")) {
 			KURL url = KURL(fn);
