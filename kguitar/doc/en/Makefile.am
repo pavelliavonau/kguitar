@@ -1,4 +1,4 @@
-EXTRA_DIST = index.docbook songview.png
+EXTRA_DIST = index.docbook
 
 KDE_LANG = en
 KDE_DOCS = kguitar
