@@ -1,13 +1,13 @@
 # KGuitar French translation.
 # Copyright (C) 2000 Free Software Foundation, Inc.
-# Wilane Ousmane <wilane@usa.net>, 2000.
+# Wilane Ousmane <wilane@mint.sn>, 2000.
 #
 msgid ""
 msgstr ""
 "Project-Id-Version: PACKAGE VERSION\n"
 "POT-Creation-Date: 2001-09-09 20:54+0200\n"
 "PO-Revision-Date: 2001-09-15 12:29+00:00\n"
-"Last-Translator: Wilane Ousmane <wilane@usa.net>\n"
+"Last-Translator: Wilane Ousmane <wilane@mint.sn>\n"
 "Language-Team: FR <traduc@traduc.org>\n"
 "MIME-Version: 1.0\n"
 "Content-Type: text/plain; charset=ISO-8859-1\n"
