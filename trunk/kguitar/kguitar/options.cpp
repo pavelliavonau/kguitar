@@ -1,6 +1,9 @@
 #include "options.h"
 
 #include <klocale.h>
+#include <kiconloader.h>
+#include <kiconeffect.h>
+
 #include <qlayout.h>
 #include <qbuttongroup.h>
 #include <qradiobutton.h>
@@ -13,80 +16,112 @@
 #include <qpushbutton.h>
 #endif
 
-Options::Options(QWidget *parent = 0, const char *name = 0)
-	: QTabDialog(parent, name, TRUE)
+Options::Options(QWidget *parent = 0, char *name = 0, bool modal)
+	: KDialogBase(IconList, i18n("Preferences"), Ok|Cancel, Ok, parent, name,
+				  modal, TRUE)
+{
+	//Setup Tabs
+	setupChordTab();
+	setupMusixtexTab();
+#ifdef HAVE_LIBASOUND
+	setupAlsaTab();
+#endif
+	resize(530,300);
+}
+
+void Options::setupChordTab()
 {
     //////////////////////////////////////////////////////////////////
     // CHORD DIALOG SETTINGS TAB
     //////////////////////////////////////////////////////////////////
 
-    QWidget *cd = new QWidget(this);
+	// ALINXFIX: find or make a better icon for this page !!!
+	QFrame *cd = addPage(i18n("Chord"), 0, DesktopIcon("looknfeel", KIcon::SizeMedium));
 
     // Dominant 7th name selection group
 
-    maj7gr = new QButtonGroup(i18n("Dominant 7th"),cd);
-    maj7gr->setGeometry(10,10,150,110);
-    maj7[0] = new QRadioButton("7M",maj7gr);
-    maj7[1] = new QRadioButton("maj7",maj7gr);
-    maj7[2] = new QRadioButton("dom7",maj7gr);
+	maj7gr = new QButtonGroup(i18n("Dominant 7th"), cd);
+	maj7gr->setMinimumSize(150, 110);
+	maj7[0] = new QRadioButton("7M", maj7gr);
+	maj7[1] = new QRadioButton("maj7", maj7gr);
+	maj7[2] = new QRadioButton("dom7", maj7gr);
 
-    QVBoxLayout *vb1 = new QVBoxLayout(maj7gr,15,10);
-    vb1->addSpacing(5); // Cosmetic space
-    for (int i = 0; i < 3; i++)
+	QVBoxLayout *vb1 = new QVBoxLayout(maj7gr, 15, 10);
+	vb1->addSpacing(5); // Cosmetic space
+	for (int i = 0; i < 3; i++)
 		vb1->addWidget(maj7[i]);
-    vb1->activate();
+	vb1->activate();
 
     // Chord step alterations selection group
 
-    flatgr = new QButtonGroup(i18n("Alterations"),cd);
-    flatgr->setGeometry(170,10,150,110);
-    flat[0] = new QRadioButton(i18n("-/+ symbols"),flatgr);
-    flat[1] = new QRadioButton(i18n("b/# symbols"),flatgr);
+	flatgr = new QButtonGroup(i18n("Alterations"), cd);
+	flatgr->setMinimumSize(150, 110);
+	flat[0] = new QRadioButton(i18n("-/+ symbols"), flatgr);
+	flat[1] = new QRadioButton(i18n("b/# symbols"), flatgr);
 
-    QVBoxLayout *vb2 = new QVBoxLayout(flatgr,15,10);
-    vb2->addSpacing(5); // Cosmetic space
-    vb2->addWidget(flat[0]);
-    vb2->addWidget(flat[1]);
-    vb2->activate();
+	QVBoxLayout *vb2 = new QVBoxLayout(flatgr, 15, 10);
+	vb2->addSpacing(5); // Cosmetic space
+	vb2->addWidget(flat[0]);
+	vb2->addWidget(flat[1]);
+	vb2->activate();
 
-    addTab(cd, i18n("&Chords"));
+	QHBoxLayout *vbcd = new QHBoxLayout(cd, 15, 10);
+	vbcd->addWidget(maj7gr);
+	vbcd->addWidget(flatgr);
+	vbcd->activate();
+}
 
+void Options::setupMusixtexTab()
+{
     ///////////////////////////////////////////////////////////////////
     // MusiXTeX Settings Tab  - alinx
     ///////////////////////////////////////////////////////////////////
 
-    QWidget *tex = new QWidget(this);
+	QFrame *tex = addPage(i18n("MusiXTeX Export"), 0, DesktopIcon("kcmsound", KIcon::SizeMedium));
 
-    texlygr = new QButtonGroup(i18n("MusiXTeX Layout"),tex);
-    texlygr->setGeometry(10,10,175,130);
-    showbarnumb = new QCheckBox(i18n("Show Barnumber"),texlygr);
-    showbarnumb->setGeometry(10,35,150,20);
-    showstr = new QCheckBox(i18n("Show Tuning"),texlygr);
-    showstr->setGeometry(10,60,150,20);
-    showpagenumb = new QCheckBox(i18n("Show Pagenumber"),texlygr);
-    showpagenumb->setGeometry(10,85,150,20);
+	texlygr = new QButtonGroup(i18n("MusiXTeX Layout"), tex);
+	texlygr->setMinimumSize(175, 130);
+	showbarnumb = new QCheckBox(i18n("Show Barnumber"), texlygr);
+	showbarnumb->setGeometry(10, 35, 150, 20);
+	showstr = new QCheckBox(i18n("Show Tuning"), texlygr);
+	showstr->setGeometry(10, 60, 150, 20);
+	showpagenumb = new QCheckBox(i18n("Show Pagenumber"), texlygr);
+	showpagenumb->setGeometry(10, 85, 150, 20);
 
-    texsizegr = new QButtonGroup(i18n("Tab Size"),tex);
-    texsizegr->setGeometry(200,10,175,130);
-    tabsize[0] = new QRadioButton(i18n("Smallest"),texsizegr);
-    tabsize[1] = new QRadioButton(i18n("Small"),texsizegr);
-    tabsize[2] = new QRadioButton(i18n("Normal"),texsizegr);
-    tabsize[3] = new QRadioButton(i18n("Big"),texsizegr);
+	QVBoxLayout *texvb1 = new QVBoxLayout(texlygr, 15, 10);
+	texvb1->addSpacing(5);
+	texvb1->addWidget(showbarnumb);
+	texvb1->addWidget(showstr);
+	texvb1->addWidget(showpagenumb);
+	texvb1->activate();
 
-    QVBoxLayout *texvb1 = new QVBoxLayout(texsizegr,15,10);
-    texvb1->addSpacing(5); // Cosmetic space
+	texsizegr = new QButtonGroup(i18n("Tab Size"), tex);
+	texsizegr->setMinimumSize(175, 130);
+	tabsize[0] = new QRadioButton(i18n("Smallest"), texsizegr);
+	tabsize[1] = new QRadioButton(i18n("Small"), texsizegr);
+	tabsize[2] = new QRadioButton(i18n("Normal"), texsizegr);
+	tabsize[3] = new QRadioButton(i18n("Big"), texsizegr);
+
+    QVBoxLayout *texvb2 = new QVBoxLayout(texsizegr, 15, 10);
+    texvb2->addSpacing(5); // Cosmetic space
     for (int i = 0; i < 4; i++)
-	    texvb1->addWidget(tabsize[i]);
-    texvb1->activate();
+	    texvb2->addWidget(tabsize[i]);
+    texvb2->activate();
 
-    addTab(tex, i18n("MusiXTeX Export"));
+	QHBoxLayout *vbtex = new QHBoxLayout(tex, 15, 10);
+	vbtex->addWidget(texlygr);
+	vbtex->addWidget(texsizegr);
+	vbtex->activate();
+}
 
+void Options::setupAlsaTab()
+{
 #ifdef HAVE_LIBASOUND
     //////////////////////////////////////////////////////////////////
 	// ALSA MIDI SETTINGS
     //////////////////////////////////////////////////////////////////
 
-    QWidget *alsa = new QWidget(this);
+	QFrame *alsa = addPage(i18n("ALSA"), 0, DesktopIcon("kcmmidi", KIcon::SizeMedium));
 
 	alsaport = new QListView(alsa);
 	alsaport->setSorting(-1); // no text sorting
@@ -94,6 +129,7 @@ Options::Options(QWidget *parent = 0, const char *name = 0)
 	alsaport->addColumn(i18n("Port"));
 	alsaport->addColumn(i18n("Client Info"));
 	alsaport->addColumn(i18n("Port Info"));
+	alsaport->setMinimumSize(350, 100);
 
 	fillAlsaBox();
 
@@ -110,19 +146,9 @@ Options::Options(QWidget *parent = 0, const char *name = 0)
 	alsavb->addWidget(alsarefresh);
 	alsavb->activate();
 
-	addTab(alsa, i18n("ALSA"));
 #endif
-
-    //////////////////////////////////////////////////////////////////
-    // REST OF TABDIALOG SETTINS
-    //////////////////////////////////////////////////////////////////
-
-    setOkButton(i18n("OK"));
-    setCancelButton(i18n("Cancel"));
-
-    resize(400,300);
-    setCaption(i18n("General options"));
 }
+
 
 void Options::fillAlsaBox()
 {
