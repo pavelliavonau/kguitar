@@ -1,0 +1,79 @@
+Instructions for new developers or just casual users
+====================================================
+
+Building KGuitar module, checked out from CVS
+=============================================
+
+After a checkout, you'll get a directory, named "kguitar" (that's where this
+file resides). To build KGuitar from just checked out module, do the following:
+
+1) make -f Makefile.cvs
+
+That would create all required autoconf's configure scripts and automake's
+Makefile.in makefiles.
+
+2) ./configure; make; make install
+
+As usual.
+
+
+Releasing a new version
+=======================
+
+Remember, the tags look like "rel0-1".
+
+* Update version numbers everywhere:
+
+	configure.in.in
+	VERSION
+
+* Commit everything to CVS repository
+
+* Tag everything in CVS with a new release tag
+
+	cvs tag -R rel{version}-{number} .
+
+* Generate a cvslog file to help with ChangeLog writing
+
+	cvs log -r{lastrelease}:{currentrelease} >cvslog
+
+* Make a ChangeLog release entry, based on result cvslog file.
+
+* Export everything from CVS, add the new ChangeLog
+
+	cvs -z9 -d username@cvs.kguitar.sourceforge.net:/cvsroot/kguitar/ export -r rel{version}-{number} kguitar
+
+* Clean up CVS files and prepare a distribution:
+
+	make -f Makefile.cvs
+	make -f admin/Makefile.common dist
+
+* Test new release
+
+
+Announcing a new release
+========================
+
+Places to announce (keep ChangeLog handy, also it helps to write a
+shortened version of ChangeLog for news sites):
+
+1) Make SF.net's release
+2) Send e-mail monitoring message (automatically with release)
+3) Send kguitar-announce mail list post
+4) Update web page; update translations if possible
+5) Post news on KG project page
+6) Announce on:
+	freshmeat.net
+	apps.kde.com
+	-------------
+	lrn.ru
+	linux.org.ru
+
+
+Update translations
+===================
+* Chdir to top source directory
+* Do "make clean" (because we didn't translate *.moc.cpp files)
+* Do "make package-messages"
+* Change to 'po' directory
+* Update xx.po

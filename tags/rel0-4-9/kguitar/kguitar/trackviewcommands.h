@@ -1,0 +1,225 @@
+/*
+  Undo/Redo commands for TrackView
+*/
+#ifndef TRACKVIEWCOMMANDS_H
+#define TRACKVIEWCOMMANDS_H
+
+#include "global.h"
+#include "tabtrack.h"
+
+#include <kcommand.h>
+#include <klocale.h>
+
+class TabTrack;
+class TrackView;
+
+// Set the duration for the notes
+class SetLengthCommand : public KNamedCommand {
+public:
+	SetLengthCommand(TrackView *_tv, TabTrack *&_trk, int l);
+	virtual ~SetLengthCommand();
+
+	virtual void execute();
+	virtual void unexecute();
+
+private:
+	int len, oldlen,  //Length
+		x, y, xsel;   //Position
+	bool sel;
+	TabTrack *trk;
+	TrackView *tv;
+};
+
+
+// Insert tabs from keyboard
+class InsertTabCommand : public KNamedCommand {
+public:
+	InsertTabCommand(TrackView *_tv, TabTrack *&_trk, int t);
+	virtual ~InsertTabCommand();
+
+	virtual void execute();
+	virtual void unexecute();
+
+private:
+	int totab, oldtab,   //Tab
+	    x, y, xsel;      //Position
+	bool sel;
+	TabTrack *trk;
+	TrackView *tv;
+};
+
+// Moves the finger
+class MoveFingerCommand : public KNamedCommand {
+public:
+	MoveFingerCommand(TrackView *_tv, TabTrack *&_trk, int _from, int _to, int _tune);
+	virtual ~MoveFingerCommand();
+
+	virtual void execute();
+	virtual void unexecute();
+
+private:
+	int from, to, oldtune, tune, x, y, xsel;
+	bool sel;
+	TabTrack *trk;
+	TrackView *tv;
+};
+
+// Add FX
+class AddFXCommand : public KNamedCommand {
+public:
+	AddFXCommand(TrackView *_tv, TabTrack *&_trk, char _fx);
+	virtual ~AddFXCommand();
+
+	virtual void execute();
+	virtual void unexecute();
+
+private:
+	int x, y, xsel;
+	char fx;
+	bool sel;
+	TabTrack *trk;
+	TrackView *tv;
+};
+
+// Set a flag
+class SetFlagCommand : public KNamedCommand {
+public:
+	SetFlagCommand(TrackView *_tv, TabTrack *&_trk, int _flag);
+	virtual ~SetFlagCommand();
+
+	virtual void execute();
+	virtual void unexecute();
+
+private:
+	int x, y, xsel, flag, oldflag;
+	char a[MAX_STRINGS];
+	char e[MAX_STRINGS];
+	char oldtab;
+	bool sel;
+	TabTrack *trk;
+	TrackView *tv;
+};
+
+// Delete Note
+class DeleteNoteCommand : public KNamedCommand {
+public:
+	DeleteNoteCommand(TrackView *_tv, TabTrack *&_trk);
+	virtual ~DeleteNoteCommand();
+
+	virtual void execute();
+	virtual void unexecute();
+
+private:
+	int x, y, xsel;
+	char a, e;
+//	char e;
+	bool sel;
+	TabTrack *trk;
+	TrackView *tv;
+};
+
+// Add a column at end of track
+class AddColumnCommand : public KNamedCommand {
+public:
+	AddColumnCommand(TrackView *_tv, TabTrack *&_trk);
+	virtual ~AddColumnCommand();
+
+	virtual void execute();
+	virtual void unexecute();
+
+private:
+	int x, y, xsel;
+	bool sel;
+	bool addBar;
+	TabTrack *trk;
+	TrackView *tv;
+};
+
+// Delete column
+class DeleteColumnCommand : public KNamedCommand {
+public:
+	DeleteColumnCommand(TrackView *_tv, TabTrack *&_trk);
+	DeleteColumnCommand(QString name, TrackView *_tv, TabTrack *&_trk);
+	virtual ~DeleteColumnCommand();
+
+	virtual void execute();
+	virtual void unexecute();
+
+private:
+	int x, y, xsel;
+	uint p_delta, p_del, p_start;
+	QMemArray<TabColumn> c;
+	bool p_all, sel;
+	TabTrack *trk;
+	TrackView *tv;
+};
+
+// Set time sig
+class SetTimeSigCommand : public KNamedCommand {
+public:
+	SetTimeSigCommand(TrackView *_tv, TabTrack *&_trk, bool _toend, int _time1, int _time2);
+	virtual ~SetTimeSigCommand();
+
+	virtual void execute();
+	virtual void unexecute();
+
+private:
+	int x, y, xb, xsel, time1, time2;
+	bool sel, toend;
+	QMemArray<TabBar> b;
+	TabTrack *trk;
+	TrackView *tv;
+};
+
+// Insert a column at cursor pos
+class InsertColumnCommand : public KNamedCommand {
+public:
+	InsertColumnCommand(TrackView *_tv, TabTrack *&_trk);
+	virtual ~InsertColumnCommand();
+
+	virtual void execute();
+	virtual void unexecute();
+
+private:
+	int x, y, xsel;
+	bool sel;
+	TabTrack *trk;
+	TrackView *tv;
+};
+
+// Insert strum
+class InsertStrumCommand : public KNamedCommand {
+public:
+	InsertStrumCommand(TrackView *_tv, TabTrack *&_trk, int _sch, int *_chord);
+	virtual ~InsertStrumCommand();
+
+	virtual void execute();
+	virtual void unexecute();
+
+private:
+	int sch, x, y, xsel, len, toadd;
+	int chord[MAX_STRINGS];
+	QMemArray<TabColumn> c;
+	bool sel;
+	TabTrack *trk;
+	TrackView *tv;
+};
+
+#include <qlistbox.h>
+
+// Insert rhythm from rhythmer
+class InsertRhythm: public KNamedCommand {
+public:
+	InsertRhythm(TrackView *_tv, TabTrack *&_trk, QListBox *quantized);
+
+	virtual void execute();
+	virtual void unexecute();
+
+private:
+	int x;
+	QMemArray<int> newdur, olddur;
+	TabTrack *trk;
+	TrackView *tv;
+};
+
+#endif
