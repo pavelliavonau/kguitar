@@ -2,6 +2,7 @@
 #include "global.h"
 #include "trackview.h"
 #include "tracklist.h"
+#include "trackpane.h"
 #include "tabsong.h"
 #include "tabtrack.h"
 #include "settrack.h"
@@ -25,6 +26,7 @@
 #include <klocale.h>
 #include <qmultilinedit.h>
 #include <kmessagebox.h>
+#include <qheader.h>
 
 #include <kdebug.h>
 
@@ -38,7 +40,11 @@ SongView::SongView(KXMLGUIClient *_XMLGUIClient, QWidget *parent = 0, const char
  	split->setOrientation(QSplitter::Vertical);
 
 	tv = new TrackView(song, _XMLGUIClient, split);
-	tl = new TrackList(song, _XMLGUIClient, split);
+	splitv = new QSplitter(split);
+ 	splitv->setOrientation(QSplitter::Horizontal);
+
+	tl = new TrackList(song, _XMLGUIClient, splitv);
+	tp = new TrackPane(song, tl->header()->height(), tl->firstChild()->height(), splitv);
 
 	connect(tl, SIGNAL(selectionChanged(QListViewItem*)), tv, SLOT(selectTrack(QListViewItem*)));
 
@@ -60,6 +66,7 @@ void SongView::refreshView()
 	tv->updateRows();
 	tv->repaint();
 	tl->updateList();
+	tp->updateList();
 }
 
 // Creates a new track in the song
@@ -104,6 +111,7 @@ void SongView::trackDelete()
 		tv->updateRows();
 		tv->update();
 		tl->updateList();
+		tp->updateList();
 	}
 }
 
@@ -185,7 +193,9 @@ bool SongView::trackProperties()
 				tv->trk()->tune[i] = drum->tune(i);
 		}
 
+		tv->setCurt(tv->trk()); // artificially needed to emit newTrackSelected()
 		tl->updateList();
+		tp->updateList();
 		res = TRUE;
 	}
 
