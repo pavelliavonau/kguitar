@@ -4,6 +4,8 @@
 #include <qdir.h>
 #include <qfile.h>
 #include <qfileinfo.h>
+#include <qlayout.h>
+
 #include <kmessagebox.h>
 #include <kiconloader.h>
 
@@ -90,48 +92,31 @@ QString Directory::text(int column) const
 
 
 FileBrowser::FileBrowser(ApplicationWindow *parent, const char *name) 
-	: QDialog(parent, name, TRUE)
+	: KDialog(parent, name, TRUE)
 {
 	p = parent;
 
-	resize(640, 430);
-	setMinimumSize(640, 430);
-	setFixedSize(640, 430);
 	setCaption(i18n("File browser"));
-	widget_1 = new QWidget(this);
-	widget_1->setGeometry(10, 10, 420, 30);
-	widget_1->setMinimumSize(0, 0);
-	btnclose = new QPushButton(widget_1);
-	btnclose->setGeometry(0, 0, 24, 24);
-	btnclose->setMinimumSize(0, 0);
-	btnclose->setPixmap(BarIcon("exit.xpm"));
-	connect(btnclose, SIGNAL(clicked()), SLOT(closeDlg()));
-	QToolTip::add(btnclose, i18n("Close Dialog"));
 
-	btnscan = new QPushButton(widget_1);
-	btnscan->setGeometry(30, 0, 24, 24);
-	btnscan->setMinimumSize(0, 0);
-	btnscan->setPixmap(BarIcon("scandir.xpm"));
+	btnclose = new QPushButton(i18n("&Close"), this);
+	btnclose->setMinimumSize(75, 24);
+	connect(btnclose, SIGNAL(clicked()), SLOT(closeDlg()));
+
+	btnscan = new QPushButton(i18n("&Scan"), this);
+	btnscan->setMinimumSize(75, 24);
 	connect(btnscan, SIGNAL(clicked()), SLOT(scanDir()));
 	QToolTip::add(btnscan, i18n("Scan Subdirectories"));
 
 #ifdef HAVE_MIDI
-	separator = new KSeparator(widget_1);
-	separator->setGeometry(55, 0, 24, 24);
-	separator->setMinimumSize(0, 0);
-	separator->setOrientation(KSeparator::VLine);
-
-	btnplay = new QPushButton(widget_1);
-	btnplay->setGeometry(80, 0, 24, 24);
-	btnplay->setMinimumSize(0, 0);
-	btnplay->setPixmap(BarIcon("play.xpm"));
+	btnplay = new QPushButton(i18n("&Play"), this);
+	btnplay->setMinimumSize(75, 24);
 	connect(btnplay, SIGNAL(clicked()), SLOT(playSong()));
 	QToolTip::add(btnplay, i18n("Play score"));
 	btnplay->setToggleButton(TRUE);
 
-	jumpcombo = new QComboBox(widget_1);
-	jumpcombo->setGeometry(110, 0, 150, 24);
-	jumpcombo->setMinimumSize(0, 0);
+	jumpcombo = new QComboBox(this);
+	jumpcombo->setMinimumSize(150, 24);
+	jumpcombo->setMaximumSize(150, 24);
 	jumpcombo->insertItem(i18n("No Jump"));
 	jumpcombo->insertItem(i18n("Jump after 1 bar"));
 	jumpcombo->insertItem(i18n("Jump after 2 bars"));
@@ -142,18 +127,16 @@ FileBrowser::FileBrowser(ApplicationWindow *parent, const char *name)
 #endif
 
 	dirlist = new QListView(this);
-	dirlist->setGeometry(10, 50, 230, 340);
-	dirlist->setMinimumSize(0, 0);
+	dirlist->setMinimumSize(200, 340);
 	dirlist->addColumn(i18n("Directories"));
 	dirlist->setFrameStyle(QFrame::Panel | QFrame::Sunken);
-	connect(dirlist, SIGNAL(selectionChanged(QListViewItem*)), 
+	connect(dirlist, SIGNAL(currentChanged(QListViewItem*)), 
 			this, SLOT(fillFileView(QListViewItem*)));
 	connect(dirlist, SIGNAL(doubleClicked(QListViewItem*)),
 			this, SLOT(fillFileView(QListViewItem*)));
 
 	fileview = new QListView(this);
-	fileview->setGeometry(250, 50, 380, 250);
-	fileview->setMinimumSize(0, 0);
+	fileview->setMinimumSize(380, 250);
 	fileview->addColumn(i18n("Name"));
 	fileview->addColumn(i18n("Size"));
 	fileview->addColumn(i18n("Modified"));
@@ -163,39 +146,63 @@ FileBrowser::FileBrowser(ApplicationWindow *parent, const char *name)
 	connect(fileview, SIGNAL(currentChanged(QListViewItem*)),
 			this, SLOT(loadSong(QListViewItem*)));
 
-	widget_2 = new QWidget(this);
-	widget_2->setGeometry(250, 300, 380, 90);
-	widget_2->setMinimumSize(0, 0);
-	titlelabel = new QLabel(widget_2);
-	titlelabel->setGeometry(10, 10, 100, 20);
-	titlelabel->setMinimumSize(0, 0);
+	titlelabel = new QLabel(this);
+	titlelabel->setMinimumSize(100, 20);
+	titlelabel->setMaximumSize(100, 20);
 	titlelabel->setText(i18n("Title:"));
 
-	authorlabel = new QLabel(widget_2);
-	authorlabel->setGeometry(10, 40, 100, 20);
-	authorlabel->setMinimumSize(0, 0);
+	authorlabel = new QLabel(this);
+	authorlabel->setMinimumSize(100, 20);
+	authorlabel->setMaximumSize(100, 20);
 	authorlabel->setText(i18n("Author:"));
 
-	translabel = new QLabel(widget_2);
-	translabel->setGeometry(10, 70, 100, 20);
-	translabel->setMinimumSize(0, 0);
+	translabel = new QLabel(this);
+	translabel->setMinimumSize(100, 20);
+	translabel->setMaximumSize(100, 20);
 	translabel->setText(i18n("Transcriber:"));
 
-	tlabel = new QLabel(widget_2);
-	tlabel->setGeometry(120, 10, 260, 20);
-	tlabel->setMinimumSize(0, 0);
+	tlabel = new QLabel(this);
+	tlabel->setMinimumSize(260, 20);
 
-	alabel = new QLabel(widget_2);
-	alabel->setGeometry(120, 40, 260, 20);
-	alabel->setMinimumSize(0, 0);
+	alabel = new QLabel(this);
+	alabel->setMinimumSize(260, 20);
 
-	tslabel = new QLabel(widget_2);
-	tslabel->setGeometry(120, 70, 260, 20);
-	tslabel->setMinimumSize(0, 0);
+	tslabel = new QLabel(this);
+	tslabel->setMinimumSize(260, 20);
 
-	messagelabel = new QLabel(this);
-	messagelabel->setGeometry(10, 400, 260, 20);
-	messagelabel->setMinimumSize(0, 0);
+	//Dialog Layout
+	QBoxLayout *l = new QHBoxLayout(this, 3, 3);
+
+	QGridLayout *lwg = new QGridLayout(this, 3, 2, 3, 0);
+	lwg->addWidget(titlelabel, 0, 0);
+	lwg->addWidget(authorlabel, 1, 0);
+	lwg->addWidget(translabel, 2, 0);
+	lwg->addWidget(tlabel, 0, 1);
+	lwg->addWidget(alabel, 1, 1);
+	lwg->addWidget(tslabel, 2, 1);
+	lwg->setColStretch(0, 0);
+	lwg->setColStretch(1, 2);
+	lwg->activate();
+
+	QBoxLayout *lright = new QVBoxLayout(this);
+	lright->addWidget(fileview);
+	lright->addLayout(lwg);
+	lright->activate();
+
+	QBoxLayout *lbtn = new QHBoxLayout(this, 5, 5);
+#ifdef HAVE_MIDI
+	lbtn->addWidget(jumpcombo);
+	lbtn->addWidget(btnplay);
+#endif
+	lbtn->addWidget(btnscan);
+	lbtn->addWidget(btnclose);
+	lbtn->activate();
+
+	lright->addLayout(lbtn);
+
+	l->addWidget(dirlist, 1);
+	l->addLayout(lright, 3);
+	l->activate();
 
 	//FILL dirlist
 	directory = new Directory(dirlist);
@@ -232,8 +239,10 @@ QString FileBrowser::getFullPath(QListViewItem* item)
 
 void FileBrowser::scanSubDirs(QString path)
 {
+	QListViewItem* lv;
 	QString fname, fsize, fmodified, fdir;
 
+	qApp->processEvents();
 	QDir dir(path);
 	if (!dir.isReadable())
 		return;
@@ -256,11 +265,10 @@ void FileBrowser::scanSubDirs(QString path)
 				fsize.setNum(fi->size());
 				fmodified = fi->lastModified().toString().latin1();
 				fdir = fi->dirPath().latin1();
-				QListViewItem* lv = new QListViewItem(fileview, fname, fsize, 
-													  fmodified, fdir);
+				lv = new QListViewItem(fileview, fname, fsize, fmodified, fdir);
 			}
-		}
-		else
+			qApp->processEvents();
+		} else
 			if (fi->isDir()) scanSubDirs(fi->absFilePath());
 		++it;
 	}
@@ -269,21 +277,18 @@ void FileBrowser::scanSubDirs(QString path)
 void FileBrowser::scanDir()
 {
 	QListViewItem* lv;
-	QString msg;
 
 	fileview->clear();
-	messagelabel->setText(i18n("Reading subdirectories..."));
-
 	lv = dirlist->currentItem();
 	if (lv == 0){
-		msg = i18n("Please select a directory!");
-		messagelabel->setText(msg);
-		KMessageBox::information(this, msg, i18n("File browser"));
+		KMessageBox::information(this, i18n("Please select a directory!"), 
+								 i18n("File browser"));
 		return;
 	}
 
 #ifdef HAVE_MIDI
 	btnplay->setEnabled(FALSE);
+	jumpcombo->setEnabled(FALSE);
 #endif
 	btnclose->setEnabled(FALSE);
 	btnscan->setEnabled(FALSE);
@@ -298,23 +303,27 @@ void FileBrowser::scanDir()
 
 #ifdef HAVE_MIDI
 	btnplay->setEnabled(TRUE);
+	jumpcombo->setEnabled(TRUE)
 #endif
 	btnclose->setEnabled(TRUE);
 	btnscan->setEnabled(TRUE);
+	qApp->processEvents();
 
-	msg.setNum(fileview->childCount());
-	msg += i18n(" file(s)");
-	messagelabel->setText(msg);
+	if (fileview->childCount() == 0)
+		KMessageBox::sorry(this, i18n("There are no files."), i18n("File browser"));
 }
 
 void FileBrowser::playSong()
 {
+#ifdef HAVE_MIDI
 
+#endif
 }
 
 void FileBrowser::fillFileView(QListViewItem* item)
 {
-	QString fname, fsize, fmodified, fdir, msg;
+	QListViewItem* lv;
+	QString fname, fsize, fmodified, fdir;
 
 	fileview->clear();
 	QDir dir(getFullPath(item));
@@ -342,20 +351,19 @@ void FileBrowser::fillFileView(QListViewItem* item)
 				fsize.setNum(fi->size());
 				fmodified = fi->lastModified().toString().latin1();
 				fdir = fi->dirPath().latin1();
-				QListViewItem* lv = new QListViewItem(fileview, fname, fsize, 
-													  fmodified, fdir);
+				lv = new QListViewItem(fileview, fname, fsize, fmodified, fdir);
 			}
 		}
 		++it;
 	}
-	msg.setNum(fileview->childCount());
-	msg += i18n(" file(s)");
-	messagelabel->setText(msg);
+	if (fileview->childCount() == 0)
+		KMessageBox::sorry(this, i18n("There are no files."), i18n("File browser"));
 }
 
 void FileBrowser::loadSong(QListViewItem* item)
 {
 	QString fname, fpath;
+
 	fname = item->text(0);
 	fpath = item->text(3);
 	fname = fpath + "/" + fname;
