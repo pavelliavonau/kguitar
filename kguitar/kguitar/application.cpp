@@ -108,17 +108,18 @@ KGuitarPart::KGuitarPart(bool bBrowserView, KCommandHistory *_cmdHist, QWidget *
 
 	p = parentWidget;
 	isBrowserView = bBrowserView;
+	m_cmdHist = _cmdHist;
 
-	if (!_cmdHist) {
+	if (!m_cmdHist) {
 		// We have no global KCommandHistory e.g. Part is called by Konqueror
 		// so we create one
-		_cmdHist = new KCommandHistory();
+		m_cmdHist = new KCommandHistory();
 	}
 
 	setInstance(KGuitarFactory::instance());
 
 	// MAIN WIDGET
-	sv = new SongView(this, _cmdHist, parentWidget);
+	sv = new SongView(this, m_cmdHist, parentWidget);
 	setWidget(sv);
 	sv->setFocus();
 
@@ -371,6 +372,7 @@ bool KGuitarPart::saveFile()   // KParts
 	bool ret = fileSave(m_file);
 	if (!ret)
 		setWinCaption(i18n("Unnamed"));
+	else m_cmdHist->clear();
 	return ret;
 }
 
@@ -379,6 +381,7 @@ bool KGuitarPart::openFile()   // KParts
 	bool ret = slotOpenFile(m_file);
 	if (!ret)
 		setWinCaption(i18n("Unnamed"));
+	else m_cmdHist->clear();
 	return ret;
 }
 
