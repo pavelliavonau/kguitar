@@ -3,7 +3,7 @@
  *
  * This file is part of KGuitar, a KDE tabulature editor
  *
- * copyright (C) 2003 the KGuitar development team
+ * copyright (C) 2003-2004 the KGuitar development team
  ***************************************************************************/
 
 /***************************************************************************
@@ -48,6 +48,9 @@
 
 #include "settings.h"
 
+#include <iostream>		// required for cout and friends
+using namespace std;		// required for cout and friends
+
 #include <qfontmetrics.h>
 #include <qpainter.h>
 
@@ -60,6 +63,7 @@ TrackPrint::TrackPrint()
 {
 //	cout << "TrackPrint::TrackPrint() @ " << this << endl;
 	p = 0;
+	onScreen = FALSE;
 }
 
 // return expandable width in pixels of bar bn in track trk
@@ -103,6 +107,9 @@ int TrackPrint::barWidth(int bn, TabTrack *trk)
 }
 
 // return width in pixels of column cl in track trk
+// if on screen:
+// depends on note length only
+// if printing:
 // depends on note length, font and effect
 // magic number "21" scales quarter note to about one centimeter
 // LVIFIX: make logarithmic ???
@@ -116,13 +123,18 @@ int TrackPrint::colWidth(int cl, TabTrack *trk)
 	// cout << " br8w=" << br8w;
 	// cout << " wNote=" << wNote;
 	// cout << " l=" << w;
-	w *= br8w;
-	w /= 21;
 	// adjust for dots and triplets
 	if (trk->c[cl].flags & FLAG_DOT)
 		w = (int) (w * 1.5);
 	if (trk->c[cl].flags & FLAG_TRIPLET)
 		w = (int) (w * 2 / 3);
+	w *= br8w;
+	if (onScreen) {
+		w *= 7;
+		w /= 30;
+		return w;
+	}
+	w /= 21;
 	// make sure column is wide enough
 	if (w < 2 * br8w)
 		w = 2 * br8w;
@@ -230,7 +242,7 @@ void TrackPrint::drawBar(int bn, TabTrack *trk, int es)
 		}
 		if (stTab) {
 			// tab bar
-			p->setFont(fTSig);
+			p->setFont(*fTSig);
 			fm = p->fontMetrics();
 			// calculate vertical position:
 			// exactly halfway between top and bottom string
@@ -244,27 +256,34 @@ void TrackPrint::drawBar(int bn, TabTrack *trk, int es)
 			time.setNum(trk->b[bn].time2);
 			y += (int) (1.2 * brth);
 			p->drawText(xpos + tsgpp, y, time);
-			p->setFont(fTBar1);
+			p->setFont(*fTBar1);
 		}
 		if (stNts || stTab) {
+			xpos += tsgfw;
+		}
+	} else {
+		if (onScreen) {
 			xpos += tsgfw;
 		}
 	}
 
 	// space before first note
 	xpos += nt0fw;
-	int cl = trk->b[bn].start;	// first column of bar
-	int wacc = 0;				// width accidental
+	bool needWacc = FALSE;
+	int cl = trk->b[bn].start;		// first column of bar
+	int wacc = (int) (0.9 * wNote);		// width accidental
 	// LVIFIX: replace by hasAccidental(int cl)
 	for (int i = 0; i < trk->string; i++) {
 		// if first column has note with accidental, add space
 		if ((trk->c[cl].a[i] > -1)
 			&& (trk->c[cl].acc[i] != Accidentals::None)) {
 			// LVIFIX: make global const, used twice
-			wacc = (int) (0.9 * wNote);
+			needWacc = TRUE;
 		}
 	}
-	xpos += wacc;
+	if (onScreen || needWacc) {
+		xpos += wacc;
+	}
 
 	// init expandable space left for space distribution calculation
 	int barExpWidthLeft = barExpWidth(bn, trk);
@@ -352,9 +371,9 @@ void TrackPrint::drawBar(int bn, TabTrack *trk, int es)
 			}
 			if (trpCnt == 2) {
 				// draw "3"
-				p->setFont(fTBar2);
+				p->setFont(*fTBar2);
 				drawStrCntAt(xpos, -3, "3");
-				p->setFont(fTBar1);
+				p->setFont(*fTBar1);
 			}
 
 			// Draw arcs to backward note
@@ -499,7 +518,7 @@ void TrackPrint::drawBar(int bn, TabTrack *trk, int es)
 		if (stTab) {
 
 			// Draw the number column including effects
-			p->setFont(fTBar1);
+			p->setFont(*fTBar1);
 			int ew_2 = 0;			// used for positioning effects
 			QString note = "";
 			for (int i = 0; i < trk->string; i++) {
@@ -837,7 +856,7 @@ void TrackPrint::drawKey(int l, TabTrack *trk)
 	}
 
 	if (stTab) {
-		p->setFont(fTBar1);
+		p->setFont(*fTBar1);
 		const int lstStr = trk->string - 1;
 		if (l == 0) {
 			for (int i = 0; i < lstStr + 1; i++) {
@@ -1212,6 +1231,7 @@ bool TrackPrint::findHiLo(int cl, int v, TabTrack *trk, int & hi, int & lo)
 
 static bool initExactFont(const QString fn, int fs, QFont & fnt)
 {
+	cout << "initExactFont(fn=" << fn << ", fs=" << fs << ")" << endl;
 	QString an;					// actual name
 	QString rn;					// requested name
 
@@ -1220,19 +1240,25 @@ static bool initExactFont(const QString fn, int fs, QFont & fnt)
 	fnt = QFont(fn, fs);
 	an = fnt.rawName().section(':', 0, 0);
 	// LVIFIX: debug
-	// cout << "rn='" << rn << "'" << endl;
-	// cout << "an='" << an << "'" << endl;
-	return (rn == an);
+	cout << "rn='" << rn << "'" << endl;
+	cout << "an='" << an << "'" << endl;
+	cout << "ts='" << fnt.toString() << "'" << endl;
+//	return (rn == an);
+	return TRUE;		// LVIFIX
 }
 
 // initialize fonts
 
-void TrackPrint::initFonts()
+void TrackPrint::initFonts(QFont *f1, QFont *f2, QFont *f3)
 {
 //	cout << "TrackPrint::initFonts()" << endl;
-	fTBar1 = QFont("Helvetica",  8, QFont::Bold);
-	fTBar2 = QFont("Helvetica",  7, QFont::Normal);
-	fTSig  = QFont("Helvetica", 12, QFont::Bold);
+	// LVIFIX: use same font for printing as is used on-screen
+	fTBar1 = f1;
+	fTBar2 = f2;
+	fTSig  = f3;
+//	fTBar1 = QFont("Helvetica",  8, QFont::Bold);
+//	fTBar2 = QFont("Helvetica",  7, QFont::Normal);
+//	fTSig  = QFont("Helvetica", 12, QFont::Bold);
 
 	// following fonts must be found: if not, printing of notes is disabled
 	QString fn;
@@ -1240,6 +1266,7 @@ void TrackPrint::initFonts()
 	fn = "TeX feta19";
 	if (!initExactFont(fn, 18, fFeta)) {
 		kdDebug() << "KGuitar: could not find font '" << fn << "'" << endl;
+		cout << "KGuitar: could not find font '" << fn << "'" << endl;
 		fFetaFnd = false;
 	}
 	fn = "TeX feta-nummer10";
@@ -1257,7 +1284,7 @@ void TrackPrint::initMetrics()
 {
 //	cout << "TrackPrint::initMetrics()" << endl;
 	// determine font-dependent bar metrics
-	p->setFont(fTBar1);
+	p->setFont(*fTBar1);
 	QFontMetrics fm  = p->fontMetrics();
 	br8h = fm.boundingRect("8").height();
 	br8w = fm.boundingRect("8").width();
@@ -1344,6 +1371,14 @@ int TrackPrint::line(const QString step, int oct)
 	// magic constant "30" maps G3 to the second-lowest staffline
 	// note implicit clef-octave-change of -1
 	return cn + 7 * (oct - ClefOctCh) - 30;
+}
+
+// set on screen mode
+
+void TrackPrint::setOnScreen(bool scrn)
+{
+	cout << "TrackPrint::setOnScreen(scrn=" << scrn << ")" << endl;
+	onScreen = scrn;
 }
 
 void TrackPrint::setPainter(QPainter *paint)

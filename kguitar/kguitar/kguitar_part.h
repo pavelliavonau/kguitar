@@ -67,6 +67,7 @@ public:
 public slots:
 	void filePrint();
 	void viewMelodyEditor();
+	void viewScore();
 	void updateStatusBar();
 
 protected slots:
@@ -107,7 +108,7 @@ private:
 		*palmMuteAct, *slideAct, *letRingAct, *saveOptionAct, *confKeyAct,
 		*arrTrkAct, *midiPlaySongAct, *midiStopPlayAct, *rhythmerAct,
 		*zoomInAct, *zoomOutAct, *zoomLevelAct, *pasteAct;
-    KToggleAction *showMainTBAct, *showEditTBAct, *viewMelodyEditorAct;
+    KToggleAction *showMainTBAct, *showEditTBAct, *viewMelodyEditorAct, *viewScoreAct;
 
 	KAccel *mainAccel;
 

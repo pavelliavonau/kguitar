@@ -31,10 +31,11 @@ public:
 	void drawKey(int l, TabTrack *trk);
 	void drawKeySig(TabTrack *trk);
 	void drawStLns(int w);
-	void initFonts();
+	void initFonts(QFont *f1, QFont *f2, QFont *f3);
 	void initMetrics();
 	void initPens();
 	void initPrStyle();
+	void setOnScreen(bool scrn = TRUE);
 	void setPainter(QPainter *paint);
 
 	// LVIFIX: these probably should not be public
@@ -86,12 +87,14 @@ private:
 	bool fFetaFnd;				// true if feta fonts found
 	QFont fFeta;				// used for notes on the staff
 	QFont fFetaNr;				// used for time signature on the staff
-	QFont fTBar1;				// used for notes on the tab bar
-	QFont fTBar2;				// used for notes on the tab bar
-	QFont fTSig;				// used for time signature
+	QFont *fTBar1;				// used for notes on the tab bar
+	QFont *fTBar2;				// used for notes on the tab bar
+	QFont *fTSig;				// used for time signature
 	// Variables describing printing style
 	bool stNts;					// print notes
 	bool stTab;					// print tab
+	// print mode: on screen or on paper
+	bool onScreen;
 };
 
 #endif

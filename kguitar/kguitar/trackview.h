@@ -16,6 +16,7 @@ class QListViewItem;
 class KXMLGUIClient;
 class KCommandHistory;
 class QFont;
+class TrackPrint;
 
 class TrackView: public QGridView {
 	Q_OBJECT
@@ -120,6 +121,8 @@ public slots:
 
 	void setPlaybackCursor(bool);
 
+	void viewScore(bool);
+
 signals:
 	void statusBarChanged();
 	void paneChanged();
@@ -152,6 +155,7 @@ private:
 
 	TabSong *song;
 	TabTrack *curt;
+	TrackPrint *trp;
 	Fretboard *fretboard;
 
 	bool playbackCursor;
@@ -173,6 +177,8 @@ private:
 	int selxcoord;
 
 	int zoomLevel;
+
+	bool viewscore;
 };
 
 #endif

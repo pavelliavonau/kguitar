@@ -454,6 +454,9 @@ void KGuitarPart::readOptions()
 
  	viewMelodyEditorAct->setChecked(config->readBoolEntry("Visible", TRUE));
 	viewMelodyEditor();
+//	viewScoreAct->setChecked(TRUE);		// LVIFIX: read value from config, enable only if feta fonts found
+	viewScoreAct->setChecked(FALSE);	// LVIFIX: enable before commit
+	viewScore();
 }
 
 void KGuitarPart::saveOptions()
@@ -518,6 +521,14 @@ void KGuitarPart::viewMelodyEditor()
 		sv->me->hide();
 }
 
+void KGuitarPart::viewScore()
+{
+	if (viewScoreAct->isChecked())
+		sv->tv->viewScore(true);
+	else
+		sv->tv->viewScore(false);
+}
+
 void KGuitarPart::setupActions()
 {
 	// SET UP STANDARD ACTIONS
@@ -549,6 +560,10 @@ void KGuitarPart::setupActions()
 	                                        KAccel::stringToKey("Shift+M"),
 	                                        this, SLOT(viewMelodyEditor()),
 	                                        actionCollection(), "view_melodyEditor");
+	viewScoreAct = new KToggleAction(i18n("Show Score"), "score",
+	                                        KAccel::stringToKey("Shift+S"),
+	                                        this, SLOT(viewScore()),
+	                                        actionCollection(), "view_score");
 
 	// TRACK ACTIONS
 	trkNewAct = new KAction(i18n("&New..."), 0, sv, SLOT(trackNew()),

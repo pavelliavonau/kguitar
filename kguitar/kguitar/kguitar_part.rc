@@ -23,6 +23,7 @@
 		<Action name="zoom_level"/>
 		<Separator/>
 		<Action name="view_melodyEditor"/>
+		<Action name="view_score"/>
 	</Menu>
 	<Menu noMerge="1" name="track"><text>&amp;Track</text>
 		<Action name="key_sig"/>
@@ -94,6 +95,7 @@
 	<Action name="edit_paste"/>
 	<Separator/>
 	<Action name="view_melodyEditor"/>
+	<Action name="view_score"/>
 </ToolBar>
 
 <ToolBar name="editToolBar"><text>Edit Toolbar</text>

@@ -23,11 +23,15 @@
 #include <qkeycode.h>
 #include <qcursor.h>
 
+#include "trackprint.h"
+
 #include <qspinbox.h>
 #include <qcombobox.h>
 #include <qcheckbox.h>
 
 #include <stdlib.h>		// required for declaration of abs()
+#include <iostream>		// required for cout and friends
+using namespace std;		// required for cout and friends
 
 #define VERTSPACE                       30 // between top of cell and first line
 #define VERTLINE                        10 // between horizontal tabulature lines
@@ -93,13 +97,18 @@ TrackView::TrackView(TabSong *s, KXMLGUIClient *_XMLGUIClient, KCommandHistory *
 #endif
 
 	playbackCursor = FALSE;
+
+	trp = new TrackPrint;
+	trp->initFonts(normalFont, smallCaptionFont, timeSigFont);
+	trp->setOnScreen();
 }
 
 TrackView::~TrackView()
 {
 	delete normalFont;
- 	delete smallCaptionFont;
+	delete smallCaptionFont;
 	delete timeSigFont;
+	delete trp;
 }
 
 void TrackView::selectTrack(TabTrack *trk)
@@ -156,9 +165,16 @@ void TrackView::zoomLevelDialog()
 void TrackView::updateRows()
 {
 	int ch = VERTSPACE * 2 + VERTLINE * (curt->string - 1);
+	if (viewscore) {
+		ch *= 3;	// LVIFIX
+	}
 	setNumRows(curt->b.size());
 	setMinimumHeight(ch);
 	setCellHeight(ch);
+	cout << "TrackView::updateRows()"
+	<< " ch=" << ch
+	<< " nr=" << curt->b.size()
+	<< endl;
 }
 
 void TrackView::repaintCellNumber(int n)
@@ -405,6 +421,26 @@ void TrackView::paintCell(QPainter *p, int row, int /*col*/)
 	if (row >= int(curt->b.size())) {
 		kdDebug() << "Drawing the bar out of limits!" << endl;
 		return;
+	}
+
+	if (viewscore) {
+		trp->setPainter(p);
+		// LVIFIX: initmetrics may be expensive but depends on p, init only once ?
+		trp->initMetrics();
+		const int lw = 1;
+		trp->pLnBl = QPen(Qt::black, lw);
+		trp->pLnWh = QPen(Qt::white, lw);
+		trp->initPrStyle();
+		// LVIFIX: do following calculations for the current bar only
+		curt->calcVoices();
+		curt->calcStepAltOct();
+		curt->calcBeams();
+		trp->yposst = 170;
+		trp->xpos = -1;
+		trp->drawStLns(width());
+		trp->ypostb = 270;
+		trp->drawBarLns(width(), curt);
+		trp->drawBar(row, curt, 0);
 	}
 
 	uint bn = row;                      // Drawing only this bar
@@ -1249,4 +1285,11 @@ void TrackView::setPlaybackCursor(bool pc)
 {
     playbackCursor = pc;
 	repaintContents();
+}
+	
+void TrackView::viewScore(bool on)
+{
+	cout << "TrackView::viewScore(on=" << on << ")" << endl;
+	viewscore = on;
+	updateRows();
 }
