@@ -161,7 +161,7 @@ void TrackView::paintCell(QPainter *p, int row, int col)
 
 	if (curt->c[t].flags & FLAG_ARC)
 	    p->drawArc(lastxpos+VERTLINE/2, BOTTOMDUR+8,
-		       xpos-lastxpos, 4,
+		       xpos-lastxpos, 6,
 		       0, -180*16);
 
 	// Draw the number column
@@ -323,7 +323,7 @@ void TrackView::keyPressEvent(QKeyEvent *e)
 	}
 	break;
     case Key_Up:
-	if (curt->y<curt->string-1) {
+	if (curt->y+1<curt->string) {
 	    if (e->state()==ControlButton)
 		moveFinger(curt->y,1);
 	    else
@@ -340,6 +340,9 @@ void TrackView::keyPressEvent(QKeyEvent *e)
     case Key_8:
     case Key_9:
     case Key_0:
+	if (curt->c[curt->x].flags & FLAG_ARC)
+	    break;
+
 	num=num-'0'; // GREYFIX - may be a bad thing to do
 
 	// Allow making two-digit fret numbers pressing two keys sequentally
