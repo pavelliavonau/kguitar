@@ -4,6 +4,8 @@
 #include <qframe.h>
 #include "global.h"
 
+class QScrollBar;
+
 class Fingering: public QFrame
 {
     Q_OBJECT
@@ -30,13 +32,13 @@ protected:
     void         mouseHandle(const QPoint &pos, bool domute);
 
 private:
-    enum { SCALE=20, CIRCLE=16, CIRCBORD=2, BORDER=5, SPACER=3, FRETTEXT=10 };
+    enum { SCALE=20, CIRCLE=16, CIRCBORD=2, BORDER=5, SPACER=3, FRETTEXT=10, SCROLLER=15 };
+
+    QScrollBar *ff;
 
     int appl[MAX_STRINGS];
-
-    int current;
+    int lastff;
     int numstr;
-    int firstFret;
 };
 
 #endif
