@@ -84,7 +84,7 @@ strummer lib_strum[] = {
 	{ { BS1, TR1 + TR2 + TR3, BS2, TR1 + TR2 + TR3 },
 	  { 120, 120,             120, 120, 0 },
 	  i18n("4/4 Normal Bass Pick"),
-	  "Classic bass pick technique with alteration. Played in 2 steps: "
+	  i18n("Classic bass pick technique with alteration. Played in 2 steps: "
 	  "at the first step some sort of bass note is picked and at the "
 	  "second step the bunch of trebles sounds. Very popular thing for "
 	  "lyric songs on acoustic (especially 7-string) guitar.") },
