@@ -46,7 +46,7 @@
 
 // LVIFIX: rests in lower voice are not supported
 
-// LVIFIX: notes in triplet are beamed incorrectly
+// LVIFIX: notes in triplet are (sometimes ?) beamed incorrectly
 
 #include <qstring.h>			// required for globaloptions.h :-(
 #include "globaloptions.h"
@@ -654,6 +654,10 @@ void SongPrint::drawBar(int bn, TabTrack *trk, int es)
 		} // end if (stTab ...
 
 		// start drawing notes
+
+		// LVIFIX: if a column is "linked with previous" (FLAG_ARC)
+		// then all a[i]'s are -1. Take a[i] (and e[i]/v[i] ?) from
+		// previous column.
 
 		if (stNts) {
 	
