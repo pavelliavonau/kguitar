@@ -90,7 +90,7 @@ void Fretboard::setTrack(TabTrack *_trk)
 	recalculateSizes();
 }
 
-void Fretboard::paintEvent(QPaintEvent *e)
+void Fretboard::paintEvent(QPaintEvent *)
 {
 	QPainter p;
 	p.begin(this);
@@ -137,7 +137,7 @@ void Fretboard::mouseReleaseEvent(QMouseEvent *e)
 	emit buttonRelease(e->button());
 }
 
-void Fretboard::resizeEvent(QResizeEvent *e)
+void Fretboard::resizeEvent(QResizeEvent *)
 {
 	recalculateSizes();
 	drawBackground();
@@ -268,8 +268,8 @@ void Fretboard::drawScaleBack()
 		for (int j = 0; j < trk->frets; j++) {
 			if (step[now]) {
 				p.setBrush(qRgb(239, 207, 0));
-				int x = (j == 0) ? SCALE_BORDER : fr[j - 1] + SCALE_BORDER;
-				p.drawRoundRect(x, y, fr[j] - x - SCALE_BORDER,
+				int x = (j == 0) ? SCALE_BORDER : (int) (fr[j - 1] + SCALE_BORDER);
+				p.drawRoundRect(x, y, (int) (fr[j] - x - SCALE_BORDER),
 				                STRING_HEIGHT - 2 * SCALE_BORDER,
 				                SCALE_ROUND, SCALE_ROUND);
 			}
