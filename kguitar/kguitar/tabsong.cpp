@@ -438,7 +438,7 @@ bool TabSong::load_from_mid(QString fileName)
 				s >> tmp8; // meta event type
 				tmp32 = readVarLen(&s);
 
-				kdDebug() << "Meta event " << tmp8 << " bytes long " << tmp32 << endl;
+				kdDebug() << "Meta event " << tmp8 << ", " << tmp32 << " bytes long " << endl;
 
 				if (tmp8 == 0x2f)
 					break;
