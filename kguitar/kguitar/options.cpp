@@ -41,13 +41,13 @@ Options::Options(
 	optPage[5] = addPage(QStringList::split('/', i18n("Export") + "/" + i18n("ASCII")),
 	                     0, SmallIcon("ascii"));
 
-	optWidget[0] = new OptionsMusicTheory(optPage[0]);
-	optWidget[1] = new OptionsMelodyEditor(optPage[1]);
-	optWidget[2] = new OptionsExportMusixtex(optPage[2]);
+	optWidget[0] = new OptionsMusicTheory(config, optPage[0]);
+	optWidget[1] = new OptionsMelodyEditor(config, optPage[1]);
+	optWidget[2] = new OptionsExportMusixtex(config, optPage[2]);
 #ifdef WITH_TSE3
-	optWidget[3] = new OptionsMidi(sch, optPage[3]);
+	optWidget[3] = new OptionsMidi(sch, config, optPage[3]);
 #endif
-	optWidget[4] = new OptionsPrinting(optPage[4]);
+	optWidget[4] = new OptionsPrinting(config, optPage[4]);
 	optWidget[5] = new OptionsExportAscii(config, optPage[5]);
 
 	// Special weird layout stuff to pack everything

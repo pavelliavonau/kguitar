@@ -9,10 +9,8 @@
 #include <kconfig.h>
 
 OptionsExportAscii::OptionsExportAscii(KConfig *conf, QWidget *parent, const char *name)
-	: OptionsPage(parent, name)
+	: OptionsPage(conf, parent, name)
 {
-	config = conf;
-
 	// Create option widgets
 
 	durationGroup = new QVButtonGroup(i18n("Duration Display"), this);
@@ -34,7 +32,7 @@ OptionsExportAscii::OptionsExportAscii(KConfig *conf, QWidget *parent, const cha
 
 	// Fill in current config
 
-	config->setGroup("Export ASCII");
+	config->setGroup("ASCII");
 	durationGroup->setButton(config->readNumEntry("DurationDisplay", 3));
 	always->setChecked(config->readBoolEntry("AlwaysShow", TRUE));
 }
@@ -47,8 +45,8 @@ void OptionsExportAscii::defaultBtnClicked()
 
 void OptionsExportAscii::applyBtnClicked()
 {
-	config->setGroup("Export ASCII");
+	config->setGroup("ASCII");
 	config->writeEntry("DurationDisplay",
-	                                durationGroup->id(durationGroup->selected()));
+	                   durationGroup->id(durationGroup->selected()));
 	config->writeEntry("AlwaysShow", always->isChecked());
 }

@@ -3,7 +3,6 @@
 
 #include "optionspage.h"
 #include "global.h"
-#include "config.h"
 
 class QButtonGroup;
 class QRadioButton;
@@ -13,8 +12,8 @@ class QCheckBox;
 class OptionsMelodyEditor: public OptionsPage {
 	Q_OBJECT
 public:
-	OptionsMelodyEditor(QWidget *parent = 0, const char *name = 0);
-	
+	OptionsMelodyEditor(KConfig *conf, QWidget *parent = 0, const char *name = 0);
+
 public slots:
 	virtual void applyBtnClicked();
 	virtual void defaultBtnClicked();
