@@ -15,7 +15,7 @@ public:
     SetTrack(QWidget *parent=0, const char *name=0);
 
     QLineEdit *title;
-    KIntegerLine *bank,*patch;
+    KIntegerLine *channel,*bank,*patch;
     SetTabFret *fret;
 private:
 };
