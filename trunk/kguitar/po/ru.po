@@ -5,7 +5,7 @@
 msgid ""
 msgstr ""
 "Project-Id-Version: PACKAGE VERSION\n"
-"POT-Creation-Date: 2000-10-07 00:30-0400\n"
+"POT-Creation-Date: 2000-10-14 22:45-0400\n"
 "PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
 "Last-Translator: Mikhail Yakshin <yakshin@glasnet.ru>\n"
 "Language-Team: LANGUAGE <RU@li.org>\n"
@@ -13,119 +13,123 @@ msgstr ""
 "Content-Type: text/plain; charset=koi8-r\n"
 "Content-Transfer-Encoding: koi8-r\n"
 
-#: application.cpp:66
+#: application.cpp:68
 msgid "New document"
 msgstr ""
 
-#: application.cpp:72
+#: application.cpp:74
 msgid "Insert chord"
 msgstr "Вставить аккорд"
 
-#: application.cpp:74
+#: application.cpp:76
 msgid "Whole"
 msgstr "Целая"
 
-#: application.cpp:86 timesig.cpp:60
+#: application.cpp:88 timesig.cpp:60
 msgid "Time signature"
 msgstr "Размеp"
 
-#: application.cpp:88
+#: application.cpp:90
 msgid "Link with previous column"
 msgstr "Лига на предыдущую"
 
-#: application.cpp:90
+#: application.cpp:92
 msgid "Legato (hammer on/pull off)"
 msgstr "Легато (hammer on/pull off)"
 
-#: application.cpp:92
+#: application.cpp:94
 msgid "Natural harmonic"
 msgstr "Натуральный флажолет"
 
-#: application.cpp:94
+#: application.cpp:96
 msgid "Artificial harmonic"
 msgstr "Искусственный флажолет"
 
-#: application.cpp:99
+#: application.cpp:101
 msgid "&New"
 msgstr ""
 
-#: application.cpp:107
+#: application.cpp:112
+msgid "&MIDI file..."
+msgstr "&MIDI файл..."
+
+#: application.cpp:113
 msgid "ASCII &tab..."
 msgstr "ASCII &табулатура..."
 
-#: application.cpp:108
+#: application.cpp:114
 msgid "&MusiXTeX tab..."
 msgstr "&MusiXTeX табулатуpа..."
 
-#: application.cpp:110
+#: application.cpp:116
 msgid "&Export"
 msgstr "&Экспортировать"
 
-#: application.cpp:113
+#: application.cpp:119
 msgid "P&roperties..."
 msgstr "С&войства..."
 
-#: application.cpp:121
+#: application.cpp:127
 msgid "&Track..."
 msgstr "&Трек..."
 
-#: application.cpp:125
+#: application.cpp:131
 msgid "&Chord"
 msgstr "&Аккорд"
 
-#: application.cpp:129
+#: application.cpp:135
 msgid "&General..."
 msgstr "&Общие..."
 
-#: application.cpp:132
+#: application.cpp:138
 msgid "American, sharps"
 msgstr "Амеpиканские, диезы"
 
-#: application.cpp:133
+#: application.cpp:139
 msgid "American, flats"
 msgstr "Амеpиканские, бемоли"
 
-#: application.cpp:134
+#: application.cpp:140
 msgid "American, mixed"
 msgstr "Амеpиканские, смешанные"
 
-#: application.cpp:136
+#: application.cpp:142
 msgid "European, sharps"
 msgstr "Евpопейские, диезы"
 
-#: application.cpp:137
+#: application.cpp:143
 msgid "European, flats"
 msgstr "Евpопейские, бемоли"
 
-#: application.cpp:138
+#: application.cpp:144
 msgid "European, mixed"
 msgstr "Евpопейские, смешанные"
 
-#: application.cpp:140
+#: application.cpp:146
 msgid "Jazz, sharps"
 msgstr "Джазовые, диезы"
 
-#: application.cpp:141
+#: application.cpp:147
 msgid "Jazz, flats"
 msgstr "Джазовые, бемоли"
 
-#: application.cpp:142
+#: application.cpp:148
 msgid "Jazz, mixed"
 msgstr "Джазовые, смешанные"
 
-#: application.cpp:147
+#: application.cpp:153
 msgid "&Note names"
 msgstr "&Hазвания нот"
 
-#: application.cpp:152
+#: application.cpp:158
 msgid "A stringed instrument tabulature editor"
 msgstr "Редактор табулатур струнных инструментов"
 
-#: application.cpp:160 application.cpp:180
+#: application.cpp:166 application.cpp:187
 msgid "Bar: "
 msgstr "Такт: "
 
-#: application.cpp:187
+#: application.cpp:194
 msgid ""
 "Jazz note names are very special and should be\n"
 "used only if really know what you do. Usage of jazz\n"
