@@ -357,7 +357,8 @@ void FileBrowser::fillFileView(QListViewItem* item)
 		++it;
 	}
 	if (fileview->childCount() == 0)
-		KMessageBox::sorry(this, i18n("There are no files."), i18n("File browser"));
+		lv = new QListViewItem(fileview, i18n("No files"));
+		//KMessageBox::sorry(this, i18n("There are no files."), i18n("File browser"));
 }
 
 void FileBrowser::loadSong(QListViewItem* item)
@@ -365,6 +366,10 @@ void FileBrowser::loadSong(QListViewItem* item)
 	QString fname, fpath;
 
 	fname = item->text(0);
+
+	if (fname == i18n("No files"))
+		return;
+
 	fpath = item->text(3);
 	fname = fpath + "/" + fname;
 
