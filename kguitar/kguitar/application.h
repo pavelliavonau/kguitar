@@ -8,7 +8,7 @@
 
 class KToolBar;
 class QPopupMenu;
-
+class QLabel;
 class ChordSelector;
 class TrackView;
 
@@ -18,7 +18,7 @@ class ApplicationWindow: public KTMainWindow
 public:
     ApplicationWindow();
     ~ApplicationWindow();
-    
+
 private slots:
     void newDoc();
     void load();
@@ -32,6 +32,8 @@ private slots:
     void songProperties();
     void trackProperties();
     void options();
+
+    void updateStatusBar();
 
     void setUSsharp() { global_notenames = 0; updateMenu(); };
     void setUSflats() { global_notenames = 1; updateMenu(); };
@@ -54,6 +56,9 @@ private:
     KToolBar *fileTools;
     QPopupMenu *nnMenu;
     int ni[9];
+
+    // Status bar labels
+    QLabel *s_bar;
 };
 
 
