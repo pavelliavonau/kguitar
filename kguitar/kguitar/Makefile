@@ -30,8 +30,8 @@ SYSCONF_LFLAGS_SHOBJ	= -shared
 # Meta-object compiler
 SYSCONF_MOC		= /usr/bin/moc
 
-SYSCONF_CXXFLAGS	= -pipe -O2 -fno-strength-reduce -Wall -w
-# SYSCONF_CXXFLAGS	= -pipe -ggdb -fno-strength-reduce
+ SYSCONF_CXXFLAGS	= -pipe -O2 -fno-strength-reduce -Wall -w
+#SYSCONF_CXXFLAGS	= -pipe -ggdb -fno-strength-reduce
 
 CXX	=	$(SYSCONF_CXX)
 CXXFLAGS=	$(SYSCONF_CXXFLAGS_KDE) $(SYSCONF_CXXFLAGS_QT) $(SYSCONF_CXXFLAGS)
