@@ -3,35 +3,13 @@
 
 #include <kparts/part.h>
 
-// #include <kparts/browserextension.h>
-
-#include <kaction.h>
-#include <kcommand.h>
-
 #include "songview.h"
 
 #include "global.h"
 
-class KToolBar;
-class QLabel;
-
-// class KGuitarBrowserExtension;
-
-// class KGuitarFactory: public KParts::Factory {
-// 	Q_OBJECT
-// public:
-// 	KGuitarFactory();
-// 	virtual ~KGuitarFactory();
-
-// 	virtual KParts::Part *createPartObject(QWidget *parentWidget, const char *widgetName,
-// 	                                       QObject *parent, const char *name,
-// 	                                       const char *classname, const QStringList &args);
-
-// 	static KInstance *instance();
-
-// private:
-// 	static KInstance *s_instance;
-// };
+class KAction;
+class KCommandHistory;
+class KAccel;
 
 /**
  * KGuitar KPart - main class of application, uses everything else.
@@ -48,21 +26,21 @@ public:
 	            const QStringList & /*args*/);
 	virtual ~KGuitarPart();
 
-    /**
-     * A shell will use this to inform this Part if it should act
-     * read-only
-     */
+	/**
+	 * A shell will use this to inform this Part if it should act
+	 * read-only
+	*/
  	virtual void setReadWrite(bool rw);
 
 	/**
-     * Reimplemented to disable and enable Save action
-     */
-    virtual void setModified(bool modified);
+	 * Reimplemented to disable and enable Save action
+	 */
+	virtual void setModified(bool modified);
 
 	/**
 	 * Provide "About..." credits data, required by KPart
 	 */
-    static KAboutData *createAboutData();
+	static KAboutData *createAboutData();
 
 public slots:
 	void filePrint();
@@ -71,11 +49,16 @@ public slots:
 	void updateStatusBar();
 
 protected slots:
-    void fileSaveAs();
+	void fileSaveAs();
 	void clipboardDataChanged();
 
 	void options();
 	void saveOptions();
+
+	/**
+	 * Updates possibility of actions, depending on freshly selected
+	 * track. For drum track, lots of actions are unavailable.
+	 */
 	void updateToolbars(TabTrack *);
 
 private:
@@ -95,8 +78,6 @@ private:
 	 */
 	SongView *sv;
 
-// 	KGuitarBrowserExtension *m_extension;
-
 	// LVIFIX: do we need a printer variable, e.g. to remember settings ?
 	// It would then have to be passed down to SongPrint via SongView.
 	// KPrinter *printer;
@@ -106,30 +87,15 @@ private:
 		*keySigAct, *timeSigAct, *arcAct, *legatoAct, *natHarmAct, *artHarmAct,
 		*palmMuteAct, *slideAct, *letRingAct, *saveOptionAct, *confKeyAct,
 		*arrTrkAct, *midiPlaySongAct, *midiStopPlayAct, *rhythmerAct;
-    KToggleAction *showMainTBAct, *showEditTBAct, *viewMelodyEditorAct, *viewScoreAct;
+	KToggleAction *showMainTBAct, *showEditTBAct, *viewMelodyEditorAct, *viewScoreAct;
 
 	KAccel *mainAccel;
 
 	KCommandHistory* cmdHist;
 
 protected:
-    virtual bool openFile();
-    virtual bool saveFile();
+	virtual bool openFile();
+	virtual bool saveFile();
 };
-
-//--------------------------------------------------------------------------
-
-// class KGuitarBrowserExtension : public KParts::BrowserExtension {
-//     Q_OBJECT
-//     friend class KGuitarPart; // emits our signals
-
-// public:
-//     KGuitarBrowserExtension(KGuitarPart *parent);
-//     virtual ~KGuitarBrowserExtension() {}
-
-// public slots:
-//     // Automatically detected by konqueror
-//     void print();
-// };
 
 #endif
