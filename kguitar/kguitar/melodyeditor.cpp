@@ -80,9 +80,8 @@ void MelodyEditor::optionsDialog()
 	KDialogBase opDialog(0, 0, TRUE, i18n("Melody Editor"),
 	                     KDialogBase::Help|KDialogBase::Default|KDialogBase::Ok|
 	                     KDialogBase::Apply|KDialogBase::Cancel, KDialogBase::Ok);
-	OptionsMelodyEditor op;
-	opDialog.setMainWidget(&op);
-    op.show();
+    QVBox *box = opDialog.makeVBoxMainWidget();
+	OptionsMelodyEditor op((QFrame *) box);
 	connect(&opDialog, SIGNAL(defaultClicked()), &op, SLOT(defaultBtnClicked()));
 	connect(&opDialog, SIGNAL(okClicked()), &op, SLOT(applyBtnClicked()));
 	connect(&opDialog, SIGNAL(applyClicked()), &op, SLOT(applyBtnClicked()));
