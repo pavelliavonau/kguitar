@@ -10,12 +10,13 @@ class QRadioButton;
 class OptionsPrinting: public OptionsPage {
 	Q_OBJECT
 public:
-	OptionsPrinting(QWidget *parent = 0, const char *name = 0);
+	OptionsPrinting(KConfig *conf, QWidget *parent = 0, const char *name = 0);
 	virtual void applyBtnClicked();
 	virtual void defaultBtnClicked();
 
-    QButtonGroup *prStyGroup;
-    QRadioButton *prsty[4];
+private:
+    QButtonGroup *styleGroup;
+    QRadioButton *style[4];
 };
 
 #endif

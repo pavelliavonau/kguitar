@@ -11,7 +11,7 @@ class QListView;
 class OptionsMidi: public OptionsPage {
 	Q_OBJECT
 public:
-	OptionsMidi(TSE3::MidiScheduler *sch, QWidget *parent = 0, const char *name = 0);
+	OptionsMidi(TSE3::MidiScheduler *, KConfig *, QWidget *parent = 0, const char *name = 0);
 	virtual void applyBtnClicked();
 	virtual void defaultBtnClicked();
 

@@ -10,12 +10,16 @@ class QRadioButton;
 class OptionsMusicTheory: public OptionsPage {
 	Q_OBJECT
 public:
-	OptionsMusicTheory(QWidget *parent = 0, const char *name = 0);
+	OptionsMusicTheory(KConfig *conf, QWidget *parent = 0, const char *name = 0);
 	virtual void applyBtnClicked();
 	virtual void defaultBtnClicked();
 
-	QButtonGroup *maj7Group, *flatGroup;
-	QRadioButton *maj7[3], *flat[2];
+private slots:
+	bool jazzWarning();
+
+private:
+	QButtonGroup *maj7Group, *flatGroup, *noteNameGroup;
+	QRadioButton *maj7[3], *flat[2], *noteName[9];
 };
 
 #endif

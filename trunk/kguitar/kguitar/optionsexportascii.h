@@ -20,7 +20,6 @@ private:
 	QVButtonGroup *durationGroup;
 	QRadioButton *duration[5];
 	QCheckBox *always;
-	KConfig *config;
 };
 
 #endif

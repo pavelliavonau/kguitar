@@ -1,5 +1,5 @@
 #include "optionsexportmusixtex.h"
-#include "globaloptions.h"
+#include "settings.h"
 
 #include <qvbuttongroup.h>
 #include <qradiobutton.h>
@@ -7,56 +7,66 @@
 #include <qlayout.h>
 
 #include <klocale.h>
+#include <kconfig.h>
 
-OptionsExportMusixtex::OptionsExportMusixtex(QWidget *parent, const char *name)
-	: OptionsPage(parent, name)
+OptionsExportMusixtex::OptionsExportMusixtex(KConfig *conf, QWidget *parent, const char *name)
+	: OptionsPage(conf, parent, name)
 {
-	texLyGroup = new QVButtonGroup(i18n("MusiXTeX Layout"), this);
-	showbarnumb = new QCheckBox(i18n("Show Bar Number"), texLyGroup);
-	showstr = new QCheckBox(i18n("Show Tuning"), texLyGroup);
-	showpagenumb = new QCheckBox(i18n("Show Page Number"), texLyGroup);
+	// Create option widgets
 
-	texExpGroup = new QVButtonGroup(i18n("Export as..."), this);
-	expmode[0] = new QRadioButton(i18n("Tabulature"), texExpGroup);
-	expmode[1] = new QRadioButton(i18n("Notes"), texExpGroup);
+	QVButtonGroup *layoutGroup = new QVButtonGroup(i18n("MusiXTeX Layout"), this);
+	showBarNumber  = new QCheckBox(i18n("Show Bar Number"), layoutGroup);
+	showStr        = new QCheckBox(i18n("Show Tuning"), layoutGroup);
+	showPageNumber = new QCheckBox(i18n("Show Page Number"), layoutGroup);
 
-	texSizeGroup = new QVButtonGroup(i18n("Tab Size"), this);
-	tabsize[0] = new QRadioButton(i18n("Smallest"), texSizeGroup);
-	tabsize[1] = new QRadioButton(i18n("Small"), texSizeGroup);
-	tabsize[2] = new QRadioButton(i18n("Normal"), texSizeGroup);
-	tabsize[3] = new QRadioButton(i18n("Big"), texSizeGroup);
+	exportModeGroup = new QVButtonGroup(i18n("Export as..."), this);
+	exportMode[0] = new QRadioButton(i18n("Tabulature"), exportModeGroup);
+	exportMode[1] = new QRadioButton(i18n("Notes"), exportModeGroup);
 
-	QHBoxLayout *vbtex = new QHBoxLayout(this, 15, 10);
-	vbtex->addWidget(texLyGroup);
-	vbtex->addWidget(texSizeGroup);
-	vbtex->addWidget(texExpGroup);
-	vbtex->activate();
+	tabSizeGroup = new QVButtonGroup(i18n("Tab Size"), this);
+	tabSize[0] = new QRadioButton(i18n("Smallest"), tabSizeGroup);
+	tabSize[1] = new QRadioButton(i18n("Small"), tabSizeGroup);
+	tabSize[2] = new QRadioButton(i18n("Normal"), tabSizeGroup);
+	tabSize[3] = new QRadioButton(i18n("Big"), tabSizeGroup);
 
-	texSizeGroup->setButton(globalTabSize);
-	showbarnumb->setChecked(globalShowBarNumb);
-	showstr->setChecked(globalShowStr);
-	showpagenumb->setChecked(globalShowPageNumb);
-	texExpGroup->setButton(globalTexExpMode);
+	always = new QCheckBox(i18n("Always show this dialog on export"), this);
+
+	// Set widget layout
+
+	QVBoxLayout *box = new QVBoxLayout(this);
+	box->addWidget(layoutGroup);
+	box->addWidget(tabSizeGroup);
+	box->addWidget(exportModeGroup);
+	box->addStretch(1);
+	box->addWidget(always);
+	box->activate();
+
+	// Fill in current config
+
+	tabSizeGroup->setButton(Settings::texTabSize());
+	showBarNumber->setChecked(Settings::texShowBarNumber());
+	showStr->setChecked(Settings::texShowStr());
+	showPageNumber->setChecked(Settings::texShowPageNumber());
+	exportModeGroup->setButton(Settings::texExportMode());
+	always->setChecked(config->readBoolEntry("AlwaysShow", TRUE));
 }
 
 void OptionsExportMusixtex::defaultBtnClicked()
 {
-	texSizeGroup->setButton(2);
-	showbarnumb->setChecked(TRUE);
-	showstr->setChecked(TRUE);
-	showpagenumb->setChecked(TRUE);
-	texExpGroup->setButton(0);
+	tabSizeGroup->setButton(2);
+	showBarNumber->setChecked(TRUE);
+	showStr->setChecked(TRUE);
+	showPageNumber->setChecked(TRUE);
+	exportModeGroup->setButton(0);
 }
 
 void OptionsExportMusixtex::applyBtnClicked()
 {
-	for (int i = 0; i <= 3; i++)
-		if (tabsize[i]->isChecked())  globalTabSize = i;
-
-	globalShowBarNumb = showbarnumb->isChecked();
-	globalShowStr = showstr->isChecked();
-	globalShowPageNumb = showpagenumb->isChecked();
-
-	if (expmode[0]->isChecked()) globalTexExpMode = 0;
-	if (expmode[1]->isChecked()) globalTexExpMode = 1;
+	config->setGroup("MusiXTeX");
+	config->writeEntry("TabSize", tabSizeGroup->id(tabSizeGroup->selected()));
+	config->writeEntry("ShowBarNumber", showBarNumber->isChecked());
+	config->writeEntry("ShowStr", showStr->isChecked());
+	config->writeEntry("ShowPageNumber", showPageNumber->isChecked());
+	config->writeEntry("ExportMode", exportModeGroup->id(exportModeGroup->selected()));
+	config->writeEntry("AlwaysShow", always->isChecked());
 }

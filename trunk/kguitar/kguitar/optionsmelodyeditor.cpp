@@ -1,5 +1,5 @@
 #include "optionsmelodyeditor.h"
-#include "globaloptions.h"
+#include "settings.h"
 
 #include <qradiobutton.h>
 #include <qcombobox.h>
@@ -11,15 +11,25 @@
 #include <klocale.h>
 #include <qvbuttongroup.h>
 #include <qgroupbox.h>
+#include <kconfig.h>
 
-int globalMelodyEditorInlay;
-int globalMelodyEditorWood;
-int globalMelodyEditorAction[3];
-bool globalMelodyEditorAdvance[3];
-
-OptionsMelodyEditor::OptionsMelodyEditor(QWidget *parent, const char *name)
-	: OptionsPage(parent, name)
+OptionsMelodyEditor::OptionsMelodyEditor(KConfig *conf, QWidget *parent, const char *name)
+	: OptionsPage(conf, parent, name)
 {
+	// GREYFIX!!!
+	int globalMelodyEditorWood;
+	int globalMelodyEditorAction[3];
+	bool globalMelodyEditorAdvance[3];
+
+	config->setGroup("MelodyEditor");
+	globalMelodyEditorWood = config->readNumEntry("Wood",  2);
+	globalMelodyEditorAction[0] = config->readNumEntry("Action0", 1);
+	globalMelodyEditorAdvance[0] = config->readBoolEntry("Advance0", FALSE);
+	globalMelodyEditorAction[1] = config->readNumEntry("Action1", 3);
+	globalMelodyEditorAdvance[1] = config->readBoolEntry("Advance1", TRUE);
+	globalMelodyEditorAction[2] = config->readNumEntry("Action2", 1);
+	globalMelodyEditorAdvance[2] = config->readBoolEntry("Advance2", TRUE);
+
 	QVBoxLayout *l = new QVBoxLayout(this, 0, -1, "main");
 
 	QHGroupBox *designGroup = new QHGroupBox(i18n("Design"), this, "designbox");
@@ -31,7 +41,7 @@ OptionsMelodyEditor::OptionsMelodyEditor(QWidget *parent, const char *name)
 	inlay[3] = new QRadioButton(i18n("Blocks"), inlayGroup);
 	inlay[4] = new QRadioButton(i18n("Trapezoid"), inlayGroup);
 
-	inlayGroup->setButton(globalMelodyEditorInlay);
+	inlayGroup->setButton(Settings::melodyEditorInlay());
 
 	woodGroup = new QVButtonGroup(i18n("Texture"), designGroup, "texturegroup");
 	wood[0] = new QRadioButton(i18n("Schematic"), woodGroup);
@@ -89,12 +99,13 @@ void OptionsMelodyEditor::defaultBtnClicked()
 
 void OptionsMelodyEditor::applyBtnClicked()
 {
-	for (int i = 0; i < 5; i++)
-		if (inlay[i]->isChecked())  globalMelodyEditorInlay = i;
-	for (int i = 0; i < 4; i++)
-		if (wood[i]->isChecked())  globalMelodyEditorWood = i;
-	for (int i = 0; i < 3; i++) {
-		globalMelodyEditorAction[i] = mouseAction[i]->currentItem();
-		globalMelodyEditorAdvance[i] = mouseAdvance[i]->isChecked();
-	}
+	config->setGroup("MelodyEditor");
+	config->writeEntry("Inlay", inlayGroup->id(inlayGroup->selected()));
+	config->writeEntry("Wood", woodGroup->id(woodGroup->selected()));
+	config->writeEntry("Action0", mouseAction[0]->currentItem());
+	config->writeEntry("Advance0", mouseAdvance[0]->isChecked());
+	config->writeEntry("Action1", mouseAction[1]->currentItem());
+	config->writeEntry("Advance1", mouseAdvance[1]->isChecked());
+	config->writeEntry("Action2", mouseAction[2]->currentItem());
+	config->writeEntry("Advance2", mouseAdvance[2]->isChecked());
 }
