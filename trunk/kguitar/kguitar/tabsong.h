@@ -12,7 +12,7 @@
 class TabSong
 {
 public:
-    TabSong(QString _title, int _tempo) { tempo=_tempo;title=_title;t.setAutoDelete(TRUE); };
+    TabSong(QString _title, int _tempo);
     int tempo;
     QList<TabTrack> t;                  // Track data
     QString title;                      // Title of the song
