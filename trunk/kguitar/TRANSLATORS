@@ -126,15 +126,12 @@ Translators - new translation:
 ------------------------------
 
 Do the following: (assuming you're in the kguitar directory)
-1) do "cd kguitar"
-2) do "make messages"
-3) do "cd ../po"
-4) open your text editor with Makefile.am
-5) add YOURLANGUAGECODE.gmo to GMOFILES entry in the first string;
-   *please* use the alphabetic order of languages - that would
-   minimize possible hazards.
-6) copy kguitar.pot to YOURLANGUAGECODE.po
-
+1) do "make -f admin/Makefile.common package-messages" in top directory
+2) do "cd po"
+3) copy kguitar.pot to YOURLANGUAGECODE.po
+4) redo "make -f Makefile.cvs" and "./configure" in top directory to
+   regenerate Makefiles with support for your new .po
+   
 Now you have a clean untranslated template to translate. Proceed to the
 "editing translation" section.
 
@@ -165,7 +162,7 @@ As the program updates, new strings to translate would emerge. They
 would show up untranslated in program. To update your translation do
 two pretty simple things:
 
-1) do "make messages" in kguitar sources directory
+1) do "make -f admin/Makefile.common package-messages" in top directory
 2) do "make merge" in po directory
 
 It would merge new untranslated strings in your po file. Just search
@@ -178,8 +175,9 @@ MISC TRANSLATIONS
 
 Here's a list of what else needs to be translated:
 
-1) File "kguitar/kguitar.desktop" - add a line with
+1) File "kguitar/kguitar_part.desktop" - add a line with
 
    Comment[yourlanguagecode]=Translation of description
 
-2)
+2) File "kguitar_shell/kguitar.desktop" - the same line
+3) File "kguitar/x-kguitar.desktop" - the same line
