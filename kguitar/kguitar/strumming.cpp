@@ -8,8 +8,8 @@
 #include <qpushbutton.h>
 #include <qcombobox.h>
 
-Strumming::Strumming(int default_scheme, QWidget *parent=0, const char *name=0):
-	QDialog(parent, name, TRUE)
+Strumming::Strumming(int default_scheme, QWidget *parent=0, const char *name=0)
+	: QDialog(parent, name, TRUE)
 {
     QVBoxLayout *l = new QVBoxLayout(this, 10);
 
@@ -22,6 +22,7 @@ Strumming::Strumming(int default_scheme, QWidget *parent=0, const char *name=0):
 	for (int i = 0; lib_strum[i].len[0]; i++)
 		pattern->insertItem(lib_strum[i].name);
 	pattern->setCurrentItem(default_scheme);
+	connect(pattern, SIGNAL(highlighted(int)), SLOT(updateComment(int)));
 
 	QLabel *pattern_l = new QLabel(pattern, i18n("Strum &pattern:"), this);
 
@@ -33,6 +34,14 @@ Strumming::Strumming(int default_scheme, QWidget *parent=0, const char *name=0):
     g->addColSpacing(0, 80);
     g->addColSpacing(1, 200);
     g->setColStretch(1, 1);
+
+	// COMMENT BOX
+
+	comment = new QLabel(this);
+	comment->setFrameStyle(QFrame::Box | QFrame::Sunken);
+	comment->setAlignment(Qt::WordBreak);
+	updateComment(0);
+	l->addWidget(comment);
 
     // DIALOG BUTTONS
 
@@ -57,4 +66,9 @@ Strumming::Strumming(int default_scheme, QWidget *parent=0, const char *name=0):
 int Strumming::scheme()
 {
 	return pattern->currentItem();
+}
+
+void Strumming::updateComment(int n)
+{
+	comment->setText(lib_strum[n].description);
 }
