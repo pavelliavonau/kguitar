@@ -50,9 +50,11 @@ private:
 	QString readDelphiString();
 
 	/**
-	 * Reads Pascal-like serialized string
+	 * Reads Pascal-like serialized string. It is fixed-length buffer
+	 * of maxlen bytes, which contains from the very beginning a byte
+	 * of real length and then string data.
 	 */
-	QString readPascalString();
+	QString readPascalString(int maxlen);
 
 	/**
 	 * Reads word-sized Pascal-like serialized string
