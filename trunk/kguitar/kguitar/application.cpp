@@ -228,7 +228,8 @@ void ApplicationWindow::save()
 	if (fn.isEmpty())
 		fn = KFileDialog::getSaveFileName(0,"*.kg",this);
 
-	if (!fn.isEmpty()) {
+	if (!fn.isEmpty()) {		
+		tv->arrangeBars();//gotemfix: arrange bars before saving
 		tv->sng()->save_to_kg(tv->sng()->filename);
 		tv->sng()->filename = fn;
 	}

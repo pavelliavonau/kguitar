@@ -22,6 +22,7 @@ public:
     int finger(int num);
 
     void updateRows();
+    void arrangeBars();
 
 public slots:
     void setLength1() { setLength(480); };

@@ -4,6 +4,7 @@
 #include "timesig.h"
 
 #include <kapp.h>
+#include <iostream.h>
 
 #include <qwidget.h>
 #include <qpainter.h>
@@ -133,12 +134,12 @@ void TrackView::paintCell(QPainter *p, int row, int col)
 {
 	uint bn = row;						// Drawing only this bar
 
-	uint last;
+	int last;
 	if (curt->b.size()==bn+1)           // Current bar is the last one
 		last = curt->c.size()-1;		// Draw till the last note
 	else								// Else draw till the end of this bar
 		last = curt->b[bn+1].start-1;
-	
+	if(last==-1) last=0;//gotemfix: avoid overflow
 	QString tmp;
 
 	uint s = curt->string-1;
@@ -170,8 +171,7 @@ void TrackView::paintCell(QPainter *p, int row, int col)
 	}
 
 	p->setFont(QFont("helvetica",VERTLINE));
-	p->setBrush(KApplication::getKApplication()->windowColor);
-
+	p->setBrush(KApplication::getKApplication()->windowColor);	
 	for (uint t=curt->b[bn].start;t<=last;t++) {
 		// Drawing duration marks
 		
@@ -493,11 +493,17 @@ void TrackView::keyPressEvent(QKeyEvent *e)
 		e->ignore();
 		return;
 	}
-
 	update();
 	e->accept();
 }
+void TrackView::arrangeBars()
+{
+	song->arrangeBars();
+	emit statusBarChanged();
+	updateRows();
 
+
+}
 void TrackView::mousePressEvent(QMouseEvent *e)
 {
 	bool found = FALSE;

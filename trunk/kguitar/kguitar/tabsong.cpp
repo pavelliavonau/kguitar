@@ -6,6 +6,7 @@
 
 #include <qfile.h>
 #include <qdatastream.h>
+#include <iostream.h>
 
 TabSong::TabSong(QString _title, int _tempo)
 {
@@ -169,6 +170,7 @@ bool TabSong::load_from_kg(QString fileName)
 		
 		int x = 0, bar = 1;
 // uchar tcsize=t.current()->string+2;
+		t.current()->c.resize(1);
 		t.current()->b.resize(1);
 		t.current()->b[0].start = 0;
 		t.current()->b[0].time1 = 4;
@@ -176,7 +178,7 @@ bool TabSong::load_from_kg(QString fileName)
 		
 		bool dot;
 		int dur;
-		
+		cout << "reading events\n";
 		do {
 			s >> event;
 			s >> elength;
@@ -246,7 +248,14 @@ bool TabSong::load_from_kg(QString fileName)
 	
 	return TRUE;
 }
-
+void TabSong::arrangeBars(){
+	QListIterator<TabTrack> it(t);
+	for (; it.current(); ++it) {		// For every track
+		TabTrack *trk = it.current();
+		trk->arrangeBars();
+			}
+	
+}
 bool TabSong::save_to_kg(QString fileName)
 {
 	QFile f(fileName);
