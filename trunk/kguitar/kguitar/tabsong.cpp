@@ -1005,7 +1005,7 @@ bool TabSong::save_to_tex_tab(QString fileName)
 	s << "% You can download the latest version at:" << "\n";
 	s << "%      http://kguitar.sourceforge.net" << "\n";
 	s << "%" << "\n";
-	s << "% You must have MusiXTeX installed." << "\n";
+	s << "% MusiXTeX is required to use this file." << "\n";
 	s << "% You can download it at one of the following sites:" << "\n";
 	s << "%" << "\n";
 	s << "%      ftp://ftp.dante.de/tex-archive/macros/musixtex/taupin/" << "\n";
@@ -1144,7 +1144,7 @@ bool TabSong::save_to_tex_notes(QString fileName)
 	s << "% You can download the latest version at:" << "\n";
 	s << "%          http://kguitar.sourceforge.net" << "\n";
 	s << "%" << "\n" << "%" << "\n";
-	s << "% You must have installed MusiXTeX " << "\n";
+	s << "% MusiXTeX is required to use this file." << "\n";
 	s << "% This stuff you can download at:" << "\n" << "%" << "\n";
 	s << "%       ftp.dante.de/tex-archive/macros/musixtex/taupin" << "\n";
 	s << "%" << "\n";
