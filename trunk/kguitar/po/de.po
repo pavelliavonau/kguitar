@@ -6,9 +6,9 @@ msgid ""
 msgstr ""
 "Project-Id-Version: PACKAGE VERSION\n"
 "POT-Creation-Date: 2001-09-19 10:22+0200\n"
-"PO-Revision-Date: 2001-07-02 22:20GMT\n"
-"Last-Translator: Alexander Brand <alinx@users.sourceforge.net>\n"
-"Language-Team: Deutsch <de@li.org>\n"
+"PO-Revision-Date: 2001-09-21 13:20+GMT\n"
+"Last-Translator: Stephan Borchert <sborc@web.de>\n"
+"Language-Team: DEUTSCH <de@li.org>\n"
 "MIME-Version: 1.0\n"
 "Content-Type: text/plain; charset=UTF-8\n"
 "Content-Transfer-Encoding: 8bit\n"
@@ -216,6 +216,13 @@ msgid ""
 "\n"
 "Are you sure you want to use jazz notes?"
 msgstr ""
+"Die Bezeichnung von Jazznoten ist sehr speziell und\n"
+"sollte nur benutzt werden, wenn Du wirklich weisst was\n"
+"Du tust. Das verwenden von Jazznoten ohne einen Grund\n"
+"wird jeden irreführen der keine Kenntnisse von der \n"
+"Bezeichnung der Jazznoten hat.\n"
+"\n"
+"Bist Du sicher Jazznoten benutzen zu wollen?"
 
 #: application.cpp:329 application.cpp:337 application.cpp:377
 #: application.cpp:388 application.cpp:399 kguitar_shell.cpp:83
@@ -293,11 +300,11 @@ msgstr "Inv #6"
 
 #: chord.cpp:180
 msgid "Usual"
-msgstr ""
+msgstr "Gebräuchlich"
 
 #: chord.cpp:182
 msgid "Rare"
-msgstr ""
+msgstr "Selten"
 
 #: chord.cpp:184
 msgid "All"
@@ -305,7 +312,7 @@ msgstr "Alle"
 
 #: chord.cpp:217
 msgid "&Strum..."
-msgstr ""
+msgstr "&Zupfmuster"
 
 #: chord.cpp:223 filebrowser.cpp:115 rc.cpp:8
 msgid "&Play"
@@ -313,7 +320,7 @@ msgstr "S&pielen"
 
 #: chord.cpp:297
 msgid "Chord constructor"
-msgstr ""
+msgstr "Akkord Baukasten"
 
 #: chord.cpp:313
 #, fuzzy
@@ -321,7 +328,7 @@ msgid ""
 "Can't open /dev/sequencer !!\n"
 "Probably there is another program using it."
 msgstr ""
-"Kann /dev/sequenzer nicht öffnen !!\n"
+"Kann /dev/sequencer nicht öffnen !!\n"
 "Eventuell benutzt ihn ein anderes Programm."
 
 #: filebrowser.cpp:103 filebrowser.cpp:289 filebrowser.cpp:306
@@ -399,7 +406,7 @@ msgstr "Autor:"
 
 #: filebrowser.cpp:166
 msgid "Transcriber:"
-msgstr ""
+msgstr "Übertragen von:"
 
 #: filebrowser.cpp:288
 msgid "Please select a directory!"
@@ -613,7 +620,7 @@ msgstr "&Autor:"
 
 #: setsong.cpp:20
 msgid "&Transcriber:"
-msgstr ""
+msgstr "Über&tragen von:"
 
 #: setsong.cpp:21
 msgid "&Comments:"
@@ -625,7 +632,7 @@ msgstr "Song Eigenschaften"
 
 #: settabfret.cpp:23
 msgid "Tuning:"
-msgstr "Tuning:"
+msgstr "Stimmung:"
 
 #: settabfret.cpp:31
 msgid "Strings:"
@@ -637,11 +644,11 @@ msgstr "Bünde:"
 
 #: settrack.cpp:28
 msgid "Fretted instrument"
-msgstr ""
+msgstr "Instrument mit Bünden"
 
 #: settrack.cpp:29
 msgid "Drum track"
-msgstr ""
+msgstr "Schlagzeug Track"
 
 #: settrack.cpp:31
 msgid "&Track name:"
@@ -693,10 +700,13 @@ msgid ""
 "lyric songs. Used in the raw form (playing open strings) by Metallica in the "
 "song \"Nothing Else Matters\""
 msgstr ""
+"Klassischer Arpegio, gespielt in 6/8. Ist eine gute Begleitung für langsame,."
+"lyrische Lieder. Angewendet in der ursprünglichen Form (offenen Saiten gespielt)"
+"von Metallica in dem Lied \"Nothing Else Matters\"."
 
 #: strum.h:45
 msgid "4/4 Short Arpegio"
-msgstr ""
+msgstr "4/4 Kurzes Arpegio"
 
 #: strum.h:46
 msgid ""
@@ -704,6 +714,9 @@ msgid ""
 "string pick in the middle. A cross between classic arpegio and bass pick "
 "technique."
 msgstr ""
+"Verkürzte Variation des klassischen Arpegio, mit akkordähnlich gezupften"
+"2 Saiten in der Mitte. Eine Kreuzung zwischen klassischen Arpegio und "
+"Basszupftechnik."
 
 #: strum.h:51
 msgid "8/8 Arpegio 1"
@@ -714,6 +727,8 @@ msgid ""
 "Pretty complex arpegio that makes dynamic progressing and continuous rhythm "
 "line. Fits best in medium tempo upbeat songs."
 msgstr ""
+"Hübsch komplexes Arpegio, macht einen dynamischen Verlauf und eine kontinuierliche"
+"Rhytmuslinie. Passt bestens zu liedern mit mittlerem Tempo."
 
 #: strum.h:56
 msgid "8/8 Arpegio 2"
@@ -724,10 +739,12 @@ msgid ""
 "Variation of previous arpegio, can spice up sound if used several times with "
 "previous rhythm."
 msgstr ""
+"Variation des vorherigen Arpegio, kann den Sound aufbessern wenn man ihn "
+"mehrere Male mit vorherigen Rhytmus verwendet."
 
 #: strum.h:61
 msgid "3/4 Smooth Arpegio With Return"
-msgstr ""
+msgstr "3/4 weiches Arpegio mit Rückkehr."
 
 #: strum.h:62
 msgid ""
@@ -735,10 +752,13 @@ msgid ""
 "strumming relatively slow through the strings. Well-known from a song "
 "\"House of the Rising Sun\", performed by Animals and many others."
 msgstr ""
+"Weiches beschleunigtes und verlangsamtes Arpegio. Wird häufig mit "
+"Plektrum gespielt. Sehr bekannt durch den Song \"House of the Rising Sun\", "
+"gespielt von den Animals und vielen anderen."
 
 #: strum.h:68
 msgid "4/4 Rock Ballad Arpegio 1"
-msgstr ""
+msgstr "4/4 Rockballade Arpegio 1"
 
 #: strum.h:69
 msgid ""
@@ -746,10 +766,13 @@ msgid ""
 "a smooth continuous rhythm, good for verses. One of the most well-known "
 "songs that uses such arpegio is \"Don't Cry\" by Guns'n'Roses."
 msgstr ""
+"Eins der berühmten Rockarpegios. Korrekt gespielt, macht es einen weichen "
+"kontinuierlichen Rhytmus, gut für Verse. Bekanntester Song ist \"Don't Cry\" "
+"von Guns'nRoses."
 
 #: strum.h:75
 msgid "4/4 Rock Ballad Arpegio 2"
-msgstr ""
+msgstr "4/4 Rockballade Arpegio 2"
 
 #: strum.h:76
 msgid ""
@@ -758,10 +781,13 @@ msgid ""
 "lyric ballads. Performed by Smokie in their song \"Living Next Door to "
 "Alice\""
 msgstr ""
+"Weicher Rockballadenarpeggio. Zupfmuster scheint ein wenig zufällig, jedoch "
+"macht es einen schönen weichen Rhythmus. Gut für langsame und lyrische Balladen. "
+"Eingesetzt von Smokie in ihrem Lied \"Living Next Door to Alice\"."
 
 #: strum.h:82
 msgid "4/4 Rock Ballad Arpegio 3"
-msgstr ""
+msgstr "4/4 Rockballade Arpegio 3"
 
 #: strum.h:83
 msgid ""
@@ -769,10 +795,13 @@ msgid ""
 "rock lyric arpegio, with a bit of spanish feel. Used in the song of "
 "Scorpions \"Holiday\""
 msgstr ""
+"Sonderbar, aber einfache Kombination von klassischen Arpeggios, macht "
+"ein gutes kontinuierliches Rockarpeggio, mit einem winzigen spanischen "
+"Einschlag. Wird in dem Lied \"Holiday\" der Scorpions benutzt."
 
 #: strum.h:88
 msgid "4/4 Rock Ballad Arpegio 4"
-msgstr ""
+msgstr "4/4 Rockballade Arpegio 4"
 
 #: strum.h:89
 msgid ""
@@ -781,10 +810,14 @@ msgid ""
 "metronome. Used in (and most likely originating from) Led Zeppelin's "
 "\"Stairway to Heaven\""
 msgstr ""
+"Klassischer Treppenhausrock-Arpeggio, das ist das Lernmuster für "
+"verschiedenste Musiker. Sehr regelmäßiger 4/4, die erste betonte "
+"Note ist gutes Metronom. Wird in (und ist höchstwahrscheinlich von) "
+"Led Zeppelin's \"Stairway to Heaven\" benutzt."
 
 #: strum.h:95
 msgid "4/4 Rock Ballad Arpegio 5"
-msgstr ""
+msgstr "4/4 Rockballade Arpegio 5"
 
 #: strum.h:96
 msgid ""
@@ -793,10 +826,13 @@ msgid ""
 "giving a special feel. Good example of such picking is Kansas' \"Dust in the "
 "Wind\""
 msgstr ""
+"Folkzupfmuster, auch \"Travis picking\" nach Merle Travis genannt, der anscheinend "
+"damit zuerst herauskam. Arpegio ist synkopisch, was ein besonderes Gefühl "
+"erzeugt. Gutes Beispiel dafür ist \"Dust in the Wind\" von Kansas."
 
 #: strum.h:102
 msgid "4/4 Normal Bass Pick"
-msgstr ""
+msgstr "4/4 Normales Basszupfmuster"
 
 #: strum.h:103
 msgid ""
@@ -805,10 +841,13 @@ msgid ""
 "trebles sounds. Very popular thing for lyric songs on acoustic (especially "
 "7-string) guitar."
 msgstr ""
+"Klassische Basszupftechnik mit Änderungen. Gespielt in 2 Schritten: Zuerst "
+"irgendeine Bassnote spielen und als zweites alle hohen Noten. Sehr populär "
+"für lyrische Lieder auf akustischen (ganz besonders 7-saitigen) Gitarren."
 
 #: strum.h:109
 msgid "3/4 Waltz Bass Pick"
-msgstr ""
+msgstr "3/4 Walzer Bassmuster"
 
 #: strum.h:110
 msgid ""
@@ -816,32 +855,37 @@ msgid ""
 "the first beat accented by bass note. Could be used in classic guitar "
 "playing experience, for example, in orchestra."
 msgstr ""
+"Walzerartiger Basszupf. Macht einen perfekten Tanzrhytmus - gespielt als 3/4, "
+"wobei der erste Schlag durch eine Bassnote betont wird. Kann für die "
+"klassische Gitarre, z.B. in Orchestern, genutzt werden."
 
 #: strum.h:115
 msgid "4/4 Deep Bass Pick"
-msgstr ""
+msgstr "4/4 Tiefes Basszupfmuster"
 
 #: strum.h:116
 msgid ""
 "Normal bass pick with a shuffled, bluesey feel, made by delaying bass notes "
 "by an extra 1/8. A good simple rhythm for blues and folk songs."
 msgstr ""
+"Normaler Basszupf mit einem schleppenden, bluesigem Feeling, durch eine um "
+"1/8 verspätete Bassnote. Ein guter simpler Rhytmus für Blues- und Folksongs."
 
 #: strumming.cpp:27
 msgid "Strum &pattern:"
-msgstr ""
+msgstr "Zupf&muster:"
 
 #: strumming.cpp:63
 msgid "Strumming pattern"
-msgstr ""
+msgstr "Zupfmuster"
 
 #: timesig.cpp:25
 msgid "&Beats per measure:"
-msgstr ""
+msgstr "&Taktzahl "
 
 #: timesig.cpp:26
 msgid "Beat &value:"
-msgstr ""
+msgstr "Takt&wert:"
 
 #: timesig.cpp:47
 msgid "Apply till the &end"
@@ -905,19 +949,19 @@ msgstr "Bass (5): Standard"
 
 #: tunings.h:44
 msgid "Banjo (5): open G"
-msgstr ""
+msgstr "Banjo (5): offen G"
 
 #: tunings.h:45
 msgid "Banjo (5): drop C"
-msgstr ""
+msgstr "Banjo (5): drop C"
 
 #: tunings.h:46
 msgid "Banjo (5): open D"
-msgstr ""
+msgstr "Banjo (5): offen D"
 
 #: tunings.h:47
 msgid "Banjo (5): G minor"
-msgstr ""
+msgstr "Banjo (5): G Moll"
 
 #: tunings.h:48
 msgid "Banjo (5): G modal"
@@ -925,7 +969,7 @@ msgstr ""
 
 #: tunings.h:50
 msgid "Mandolin (4): standard"
-msgstr "Mandolin (4): Standard"
+msgstr "Mandoline (4): Standard"
 
 #: tunings.h:52
 msgid "Ukulele (4): standard"
@@ -961,4 +1005,5 @@ msgstr "Werkzeugleisten anzeigen"
 
 #: settabdrum.cpp:17
 msgid "Drums:"
-msgstr ""
+msgstr "Schlagzeug:"
+
