@@ -3,6 +3,7 @@ Type=MimeType
 MimeType=application/x-kguitar
 Comment=KGuitar tabulature
 Comment[de]=KGuitar Tabulatur
+Comment[ru]=Табулатура KGuitar
 DefaultApp=kguitar
 Icon=kguitar_tab
 Patterns=*.kg;
