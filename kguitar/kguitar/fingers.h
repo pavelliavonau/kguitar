@@ -16,6 +16,7 @@ public:
     void setFinger(int string, int fret);
 
     int  app(int x) { return appl[x]; }
+    void setApp(int x, int fret) { appl[x]=fret; }
 
 public slots:
     void clear();

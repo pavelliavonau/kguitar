@@ -179,13 +179,10 @@ ChordSelector::ChordSelector(TabTrack *p, QWidget *parent=0, const char *name=0)
     cancel->setGeometry(520,290,75,30);
     connect(cancel,SIGNAL(clicked()),SLOT(reject()));
 
+    setCaption(i18n("Chord constructor"));
     setFixedSize(600,400);
 }
 
-int ChordSelector::app(int l)
-{
-    return fng->app(l);
-}
 
 // Try to detect some chord forms from a given applicature.
 void ChordSelector::detectChord()
@@ -209,7 +206,8 @@ void ChordSelector::detectChord()
 	    }
 	}
     }
-    
+
+    chords->setAutoUpdate(FALSE);
     chords->clearSelection();
     chords->clear();
     
@@ -276,9 +274,12 @@ void ChordSelector::detectChord()
 
 	if (noteok==0) {
 	    ChordListItem *item = new ChordListItem(i,bass,s3,s5,s7,s9,s11,s13);
-	    chords->insertItem(item);
+	    chords->inSort(item);
 	}
     }
+
+    chords->setAutoUpdate(TRUE);
+    chords->repaint();
 }
 
 void ChordSelector::setStep3()
