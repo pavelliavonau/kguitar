@@ -22,6 +22,7 @@ public:
 private slots:
     void newDoc();
     void load();
+    void recentLoad(int _id);
     void save();
     void saveAs();
 	void importMID();
@@ -57,13 +58,15 @@ private slots:
 private:
     void updateMenu();
     void updateTbMenu();
+    void addRecentFile(QString fn);
     bool jazzWarning();
 
     QPrinter *printer;
     TrackView *tv;
     KToolBar *fileTools;
-    QPopupMenu *nnMenu, *tbMenu;
+    QPopupMenu *nnMenu, *tbMenu, *recMenu;
     int ni[9], tb[2];
+	QStrList recentFiles;
 
     // Status bar labels
     QLabel *s_bar;

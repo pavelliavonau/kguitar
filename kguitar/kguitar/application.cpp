@@ -43,11 +43,11 @@ bool global_showstr;
 bool global_showpagenumb;
 
 // Appearance
-bool global_showMainTB;
+bool global_showMainTB;       // Toolbars
 bool global_showEditTB;
 int global_mainTBPos;
 int global_editTBPos;
-int global_mainWinWidth;
+int global_mainWinWidth;      // ApplicationWindow
 int global_mainWinHeight;
 int global_mainWinX;
 int global_mainWinY;
@@ -115,6 +115,14 @@ ApplicationWindow::ApplicationWindow(): KTMainWindow()
 	QPopupMenu *p = new QPopupMenu();
 	p->insertItem(i18n("&New"), this, SLOT(newDoc()));
 	p->insertItem(i18n("&Open..."), this, SLOT(load()));
+
+	recMenu = new QPopupMenu();
+	connect(recMenu, SIGNAL(activated(int)), SLOT(recentLoad(int)));
+	p->insertItem(i18n("Open &recent..."), recMenu);
+	recMenu->clear();
+	for (int i = 0 ; i < (int) recentFiles.count(); i++)
+		recMenu->insertItem(recentFiles.at(i));
+
 	p->insertSeparator();
 	p->insertItem(i18n("&Save"), this, SLOT(save()));
 	p->insertItem(i18n("S&ave as..."), this, SLOT(saveAs()));
@@ -260,13 +268,59 @@ void ApplicationWindow::load()
 	QString fn = KFileDialog::getOpenFileName(0, "*.kg", this);
 	if (!fn.isEmpty()) {
 		if (tv->sng()->load_from_kg(fn)) {
-			setCaption(fn);
+			QString tmp = PACKAGE;
+			tmp += " <" + fn + ">";
+			setCaption(tmp);
 			tv->setCurt(tv->sng()->t.first());
 			tv->sng()->t.first()->x = 0;
 			tv->sng()->t.first()->y = 0;
 			tv->sng()->filename = fn;
 			tv->updateRows();
+			addRecentFile(fn);
 		}
+	}
+}
+
+void ApplicationWindow::recentLoad(int _id)
+{
+	QString fn = recentFiles.at(_id);
+
+	if (!fn.isEmpty()) {
+		if (tv->sng()->load_from_kg(fn)) {
+			QString tmp = PACKAGE;
+			tmp += " <" + fn + ">";
+			setCaption(tmp);
+			tv->setCurt(tv->sng()->t.first());
+			tv->sng()->t.first()->x = 0;
+			tv->sng()->t.first()->y = 0;
+			tv->sng()->filename = fn;
+			tv->updateRows();
+			addRecentFile(fn);
+		}
+		else {
+			recentFiles.remove(_id);
+			recMenu->clear();
+			for (int i = 0 ; i < (int) recentFiles.count(); i++)
+				recMenu->insertItem(recentFiles.at(i));
+		}
+	}
+}
+
+void ApplicationWindow::addRecentFile(QString fn)
+{
+// copied from Quanta 1.0.4 (http://quanta.sourceforge.net)
+
+	if (recentFiles.find(fn) == -1) {
+		if (recentFiles.count() < 5) {
+			recentFiles.insert(0, fn);
+		}
+		else {
+			recentFiles.remove(4);
+			recentFiles.insert(0, fn);
+		}
+		recMenu->clear();
+		for (int i = 0 ; i < (int) recentFiles.count(); i++)
+			recMenu->insertItem(recentFiles.at(i));
 	}
 }
 
@@ -279,8 +333,12 @@ void ApplicationWindow::save()
 
 	if (!fn.isEmpty()) {		
 		tv->arrangeBars();//gotemfix: arrange bars before saving
-		tv->sng()->save_to_kg(tv->sng()->filename);
+		tv->sng()->save_to_kg(fn);
 		tv->sng()->filename = fn;
+		QString tmp = PACKAGE;
+		tmp += " <" + fn + ">";
+		setCaption(tmp);
+		addRecentFile(fn);
 	}
 }
 
@@ -290,6 +348,10 @@ void ApplicationWindow::saveAs()
 	if (!fn.isEmpty()) {
 		tv->sng()->save_to_kg(fn);
 		tv->sng()->filename = fn;
+		QString tmp = PACKAGE;
+		tmp += " <" + fn + ">";
+		setCaption(tmp);
+		addRecentFile(fn);
 	}
 }
 
@@ -491,6 +553,7 @@ void ApplicationWindow::readOptions()
 	global_mainWinHeight = kapp->getConfig()->readNumEntry("mainWinHeight", 240);
 	global_mainWinX = kapp->getConfig()->readNumEntry("mainWinX",10);
 	global_mainWinY = kapp->getConfig()->readNumEntry("mainWinX", 10);
+	kapp->getConfig()->readListEntry("recentFiles", recentFiles);
 }
 
 void ApplicationWindow::saveOptions()
@@ -515,4 +578,5 @@ void ApplicationWindow::saveOptions()
 	kapp->getConfig()->writeEntry("mainWinHeight", height());
 	kapp->getConfig()->writeEntry("mainWinX", x());
 	kapp->getConfig()->writeEntry("mainWinY", y());
+	kapp->getConfig()->writeEntry("recentFiles", recentFiles);
 }
