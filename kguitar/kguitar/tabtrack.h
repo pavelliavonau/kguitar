@@ -51,6 +51,11 @@ public:
 	int xb;                             // Current tab bar
 	int y;                              // Current tab string
 
+	int cursortimer;                    // After MIDI calculations -
+	                                    // timer value on current
+	                                    // column, otherwise -
+	                                    // undefined
+
 	bool sel;                           // Selection mode enabled
 	int xsel;                           // If yes, then selection start column
 
@@ -82,7 +87,7 @@ public:
 	bool getNoteTypeAndDots(int t, int v, int & tp, int & dt, bool & tr);
 
 #ifdef WITH_TSE3
-	TSE3::PhraseEdit *midiTrack();
+	TSE3::PhraseEdit *midiTrack(bool tracking = FALSE, int tracknum = 0);
 #endif
 
 private:
