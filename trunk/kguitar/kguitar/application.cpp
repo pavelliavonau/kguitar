@@ -109,7 +109,7 @@ void ApplicationWindow::load()
 	if (tv->sng()->load_from_kg(fn)) {
 	    setCaption(fn);
 	    tv->setCurt(tv->sng()->t.first());
-	    tv->sng()->t.first()->x=0;
+//	    tv->sng()->t.first()->x=0;
 	    tv->sng()->t.first()->y=0;
 	    tv->sng()->filename=fn;
 	}
