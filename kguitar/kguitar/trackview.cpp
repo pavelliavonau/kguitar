@@ -756,6 +756,12 @@ void TrackView::playMidi(MidiList &ml)
 
     kdDebug() << "    Parent1 pid: " << getpid() << endl;
 
+    int defDevice = midi->defaultDevice(); // get the device for the child
+    if (defDevice == -1) {
+        kdDebug() << "There is no device available" << endl;
+        return;
+    }
+
     midi->closeDev(); // close MidiDevice for child process
 
     int status;
@@ -810,7 +816,7 @@ void TrackView::playMidi(MidiList &ml)
 
         c_midi->openDev();
         c_midi->initDev();
-        c_midi->setDefaultDevice(1);              // ALINXFIX: take the Device from option dlg
+        c_midi->setDefaultDevice(defDevice);
 
         MidiEvent *e;
         long tempo;
