@@ -804,18 +804,26 @@ void TrackView::playMidi(MidiList &ml)
 
         DeviceManager *c_midi;
 
+        kdDebug() << "      child process: c_midi = new DeviceManager(-1)" << endl;
         c_midi = new DeviceManager( /*mididev*/ -1);
 
         if (c_midi->initManager() == 0)
             kdDebug() << "      child process: c_midi->initManager()...  OK" << endl;
+        else
+            kdDebug() << "      child process: c_midi->initManager() FAILED *******" << endl;
 
         MidiMapper *c_map = new MidiMapper(NULL); // alinx - for future option in Optiondialog
                                                   // Maps are stored in:
                                                   // "$DKEDIR/share/apps/kmid/maps/*.map"
+
+        kdDebug() << "      child process: c_midi->setMidiMap()" << endl;
         c_midi->setMidiMap(c_map);
 
+        kdDebug() << "      child process: c_midi->openDev()" << endl;
         c_midi->openDev();
+        kdDebug() << "      child process: c_midi->initDev()" << endl;
         c_midi->initDev();
+        kdDebug() << "      child process: c_midi->setDefaultDevice(" << defDevice << ")" << endl;
         c_midi->setDefaultDevice(defDevice);
 
         MidiEvent *e;
