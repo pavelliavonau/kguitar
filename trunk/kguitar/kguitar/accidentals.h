@@ -27,6 +27,8 @@ public:
 	Accidentals();
 	void addPitch(int pitch);
 	void calcChord();
+	void countAccPrnt(QString& stp, Accid& acc);
+	int getAccPrnt(QString& stp);
 	int getKeySig();
 	bool getNote(int pitch, QString& stp, int& alt, int& oct, Accid& acc);
 	void resetToKeySig();
@@ -35,15 +37,25 @@ public:
 	void startChord();
 private:
 	void markInUse(int i, int nlh, Accid a);
+	bool mustPrntAllAcc(int nn);
+	bool naGet(const QString& stp, int oct);
+	void naReset(const QString& stp, int oct);
+	void naResetAll();
+	void naSetAll(const QString& stp);
+	int naSo2i(const QString& stp, int oct);
 	int  normalize(int pitch);
 	static const int stPerOct = 12;	// # semitones (half steps) per octave
-	int keySig;
+	int accPrnt[7];					// # accidentals printed for each note
+	int keySig;						// key signature in # sharps or flats
 	bool notes_av[stPerOct];		// notes available
 	bool notes_req[stPerOct];		// notes requested for this chord
 	Accid old_acc_state[stPerOct];	// accidental state for all notes, before
 	Accid new_acc_state[stPerOct];	// and after calcChord
 	int out_root_note[stPerOct];	// notes to be printed
 	Accid out_accidental[stPerOct];	// accidentals to be printed
+	bool needs_acc[77];				// which notes need an accidental
+	bool printAllAccInChrd;			// print acc on all notes in chord
+	bool printAccAllInst;			// print acc for all instances same note
 };
 
 #endif
