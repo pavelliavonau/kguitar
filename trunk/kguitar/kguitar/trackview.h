@@ -18,7 +18,7 @@ public:
     ~TrackView();
 
     TabTrack* trk() { return curt; }
-    void setCurt(TabTrack *trk) { curt = trk; }
+    void setCurt(TabTrack*);
 
 	DeviceManager* devMan() { return midi; }
 
@@ -56,16 +56,16 @@ public slots:
 	void keyPlus();
 	void keyMinus();
 	void arrangeTracks();
-    void key1();
-    void key2();
-    void key3();
-    void key4();
-    void key5();
-    void key6();
-    void key7();
-    void key8();
-    void key9();
-    void key0();
+    void key1() { insertTab(1); }
+    void key2() { insertTab(2); }
+    void key3() { insertTab(3); }
+    void key4() { insertTab(4); }
+    void key5() { insertTab(5); }
+    void key6() { insertTab(6); }
+    void key7() { insertTab(7); }
+    void key8() { insertTab(8); }
+    void key9() { insertTab(9); }
+    void key0() { insertTab(0); }
 	void selectTrack(QListViewItem *);
     void playTrack();
     void stopPlayTrack();
@@ -75,6 +75,7 @@ private slots:
 
 signals:
 	void statusBarChanged();
+	void newTrackSelected();
 
 protected:
 	virtual void paintCell(QPainter *, int row, int col);
