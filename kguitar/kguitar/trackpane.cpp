@@ -45,6 +45,9 @@ void TrackPane::drawContents(QPainter *p, int clipx, int /*clipy*/, int clipw, i
 			if (trk->barStatus(i))
 				style().drawPrimitive(QStyle::PE_ButtonBevel, p,
 				                      QRect(px, py, cellSide, cellSide), colorGroup());
+			if (trk->xb == i)
+				style().drawPrimitive(QStyle::PE_FocusRect, p,
+				                      QRect(px, py, cellSide, cellSide), colorGroup());
 			px += cellSide;
 		}
 		py += cellSide;
@@ -59,7 +62,10 @@ void TrackPane::mousePressEvent(QMouseEvent *e)
 
 		if (tracknum >= song->t.count())
 			return;
-		emit trackChanged(song->t.at(tracknum));
-		emit newBarSelected(barnum);
+
+		emit trackSelected(song->t.at(tracknum));
+		emit barSelected(barnum);
+
+		update();
 	}
 }

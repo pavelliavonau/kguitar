@@ -14,8 +14,8 @@ public:
 	void updateList();
 
 signals:
-	void trackChanged(TabTrack *);
-	void newBarSelected(uint);
+	void trackSelected(TabTrack *);
+	void barSelected(uint);
 
 protected:
 	virtual void drawContents(QPainter *, int clipx, int clipy, int clipw, int cliph);
