@@ -17,18 +17,24 @@
 #include <qpushbutton.h>
 #endif
 
-Options::Options(QWidget *parent = 0, char *name = 0, bool modal)
+#include <libkmid/deviceman.h>
+
+Options::Options(DeviceManager *_dm, QWidget *parent = 0, char *name = 0, bool modal)
 	: KDialogBase(IconList, i18n("Preferences"), Help|Default|Ok|Apply|Cancel, 
 				  Ok, parent, name, modal, TRUE)
 {
+	dm = _dm;
+
 	//Setup Tabs
 	setupTheoryTab();
 	setupMusixtexTab();
 #ifdef HAVE_LIBASOUND
 	setupAlsaTab();
 #endif
+	setupKmidTab();
 	resize(530, 300);
 	connect(this, SIGNAL(defaultClicked()), SLOT(defaultBtnClicked()));
+	connect(this, SIGNAL(okClicked()), SLOT(applyBtnClicked()));
 	connect(this, SIGNAL(applyClicked()), SLOT(applyBtnClicked()));
 }
 
@@ -121,6 +127,32 @@ void Options::setupMusixtexTab()
 	vbtex->addWidget(texsizegr);
 	vbtex->addWidget(texexpgr);
 	vbtex->activate();
+}
+
+// LibKMid settings setup
+void Options::setupKmidTab()
+{
+	QFrame *kmid = addPage(i18n("MIDI Device Support"), 0,
+						   DesktopIcon("kcmmidi", KIcon::SizeMedium));
+
+	QBoxLayout *kmidl = new QHBoxLayout(kmid, 15, 10);
+
+	kmidport = new QListBox(kmid);
+	
+	char temp[200];
+	for (int i = 0; i < dm->midiPorts() + dm->synthDevices(); i++) {
+		if (strcmp(dm->type(i), "") != 0)
+			sprintf(temp,"%s - %s", dm->name(i), dm->type(i));
+		else
+			sprintf(temp,"%s", dm->name(i));
+		
+		kmidport->insertItem(temp,i);
+	};
+	int selecteddevice = dm->defaultDevice();
+	kmidport->setCurrentItem(selecteddevice);
+
+	kmidl->addWidget(kmidport);
+	kmidl->activate();
 }
 
 void Options::setupAlsaTab()
@@ -227,6 +259,8 @@ void Options::applyBtnClicked()
 
 	if (expmode[0]->isChecked()) globalTexExpMode = 0;
 	if (expmode[1]->isChecked()) globalTexExpMode = 1;
+
+	dm->setDefaultDevice(kmidport->currentItem());
 }
 
 void Options::defaultBtnClicked()
