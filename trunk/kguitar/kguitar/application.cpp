@@ -14,6 +14,8 @@
 #include <kapp.h>
 #include <kmenubar.h>
 #include <ktoolbar.h>
+#include <kaction.h>
+#include <kstdaction.h>
 #include <kiconloader.h>
 #include <klocale.h>
 #include <kfiledialog.h>
@@ -56,8 +58,8 @@ int globalAlsaPort;
 
 ApplicationWindow::ApplicationWindow(): KMainWindow()
 {
-	printer = new QPrinter;
-	printer->setMinMax(1,10);
+// 	printer = new QPrinter;
+// 	printer->setMinMax(1,10);
 
 	// READ CONFIGS
 	readOptions();
@@ -67,15 +69,26 @@ ApplicationWindow::ApplicationWindow(): KMainWindow()
 	setCentralWidget(tv);
 	tv->setFocus();
 
-	// SET UP MAIN TOOLBAR
-	toolBar()->insertButton("filenew.png", 1, SIGNAL(clicked()),
-							this, SLOT(newDoc()), TRUE, i18n("New document"));
-	toolBar()->insertButton("fileopen.png", 1, SIGNAL(clicked()),
-							this, SLOT(load()), TRUE, i18n("Open a file"));
-	toolBar()->insertButton("filesave.png", 1, SIGNAL(clicked()),
-							this, SLOT(save()), TRUE, i18n("Save a file"));
-	toolBar()->insertButton("fileprint.png", 1, SIGNAL(clicked()),
-							this, SLOT(print()), TRUE, i18n("Print"));
+	// SET UP ACTIONS
+
+	KAction *newAct = KStdAction::openNew(this, SLOT(fileNew()),
+										  actionCollection());
+	KAction *openAct = KStdAction::open(this, SLOT(fileOpen()),
+										actionCollection());
+	KRecentFilesAction *openRecentAct = KStdAction::openRecent(this, 0,
+															   actionCollection());
+	KAction *saveAct = KStdAction::save(this, SLOT(fileSave()),
+										actionCollection());
+	KAction *saveAsAct = KStdAction::saveAs(this, SLOT(fileSaveAs()),
+											actionCollection());
+	KAction *printAct = KStdAction::print(this, SLOT(filePrint()),
+										  actionCollection());
+	KAction *closeAct = KStdAction::close(this, SLOT(fileClose()),
+										actionCollection());
+	KAction *quitAct = KStdAction::quit(this, SLOT(fileQuit()),
+										actionCollection());
+	KAction *preferencesAct = KStdAction::preferences(this, SLOT(options()),
+													  actionCollection());
 
 	// SET UP EDITING TOOLBAR
 	toolBar("Edit")->insertButton("chord.xpm", 1, SIGNAL(clicked()),
@@ -106,25 +119,26 @@ ApplicationWindow::ApplicationWindow(): KMainWindow()
 //	toolBar()->setBarPos(KToolBar::BarPosition(globalMainTBPos));
 //	toolBar("Edit")->setBarPos(KToolBar::BarPosition(globalEditTBPos));
 
-	// SET UP MAIN MENU
+	// SET UP MAIN MENU AND TOOLBARS
 
 	QPopupMenu *p = new QPopupMenu();
-	p->insertItem(i18n("&New"), this, SLOT(newDoc()));
-	p->insertItem(i18n("&Open..."), this, SLOT(load()));
-
-	recMenu = new QPopupMenu();
-	connect(recMenu, SIGNAL(activated(int)), SLOT(recentLoad(int)));
-	p->insertItem(i18n("Open &Recent"), recMenu);
-	recMenu->clear();
-	for (uint i = 0; i < recentFiles.count(); i++)
-		recMenu->insertItem(recentFiles.at(i));
-
+	newAct->plug(p); newAct->plug(toolBar());
+	openAct->plug(p); openAct->plug(toolBar());
+	openRecentAct->plug(p);
 	p->insertSeparator();
+	saveAsAct->plug(p);
+	saveAct->plug(p); saveAct->plug(toolBar());
+	p->insertSeparator();
+
+// 	recMenu = new QPopupMenu();
+// 	connect(recMenu, SIGNAL(activated(int)), SLOT(recentLoad(int)));
+// 	p->insertItem(i18n("Open &Recent"), recMenu);
+// 	recMenu->clear();
+// 	for (uint i = 0; i < recentFiles.count(); i++)
+// 		recMenu->insertItem(recentFiles.at(i));
+
 	p->insertItem(i18n("Browser..."), this, SLOT(openBrowser()));
 	p->insertSeparator();
-
-	p->insertItem(i18n("&Save"), this, SLOT(save()));
-	p->insertItem(i18n("S&ave as..."), this, SLOT(saveAs()));
 
 // 	QPopupMenu *imp = new QPopupMenu();
 // 	imp->insertItem(i18n("&MIDI file..."), this, SLOT(importMID()));
@@ -139,22 +153,21 @@ ApplicationWindow::ApplicationWindow(): KMainWindow()
 
 	p->insertSeparator();
 	p->insertItem(i18n("P&roperties..."), this, SLOT(songProperties()));
-	p->insertItem(i18n("&Print..."), this, SLOT(print()));
+	printAct->plug(p); printAct->plug(toolBar());
 	p->insertSeparator();
-	p->insertItem(i18n("&Close"), this, SLOT(closeDoc()));
-	p->insertItem(i18n("&Quit"),  this, SLOT(appQuit()));  //qApp, SLOT(quit()));
+	closeAct->plug(p);
+	quitAct->plug(p);
 	menuBar()->insertItem(i18n("&File"), p);
 
 	p = new QPopupMenu();
-	p->insertItem(i18n("&Track..."),this,SLOT(trackProperties()));
-	menuBar()->insertItem(i18n("&Edit"), p);
+	p->insertItem(i18n("&Properties..."), this, SLOT(trackProperties()));
+	menuBar()->insertItem(i18n("&Track"), p);
 
 	p = new QPopupMenu();
 	p->insertItem(i18n("&Chord"),this,SLOT(insertChord()));
 	menuBar()->insertItem(i18n("&Insert"),p);
 
 	p = new QPopupMenu();
-	p->insertItem(i18n("&Preferences..."), this, SLOT(options()));
 
 	tbMenu = new QPopupMenu();
 	tb[0] = tbMenu->insertItem(i18n("Main Toolbar"), this, SLOT(setMainTB()));
@@ -183,7 +196,13 @@ ApplicationWindow::ApplicationWindow(): KMainWindow()
 
 	p->insertItem(i18n("&Note names"), nnMenu);
 
+	preferencesAct->plug(p);
+
 	menuBar()->insertItem(i18n("&Settings"), p);
+
+	QString aboutmess = "KGuitar " VERSION "\n\n";
+	aboutmess += DESCRIPTION;
+	aboutmess += "\n(C) 2000 by KGuitar development team\n";
 
 	p = helpMenu();
 	
@@ -197,7 +216,7 @@ ApplicationWindow::ApplicationWindow(): KMainWindow()
 ApplicationWindow::~ApplicationWindow()
 {
 	delete tv;
-	delete printer;
+//	delete printer;
 }
 
 void ApplicationWindow::closeEvent(QCloseEvent *e)
@@ -250,14 +269,14 @@ bool ApplicationWindow::jazzWarning()
 									 "KGuitar") == KMessageBox::Yes;
 }
 
-void ApplicationWindow::newDoc()
+void ApplicationWindow::fileNew()
 {
 	ApplicationWindow *ed = new ApplicationWindow;
 	ed->resize(400, 400);
 	ed->show();
 }
 
-void ApplicationWindow::load()
+void ApplicationWindow::fileOpen()
 {
 	QString fn = KFileDialog::getOpenFileName(0, "*.kg", this);
 	if (!fn.isEmpty()) {
@@ -316,7 +335,7 @@ void ApplicationWindow::openBrowser()
 	delete fb;
 }
 
-void ApplicationWindow::save()
+void ApplicationWindow::fileSave()
 {
 	QString fn = tv->sng()->filename;
 
@@ -332,7 +351,7 @@ void ApplicationWindow::save()
 	}
 }
 
-void ApplicationWindow::saveAs()
+void ApplicationWindow::fileSaveAs()
 {
 	QString fn = KFileDialog::getSaveFileName(0, "*.kg", this);
 	if (!fn.isEmpty()) {
@@ -343,42 +362,42 @@ void ApplicationWindow::saveAs()
 	}
 }
 
-void ApplicationWindow::importMID()
+void ApplicationWindow::fileImportMid()
 {
 	QString fn = KFileDialog::getSaveFileName(0,"*.mid",this);
 	if (!fn.isEmpty())
 		tv->sng()->load_from_mid(fn);
 }
 
-void ApplicationWindow::exportMID()
+void ApplicationWindow::fileExportMid()
 {
 	QString fn = KFileDialog::getSaveFileName(0,"*.mid",this);
 	if (!fn.isEmpty())
 		tv->sng()->save_to_mid(fn);
 }
 
-void ApplicationWindow::exportTAB()
+void ApplicationWindow::fileExportTab()
 {
 	QString fn = KFileDialog::getSaveFileName(0,"*.tab",this);
 	if (!fn.isEmpty())
 		tv->sng()->save_to_tab(fn);
 }
 
-void ApplicationWindow::exportTEXTAB()
+void ApplicationWindow::fileExportTexTab()
 {
 	QString fn = KFileDialog::getSaveFileName(0,"*.tex",this);
 	if (!fn.isEmpty())
 		tv->sng()->save_to_tex_tab(fn);
 }
 
-void ApplicationWindow::exportTEXNOTES()
+void ApplicationWindow::fileExportTexNotes()
 {
 	QString fn = KFileDialog::getSaveFileName(0,"*.tex",this);
 	if (!fn.isEmpty())
 		tv->sng()->save_to_tex_notes(fn);
 }
 
-void ApplicationWindow::print()
+void ApplicationWindow::filePrint()
 {
 //	   const int MARGIN = 10;
 //	   int pageNo = 1;
@@ -414,14 +433,14 @@ void ApplicationWindow::print()
 
 }
 
-void ApplicationWindow::closeDoc()
+void ApplicationWindow::fileClose()
 {
 	close(TRUE); // close AND DELETE!
 }
 
-void ApplicationWindow::appQuit()
+void ApplicationWindow::fileQuit()
 {
-	closeDoc(); //ALINXFIX: exit(0) is impossible, because options will not be saved
+	fileClose(); //ALINXFIX: exit(0) is impossible, because options will not be saved
 }
 
 void ApplicationWindow::insertChord()
@@ -523,54 +542,58 @@ void ApplicationWindow::options()
 
 void ApplicationWindow::readOptions()
 {
-	kapp->sessionConfig()->setGroup("General");
-	globalMaj7 = kapp->sessionConfig()->readNumEntry("maj7", 0);
-	globalFlatPlus = kapp->sessionConfig()->readNumEntry("flatplus", 0);
-	globalNoteNames = kapp->sessionConfig()->readNumEntry("notenames", 0);
+	KConfig *config = kapp->config();
 
-	kapp->sessionConfig()->setGroup("MusiXTeX");
-	globalTabSize = kapp->sessionConfig()->readNumEntry("tabsize", 2);
-	globalShowBarNumb = kapp->sessionConfig()->readBoolEntry("showbarnumb", TRUE);
-	globalShowStr = kapp->sessionConfig()->readBoolEntry("showstr", TRUE);
-	globalShowPageNumb = kapp->sessionConfig()->readBoolEntry("showpagenumb", TRUE);
+	config->setGroup("General");
+	globalMaj7 = config->readNumEntry("Maj7", 0);
+	globalFlatPlus = config->readNumEntry("FlatPlus", 0);
+	globalNoteNames = config->readNumEntry("NoteNames", 0);
 
-	kapp->sessionConfig()->setGroup("Appearance");
-	globalShowMainTB = kapp->sessionConfig()->readBoolEntry("showMainTB", TRUE);
-	globalShowEditTB = kapp->sessionConfig()->readBoolEntry("showEditTB", TRUE);
-	globalMainTBPos = kapp->sessionConfig()->readNumEntry("mainTBPos", 0);
-	globalEditTBPos = kapp->sessionConfig()->readNumEntry("editTBPos", 0);
-	QSize size = kapp->sessionConfig()->readSizeEntry("geometry");
+	config->setGroup("MusiXTeX");
+	globalTabSize = config->readNumEntry("TabSize", 2);
+	globalShowBarNumb = config->readBoolEntry("ShowBarNumb", TRUE);
+	globalShowStr = config->readBoolEntry("ShowStr", TRUE);
+	globalShowPageNumb = config->readBoolEntry("ShowPageNumb", TRUE);
+
+	config->setGroup("Appearance");
+	globalShowMainTB = config->readBoolEntry("ShowMainTB", TRUE);
+	globalShowEditTB = config->readBoolEntry("ShowEditTB", TRUE);
+	globalMainTBPos = config->readNumEntry("MainTBPos", 0);
+	globalEditTBPos = config->readNumEntry("EditTBPos", 0);
+	QSize size = config->readSizeEntry("Geometry");
 	if (!size.isEmpty())
 		resize(size);
-	kapp->sessionConfig()->readListEntry("recentFiles", recentFiles);
+	config->readListEntry("RecentFiles", recentFiles);
 
-	kapp->sessionConfig()->setGroup("ALSA");
-	globalAlsaClient = kapp->sessionConfig()->readNumEntry("client", 64);
-	globalAlsaPort = kapp->sessionConfig()->readNumEntry("port", 0);
+	config->setGroup("ALSA");
+	globalAlsaClient = config->readNumEntry("client", 64);
+	globalAlsaPort = config->readNumEntry("port", 0);
 }
 
 void ApplicationWindow::saveOptions()
 {
-	kapp->sessionConfig()->setGroup("General");
-	kapp->sessionConfig()->writeEntry("maj7", globalMaj7);
-	kapp->sessionConfig()->writeEntry("flatplus", globalFlatPlus);
-	kapp->sessionConfig()->writeEntry("notenames", globalNoteNames);
+	KConfig *config = kapp->config();
 
-	kapp->sessionConfig()->setGroup("MusiXTeX");
-	kapp->sessionConfig()->writeEntry("tabsize", globalTabSize);
-	kapp->sessionConfig()->writeEntry("showbarnumb", globalShowBarNumb);
-	kapp->sessionConfig()->writeEntry("showstr", globalShowStr);
-	kapp->sessionConfig()->writeEntry("showpagenumb", globalShowPageNumb);
+	config->setGroup("General");
+	config->writeEntry("Maj7", globalMaj7);
+	config->writeEntry("FlatPlus", globalFlatPlus);
+	config->writeEntry("NoteNames", globalNoteNames);
 
-	kapp->sessionConfig()->setGroup("Appearance");
-	kapp->sessionConfig()->writeEntry("showMainTB", globalShowMainTB);
-	kapp->sessionConfig()->writeEntry("showEditTB", globalShowEditTB);
-	kapp->sessionConfig()->writeEntry("mainTBPos", toolBar()->barPos());
-	kapp->sessionConfig()->writeEntry("editTBPos", toolBar("Edit")->barPos());
-	kapp->sessionConfig()->writeEntry("geometry", size());
-	kapp->sessionConfig()->writeEntry("recentFiles", recentFiles);
+	config->setGroup("MusiXTeX");
+	config->writeEntry("TabSize", globalTabSize);
+	config->writeEntry("ShowBarNumb", globalShowBarNumb);
+	config->writeEntry("ShowStr", globalShowStr);
+	config->writeEntry("ShowPageNumb", globalShowPageNumb);
 
-	kapp->sessionConfig()->setGroup("ALSA");
-	kapp->sessionConfig()->writeEntry("client", globalAlsaClient);
-	kapp->sessionConfig()->writeEntry("port", globalAlsaPort);
+	config->setGroup("Appearance");
+	config->writeEntry("ShowMainTB", globalShowMainTB);
+	config->writeEntry("ShowEditTB", globalShowEditTB);
+	config->writeEntry("MainTBPos", toolBar()->barPos());
+	config->writeEntry("EditTBPos", toolBar("Edit")->barPos());
+	config->writeEntry("Geometry", size());
+	config->writeEntry("RecentFiles", recentFiles);
+
+	config->setGroup("ALSA");
+	config->writeEntry("Client", globalAlsaClient);
+	config->writeEntry("Port", globalAlsaPort);
 }
