@@ -15,23 +15,47 @@
 #include <qstring.h>
 #include <qlabel.h>
 
+QString notes_us1[12] = {"C",  "C#", "D",  "D#", "E",  "F",
+			 "F#", "G",  "G#", "A",  "A#", "B"};
+QString notes_us2[12] = {"C",  "Db", "D",  "Eb", "E",  "F",
+			 "Gb", "G",  "Ab", "A",  "Bb", "B"};
+QString notes_us3[12] = {"C",  "C#", "D",  "D#", "E",  "F",
+			 "F#", "G",  "G#", "A",  "A#", "B"};
+
+QString notes_eu1[12] = {"C",  "C#", "D",  "D#", "E",  "F",
+			 "F#", "G",  "G#", "A",  "A#", "H"};
+QString notes_eu2[12] = {"C",  "Db", "D",  "Eb", "E",  "F",
+			 "Gb", "G",  "Ab", "A",  "Hb", "H"};
+QString notes_eu3[12] = {"C",  "Db", "D",  "Eb", "E",  "F",
+			 "Gb", "G",  "Ab", "A",  "Hb", "H"};
+
+QString notes_jz1[12] = {"C",  "C#", "D",  "D#", "E",  "F",
+			 "F#", "G",  "G#", "A",  "B" , "H"};
+QString notes_jz2[12] = {"C",  "Db", "D",  "Eb", "E",  "F",
+			 "Gb", "G",  "Ab", "A",  "B" , "H"};
+QString notes_jz3[12] = {"C",  "Db", "D",  "Eb", "E",  "F",
+			 "Gb", "G",  "Ab", "A",  "B" , "H"};
+
 // Note names
 QString note_name(int num)
 {
-    switch (num) {
-        case 0:  return "C"; break;
-        case 1:  return "C#";break;
-        case 2:  return "D"; break;
-        case 3:  return "D#";break;
-        case 4:  return "E"; break;
-        case 5:  return "F"; break;
-        case 6:  return "F#";break;
-        case 7:  return "G"; break;
-        case 8:  return "G#";break;
-        case 9:  return "A"; break;
-        case 10: return "A#";break;
-        case 11: return "B"; break;
+    if ((num<0) || (num>11))
+	return "Unknown";
+
+    switch (global_notenames) {
+    case 0: return notes_us1[num];
+    case 1: return notes_us2[num];
+    case 2: return notes_us3[num];
+	
+    case 3: return notes_eu1[num];
+    case 4: return notes_eu2[num];
+    case 5: return notes_eu3[num];
+	
+    case 6: return notes_jz1[num];
+    case 7: return notes_jz2[num];
+    case 8: return notes_jz3[num];
     }
+
     return "Unknown";
 }
 
