@@ -49,10 +49,13 @@ void FingerList::mousePressEvent(QMouseEvent *e)
   int col = e->x()/ICONCHORD;
   int row = e->y()/ICONCHORD;
 
-  curSel = row*perRow+col;
-  repaint();
+  int n = row*perRow+col;
 
-  emit chordSelected(appl[curSel]);
+  if ((n>=0) && (n<num)) {
+    curSel = row*perRow+col;
+    repaint();    
+    emit chordSelected(appl[curSel]);
+  }
 }
 
 void FingerList::paintCell(QPainter *p, int row, int col)
