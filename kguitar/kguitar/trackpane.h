@@ -16,7 +16,7 @@ public:
 
 signals:
 	void newTrackSelected(TabTrack *);
-	void newBarSelected(int);
+	void newBarSelected(uint);
 
 protected:
 	virtual int cellHeight(int n);
