@@ -61,6 +61,9 @@
 // LVIFIX:
 // accidentals are ignored in staff-tuning
 
+// LVIFIX:
+// check value of <backup>
+
 #include "global.h"
 #include "accidentals.h"
 #include "musicxml.h"
@@ -698,6 +701,7 @@ void MusicXMLWriter::write(QTextStream& os)
 		trk = ts->t.at(it);
 		trk->calcVoices();
 		trk->calcStepAltOct();
+		trk->calcBeams();
 		os << "\n";
 		os << "\t<part id=\"P" << it+1 << "\">\n";
 
@@ -772,6 +776,48 @@ QString MusicXMLWriter::strAccid(Accidentals::Accid acc)
 		default:                   s = "unknown"; break;
 	}
 	return s;
+}
+
+// write beam bm at level l to QTextStream os
+
+static void writeBeam(QTextStream& os, int l, char bm)
+{
+	if (bm == 'n') {
+		return;
+	}
+	os << "\t\t\t\t<beam number=\"";
+	os << l << "\">";
+	switch (bm) {
+		case 'b': os << "backward hook"; break;
+		case 'c': os << "continue";      break;
+		case 'e': os << "end";           break;
+		case 'f': os << "forward hook";  break;
+		case 's': os << "begin";         break;
+		default:  /* nothing */ ;        break;
+	}
+	os << "</beam>\n";
+}
+
+// write beams of voice v of column x of TabTrack trk to QTextStream os
+
+void MusicXMLWriter::writeBeams(QTextStream& os, TabTrack * trk, int x, int v)
+{
+	StemInfo * stxt = 0;
+	if (v == 0) {
+		stxt = & trk->c[x].stl;
+	} else {
+		stxt = & trk->c[x].stu;
+	}
+	/*
+	cout
+		<< "writeBeams()"
+		<< " x=" << x
+		<< " v=" << v
+		<< " l1..3=" << stxt->l1 << stxt->l2 << stxt->l3 << endl;
+	*/
+	writeBeam(os, 1, stxt->l1);
+	writeBeam(os, 2, stxt->l2);
+	writeBeam(os, 3, stxt->l3);
 }
 
 // write voice v of column x of TabTrack trk to QTextStream os
@@ -950,16 +996,20 @@ int MusicXMLWriter::writeCol(QTextStream& os, TabTrack * trk, int x, int v)
 				<< "</octave>\n";
 			os << "\t\t\t\t</pitch>\n";
 			os << "\t\t\t\t<duration>" << duration << "</duration>\n";
-			os << "\t\t\t\t<voice>" << v + 1 << "</voice>\n";
 			if (tieStart) {
 				os << "\t\t\t\t<tie type=\"start\"/>\n";
 			}
 			if (tieStop) {
 				os << "\t\t\t\t<tie type=\"stop\"/>\n";
 			}
+			os << "\t\t\t\t<voice>" << v + 1 << "</voice>\n";
 			os << "\t\t\t\t<type>" << kgNoteLen2Mxml(length) << "</type>\n";
 			if (dots) {
 				os << "\t\t\t\t<dot/>\n";
+			}
+			if (trk->c[x].acc[i] != Accidentals::None) {
+				os << "\t\t\t\t<accidental>" << strAccid(trk->c[x].acc[i])
+					<< "</accidental>\n";
 			}
 			if (trpCnt) {
 				os << "\t\t\t\t<time-modification>\n";
@@ -967,9 +1017,12 @@ int MusicXMLWriter::writeCol(QTextStream& os, TabTrack * trk, int x, int v)
 				os << "\t\t\t\t\t<normal-notes>2</normal-notes>\n";
 				os << "\t\t\t\t</time-modification>\n";
 			}
-			if (trk->c[x].acc[i] != Accidentals::None)
-				os << "\t\t\t\t<accidental>" << strAccid(trk->c[x].acc[i])
-					<< "</accidental>\n";
+			if (v == 0) {
+				os << "\t\t\t\t<stem>down</stem>\n";
+			} else {
+				os << "\t\t\t\t<stem>up</stem>\n";
+			}
+			writeBeams(os, trk, x, v);
 			os << "\t\t\t\t<notations>\n";
 			if (legStop) {
 				os << "\t\t\t\t\t<slur type=\"stop\"/>\n";

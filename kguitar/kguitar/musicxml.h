@@ -105,6 +105,7 @@ public:
 	void write(QTextStream&);
 private:
 	QString strAccid(Accidentals::Accid);
+	void writeBeams(QTextStream&, TabTrack *, int, int);
 	int writeCol(QTextStream&, TabTrack *, int, int);
 	void writePitch(QTextStream&, int, QString, QString);
 	void writeStaffDetails(QTextStream&, TabTrack *);
