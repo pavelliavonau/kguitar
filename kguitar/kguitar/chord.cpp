@@ -3,8 +3,7 @@
 #include "fingerlist.h"
 #include "chordlist.h"
 #include "tabsong.h"
-
-#include "strum.h"
+#include "strumming.h"
 
 #include <kapp.h>
 
@@ -81,6 +80,7 @@ ChordSelector::ChordSelector(TabTrack *p, QWidget *parent = 0,
 							 const char *name = 0): QDialog(parent, name, TRUE)
 {
 	parm = p;
+	strum_scheme = 0;
 
 	chname = new QLineEdit(this);
 	chname->setMinimumHeight(20);
@@ -181,13 +181,6 @@ ChordSelector::ChordSelector(TabTrack *p, QWidget *parent = 0,
 	complexity->setButton(0);
 	connect(complexity, SIGNAL(clicked(int)), SLOT(findChords()));
 
-	// CHORD INSERTION OPTIONS & STRUMMING
-
-	strum = new QComboBox(FALSE, this);
-	for (int i = 0; lib_strum[i].len[0]; i++)
-		strum->insertItem(lib_strum[i].name);
-	strum->setMinimumSize(150, 25);
-
 	// CHORD ANALYZER
 
 	fng = new Fingering(p, this);
@@ -206,7 +199,7 @@ ChordSelector::ChordSelector(TabTrack *p, QWidget *parent = 0,
 	
 	// DIALOG BUTTONS
 	
-	QPushButton *ok, *cancel;
+	QPushButton *ok, *cancel, *strumbut;
 
 	ok = new QPushButton(i18n("OK"), this);
 	ok->setMinimumSize(75, 30);
@@ -215,6 +208,10 @@ ChordSelector::ChordSelector(TabTrack *p, QWidget *parent = 0,
 	cancel = new QPushButton(i18n("Cancel"), this);
 	cancel->setMinimumSize(75, 30);
 	connect(cancel, SIGNAL(clicked()), SLOT(reject()));
+
+	strumbut = new QPushButton(i18n("&Strum..."), this);
+	strumbut->setMinimumSize(75, 30);
+	connect(strumbut, SIGNAL(clicked()), SLOT(askStrum()));
 
 	// LAYOUT MANAGEMENT
 
@@ -277,14 +274,22 @@ ChordSelector::ChordSelector(TabTrack *p, QWidget *parent = 0,
 	// Strumming and buttons stuff layout
 	QBoxLayout *lstrum = new QVBoxLayout();
 	l->addLayout(lstrum);
-	lstrum->addWidget(strum);
 	lstrum->addStretch(1);
+	lstrum->addWidget(strumbut);
 	lstrum->addWidget(ok);
 	lstrum->addWidget(cancel);
 
 	l->activate();
 
 	setCaption(i18n("Chord constructor"));
+}
+
+void ChordSelector::askStrum()
+{
+	Strumming strum(strum_scheme);
+
+	if (strum.exec())
+		strum_scheme = strum.scheme();
 }
 
 // Try to detect some chord forms from a given applicature.
