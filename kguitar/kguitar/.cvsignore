@@ -6,6 +6,10 @@ kguitar
 libkguitar.la
 libkguitar.la.closure
 libkguitar_la_meta_unload.cpp
+kguitar_meta_unload.cpp
 *.moc.cpp
 *.lo
 *.moc.lo
+settabmidibase.cpp
+settabmidibase.h
+settabmidibase.moc
