@@ -2,19 +2,23 @@
 
 #include <qpainter.h>
 #include <qdrawutil.h>
-#include <qcheckbox.h>
 #include <qevent.h>
 #include <qbrush.h>
 #include <qstring.h>
+#include <qscrollbar.h>
 
 Fingering::Fingering(int strings,QWidget *parent,const char *name): QFrame(parent,name)
 {
-  firstFret = 1;
   numstr = strings;
+  lastff=1;
   
-  setFixedSize(numstr*SCALE+2*BORDER+FRETTEXT,NUMFRETS*SCALE+SCALE+2*BORDER+2*SPACER);
+  setFixedSize(numstr*SCALE+2*BORDER+FRETTEXT+SCROLLER,NUMFRETS*SCALE+SCALE+2*BORDER+2*SPACER);
   setFrameStyle(Panel | Sunken);
   setBackgroundMode(PaletteBase);
+
+  ff = new QScrollBar(1,24-NUMFRETS,1,5,1,QScrollBar::Vertical,this);
+  ff->setGeometry(width()-SCROLLER,0,SCROLLER,height());
+  connect(ff,SIGNAL(valueChanged(int)),SLOT(setFirstFret(int)));
   
   clear();
 }
@@ -37,6 +41,21 @@ void Fingering::setFinger(int string, int fret)
 
 void Fingering::setFingering(const int a[MAX_STRINGS])
 {
+  int f=24;
+  bool noff=TRUE;
+  
+  for (int i=0;i<numstr;i++) {
+    if ((a[i]<f) && (a[i]>0))
+      f=a[i];
+    if (a[i]>5)
+      noff=FALSE;
+  }
+  
+  if (noff)
+    f=1;
+
+  ff->setValue(f);
+
   for (int i=0;i<MAX_STRINGS;i++)
     appl[i]=a[i];
   repaint();
@@ -47,9 +66,10 @@ void Fingering::setFirstFret(int fret)
 {
   for (int i=0;i<numstr;i++)
     if (appl[i]>0)
-      appl[i]=appl[i]-firstFret+fret;
+      appl[i]=appl[i]-lastff+fret;
 
-  firstFret=fret;
+  lastff=fret;
+
   repaint();
   emit chordChange();
 }
@@ -59,13 +79,13 @@ void Fingering::mouseHandle(const QPoint &pos,bool domute)
   int i=(pos.x()-BORDER-FRETTEXT)/SCALE;
   int j=0;
   if (pos.y()>BORDER+SCALE+2*SPACER) {
-    j=(pos.y()-BORDER-SCALE-2*SPACER)/SCALE+firstFret;
+    j=(pos.y()-BORDER-SCALE-2*SPACER)/SCALE+ff->value();
   }
 
   if ((domute) && (appl[i]==j))
     j=-1;
 
-  if (!((i<0) || (i>=numstr) || (j>=firstFret+NUMFRETS)))
+  if (!((i<0) || (i>=numstr) || (j>=ff->value()+NUMFRETS)))
     setFinger(i,j); 
 }
 
@@ -97,7 +117,7 @@ void Fingering::drawContents(QPainter *p)
   // Beginning fret number
 
   QString fs;
-  fs.setNum(firstFret);
+  fs.setNum(ff->value());
 
   p->drawText(BORDER,BORDER+SCALE+2*SPACER,50,50,AlignLeft | AlignTop,fs);
 
@@ -116,7 +136,7 @@ void Fingering::drawContents(QPainter *p)
       p->drawEllipse(i*SCALE+BORDER+CIRCBORD+FRETTEXT,BORDER+CIRCBORD,CIRCLE,CIRCLE);
     } else {
       p->setBrush(SolidPattern);
-      p->drawEllipse(i*SCALE+BORDER+CIRCBORD+FRETTEXT,BORDER+SCALE+2*SPACER+(appl[i]-firstFret)*SCALE+
+      p->drawEllipse(i*SCALE+BORDER+CIRCBORD+FRETTEXT,BORDER+SCALE+2*SPACER+(appl[i]-ff->value())*SCALE+
 		     CIRCBORD,CIRCLE,CIRCLE);
     };
   }
@@ -127,13 +147,13 @@ void Fingering::drawContents(QPainter *p)
 
   for (int i=0;i<NUMFRETS;i++) {
     barre=0;
-    while ((appl[numstr-barre-1]>=(i+firstFret)) || (appl[numstr-barre-1]==-1)) {
+    while ((appl[numstr-barre-1]>=(i+ff->value())) || (appl[numstr-barre-1]==-1)) {
       barre++;
       if (barre>numstr-1)
 	break;
     }
 
-    while ((appl[numstr-barre]!=(i+firstFret)) && (barre>1))
+    while ((appl[numstr-barre]!=(i+ff->value())) && (barre>1))
       barre--;
 
     eff=0;
@@ -148,33 +168,3 @@ void Fingering::drawContents(QPainter *p)
     }
   }
 }
-
-// void Fingering::paintEvent( QPaintEvent * e )
-// {
-//     int starti = pos2index( e->rect().left() );
-//     int stopi  = pos2index( e->rect().right() );
-//     int startj = pos2index( e->rect().top() );
-//     int stopj  = pos2index( e->rect().bottom() );
-
-//     if (stopi > maxi)
-//         stopi = maxi;
-//     if (stopj > maxj)
-//         stopj = maxj;
-
-//     QPainter paint( this );
-
-//     for ( int i = starti; i <= stopi; i++ ) {
-//         for ( int j = startj; j <= stopj; j++ ) {
-//             if ( cells[current][i][j] )
-//                 // could avoid this if cells[!current][i][j] and this
-//                 // is a repaint(FALSE)... probably not worth it
-//                 qDrawShadePanel( &paint, index2pos( i ), index2pos( j ),
-//                                  SCALE - 1, SCALE - 1, colorGroup() );
-//             else if ( cells[!current][i][j] )
-//                 paint.eraseRect( index2pos( i ), index2pos( j ),
-//                                  SCALE - 1, SCALE - 1);
-//         }
-//     }
-
-//     drawFrame( &paint );
-// }
