@@ -11,6 +11,7 @@ class TabTrack;
 class QListViewItem;
 class KXMLGUIClient;
 class KCommandHistory;
+class QFont;
 
 class TrackView: public QTableView {
 	Q_OBJECT
@@ -105,7 +106,8 @@ private:
 	KXMLGUIClient *m_XMLGUIClient;
 	KCommandHistory *m_cmdHist;
 
-	// 	QFont *timeSigFont, *smallCaptionFont;
+	QFont *timeSigFont;
+	QFont *smallCaptionFont;
 
 	char lastnumber;
 	int selxcoord;
