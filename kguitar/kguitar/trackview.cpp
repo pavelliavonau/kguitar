@@ -21,7 +21,7 @@ TrackView::TrackView(QWidget *parent,const char *name): QTableView(parent,name)
     setFocusPolicy(QWidget::StrongFocus);
 
     song = new TabSong("Unnamed",120);
-    song->t.append(new TabTrack(GuitarTab,"Guitar",0,25,6,24));
+    song->t.append(new TabTrack(GuitarTab,"Guitar",1,0,25,6,24));
 
     curt = song->t.first();
 
