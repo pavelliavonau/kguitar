@@ -1,4 +1,5 @@
 #include "songview.h"
+#include "songviewcommands.h"
 #include "global.h"
 #include "trackview.h"
 #include "tracklist.h"
@@ -148,7 +149,7 @@ bool SongView::trackNew()
 	// track creation, then he doesn't seem to want the new track, so
 	// we'll destroy it.
 
-	if (!trackProperties()) {
+	if (!setTrackProperties()) {
 		tv->setCurt(oldtr);
 		song->t.removeLast();
 		return FALSE;
@@ -178,6 +179,10 @@ void SongView::trackDelete()
 		tv->update();
 		tl->updateList();
 		tp->updateList();
+
+		//ALINXFIX: until trackDelete will be a command
+		//          do safe things:
+		m_cmdHist->clear();
 	}
 }
 
@@ -239,6 +244,61 @@ void SongView::trackBassLine()
 bool SongView::trackProperties()
 {
 	bool res = FALSE;
+	TabTrack *newtrk = new TabTrack(FretTab, "", song->freeChannel(), 0, 25, 6, 24);
+
+	newtrk->name = tv->trk()->name;
+	newtrk->channel = tv->trk()->channel;
+	newtrk->bank = tv->trk()->bank;
+	newtrk->patch = tv->trk()->patch;
+	newtrk->setTrackMode(tv->trk()->trackMode());
+
+	newtrk->string= tv->trk()->string;
+	newtrk->frets = tv->trk()->frets;
+
+	for (int i = 0; i < tv->trk()->string; i++)
+		newtrk->tune[i] = tv->trk()->tune[i];
+
+
+	SetTrack *st = new SetTrack(newtrk);
+
+	if (st->exec()) {
+		newtrk->name = st->title->text();
+		newtrk->channel = st->channel->value();
+		newtrk->bank = st->bank->value();
+		newtrk->patch = st->patch->value();
+		newtrk->setTrackMode((TrackMode) st->mode->currentItem());
+
+		// Fret tab
+		if (st->mode->currentItem() == FretTab) {
+			SetTabFret *fret = (SetTabFret *) st->modespec;
+			newtrk->string = fret->string();
+			newtrk->frets = fret->frets();
+			for (int i = 0; i < newtrk->string; i++)
+				newtrk->tune[i] = fret->tune(i);
+		}
+
+		// Drum tab
+		if (st->mode->currentItem() == DrumTab) {
+			SetTabDrum *drum = (SetTabDrum *) st->modespec;
+			newtrk->string = drum->drums();
+			newtrk->frets = 0;
+			for (int i = 0; i < newtrk->string; i++)
+				newtrk->tune[i] = drum->tune(i);
+		}
+
+		m_cmdHist->addCommand(new SetTrackPropCommand(tv, tl, tp, tv->trk(), newtrk));
+		res = TRUE;
+	}
+
+	delete st;
+	delete newtrk;
+	return res;
+}
+
+// Sets track's properties called from trackNew
+bool SongView::setTrackProperties()
+{
+	bool res = FALSE;
 	SetTrack *st = new SetTrack(tv->trk());
 
 	if (st->exec()) {
@@ -290,10 +350,8 @@ void SongView::songProperties()
 	ss->comments->setReadOnly(isBrowserView);
 
 	if (ss->exec()) {
-		song->title = ss->title->text();
-		song->author = ss->author->text();
-		song->transcriber = ss->transcriber->text();
-		song->comments = ss->comments->text();
+		m_cmdHist->addCommand(new SetSongPropCommand(song, ss->title->text(), ss->author->text(),
+													 ss->transcriber->text(), ss->comments->text()));
 	}
 
 	delete ss;
@@ -520,7 +578,7 @@ void SongView::slotCut()
 	}
 
 	QApplication::clipboard()->setData(new TrackDrag(highlightedTabs()));
-	tv->deleteColumn();
+	tv->deleteColumn(i18n("Cut to clipboard"));
 }
 
 void SongView::slotCopy()
@@ -599,25 +657,13 @@ TabTrack *SongView::highlightedTabs()
 
 void SongView::insertTabs(TabTrack* trk)
 {
-	kdDebug() << "SongView::insertTabs(TabTrack* trk)" << endl;
+	kdDebug() << "SongView::insertTabs(TabTrack* trk) " << endl;
 
 	if (!trk)
 		kdDebug() << "   trk == NULL" << endl;
 	else kdDebug() << "   trk with data" << endl;
 
-	uint pdelta, pstart, pend;
-
-	if (trk->x <= trk->xsel) {
-		pend = trk->xsel;
-		pstart = trk->x;
-	} else {
-		pend = trk->x;
-		pstart = trk->xsel;
-	}
-
-	pdelta = pend - pstart + 1;
-
-	//ALINXFIX: Make it more flexible.
+	//ALINXFIX: Make it more flexible. (songviewcommands.cpp)
 	QString msg(i18n("There are some problems:\n\n"));
 	bool err = FALSE;
 	bool errtune = FALSE;
@@ -653,25 +699,6 @@ void SongView::insertTabs(TabTrack* trk)
 		return;
 	}
 
-
-	//ALINXFIX: Insert all columns (that's what I do now) or insert
-	//          c.size()-1 columns and change the strings where the
-	//          cursor is (trk->x)??
-	uint col = trk->c.size();
-	uint _x = tv->trk()->x;
-
-	for (uint i = 1; i <= col; i++)
-		tv->insertColumn();
-
-	for (uint i = 0; i <= col - 1; i++) {
-		tv->trk()->c[_x].l = trk->c[i].l;
-		tv->trk()->c[_x].flags = trk->c[i].flags;
-
-		for (uint k = 0; k < tv->trk()->string; k++) {
-			tv->trk()->c[_x].a[k] = trk->c[i].a[k];
-			tv->trk()->c[_x].e[k] = trk->c[i].e[k];
-		}
-		_x++;
-	}
+	m_cmdHist->addCommand(new InsertTabsCommand(tv, tv->trk(), trk));
 }
 

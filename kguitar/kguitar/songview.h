@@ -51,6 +51,7 @@ private slots:
 private:
 	TabTrack *highlightedTabs();
 	void insertTabs(TabTrack* trk);
+	bool setTrackProperties();
 
 	QSplitter *split, *splitv;
 	DeviceManager *midi;
