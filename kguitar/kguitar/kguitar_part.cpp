@@ -165,7 +165,7 @@ bool KGuitarPart::openFile()
 #ifdef WITH_TSE3
 	if (ext == "mid")  converter = new ConvertMidi(sv->song());
 #endif
-	if (ext == "gtp")  converter = new ConvertGtp(sv->song());
+	if (ext == "gp4")  converter = new ConvertGtp(sv->song());
 	if (ext == "gp3")  converter = new ConvertGp3(sv->song());
 	if (ext == "xml")  converter = new ConvertXml(sv->song());
 	
@@ -259,7 +259,7 @@ bool KGuitarPart::saveFile()
 		success = converter.save(m_file);
 	}
 #endif
-	if (ext == "gtp") {
+	if (ext == "gp4") {
 		ConvertGtp converter(sv->song());
 		success = converter.save(m_file);
 	}
@@ -297,7 +297,7 @@ void KGuitarPart::fileSaveAs()
 		"*.tab|" + i18n("ASCII files") + " (*.tab)\n"
 		"*.mid|" + i18n("MIDI files") + " (*.mid)\n"
 		"*.tse3|" + i18n("TSE3MDL files") + " (*.tse3)\n"
-		"*.gtp|" + i18n("Guitar Pro files") + " (*.gtp)\n"
+		"*.gp4|" + i18n("Guitar Pro 4 files") + " (*.gp4)\n"
 		"*.gp3|" + i18n("Guitar Pro 3 files") + " (*.gp3)\n"
 		"*.xml|" + i18n("MusicXML files") + " (*.xml)\n"
 		"*.tex|" + i18n("MusiXTeX") + " (*.tex)\n"
