@@ -79,6 +79,7 @@ private:
 	TSE3::Metronome *metronome;
 	PlaybackTracker *tracker;
 	bool initMidi();
+	void playAllNoteOff();
 #endif
 };
 

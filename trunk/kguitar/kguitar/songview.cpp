@@ -328,10 +328,13 @@ void SongView::songProperties()
 	ss->transcriber->setReadOnly(isBrowserView);
 	ss->comments->setText(song->comments);
 	ss->comments->setReadOnly(isBrowserView);
+	ss->tempo->setValue(song->tempo);
+// 	ss->tempo->setReadOnly(isBrowserView); // GREYFIX
 
 	if (ss->exec()) {
 		cmdHist->addCommand(new SetSongPropCommand(song, ss->title->text(), ss->author->text(),
-												   ss->transcriber->text(), ss->comments->text()));
+												   ss->transcriber->text(), ss->comments->text(),
+												   ss->tempo->value()));
 	}
 
 	delete ss;
@@ -375,6 +378,7 @@ void SongView::playSong()
 
 	// Play and wait for the end
 	transport->play(tsong, startclock);
+	tv->setPlaybackCursor(TRUE);
 
 	do {
 		kapp->processEvents();
@@ -385,7 +389,10 @@ void SongView::playSong()
 
 	delete tsong;
 
-	midiInUse = FALSE;
+	tv->setPlaybackCursor(FALSE);
+
+	// Create and play panic sequence to stop all sounds
+	playAllNoteOff();
 #endif
 }
 
@@ -398,6 +405,26 @@ void SongView::stopPlay()
 }
 
 #ifdef WITH_TSE3
+// Plays so called "panic" events in various styles to shut off any
+// stuck playing MIDI note
+void SongView::playAllNoteOff()
+{
+	kdDebug() << "SongView::playSong: starting panic on stop" << endl;
+	TSE3::Panic panic;
+	panic.setAllNotesOff(TRUE);
+// 	panic.setAllNotesOffManually(TRUE);
+	transport->play(&panic, TSE3::Clock());
+
+	do {
+		kapp->processEvents();
+		transport->poll();
+	} while (transport->status() != TSE3::Transport::Resting);
+
+	midiInUse = FALSE;
+
+	kdDebug() << "SongView::playSong: completed panic on stop" << endl;
+}
+
 bool SongView::initMidi()
 {
 	if (!scheduler) {
