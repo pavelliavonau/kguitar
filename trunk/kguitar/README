@@ -160,3 +160,77 @@ manually or quickly selected from a library.
 
 Moreover, one can save and load current song in the .kg files. All
 properties are also saved into the files.
+
+
+MusiXTeX EXPORT
+===============
+
+It's possible to print your tabulatures. You'll need several external
+things to do that:
+
+* TeX typesetting engine. If you use Linux, use tetex from your
+  distribution.
+
+* MusiXTeX package. You can get it from the following places:
+  ftp://ftp.dante.de/tex-archive/macros/musixtex/taupin
+  http://www.gmd.de/Misc/Music
+
+The third component - a set of macros, required to typeset
+tabulatures, is supplied with KGuitar. You have to install it manually
+for now, so just copy file "kguitar/kgtabs.tex" to the MusiXTeX
+directory (it's something like /usr/share/texmf/tex/generic/musixtex).
+
+Okay, when you have everything installed and ready to go, do the
+following:
+
+1) Do "File/Export/MusiXTeX" from KGuitar. You'll get a .tex file.
+
+2) Do
+
+	tex your-file.tex
+
+   (replacing "your-file" with the real name of your file, of
+   course). You'll get a .dvi file.
+
+3) You can preview a .dvi file before printing, do
+
+	xdvi your-file.tex
+
+   or
+
+	kdvi your-file.tex
+
+   depending of what sort of dvi parser you have installed with
+   TeX. Preview would look ugly, anyway, because some postscript
+   tricks used to make the number background clear.
+
+4) Print the .dvi file with something like
+
+	dvips your-file.tex
+
+   if you have a postscript printer (or postscript filters installed),
+   or something like
+
+	dvilj your-file.tex
+
+   if you want to use your printer's native driver (and have it
+   installed too)
+
+
+MIDI EXPORT
+===========
+
+MIDI export function outputs a complete midi file that can be opened
+in any sequencer and played in any player or synth. Most properties of
+KG files are exported, such as:
+
+* Song name
+
+* Song author
+
+* Tracks' names
+
+* MIDI channel, patches and banks selection
+
+Tabulature effects are also emulated to get the same song in MIDI as
+if played on real instrument.
