@@ -1,11 +1,8 @@
 #include "tabtrack.h"
 
-#include "strumlib.h"
-
-extern strummer lib_strum[];
 
 TabTrack::TabTrack(TrackMode _tm, QString _name, int _channel,
-                   int _bank, uchar _patch, uchar _string, uchar _frets)
+				   int _bank, uchar _patch, uchar _string, uchar _frets)
 {
 	tm=_tm;
 	name=_name;
@@ -97,52 +94,6 @@ void TabTrack::insertColumn(uint n)
 	for (uint i = 0; i < n; i++)
 		for (uint j = 0; j < MAX_STRINGS; j++)
 			 c[x + i].a[j] = -1;
-}
-
-// Inserts a chord, stated in chord array,
-void TabTrack::insertStrum(int sch, int *chord)
-{
-	if (sch == 0) { // Special "chord" scheme
-		for (int i = 0; i < string; i++)
-			c[x].a[i] = chord[i];
-	} else { // Normal strum pattern scheme
-		int mask, r;
-		bool inv;
-		for (int j = 0; lib_strum[sch].len[j]; j++) {
-			if (x + j + 1 > c.size())
-				c.resize(c.size() + 1);
-			c[x + j].flags = 0;
-			inv = lib_strum[sch].len[j] < 0;
-			c[x + j].l = inv ? -lib_strum[sch].len[j] : lib_strum[sch].len[j];
-
-			mask = lib_strum[sch].mask[j];
-
-			if (mask > 0) { // Treble notation
-				r = 0; // "Real" string counter
-				for (int i = string - 1; i >= 0; i--) {
-					if (inv)
-						c[x + j].a[i] = (mask & (1 << r)) ? -1 : chord[i];
-					else
-						c[x + j].a[i] = (mask & (1 << r)) ? chord[i] : -1;
-					c[x + j].e[i] = 0;
-					if (chord[i] != -1)
-						r++;
-				}
-			} else { // Bass notation
-				mask = -mask;
-				r = 0; // "Real" string counter
-				for (int i = 0; i < string; i++) {
-					if (inv)
-						c[x + j].a[i] = (mask & (1 << r)) ? -1 : chord[i];
-					else
-						c[x + j].a[i] = (mask & (1 << r)) ? chord[i] : -1;
-					c[x + j].e[i] = 0;
-					if (chord[i] != -1)
-						r++;
-				}
-			}
-		}
-	}
 }
 
 // Removes n columns starting with current cursor position

@@ -196,10 +196,9 @@ void TrackView::insertChord()
 	if (cs.exec()) {
 		for (i = 0; i < curt->string; i++)
 			a[i] = cs.app(i);
-		curt->insertStrum(cs.scheme(), a);
+		m_cmdHist->addCommand(new InsertStrumCommand(this, curt, cs.scheme(), a));
 	}
 
-	update();
 	lastnumber = -1;
 }
 
@@ -651,6 +650,7 @@ void TrackView::keyMinus()
 
 void TrackView::arrangeTracks()
 {
+	m_cmdHist->clear();       // because columns will be changed
 	curt->arrangeBars();
 	emit statusBarChanged();
 	updateRows();

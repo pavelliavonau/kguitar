@@ -5,9 +5,12 @@
 #include "trackviewcommands.h"
 #include "tabtrack.h"
 #include "trackview.h"
+#include "strumlib.h"
 
 #include <klocale.h>
 #include <kdebug.h>
+
+extern strummer lib_strum[];
 
 SetLengthCommand::SetLengthCommand(TrackView *_tv, TabTrack *&_trk, int l):
 	KCommand(i18n("Set duration"))
@@ -679,4 +682,127 @@ void InsertColumnCommand::unexecute()
     tv->repaintCurrentCell();
 }
 
+InsertStrumCommand::InsertStrumCommand(TrackView *_tv, TabTrack *&_trk, int _sch, int *_chord):
+	KCommand(i18n("Insert strum"))
+{
+	trk   = _trk;
+	tv    = _tv;
+	x     = trk->x;
+	y     = trk->y;
+	xsel  = trk->xsel;
+	sel   = trk->sel;
+	sch   = _sch;
+
+	for (int i = 0; i < trk->string; i++)
+		chord[i]  = _chord[i];
+
+	if (sch == 0)
+		setName(i18n("Insert Chord"));
+}
+
+InsertStrumCommand::~InsertStrumCommand()
+{
+}
+
+void InsertStrumCommand::execute()
+{
+	trk->x = x;
+	trk->y = y;
+	trk->sel = FALSE;
+
+	toadd = 0;
+	c.resize(1);
+
+	if (sch == 0) { // Special "chord" scheme
+		for (int i = 0; i < trk->string; i++)
+			trk->c[x].a[i] = chord[i];
+	} else { // Normal strum pattern scheme
+		int mask, r;
+		bool inv;
+
+		for (int j = 1; lib_strum[sch].len[j]; j++) {
+			c.resize(c.size() + 1);
+			for (int k = 0; k < MAX_STRINGS; k++) {
+				c[j].a[k] = -1;
+				c[j].e[k] = 0;
+			}
+		}
+
+		for (int j = 0; lib_strum[sch].len[j]; j++) {
+			if (x + j + 1 > trk->c.size()) {
+				trk->c.resize(trk->c.size() + 1);
+				toadd++;
+				for (int k = 0; k < MAX_STRINGS; k++)
+					trk->c[x + j].a[k] = -1;
+			}
+			c[j].flags = trk->c[x + j].flags;
+			trk->c[x + j].flags = 0;
+			inv = lib_strum[sch].len[j] < 0;
+			c[j].l = trk->c[x + j].l;
+			trk->c[x + j].l = inv ? -lib_strum[sch].len[j] : lib_strum[sch].len[j];
+
+			mask = lib_strum[sch].mask[j];
+
+			if (mask > 0) { // Treble notation
+				r = 0; // "Real" string counter
+				for (int i = trk->string - 1; i >= 0; i--) {
+					c[j].a[i] = trk->c[x + j].a[i];
+					c[j].e[i] = trk->c[x + j].e[i];
+					if (inv)
+						trk->c[x + j].a[i] = (mask & (1 << r)) ? -1 : chord[i];
+					else
+						trk->c[x + j].a[i] = (mask & (1 << r)) ? chord[i] : -1;
+					trk->c[x + j].e[i] = 0;
+					if (chord[i] != -1)
+						r++;
+				}
+			} else { // Bass notation
+				mask = -mask;
+				r = 0; // "Real" string counter
+				for (int i = 0; i < trk->string; i++) {
+					c[j].a[i] = trk->c[x + j].a[i];
+					c[j].e[i] = trk->c[x + j].e[i];
+					if (inv)
+						trk->c[x + j].a[i] = (mask & (1 << r)) ? -1 : chord[i];
+					else
+						trk->c[x + j].a[i] = (mask & (1 << r)) ? chord[i] : -1;
+					trk->c[x + j].e[i] = 0;
+					if (chord[i] != -1)
+						r++;
+				}
+			}
+		}
+	}
+
+	tv->update();
+	tv->repaintCurrentCell();
+}
+
+void InsertStrumCommand::unexecute()
+{
+	trk->x = x;
+	trk->y = y;
+	trk->xsel = xsel;
+	trk->sel = sel;
+
+	if (toadd > 0) {
+		trk->x++;
+		for (int i = 0; i < toadd; i++)
+			trk->removeColumn(1);
+		trk->x = x;
+	}
+
+	for (int k = 0; k < c.size() - toadd; k++) {
+		for (int i = 0; i < trk->string; i++) {
+			trk->c[x + k].a[i] = c[k].a[i];
+			trk->c[x + k].e[i] = c[k].e[i];
+		}
+
+		trk->c[x + k].l     = c[k].l;
+		trk->c[x + k].flags = c[k].flags;
+	}
+
+	tv->update();
+	tv->repaintCurrentCell();
+}
 
