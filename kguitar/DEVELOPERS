@@ -20,7 +20,9 @@ Releasing a new version
 =======================
 
 1) Update version numbers everywhere
-2) Do "make -f Makefile.dist dist"
-3) Changed main directory name to "kguitar-versionnumber"
-4) Pack all the thing into tarball
-5) Test new release
+2) Commit everything to CVS repository
+3) Export everything from CVS
+4) Do "make -f Makefile.dist dist"
+5) Changed main directory name to "kguitar-versionnumber"
+6) Pack all the thing into tarball
+7) Test new release
