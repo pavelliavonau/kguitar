@@ -14,8 +14,6 @@ extern bool globalShowPageNumb;
 // Appearance
 extern bool globalShowMainTB;
 extern bool globalShowEditTB;
-extern int globalMainTBPos;
-extern int globalEditTBPos;
 
 // ALSA MIDI
 extern int globalAlsaClient;
