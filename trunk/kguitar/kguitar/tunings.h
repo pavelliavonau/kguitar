@@ -51,5 +51,5 @@ tuning lib_tuning[] = {
 
     { 4, {57,50,54,59},             i18n("Ukulele (4): standard") },
 
-    { 0, 0, 0 }
+    { 0, {}, 0 }
 };
