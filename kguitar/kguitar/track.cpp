@@ -109,8 +109,8 @@ bool TabSong::save_to_kg(const char* fileName)
 	TabTrack *trk = it.current();
 
 	s << (Q_UINT8) trk->trackmode();// Track properties
-	s << (Q_UINT16) trk->bank();    
-	s << (Q_UINT8) trk->patch();
+	s << (Q_UINT16) trk->bank;
+	s << (Q_UINT8) trk->patch;
 	s << (Q_UINT8) trk->string();
 	for (int i=0;i<trk->string();i++)
 	    s << (Q_UINT8) trk->tune(i);
