@@ -8,6 +8,7 @@ class QSpinBox;
 class QComboBox;
 class RadiusTuner;
 class QVBoxLayout;
+class QHBoxLayout;
 
 class SetTabFret: public QGroupBox
 {
@@ -24,6 +25,7 @@ private:
     QSpinBox *st;
     QVBoxLayout *l;
     RadiusTuner *tuner[MAX_STRINGS];
+    int oldst;
 };
 
 #endif
