@@ -1,28 +1,25 @@
-/*
-  Undo/Redo commands for SongView
-*/
 #ifndef SONGVIEWCOMMANDS_H
 #define SONGVIEWCOMMANDS_H
 
 #include "global.h"
 #include "tabtrack.h"
+#include "songview.h"
 
 #include <kcommand.h>
-#include <klocale.h>
 
-class TabSong;
 class TabTrack;
 class TrackView;
 class TrackList;
 class TrackPane;
+class SongView;
 
 // Set the song properties
-class SetSongPropCommand : public KNamedCommand {
+class SongView::SetSongPropCommand: public KNamedCommand {
 public:
-	SetSongPropCommand(TabSong* _song, QString _title,
+	SetSongPropCommand(SongView *_song, QString _title,
 	                   QString _author, QString _trans,
 	                   QString _com, int _tempo);
-	virtual ~SetSongPropCommand();
+	virtual ~SetSongPropCommand() {};
 
 	virtual void execute();
 	virtual void unexecute();
@@ -31,15 +28,15 @@ private:
 	QString title, author, transcriber, comments,
 		oldtitle, oldauthor, oldtranscriber, oldcomments;
 	int tempo, oldtempo;
-	TabSong* song;
+	SongView *sv;
 };
 
 // Set track properties
-class SetTrackPropCommand : public KNamedCommand {
+class SongView::SetTrackPropCommand: public KNamedCommand {
 public:
 	SetTrackPropCommand(TrackView *_tv, TrackList *_tl, TrackPane *_tp,
 						TabTrack *_trk, TabTrack *_newtrk);
-	virtual ~SetTrackPropCommand();
+	virtual ~SetTrackPropCommand() {};
 
 	virtual void execute();
 	virtual void unexecute();
@@ -60,10 +57,10 @@ private:
 };
 
 // Insert tabs
-class InsertTabsCommand : public KNamedCommand {
+class SongView::InsertTabsCommand: public KNamedCommand {
 public:
 	InsertTabsCommand(TrackView *_tv, TabTrack *_trk, TabTrack *_tabs);
-	virtual ~InsertTabsCommand();
+	virtual ~InsertTabsCommand() {};
 
 	virtual void execute();
 	virtual void unexecute();
