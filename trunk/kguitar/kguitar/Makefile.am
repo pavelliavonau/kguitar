@@ -59,7 +59,7 @@ messages:
 kdelnkdir = $(kde_appsdir)/Multimedia
 kdelnk_DATA = kguitar.desktop
 
-KDE_ICON = kguitar
+KDE_ICON = AUTO
 
 # OLD Makefile.am ===========================================================
 
