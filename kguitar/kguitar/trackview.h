@@ -2,6 +2,7 @@
 #define TRACKVIEW_H
 
 #include <qtableview.h>
+#include <qscrollview.h>
 
 #include "midilist.h"
 

@@ -126,6 +126,7 @@ void TrackView::selectBar(uint n)
 	if (n < curt->b.size()) {
 		curt->x = curt->b[n].start;
 		curt->updateXB();
+		ensureCurrentVisible();
 		emit statusBarChanged();
 	}
 	lastnumber = -1;
@@ -166,9 +167,16 @@ void TrackView::repaintCurrentColumn()
 		repaint(selxcoord, ycoord, VERTLINE + 1, cellHeight());
 }
 
+// Checks is current bar is fully visible, and, if it's not, tries to
+// do minimal scrolling to ensure the full visibility
 void TrackView::ensureCurrentVisible()
 {
-	// GREYFIX make it!
+	int ch = cellHeight();
+
+	if ((curt->xb + 1) * ch > yOffset() + height())
+		setYOffset((curt->xb + 1) * ch - height());
+	else if (curt->xb * ch < yOffset())
+		setYOffset(curt->xb * ch);		
 }
 
 void TrackView::setFinger(int num, int fret)
