@@ -45,9 +45,6 @@ public slots:
 	void askStrum();
 	void playMidi();
 
-protected:
-    virtual void resizeEvent(QResizeEvent *e);
-
 private:
     TabTrack *parm;
 
