@@ -62,6 +62,7 @@ install-data-local:
 	$(mkinstalldirs) $(kde_icondir)
 	$(INSTALL_DATA) kguitar.xpm $(kde_icondir)
 	$(INSTALL_DATA) kguitar-large.xpm $(kde_icondir)/large/kguitar.xpm
+	$(INSTALL_DATA) kguitar-mini.xpm $(kde_icondir)/mini/kguitar.xpm
 	$(mkinstalldirs) $(kde_datadir)/kguitar/toolbar/
 	$(INSTALL_DATA) toolbar/chord.xpm $(kde_datadir)/kguitar/toolbar/chord.xpm
 
