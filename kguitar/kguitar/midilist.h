@@ -37,10 +37,7 @@ enum {
 	META_KEYSIG				= 0x59
 };
 
-
-
-class MidiEvent
-{
+class MidiEvent {
 public:
 	MidiEvent(long _timestamp, uchar _type, uchar _data1, uchar _data2) {
 		timestamp = _timestamp;
@@ -52,24 +49,18 @@ public:
 	Q_UINT8 type, data1, data2;
 };
 
-
-
-class MidiList: public QList<MidiEvent>
-{
+class MidiList: public QList<MidiEvent> {
 public:
 	MidiList() { setAutoDelete(TRUE); }
 protected:
 	virtual int compareItems(QCollection::Item e1, QCollection::Item e2);
 };
 
-
-
 class MidiData {
-
 public:
     static void getMidiList(TabTrack *&trk, MidiList &ml);
 
 };
 
 
-#endif // MIDILIST_H
+#endif
