@@ -4,12 +4,19 @@
 #include <qfile.h>
 #include <qdatastream.h>
 
+TabSong::TabSong(QString _title, int _tempo)
+{
+	tempo=_tempo;
+	title=_title;
+	t.setAutoDelete(TRUE);
+};
+
 // Helper functions for duration conversion
 
 // Dot + undotted length -> full length
 Q_UINT16 TabSong::dot2len(int len, bool dot)
 {
-    return (Q_UINT16) (dot ? len+len/2 : len );
+	return (Q_UINT16) (dot ? len+len/2 : len );
 }
 
 // Normal durations
@@ -20,18 +27,18 @@ int dotdur[6] = {720,360,180,90,45,23};
 // Full length -> dot + undotted length
 void TabSong::len2dot(int l, int *len, bool *dot)
 {
-    for (uint i=0;i<6;i++) {
-	if (nordur[i] == l) {
-	    *len = l;
-	    *dot = FALSE;
-	    return;
+	for (uint i=0;i<6;i++) {
+		if (nordur[i] == l) {
+			*len = l;
+			*dot = FALSE;
+			return;
+		}
+		if (dotdur[i] == l) {
+			*len = l * 2 / 3;
+			*dot = TRUE;
+			return;
+		}
 	}
-	if (dotdur[i] == l) {
-	    *len = l * 2 / 3;
-	    *dot = TRUE;
-	    return;
-	}
-    }
 }
 
 // KG format specs
@@ -77,194 +84,194 @@ void TabSong::len2dot(int l, int *len, bool *dot)
 
 bool TabSong::load_from_kg(QString fileName)
 {
-    QFile f(fileName);
-    if (!f.open(IO_ReadOnly))
-	return FALSE;
+	QFile f(fileName);
+	if (!f.open(IO_ReadOnly))
+		return FALSE;
+	
+	QDataStream s(&f);
+	
+	// HEADER SIGNATURE
+	char hdr[4];
+	s.readRawBytes(hdr,3); // should be KG\0 header
+	if (!((hdr[0]=='K') && (hdr[1]=='G') && (hdr[2]==0)))
+		return FALSE;
+	
+	// FILE VERSION NUMBER
+	Q_UINT8 ver;
+	s >> ver; // we could only read version 1 files
+	if (ver!=1)
+		return FALSE;
 
-    QDataStream s(&f);
+	// HEADER SONG DATA
+	s >> title;
+	s >> author;
+	s >> transcriber;
+	s >> comments;
+	s >> tempo;
 
-    // HEADER SIGNATURE
-    char hdr[4];
-    s.readRawBytes(hdr,3); // should be KG\0 header
-    if (!((hdr[0]=='K') && (hdr[1]=='G') && (hdr[2]==0)))
-	return FALSE;
-
-    // FILE VERSION NUMBER
-    Q_UINT8 ver;
-    s >> ver;                           // we could only read version 1 files
-    if (ver!=1)
-	return FALSE;
-
-    // HEADER SONG DATA
-    s >> title;
-    s >> author;
-    s >> transcriber;
-    s >> comments;
-    s >> tempo;
-
-    if (tempo<0) {
-	printf("Bad tempo");
-	return FALSE;
-    }
-
-    printf("Read headers...\n");
-
-    // TRACK DATA
-    int cnt;
-    s >> cnt;                           // Track count
-    
-    if (cnt<=0) {
-	printf("Bad track count");
-	return FALSE;
-    }
-
-    t.clear();
-
-    printf("Going to read %d track(s)...\n",cnt);
-
-    Q_UINT16 i16;
-    Q_UINT8 channel,patch,string,frets,tm,event,elength;
-    Q_INT8 cn;
-    QString tn;
-
-    for (int i=0;i<cnt;i++) {
-	s >> tm;                        // Track properties (Track mode)
-
-	// GREYFIX - todo track mode check
-
-	s >> tn;                        // Track name
-	s >> channel;
-	s >> i16;                       // Bank
-	s >> patch;
-	s >> string;
-	s >> frets;
-
-	if (string>MAX_STRINGS)
-	    return FALSE;
-
-	printf("Read a track of %d strings, bank=%d, patch=%d...\n",string,i16,patch);
-
-	t.append(new TabTrack((TrackMode) tm,tn,channel,i16,patch,string,frets));
-
-	printf("Appended a track...\n");
-
-	for (int j=0;j<string;j++) {
-	    s >> cn;
-	    t.current()->tune[j] = cn;
+	if (tempo<0) {
+		printf("Bad tempo");
+		return FALSE;
+	}
+	
+	printf("Read headers...\n");
+	
+	// TRACK DATA
+	int cnt;
+	s >> cnt; // Track count
+	
+	if (cnt<=0) {
+		printf("Bad track count");
+		return FALSE;
 	}
 
-	printf("Read the tuning...\n");
+	t.clear();
+	
+	printf("Going to read %d track(s)...\n",cnt);
+	
+	Q_UINT16 i16;
+	Q_UINT8 channel,patch,string,frets,tm,event,elength;
+	Q_INT8 cn;
+	QString tn;
 
-	bool finished=FALSE;
+	for (int i=0;i<cnt;i++) {
+		s >> tm; // Track properties (Track mode)
+		
+		// GREYFIX - todo track mode check
+		
+		s >> tn; // Track name
+		s >> channel;
+		s >> i16; // Bank
+		s >> patch;
+		s >> string;
+		s >> frets;
 
-	int x = 0, bar = 1;
-//	uchar tcsize=t.current()->string+2;
-	t.current()->b.resize(1);
-	t.current()->b[0].start = 0;
-	t.current()->b[0].time1 = 4;
-	t.current()->b[0].time2 = 4;
-
-	bool dot;
-	int dur;
-
-	do {
-	    s >> event;
-	    s >> elength;
-
-	    switch (event) {
-	    case 'B':                   // Tab bar
-		bar++;
-		t.current()->b.resize(bar);
-		t.current()->b[bar-1].start=x;
-		t.current()->b[bar-1].time1=t.current()->b[bar-2].time1;
-		t.current()->b[bar-1].time2=t.current()->b[bar-2].time2;
-		break;
-	    case 'T':                   // Tab column
-		x++;
-		t.current()->c.resize(x);
-		for (int k=0;k<string;k++) {
-		    s >> cn;
-		    t.current()->c[x-1].a[k] = cn;
-		    t.current()->c[x-1].e[k] = 0;
+		if (string>MAX_STRINGS)
+			return FALSE;
+		
+		printf("Read a track of %d strings, bank=%d, patch=%d...\n",string,i16,patch);
+		
+		t.append(new TabTrack((TrackMode) tm,tn,channel,i16,patch,string,frets));
+		
+		printf("Appended a track...\n");
+		
+		for (int j=0;j<string;j++) {
+			s >> cn;
+			t.current()->tune[j] = cn;
 		}
-		s >> i16;
-		len2dot(i16, &dur, &dot);
-		t.current()->c[x-1].l = dur;
-		t.current()->c[x-1].flags = (dot ? FLAG_DOT : 0);
-		break;
-	    case 'E':                   // Effect column
-		if (x==0) {             // Ignore if there were no tab cols
-		    printf("Warning: FX column with no tab columns, ignoring...\n");
-		    break;
-		}
-		for (int k=0;k<string;k++) {
-		    s >> cn;
-		    t.current()->c[x-1].e[k] = cn;
-		}		
-		break;
-	    case 'L':                   // Continuation of previous column
-		x++;
-		t.current()->c.resize(x);
-		for (int k=0;k<string;k++)
-		    t.current()->c[x-1].a[k] = -1;
-		s >> i16;
-		len2dot(i16, &dur, &dot);
-		t.current()->c[x-1].l = dur;
-		t.current()->c[x-1].flags = (dot ? FLAG_ARC | FLAG_DOT : FLAG_ARC);
-		break;
-	    case 'S':
-		s >> cn; t.current()->b[bar-1].time1 = cn;
-		s >> cn; t.current()->b[bar-1].time2 = cn;
-		break;
-	    case 'X':                   // End of track
-		finished=TRUE;
-		break;
-	    default:
-		printf("Warning: unknown event %c. Skipping...\n",event);
-		for (int k=0;k<elength;k++)
-		    s >> cn;
-		break;
-	    }
-	} while ((!finished) && (!s.eof()));
-
-	t.current()->x=0;
-	t.current()->xb=0;
-	t.current()->y=0;
-    }
-
-    f.close();
-
-    return TRUE;
+		
+		printf("Read the tuning...\n");
+		
+		bool finished=FALSE;
+		
+		int x = 0, bar = 1;
+// uchar tcsize=t.current()->string+2;
+		t.current()->b.resize(1);
+		t.current()->b[0].start = 0;
+		t.current()->b[0].time1 = 4;
+		t.current()->b[0].time2 = 4;
+		
+		bool dot;
+		int dur;
+		
+		do {
+			s >> event;
+			s >> elength;
+			
+			switch (event) {
+			case 'B':                   // Tab bar
+				bar++;
+				t.current()->b.resize(bar);
+				t.current()->b[bar-1].start=x;
+				t.current()->b[bar-1].time1=t.current()->b[bar-2].time1;
+				t.current()->b[bar-1].time2=t.current()->b[bar-2].time2;
+				break;
+			case 'T':                   // Tab column
+				x++;
+				t.current()->c.resize(x);
+				for (int k=0;k<string;k++) {
+					s >> cn;
+					t.current()->c[x-1].a[k] = cn;
+					t.current()->c[x-1].e[k] = 0;
+				}
+				s >> i16;
+				len2dot(i16, &dur, &dot);
+				t.current()->c[x-1].l = dur;
+				t.current()->c[x-1].flags = (dot ? FLAG_DOT : 0);
+				break;
+			case 'E':                   // Effect column
+				if (x==0) {				// Ignore if there were no tab cols
+					printf("Warning: FX column with no tab columns, ignoring...\n");
+					break;
+				}
+				for (int k=0;k<string;k++) {
+					s >> cn;
+					t.current()->c[x-1].e[k] = cn;
+				}		
+				break;
+			case 'L':					// Continuation of previous column
+				x++;
+				t.current()->c.resize(x);
+				for (int k=0;k<string;k++)
+					t.current()->c[x-1].a[k] = -1;
+				s >> i16;
+				len2dot(i16, &dur, &dot);
+				t.current()->c[x-1].l = dur;
+				t.current()->c[x-1].flags = (dot ? FLAG_ARC | FLAG_DOT : FLAG_ARC);
+				break;
+			case 'S':
+				s >> cn; t.current()->b[bar-1].time1 = cn;
+				s >> cn; t.current()->b[bar-1].time2 = cn;
+				break;
+			case 'X':					// End of track
+				finished=TRUE;
+				break;
+			default:
+				printf("Warning: unknown event %c. Skipping...\n",event);
+				for (int k=0;k<elength;k++)
+					s >> cn;
+				break;
+			}
+		} while ((!finished) && (!s.eof()));
+		
+		t.current()->x=0;
+		t.current()->xb=0;
+		t.current()->y=0;
+	}
+	
+	f.close();
+	
+	return TRUE;
 }
 
 bool TabSong::save_to_kg(QString fileName)
 {
-    QFile f(fileName);
-    if (!f.open(IO_WriteOnly))
-	return FALSE;
+	QFile f(fileName);
+	if (!f.open(IO_WriteOnly))
+		return FALSE;
+	
+	QDataStream s(&f);
+	
+	// HEADER SIGNATURE
+	s.writeRawBytes("KG\0",3);
+	
+	// VERSION SIGNATURE
+	s << (Q_UINT8) 1;
+	
+	// HEADER SONG DATA
+	s << title;
+	s << author;
+	s << transcriber;
+	s << comments;
+	s << tempo;
 
-    QDataStream s(&f);
+	// TRACK DATA
+	s << t.count();						// Number of tracks
 
-    // HEADER SIGNATURE
-    s.writeRawBytes("KG\0",3);
+	bool needfx = FALSE;				// Should we write FX event after tab?
 
-    // VERSION SIGNATURE
-    s << (Q_UINT8) 1;
-
-    // HEADER SONG DATA
-    s << title;
-    s << author;
-    s << transcriber;
-    s << comments;
-    s << tempo;
-
-    // TRACK DATA
-    s << t.count();                     // Number of tracks
-
-    bool needfx = FALSE;                // Should we write FX event after tab?
-
-    QListIterator<TabTrack> it(t);
-    for (;it.current();++it) {          // For every track
+	QListIterator<TabTrack> it(t);
+	for (;it.current();++it) {			// For every track
 		TabTrack *trk = it.current();
 		
 		s << (Q_UINT8) trk->trackmode();// Track properties
@@ -282,15 +289,15 @@ bool TabSong::save_to_kg(QString fileName)
 		Q_UINT8 tcsize = trk->string+2;
 		uint bar = 1;
 		
-		s << (Q_UINT8) 'S';             // Time signature event
-		s << (Q_UINT8) 2;               // 2 byte event length
+		s << (Q_UINT8) 'S';				// Time signature event
+		s << (Q_UINT8) 2;				// 2 byte event length
 		s << (Q_UINT8) trk->b[0].time1; // Time signature itself
 		s << (Q_UINT8) trk->b[0].time2;
 		
 		for (uint x=0;x<trk->c.size();x++) {
-			if (bar+1<trk->b.size()) {  // This bar's not last
+			if (bar+1<trk->b.size()) {	// This bar's not last
 				if (trk->b[bar+1].start==x)
-					bar++;              // Time for next bar		
+					bar++;				// Time for next bar		
 			}
 			
 			if (trk->b[bar].start==x) { // New bar event
@@ -299,12 +306,12 @@ bool TabSong::save_to_kg(QString fileName)
 			}
 			
 			if (trk->c[x].flags & FLAG_ARC) {
-				s << (Q_UINT8) 'L';     // Continue of previous event
-				s << (Q_UINT8) 2;       // Size of event
+				s << (Q_UINT8) 'L';		// Continue of previous event
+				s << (Q_UINT8) 2;		// Size of event
 				s << dot2len(trk->c[x].l, trk->c[x].flags & FLAG_DOT); // Duration
 			} else {
-				s << (Q_UINT8) 'T';     // Tab column events
-				s << (Q_UINT8) tcsize;  // Size of event
+				s << (Q_UINT8) 'T';		// Tab column events
+				s << (Q_UINT8) tcsize;	// Size of event
 				needfx = FALSE;
 				for (int i=0;i<trk->string;i++) {
 					s << (Q_INT8) trk->c[x].a[i];
@@ -321,13 +328,13 @@ bool TabSong::save_to_kg(QString fileName)
 			}
 		}
 		
-		s << (Q_UINT8) 'X';             // End of track marker
-		s << (Q_UINT8) 0;               // Length of end track event        
-    }
+		s << (Q_UINT8) 'X';				// End of track marker
+		s << (Q_UINT8) 0;				// Length of end track event		
+	}
 	
-    f.close();
+	f.close();
 	
-    return TRUE;
+	return TRUE;
 }
 
 bool TabSong::load_from_gtp(QString fileName)
