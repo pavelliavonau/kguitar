@@ -6,7 +6,7 @@
 msgid ""
 msgstr ""
 "Project-Id-Version: PACKAGE VERSION\n"
-"POT-Creation-Date: 2001-09-09 20:54+0200\n"
+"POT-Creation-Date: 2001-09-19 10:22+0200\n"
 "PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
 "Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
 "Language-Team: LANGUAGE <LL@li.org>\n"
@@ -321,7 +321,7 @@ msgstr "Constructor de acordes"
 
 #: chord.cpp:313
 msgid ""
-"Can't open /dev/sequenzer !!\n"
+"Can't open /dev/sequencer !!\n"
 "Probably there is another program using it."
 msgstr ""
 
@@ -718,8 +718,8 @@ msgstr ""
 
 #: strum.h:57
 msgid ""
-"Variantion of previous arpegio, can spice up sound if used several times "
-"with previous rhythm."
+"Variation of previous arpegio, can spice up sound if used several times with "
+"previous rhythm."
 msgstr ""
 
 #: strum.h:61
