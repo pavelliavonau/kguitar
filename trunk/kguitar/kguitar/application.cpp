@@ -71,6 +71,8 @@ ApplicationWindow::ApplicationWindow(): KTMainWindow()
 			    tv,SLOT(setLength16()),TRUE,"1/16");
     toolBar()->insertButton(Icon("note32.xpm"),1,SIGNAL(clicked()),
 			    tv,SLOT(setLength32()),TRUE,"1/32");
+    toolBar()->insertButton(Icon("timesig.xpm"),1,SIGNAL(clicked()),
+			    tv,SLOT(timeSig()),TRUE,i18n("Time signature"));
     
     // SET UP MAIN MENU
 
