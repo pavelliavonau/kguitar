@@ -51,7 +51,7 @@ noinst_HEADERS = application.h chord.h fingers.h fingerlist.h trackview.h \
  filebrowser.h kguitar_shell.h
 
 libkguitar_la_LDFLAGS = $(all_libraries) -version-info 1:0:0 -module -no-undefined
-libkguitar_la_LIBADD = $(LIB_KFILE) -lkparts
+libkguitar_la_LIBADD = $(LIB_KFILE) -lkparts -lkmid
 
 rcdir = $(kde_datadir)/kguitar
 rc_DATA = kguitarui.rc kguitar_part.rc kguitar_konq.rc
