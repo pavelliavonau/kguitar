@@ -12,6 +12,7 @@ class QButtonGroup;
 class QRadioButton;
 class QComboBox;
 class QLabel;
+class ChordList;
 class Fingering;
 class FingerList;
 class TabTrack;
@@ -27,6 +28,7 @@ public slots:
     void detectChord();
     void setStep3();
     void setHighSteps();
+    void setStepsFromChord();
     void findSelection();
     void findChords(); 
 private:
@@ -34,7 +36,7 @@ private:
 
     QLineEdit *chname; 
     QListBox *tonic,*step3,*stephigh;
-    QListBox *chords;
+    ChordList *chords;
     QComboBox *st[6],*inv;
     QLabel *cnote[7];
     QButtonGroup *complexity;

@@ -1,6 +1,7 @@
 #include "chord.h"
 #include "fingers.h"
 #include "fingerlist.h"
+#include "chordlist.h"
 #include "track.h"
 
 #include <kapp.h>
@@ -35,19 +36,20 @@ QString note_name(int num)
 }
 
 //                     3  5  7  9  11 13
-int stemplate[9][6]={ {-1,2, 0, 0, 0, 0 },
-		      {-1,2, 2, 0, 0, 0 },
-		      {-1,2, 3, 0, 0, 0 },
-		      {-1,2, 1, 0, 0, 0 },
-		      {3, 3, 0, 0, 0, 0 },
-		      {2, 1, 1, 0, 0, 0 },
-		      {-1,2, 2, 2, 0, 0 },
-		      {-1,2, 2, 2, 2, 0 },
-                      {0, 2, 0, 0, 0, 0 } };
+int stemplate[][6] = {{-1,2, 0, 0, 0, 0 },   // C
+		      {-1,2, 2, 0, 0, 0 },   // C7
+		      {-1,2, 3, 0, 0, 0 },   // C7M
+		      {-1,2, 1, 0, 0, 0 },   // C6
+		      {-1,2, 2, 2, 0, 0 },   // C9
+		      {-1,2, 2, 2, 2, 0 },   // C11
+		      {-1,2, 2, 2, 2, 2 },   // C13
+		      {3, 3, 0, 0, 0, 0 },   // Caug
+		      {2, 1, 1, 0, 0, 0 },   // Cdim
+                      {0, 2, 0, 0, 0, 0 }};  // C5
 
-QString maj7name[] = { "7M", "maj7", "dom7" };
-QString flat[]  = { "-", "b" };
-QString sharp[] = { "+", "#" };
+QString maj7name[] = {"7M", "maj7", "dom7"};
+QString flat[] = {"-", "b"};
+QString sharp[] = {"+", "#"};
 
 ChordSelector::ChordSelector(TabTrack *p, QWidget *parent=0, const char *name=0)
     :QDialog(parent,name,TRUE)
@@ -78,10 +80,11 @@ ChordSelector::ChordSelector(TabTrack *p, QWidget *parent=0, const char *name=0)
     stephigh->insertItem("7");
     stephigh->insertItem(maj7name[global_maj7]);
     stephigh->insertItem("6");
-    stephigh->insertItem("aug");
-    stephigh->insertItem("dim");
     stephigh->insertItem("9");
     stephigh->insertItem("11");
+    stephigh->insertItem("13");
+    stephigh->insertItem("aug");
+    stephigh->insertItem("dim");
     stephigh->insertItem("5");
     stephigh->setGeometry(160,40,60,200);
     connect(stephigh,SIGNAL(highlighted(int)),SLOT(setHighSteps()));
@@ -154,8 +157,9 @@ ChordSelector::ChordSelector(TabTrack *p, QWidget *parent=0, const char *name=0)
     fng->move(230,10);
     connect(fng,SIGNAL(chordChange()),SLOT(detectChord()));
 
-    chords = new QListBox(this);
+    chords = new ChordList(this);
     chords->setGeometry(fng->x()+fng->width()+10,10,120,150);
+    connect(chords,SIGNAL(highlighted(int)),SLOT(setStepsFromChord()));
 
     // CHORD FINDER OUTPUT
 
@@ -187,14 +191,14 @@ int ChordSelector::app(int l)
 void ChordSelector::detectChord()
 {
     bool cn[12];
-    int i,j,numnotes,noteok;
+    int i,j,numnotes,noteok,bassnote=255,bass;
     QString name;
     int s3,s5,s7,s9,s11,s13;
 
     for (i=0;i<12;i++)
 	cn[i]=FALSE;
     numnotes=0; // number of different notes in a chord
-    
+
     for (i=0;i<parm->string;i++) {
 	j=fng->app(i);
 	if (j!=-1) {
@@ -206,6 +210,7 @@ void ChordSelector::detectChord()
 	}
     }
     
+    chords->clearSelection();
     chords->clear();
     
     for (i=0;i<12;i++)  if (cn[i]) {
@@ -270,149 +275,10 @@ void ChordSelector::detectChord()
 	}
 
 	if (noteok==0) {
-	    name=note_name(i);
-
-	    // Special cases
-	    if ((s3==-1) && (s5==7) && (s7==-1) &&
-		(s9==-1) && (s11==-1) && (s13==-1)) {
-		chords->insertItem(name+"5");
-		continue;
-	    }
-	    if ((s3==4) && (s5==8) && (s7==-1) &&
-		(s9==-1) && (s11==-1) && (s13==-1)) {
-		chords->insertItem(name+"aug");
-		continue;
-	    }
-
-	    if ((s3==3) && (s5==6) && (s7==9)) {
-		name=name+"dim";
-	    } else {
-		if (s3==3)
-		    name=name+"m";
-		
-		if (s5==6)
-		    name=name+"/5"+flat[global_flatplus];
-		if (s5==8)
-		    name=name+"/5"+sharp[global_flatplus];
-		if (((s5==6) || (s5==8)) && ((s7!=-1) || (s9!=-1) ||
-					     (s11!=-1) || (s13!=-1)))
-		    name=name+"/";
-		
-		if ((s7==10) && (s9==-1))
-		    name=name+"7";
-		if (s7==11)
-		    name=name+maj7name[global_maj7];
-		if (s7==9)
-		    name=name+"6";
-		if (((s7==11) || (s7==9)) && ((s9!=-1) || (s11!=-1) || (s13!=-1)))
-		    name=name+"/";
-	    }
-
-	    if ((s7==-1)  && (s9!=-1))
-		name=name+"add";
-	    if ((s9==2) && (s11==-1))
-		name=name+"9";
-	    if (s9==1)
-		name=name+"9"+flat[global_flatplus];
-	    if (s9==3)
-		name=name+"9"+sharp[global_flatplus];
-	    if (((s9==1) || (s9==3)) && ((s11!=-1) || (s13!=-1)))
-		name=name+"/";
-
-	    if ((s9==-1) && (s11!=-1))
-		name=name+"add";
-	    if ((s11==5) && (s13==-1))
-		name=name+"11";
-	    if (s11==6)
-		name=name+"11"+sharp[global_flatplus];
-	    if (s11==4)
-		name=name+"11"+flat[global_flatplus];
-	    if (((s11==4) || (s11==6)) && (s13!=-1))
-		name=name+"/";
-
-	    if ((s11==-1) && (s13!=-1))
-		name=name+"add";
-	    if (s13==9)
-		name=name+"13";
-	    if (s13==10)
-		name=name+"13"+sharp[global_flatplus];
-	    if (s13==8)
-		name=name+"13"+flat[global_flatplus];
-
-	    if (s3==2)
-		name=name+"sus2";
-	    if (s3==5)
-		name=name+"sus4";
-
-	    if ((s3==-1) && (s5==-1)) {
-		name=name+" (no3no5)";
-	    } else {
-		if (s3==-1)
-		    name=name+" (no3)";
-		if (s5==-1)
-		    name=name+" (no5)";
-	    }
-	    chords->insertItem(name);
+	    ChordListItem *item = new ChordListItem(i,bass,s3,s5,s7,s9,s11,s13);
+	    chords->insertItem(item);
 	}
     }
-
-/*
-    // 2 note chord - C5
-    if (numnotes==2) {
-	for (i=0;i<12;i++) {
-	    if ((cn[i]) && (cn[(i+7)%12]))
-		chords->insertItem(note_name(i)+"5");
-	}
-    }
-    
-    // 3 note chord - C, Cm, Csus2, Csus4, Caug
-    if (numnotes==3) {
-	for (i=0;i<12;i++)
-	    if ((cn[i]) && (cn[(i+4)%12]) && (cn[(i+7)%12]))
-		chords->insertItem(note_name(i));
-	if ((cn[i]) && (cn[(i+3)%12]) && (cn[(i+7)%12]))
-	    chords->insertItem(note_name(i)+"m");
-	if ((cn[i]) && (cn[(i+2)%12]) && (cn[(i+7)%12]))
-	    chords->insertItem(note_name(i)+"sus2");
-	if ((cn[i]) && (cn[(i+5)%12]) && (cn[(i+7)%12]))
-	    chords->insertItem(note_name(i)+"sus4");
-	if ((cn[i]) && (cn[(i+4)%12]) && (cn[(i+8)%12]))
-	    chords->insertItem(note_name(i)+"aug");
-    }
-    
-    // 4 note chord - C7, C7M, C6, Cm7, Cm7M, C7sus2, C7sus4, Cdim
-    if (numnotes==4) {
-	for (i=0;i<12;i++) {
-	    if ((cn[i]) && (cn[(i+4)%12]) && (cn[(i+7)%12]) && (cn[(i+9)%12]))
-		chords->insertItem(note_name(i)+"6");
-	    if ((cn[i]) && (cn[(i+4)%12]) && (cn[(i+7)%12]) && (cn[(i+10)%12]))
-		chords->insertItem(note_name(i)+"7");
-	    if ((cn[i]) && (cn[(i+4)%12]) && (cn[(i+7)%12]) && (cn[(i+11)%12]))
-		chords->insertItem(note_name(i)+"7M");
-	    if ((cn[i]) && (cn[(i+3)%12]) && (cn[(i+7)%12]) && (cn[(i+9)%12]))
-		chords->insertItem(note_name(i)+"m6");
-	    if ((cn[i]) && (cn[(i+3)%12]) && (cn[(i+7)%12]) && (cn[(i+10)%12]))
-		chords->insertItem(note_name(i)+"m7");
-	    if ((cn[i]) && (cn[(i+3)%12]) && (cn[(i+7)%12]) && (cn[(i+11)%12]))
-		chords->insertItem(note_name(i)+"m7M");
-	    if ((cn[i]) && (cn[(i+2)%12]) && (cn[(i+7)%12]) && (cn[(i+10)%12]))
-		chords->insertItem(note_name(i)+"7sus2");
-	    if ((cn[i]) && (cn[(i+5)%12]) && (cn[(i+7)%12]) && (cn[(i+10)%12]))
-		chords->insertItem(note_name(i)+"7sus4");
-	    if ((cn[i]) && (cn[(i+3)%12]) && (cn[(i+6)%12]) && (cn[(i+9)%12]))
-		chords->insertItem(note_name(i)+"dim");
-	}
-    }
-    
-    // 5 note chord
-    if (numnotes==5) {
-	for (i=0;i<12;i++) {
-	    if ((cn[i]) && (cn[(i+4)%12]) && (cn[(i+7)%12]) && (cn[(i+10)%12]) && (cn[(i+2)]%12)) {
-		chords->insertItem(note_name(i)+"9");
-	    }
-	}
-    }
-*/
 }
 
 void ChordSelector::setStep3()
@@ -423,6 +289,18 @@ void ChordSelector::setStep3()
     case 2: st[0]->setCurrentItem(1);break;                // Sus2
     case 3: st[0]->setCurrentItem(4);break;                // Sus4
     }
+
+    findSelection();
+    findChords();
+}
+
+void ChordSelector::setStepsFromChord()
+{
+    ChordListItem *it = chords->currentItemPointer();
+
+    tonic->setCurrentItem(it->tonic());
+    for (int i=0;i<6;i++)
+	st[i]->setCurrentItem(it->step(i));
 
     findSelection();
     findChords();
@@ -455,7 +333,7 @@ void ChordSelector::findSelection()
     case 4: step3->setCurrentItem(3);break;                // Sus4
     }
 
-    for (uint j=0;j<stephigh->count();j++) {
+    for (uint j=stephigh->count()-1;j>0;j--) {
 	ok = TRUE;
 	for (int i=0;i<6;i++) {
 	    if ((stemplate[j][i]!=-1) && (stemplate[j][i]!=st[i]->currentItem())) {
@@ -474,7 +352,7 @@ void ChordSelector::findSelection()
 
 void ChordSelector::findChords()
 {
-    int i,j,k,min,max,bass,muted;
+    int i,j,k=0,min,max,bass=0,muted=0;
     int app[MAX_STRINGS];               // raw fingering itself
     int ind[MAX_STRINGS];               // indexes in hfret array
 
@@ -523,6 +401,22 @@ void ChordSelector::findChords()
 	} else {
 	    cnote[i+1]->clear();
 	}
+    }
+
+    // CLEARING THE LIST FOR FUTURE FINGERINGS
+
+    fnglist->switchAuto(FALSE);
+    fnglist->clear();
+
+    // CHECKING IF NOTE NUMBER GREATER THAT AVAILABLE STRINGS
+
+    // Ex: it's impossible to play 13th chords on 6 strings, but it's
+    //     possible on 7 string guitar. This way we optimize things a bit
+
+    if (parm->string<notenum) {
+	fnglist->switchAuto(TRUE);
+	fnglist->repaint();
+	return;
     }
 
     // CHECKING THE INVERSION NUMBER RANGE
@@ -576,9 +470,6 @@ void ChordSelector::findChords()
 
     min=-1;max=-1;needrecalc=FALSE;
 
-    fnglist->switchAuto(FALSE);
-    fnglist->clear();
-    
     // MAIN FINGERING CALCULATION LOOP
 
     i=0;
