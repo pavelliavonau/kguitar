@@ -26,6 +26,7 @@ public:
 	TrackPrint();
 	int barExpWidth(int bn, TabTrack *trk);
 	int barWidth(int bn, TabTrack *trk);
+	int colWidth(int cl, TabTrack *trk);
 	void drawBar(int bn, TabTrack *trk, int es, int& sx, int& sx2);
 	void drawBarLns(int w, TabTrack *trk);
 	void drawKey(int l, TabTrack *trk);
@@ -56,7 +57,6 @@ public:
 	QPen pLnWh;					// used for white lines
 
 private:
-	int colWidth(int cl, TabTrack *trk);
 	void drawBeam(int x1, int x2, int y, char tp, char dir);
 	void drawBeams(int bn, char dir, TabTrack *trk);
 	void drawLetRing(int x, int y);
