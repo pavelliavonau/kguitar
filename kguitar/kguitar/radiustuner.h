@@ -9,24 +9,23 @@
 #define RADTUNER_W   47
 #define RADTUNER_H   50
 
-class RadiusTuner: public QWidget
-{
-    Q_OBJECT
+class RadiusTuner: public QWidget {
+	Q_OBJECT
 public:
-    RadiusTuner(QWidget *parent=0, const char *name=0);
-    void setValue(uchar x) { val->setValue(x); };
-    uchar value() { return val->value(); };
+	RadiusTuner(QWidget *parent=0, const char *name=0);
+	void setValue(uchar x) { val->setValue(x); };
+	uchar value() { return val->value(); };
 
 signals:
-    void valueChanged(int);
+	void valueChanged(int);
 
 private slots:
-    void emitVC();
+	void emitValueChanged();
 
 private:
-    NoteSpinBox *val;
-    virtual void resizeEvent(QResizeEvent *e);
-    virtual void paintEvent(QPaintEvent *p);
+	NoteSpinBox *val;
+	virtual void resizeEvent(QResizeEvent *e);
+	virtual void paintEvent(QPaintEvent *p);
 };
 
 #endif
