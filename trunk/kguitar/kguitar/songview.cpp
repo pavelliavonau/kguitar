@@ -35,7 +35,6 @@
 #include <qlineedit.h>
 #include <qcombobox.h>
 #include <qmultilinedit.h>
-#include <qheader.h>
 #include <qdir.h>
 
 #ifdef WITH_TSE3
@@ -50,12 +49,6 @@
 #include <tse3/Error.h>
 #include "playbacktracker.h"
 #endif
-
-// GREYFIX
-using namespace std;
-
-#include <iostream>
-#define kdDebug()	cout
 
 SongView::SongView(KXMLGUIClient *_XMLGUIClient, KCommandHistory *_cmdHist,
 				   QWidget *parent, const char *name): QWidget(parent, name)
@@ -89,6 +82,10 @@ SongView::SongView(KXMLGUIClient *_XMLGUIClient, KCommandHistory *_cmdHist,
 	connect(tp, SIGNAL(trackChanged(TabTrack *)), tv, SLOT(selectTrack(TabTrack *)));
 	connect(tp, SIGNAL(newBarSelected(uint)), tv, SLOT(selectBar(uint)));
 	connect(tv, SIGNAL(paneChanged()), tp, SLOT(update()));
+
+	// let higher-level widgets know that we have a changed song if it
+	// was changed in TrackView
+	connect(tv, SIGNAL(songChanged()), this, SIGNAL(songChanged()));
 
 	QBoxLayout *l = new QVBoxLayout(this);
 	l->addWidget(split);
@@ -321,13 +318,13 @@ void SongView::songProperties()
 {
 	SetSong *ss = new SetSong();
 	ss->title->setText(song->title);
-	ss->title->setReadOnly(isBrowserView);
+// 	ss->title->setReadOnly(isBrowserView);
 	ss->author->setText(song->author);
-	ss->author->setReadOnly(isBrowserView);
+// 	ss->author->setReadOnly(isBrowserView);
 	ss->transcriber->setText(song->transcriber);
-	ss->transcriber->setReadOnly(isBrowserView);
+// 	ss->transcriber->setReadOnly(isBrowserView);
 	ss->comments->setText(song->comments);
-	ss->comments->setReadOnly(isBrowserView);
+// 	ss->comments->setReadOnly(isBrowserView);
 	ss->tempo->setValue(song->tempo);
 // 	ss->tempo->setReadOnly(isBrowserView); // GREYFIX
 
