@@ -34,11 +34,12 @@ public:
 	bool save_to_tex_notes(QString fileName);   // MusiXTeX notes
 private:
     void writeCentered(QTextStream *s, QString l);
-    Q_UINT16 dot2len(int len, bool dot);
-    void len2dot(int l, int *len, bool *dot);
+	Q_UINT32 readVarLen(QDataStream *s);
+	void writeVarLen(QDataStream *s, uint value);
+	void writeTempo(QDataStream *s, uint value);
     QString tab(bool chord, int string, int fret);
 	QString getNote(QString note, int duration, bool dot);
-	QString cleanString( QString str);
+	QString cleanString(QString str);
 };
 
 #endif

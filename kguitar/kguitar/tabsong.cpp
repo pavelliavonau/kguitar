@@ -2,6 +2,8 @@
 #include "global.h"
 #include "application.h"
 
+#include "midilist.h"
+
 #include <qfile.h>
 #include <qdatastream.h>
 
@@ -15,7 +17,7 @@ TabSong::TabSong(QString _title, int _tempo)
 // Helper functions for duration conversion
 
 // Dot + undotted length -> full length
-Q_UINT16 TabSong::dot2len(int len, bool dot)
+Q_UINT16 dot2len(int len, bool dot)
 {
 	return (Q_UINT16) (dot ? len + len / 2 : len);
 }
@@ -26,7 +28,7 @@ int nordur[6] = {480, 240, 120, 60, 30, 15};
 int dotdur[6] = {720, 360, 180, 90, 45, 23};
 
 // Full length -> dot + undotted length
-void TabSong::len2dot(int l, int *len, bool *dot)
+void len2dot(int l, int *len, bool *dot)
 {
 	for (uint i = 0; i < 6; i++) {
 		if (nordur[i] == l) {
@@ -100,7 +102,7 @@ bool TabSong::load_from_kg(QString fileName)
 	// FILE VERSION NUMBER
 	Q_UINT8 ver;
 	s >> ver; // we could only read version 1 files
-	if (ver!=1)
+	if (ver != 1)
 		return FALSE;
 
 	// HEADER SONG DATA
@@ -272,7 +274,7 @@ bool TabSong::save_to_kg(QString fileName)
 	bool needfx = FALSE;				// Should we write FX event after tab?
 
 	QListIterator<TabTrack> it(t);
-	for (;it.current();++it) {			// For every track
+	for (; it.current(); ++it) {		// For every track
 		TabTrack *trk = it.current();
 		
 		s << (Q_UINT8) trk->trackmode();// Track properties
@@ -282,7 +284,7 @@ bool TabSong::save_to_kg(QString fileName)
 		s << (Q_UINT8) trk->patch;
 		s << (Q_UINT8) trk->string;
 		s << (Q_UINT8) trk->frets;
-		for (int i=0;i<trk->string;i++)
+		for (int i = 0; i<trk->string; i++)
 			s << (Q_UINT8) trk->tune[i];
 		
 		// TRACK EVENTS
@@ -295,7 +297,7 @@ bool TabSong::save_to_kg(QString fileName)
 		s << (Q_UINT8) trk->b[0].time1; // Time signature itself
 		s << (Q_UINT8) trk->b[0].time2;
 		
-		for (uint x=0;x<trk->c.size();x++) {
+		for (uint x=0; x<trk->c.size(); x++) {
 			if (bar+1 < trk->b.size()) {	// This bar's not last
 				if (trk->b[bar+1].start == x)
 					bar++;				// Time for next bar		
@@ -350,54 +352,327 @@ bool TabSong::save_to_gtp(QString fileName)
     return FALSE;
 }
 
-bool TabSong::load_from_mid(QString fileName)
+Q_UINT32 TabSong::readVarLen(QDataStream *s)
 {
-    // Loading from MIDI file here
-    return FALSE;
+	Q_UINT32 value;
+	Q_UINT8 c;
+	
+	(*s) >> c;
+	value = c;
+
+	if (value & 0x80) {
+		value &= 0x7f;
+		do {
+			(*s) >> c;
+			value = (value << 7) + ((c & 0x7f));
+		} while (c & 0x80);
+	}
+
+	return value;
 }
 
-bool TabSong::save_to_mid(QString fileName)
+bool TabSong::load_from_mid(QString fileName)
 {
-    return FALSE;
-/*
     QFile f(fileName);
-    if (!f.open(IO_WriteOnly))
-	return FALSE;
+
+    if (!f.open(IO_ReadOnly))
+		return FALSE;
 
     QDataStream s(&f);
 
     // HEADER SIGNATURE
 
-    s.writeRawBytes("MThd",4);       
-    s << (Q_INT32) 6;                   // Length?
-    s << (Q_INT16) 0;                   // Format - GREYFIX
-    s << (Q_INT16) t.count();           // Number of tracks
-    s << (Q_INT16) 96;                  // Divisions
+	char hdr[5];
+    s.readRawBytes(hdr, 4);
+	if ((hdr[0] != 'M') || (hdr[1] != 'T') ||
+		(hdr[2] != 'h') || (hdr[3] != 'd'))
+		return FALSE;
+
+	Q_UINT32 tmp32;
+	Q_UINT16 midiformat, tracknum, divisions;
+
+	// LENGTH OF HEADER. SHOULD BE 6
+
+    s >> tmp32;
+	if (tmp32 != 6)
+		return FALSE;
+
+	s >> midiformat;                    // MIDI file format
+	s >> tracknum;                      // Number of tracks
+    s >> divisions;                     // Divisions
 
     // TRACK DATA
 
+	int delta;
+	Q_UINT8 evtype;
+	Q_UINT8 tmp8, data1, data2;
+
+	for (int tr = 0; tr < tracknum; tr++) {
+		s.readRawBytes(hdr, 4);
+		if ((hdr[0] != 'M') || (hdr[1] != 'T') ||
+			(hdr[2] != 'r') || (hdr[3] != 'k'))
+			return FALSE;
+		s >> tmp32; // length
+		printf("Track length = %d\n", tmp32);
+		do {
+			delta = readVarLen(&s);
+			s >> evtype;
+
+			// Meta event
+			if (evtype == 0xff) {
+				s >> tmp8; // meta event type
+				printf("Meta event %x, ", tmp8);
+				tmp32 = readVarLen(&s);
+				printf("%d bytes long\n", tmp32);
+
+				if (tmp8 == 0x2f)
+					break;
+
+				for (int i = 0; i < tmp32; i++)
+					s >> tmp8;
+				continue;
+			}
+
+			int channel = evtype & 0xf;
+			evtype &= 0xf0;
+
+			s >> data1;
+			s >> data2;
+
+			printf("Delta=%d. Channel=%d, Event=%x, Data1=%d, Data2=%d\n",
+				   delta, channel, evtype, data1, data2);
+		} while (TRUE);
+	}
+
+    f.close();
+
+    return FALSE;
+}
+
+void TabSong::writeVarLen(QDataStream *s, uint value)
+{
+	Q_UINT32 buffer;
+	
+	buffer = value & 0x7f;
+	while ((value >>= 7) > 0) {
+		buffer <<= 8;
+		buffer |= 0x80;
+		buffer += (value & 0x7f);
+	}
+
+	while (TRUE) {
+		(*s) << (Q_UINT8) (buffer & 0xff);
+		
+		if (buffer & 0x80)
+			buffer >>= 8;
+		else
+			return;
+	}
+}
+
+void TabSong::writeTempo(QDataStream *s, uint value)
+{
+	(*s) << (Q_UINT8) (value >> 16);
+	(*s) << (Q_UINT8) (value >> 8);
+	(*s) << (Q_UINT8) value;
+}
+
+bool TabSong::save_to_mid(QString fileName)
+{
+    QFile f(fileName);
+
+    if (!f.open(IO_WriteOnly))
+		return FALSE;
+
+    QDataStream s(&f);
+
+    // HEADER SIGNATURE
+
+    s.writeRawBytes("MThd", 4);
+    s << (Q_INT32) 6;                   // Length?
+    s << (Q_INT16) 0;                   // Format 0 - GREYFIX
+    s << (Q_INT16) t.count();           // Number of tracks
+    s << (Q_INT16) 120;                 // Divisions
+
+    // TRACK DATA
+
+	MidiList ml;                        // Sorted list of events
+	long timer;                         // Timing
+
     QListIterator<TabTrack> it(t);
-    for (;it.current();++it) {          // For every track
-	TabTrack *trk = it.current();
+    for (; it.current(); ++it) {          // For every track
+		TabTrack *trk = it.current();
 
-	s.writeRawBytes("MTrk",4);      // Track header
-	s << (Q_INT32) 0;               // Length - GREYFIX
+		s.writeRawBytes("MTrk", 4);     // Track header
+		int sizepos = f.at();           // Remember where to write track size
+		s << (Q_INT32) 0;               // Store 0 as size temporarily
 
-	s << trk->c.count();            // Track columns
+		int tl = 0;                     // Track length (header doesn't count)
 
- 	QListIterator<TabColumn> ic(trk->c);
- 	for (;ic.current();++ic) {
- 	    TabColumn *col = ic.current();
-	    for (int i=0;i<trk->string;i++)
-		s << (Q_INT8) col->a[i];
-	    s << (Q_INT16) col->l;      // Duration
- 	}
-    }
+ 		s << (Q_UINT8) 0;               // Track name
+ 		s << (Q_UINT8) MIDI_META;
+ 		s << (Q_UINT8) META_SEQUENCE_NAME;
+ 		writeVarLen(&s, trk->name.length());
+		s.writeRawBytes(trk->name, trk->name.length());
+		
+/*		s << trk->c.count();            // Track columns
+
+		s << (Q_UINT8) trk->trackmode();// Track properties
+		s << trk->name;
+		s << (Q_UINT8) trk->channel;
+		s << (Q_UINT16) trk->bank;
+		s << (Q_UINT8) trk->patch;
+		s << (Q_UINT8) trk->string;
+		s << (Q_UINT8) trk->frets;
+		for (int i = 0; i<trk->string; i++)
+			s << (Q_UINT8) trk->tune[i];
+*/		
+		// TRACK EVENTS
+
+		// First time signature
+		s << (Q_UINT8) 0;
+		s << (Q_UINT8) 0xff;
+		s << (Q_UINT8) 0x58;
+		s << (Q_UINT8) 4;
+		s << (Q_UINT8) trk->b[0].time1;
+		s << (Q_UINT8) /*trk->b[0].time2*/ 2; // GREYFIX
+		s << (Q_UINT8) 24;
+		s << (Q_UINT8) 8;
+
+		// Tempo
+		s << (Q_UINT8) 0;
+		s << (Q_UINT8) 0xff;
+		s << (Q_UINT8) 0x51;
+		s << (Q_UINT8) 3;
+		writeTempo(&s, 60000000 / tempo);
+//		printf("Wrote tempo signature = %d\n", 60000000 / tempo);
+
+		// Patch select
+		s << (Q_UINT8) 0;
+		s << (Q_UINT8) MIDI_PROGRAM_CHANGE;
+		s << (Q_UINT8) trk->patch;
+		
+		ml.clear();
+		timer = 0;
+		uchar noteon = MIDI_NOTEON | (trk->channel - 1);
+		uchar noteoff = MIDI_NOTEOFF | (trk->channel - 1);
+		int midilen = 0, duration;
+
+		uchar pitch;
+
+		for (uint x = 0; x < trk->c.size(); x++) {
+			// Calculate real duration (including all the linked beats)
+			midilen = dot2len(trk->c[x].l, trk->c[x].flags & FLAG_DOT);
+			while ((x + 1 < trk->c.size()) && (trk->c[x + 1].flags & FLAG_ARC)) {
+				x++;
+				midilen += dot2len(trk->c[x].l, trk->c[x].flags & FLAG_DOT);
+			}
+
+			// Note on/off events
+			for (int i = 0; i < trk->string; i++) {
+				if (trk->c[x].a[i] == -1)  continue;
+				
+				if (trk->c[x].a[i] == DEAD_NOTE) {
+					pitch = trk->tune[i];
+					duration = 5;
+				} else {
+					pitch = trk->c[x].a[i] + trk->tune[i];
+					duration = midilen;
+				}
+
+				if (trk->c[x].e[i] == EFFECT_ARTHARM)
+					pitch += 12;
+				if (trk->c[x].e[i] == EFFECT_HARMONIC) {
+					switch (trk->c[x].a[i]) {
+					case 3: pitch += 28; break;
+					case 4: pitch += 24; break;
+					case 5: pitch += 19; break;
+					case 7: pitch += 12; break;
+					case 9: pitch += 19; break;
+					case 16: pitch += 12; break; // GREYFIX: is it true?
+					}
+				}
+
+				ml.inSort(new MidiEvent(timer, noteon, pitch, 0x60));
+				ml.inSort(new MidiEvent(timer + duration, noteoff, pitch, 0x60));
+			}
+			timer += midilen;
+		}
+
+		MidiEvent *e;
+		int last = 0;
+		for (e = ml.first(); e != 0; e = ml.next()) {
+			writeVarLen(&s, e->timestamp - last);
+			s << (Q_UINT8) e->type;
+			s << (Q_UINT8) e->data1;
+			s << (Q_UINT8) e->data2;
+
+			tl += 4;
+			last = e->timestamp;
+		}
+/*
+					s << (Q_UINT8) 0;
+					s << (Q_UINT8) (0x80 | trk->channel);
+					s << (Q_UINT8) trk->c[x].a[i] + trk->tune[i];
+					s << (Q_UINT8) 0x40;
+					tl += 8; // 4+4 bytes - add for note off here also
+
+			first = TRUE;
+
+			// Note off event
+			for (int i = 0; i < trk->string; i++)
+				if (trk->c[x].a[i] != -1) {
+					if (first) {
+						writeVarLen(&s,
+									dot2len(trk->c[x].l, trk->c[x].flags & FLAG_DOT));
+						first = FALSE;
+					} else {
+						s << (Q_UINT8) 0;
+					}
+					s << (Q_UINT8) (0x90 | trk->channel);
+					s << (Q_UINT8) trk->c[x].a[i] + trk->tune[i];
+					s << (Q_UINT8) 0x40;
+				}
+*/
+/*			if (trk->c[x].flags & FLAG_ARC) {
+				s << (Q_UINT8) 'L';		// Continue of previous event
+				s << (Q_UINT8) 2;		// Size of event
+				s << dot2len(trk->c[x].l, trk->c[x].flags & FLAG_DOT); // Duration
+			} else {
+				s << (Q_UINT8) 'T';		// Tab column events
+				s << (Q_UINT8) tcsize;	// Size of event
+				needfx = FALSE;
+				for (int i=0;i<trk->string;i++) {
+					s << (Q_INT8) trk->c[x].a[i];
+					if (trk->c[x].e[i])
+						needfx = TRUE;
+				}
+				s << dot2len(trk->c[x].l, trk->c[x].flags & FLAG_DOT); // Duration
+				if (needfx) {
+					s << (Q_UINT8) 'E'; // Effect event
+					s << (Q_UINT8) trk->string; // Size of event
+					for (int i=0;i<trk->string;i++)
+						s << (Q_UINT8) trk->c[x].e[i];
+				}
+				}
+	    }
+*/
+		
+		s << (Q_UINT8) 0;
+		s << (Q_UINT8) 0xff;
+		s << (Q_UINT8) 0x2f; // End of track marker
+		s << (Q_UINT8) 0;
+
+		tl += 4;
+		int curpos = f.at();
+		f.at(sizepos);
+		s << (Q_UINT32) tl;
+		f.at(curpos);
+	}
 
     f.close();
 
     return TRUE;
-*/
 }
 
 //////////////////////////////////////////////////////////////////////
