@@ -45,6 +45,7 @@ using namespace std;		// required for cout and friends
 
 #include "accidentals.h"
 #include "global.h"
+#include "kgfontmap.h"
 #include "tabtrack.h"
 #include "trackprint.h"
 
@@ -61,6 +62,14 @@ TrackPrint::TrackPrint()
 	wNote    = 10;
 	ystepst  = 10;
 	ysteptb  = 10;
+	fmp      = new KgFontMap;
+}
+
+// TrackPrint destructor.
+
+TrackPrint::~TrackPrint()
+{
+	delete fmp;
 }
 
 // return expandable width in pixels of bar bn in track trk
@@ -459,9 +468,8 @@ void TrackPrint::drawBar(int bn, TabTrack *trk, int es, int& sx, int& sx2)
 						nhPrinted++;
 						// Draw dot, must be at odd line -> set lsbit
 						// LVIFIX: add support for double dot
-						if (dt) {
-							QString s;
-							s = QChar(0xA7);
+						QString s;
+						if (dt && fmp->getString(KgFontMap::Dot, s)) {
 							int y = ln | 1;
 							p->setFont(*fFeta);
 							p->drawText((int) (xpos + 0.8 * wNote),
@@ -492,9 +500,8 @@ void TrackPrint::drawBar(int bn, TabTrack *trk, int es, int& sx, int& sx2)
 						nhPrinted++;
 						// Draw dot, must be at odd line -> set lsbit
 						// LVIFIX: add support for double dot
-						if (dt) {
-							QString s;
-							s = QChar(0xA7);
+						QString s;
+						if (dt && fmp->getString(KgFontMap::Dot, s)) {
 							int y = ln | 1;
 							p->setFont(*fFeta);
 							p->drawText((int) (xpos + 0.8 * wNote),
@@ -945,10 +952,9 @@ int TrackPrint::drawKey(TabTrack *trk, bool doDraw, bool flop)
 	}
 
 	if (stNts) {
-		if (doDraw) {
-		// draw clef
-			QString s;
-			s = QChar(0x6A);
+		QString s;
+		if (doDraw && fmp->getString(KgFontMap::G_Clef, s)) {
+			// draw clef
 			p->setFont(*fFeta);
 			// LVIFIX: determine correct location (both clef and key)
 			p->drawText(xpos + tabpp, yposst - ystepst, s);
@@ -979,7 +985,6 @@ int TrackPrint::drawKeySig(TabTrack *trk, bool doDraw)
 	int res = 0;
 // Debug: show field width as horizontal line
 //	int xstart = xpos;
-	QString s;
 	if (stNts) {
 		if (doDraw) {
 			p->setFont(*fFeta);
@@ -995,21 +1000,23 @@ int TrackPrint::drawKeySig(TabTrack *trk, bool doDraw)
 			}
 			res += wNote;
 		}
+		QString s;
+		bool symFound;
 		if (sig > 0) {
-			s = QChar(0x201c);
+			symFound = fmp->getString(KgFontMap::Sharp_Sign, s);
 			for (int i = 0; i < sig; i++) {
 				ypos = accPosSharpTab[i];
-				if (doDraw) {
+				if (doDraw && symFound) {
 					p->drawText(xpos, yposst - (ypos + 5) * ystepst / 2, s);
 					xpos += (int) (0.8 * wNote);
 				}
 				res += (int) (0.8 * wNote);
 			}
 		} else if (sig < 0) {
-			s = QChar(0x201e);
+			symFound = fmp->getString(KgFontMap::Flat_Sign, s);
 			for (int i = 0; i > sig; i--) {
 				ypos = accPosFlatTab[i + 6];
-				if (doDraw) {
+				if (doDraw && symFound) {
 					p->drawText(xpos, yposst - (ypos + 5) * ystepst / 2, s);
 					xpos += (int) (0.7 * wNote);
 				}
@@ -1078,36 +1085,38 @@ void TrackPrint::drawNtHdCntAt(int x, int y, int t, Accidentals::Accid a)
 		auxLine--;
 	}
 	// draw note head
-	int noteHead = 0;
+	KgFontMap::Symbol noteHead;
 	if (t == 480) {
 		// whole
-		noteHead = 0x22;
+		noteHead = KgFontMap::Whole_Note;
 	} else if (t == 240) {
 		// 1/2
-		noteHead = 0x23;
+		noteHead = KgFontMap::White_NoteHead;
 	} else {
 		// others
-		noteHead = 0x24;
+		noteHead = KgFontMap::Black_NoteHead;
 	}
-	QString s;
-	s = QChar(noteHead);
 	p->setFont(*fFeta);
-	p->drawText(x - wNote / 2, yposst - ystepst * y / 2, s);
+	QString s;
+	if (fmp->getString(noteHead, s)) {
+		p->drawText(x - wNote / 2, yposst - ystepst * y / 2, s);
+	}
 	// draw accidentals
-	int acc = 0;				// accidental char code
+	KgFontMap::Symbol acc = KgFontMap::UndefinedSymbol;	// undefined symbol
 	int accxposcor = 0;			// accidental xpos correction
 	if (a == Accidentals::Sharp) {
-		acc = 0x201c;
+		acc = KgFontMap::Sharp_Sign;
 	} else if (a == Accidentals::Flat) {
-		acc = 0x201e;
+		acc = KgFontMap::Flat_Sign;
 		accxposcor = (int) (0.35 * wNote);
 	} else if (a == Accidentals::Natural) {
-		acc = 0x201d;
+		acc = KgFontMap::Natural_Sign;
 		accxposcor = (int) (0.35 * wNote);
 	}
-	s = QChar(acc);
-	p->drawText((int) (x - 1.4 * wNote) + accxposcor,
+	if (acc != KgFontMap::UndefinedSymbol && fmp->getString(acc, s)) {
+		p->drawText((int) (x - 1.4 * wNote) + accxposcor,
 				yposst - ystepst * y / 2, s);
+	}
 }
 
 // draw notestem and flag of type t and direction dir centered at x
@@ -1122,21 +1131,21 @@ void TrackPrint::drawNtHdCntAt(int x, int y, int t, Accidentals::Accid a)
 
 void TrackPrint::drawNtStmCntAt(int x, int yl, int yh, int t, char dir)
 {
-	int flagCh = 0;
+	KgFontMap::Symbol flag = KgFontMap::UndefinedSymbol;
 	int yoffset = 0;						// y offset flags
 	switch (t) {
 	case 0:   // none
 		break;
 	case 15:  // 1/32
-		flagCh = (dir != 'd') ? 0x5C :   0x61;
+		flag = (dir != 'd') ? KgFontMap::ThirtySecond_Flag : KgFontMap::ThirtySecond_FlagInv;
 		yoffset = (int) (-1.3 * ystepst);
 		break;
 	case 30:  // 1/16
-		flagCh = (dir != 'd') ? 0x5B : 0x2018;
+		flag = (dir != 'd') ? KgFontMap::Sixteenth_Flag : KgFontMap::Sixteenth_FlagInv;
 		yoffset = (int) (-0.5 * ystepst);
 		break;
 	case 60:  // 1/8
-		flagCh = (dir != 'd') ? 0x5A :   0x5F;
+		flag = (dir != 'd') ? KgFontMap::Eighth_Flag : KgFontMap::Eighth_FlagInv;
 		break;
 	case 120: // 1/4
 		break;
@@ -1166,28 +1175,32 @@ void TrackPrint::drawNtStmCntAt(int x, int yl, int yh, int t, char dir)
 		if (t != 0) {
 			QString s;
 			// draw stem (upper part)
-			s = QChar(0x64);
-			p->drawText(xs, yposst - ystepst * yh / 2, s);
+			if (fmp->getString(KgFontMap::Stem, s)) {
+				p->drawText(xs, yposst - ystepst * yh / 2, s);
+			}
 			// draw flag(s)
-			s = QChar(flagCh);
-			int yFlag = yposst - ystepst * yh / 2
+			if ((flag != KgFontMap::UndefinedSymbol) && fmp->getString(flag, s)) {
+				int yFlag = yposst - ystepst * yh / 2
 						- (int) (3.5 * ystepst)
 						+ yoffset;
-			p->drawText(xs, yFlag, s);
+				p->drawText(xs, yFlag, s);
+			}
 		}
 	} else {
 		// down
 		if (t != 0) {
 			QString s;
 			// draw stem (lower part)
-			s = QChar(0x65);
-			p->drawText(xs, yposst - ystepst * yl / 2, s);
+			if (fmp->getString(KgFontMap::StemInv, s)) {
+				p->drawText(xs, yposst - ystepst * yl / 2, s);
+			}
 			// draw flag(s)
-			s = QChar(flagCh);
-			int yFlag = yposst - ystepst * yl / 2
+			if ((flag != KgFontMap::UndefinedSymbol) && fmp->getString(flag, s)) {
+				int yFlag = yposst - ystepst * yl / 2
 						+ (int) (3.5 * ystepst)
-						+ yoffset;
-			p->drawText(xs, yFlag, s);
+						- yoffset;
+				p->drawText(xs, yFlag, s);
+			}
 		}
 	}
 }
@@ -1199,35 +1212,36 @@ void TrackPrint::drawNtStmCntAt(int x, int yl, int yh, int t, char dir)
 
 void TrackPrint::drawRstCntAt(int x, int y, int t)
 {
-	int restSym = 0;
+	KgFontMap::Symbol restSym;
 	int yoffset = 0;
 	switch (t) {
 	case 15:  // 1/32
-		restSym = 0x02D9;
+		restSym = KgFontMap::ThirtySecond_Rest;
 		break;
 	case 30:  // 1/16
-		restSym = 0xAF;
+		restSym = KgFontMap::Sixteenth_Rest;
 		break;
 	case 60:  // 1/8
-		restSym = 0x02D8;
+		restSym = KgFontMap::Eighth_Rest;
 		break;
 	case 120: // 1/4
-		restSym = 0x02C7;
+		restSym = KgFontMap::Quarter_Rest;
 		break;
 	case 240: // 1/2
-		restSym = 0xB4;
+		restSym = KgFontMap::Half_Rest;
 		break;
 	case 480: // whole
-		restSym = 0x60;
+		restSym = KgFontMap::Whole_Rest;
 		yoffset = 2;
 		break;
 	default:
 		return; // do nothing
 	} // end switch (t)
 	QString s;
-	s = QChar(restSym);
-	p->setFont(*fFeta);
-	p->drawText(x - wNote / 2, yposst - ystepst * (y + yoffset) / 2, s);
+	if (fmp->getString(restSym, s)) {
+		p->setFont(*fFeta);
+		p->drawText(x - wNote / 2, yposst - ystepst * (y + yoffset) / 2, s);
+	}
 }
 
 // draw staff lines at xpos,yposst width w
@@ -1445,13 +1459,12 @@ void TrackPrint::initMetrics()
 		tsgpp = 2 * br8w;
 	}
 	// determine font-dependent staff metrics
-	QChar c;
-	QRect r;
-	if (fFeta) {
+	QString s;
+	if (fFeta && fmp->getString(KgFontMap::Black_NoteHead, s)) {
+		QRect r;
 		p->setFont(*fFeta);
 		fm  = p->fontMetrics();
-		c   = 0x24;
-		r   = fm.boundingRect(c);
+		r   = fm.boundingRect(s[0]);
 		ystepst = (int) (0.95 * r.height());
 		wNote   = r.width();
 	} else {
