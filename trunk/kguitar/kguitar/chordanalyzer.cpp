@@ -8,7 +8,7 @@ ChordAnalyzer::ChordAnalyzer(QString name)
 	this->name = name.replace(" ", "").replace("(", "").replace(")", "").upper();
 
 	// Reset the steps info
-	for (int i = 0; i < 6; i++)	 {
+	for (int i = 0; i < 6; i++) {
 		step[i] = 0;
 		fixed[i] = false;
 	}

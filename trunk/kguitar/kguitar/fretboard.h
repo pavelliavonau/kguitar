@@ -10,9 +10,9 @@ class QPixmap;
 class QImage;
 
 class Fretboard: public QWidget {
-    Q_OBJECT
+	Q_OBJECT
 public:
-    Fretboard(TabTrack *, QWidget *parent = 0, const char *name = 0);
+	Fretboard(TabTrack *, QWidget *parent = 0, const char *name = 0);
 	~Fretboard();
 
 public slots:
