@@ -1,6 +1,7 @@
 #include "config.h"
 #include "fretboard.h"
 #include "tabtrack.h"
+#include "globaloptions.h"
 
 #include <qpainter.h>
 #include <qsizepolicy.h>
@@ -14,10 +15,11 @@
 #define ZERO_FRET_WIDTH  24
 #define INLAY_RADIUS     7
 #define FINGER_RADIUS    8
+#define SIDE_BORDER      2
 
 #define INLAY_FILL_COLOR qRgb(205, 214, 221)
-#define FRET_COLOR_1     qRgb(144, 151, 166)
-#define FRET_COLOR_2     qRgb( 77,  84,  99)
+// #define FRET_COLOR_1     qRgb(144, 151, 166)
+// #define FRET_COLOR_2     qRgb( 77,  84,  99)
 #define STRING_COLOR_1   qRgb(230, 230, 230)
 #define STRING_COLOR_2   qRgb(166, 166, 166)
 
@@ -29,8 +31,6 @@
 int marks[] = { 0, 0, 0, 1, 0, 1, 0, 1, 0, 1, 0, 0, 2,
 // =========== 13 14 15 16 17 18 19 20 21 22 23 24
                 0, 0, 1, 0, 1, 0, 1, 0, 1, 0, 0, 2 };
-
-
 
 Fretboard::Fretboard(TabTrack *_trk, QWidget *parent, const char *name)
 	: QWidget(parent, name)
@@ -159,17 +159,44 @@ void Fretboard::drawBackground()
 		// Draw frets
 		p.drawImage((int) fr[i] - 1, 0, scaledFret);
 		// Draw inlay marks, if applicable
-		if (marks[i] == 1) {
-			p.drawEllipse((int) ((fr[i - 1] + fr[i]) / 2) - INLAY_RADIUS,
-			              height() / 2 - INLAY_RADIUS,
-			              INLAY_RADIUS * 2, INLAY_RADIUS * 2);
-		} else if (marks[i] == 2) {
-			p.drawEllipse((int) ((fr[i - 1] + fr[i]) / 2) - INLAY_RADIUS,
-			              height() / 3 - INLAY_RADIUS,
-			              INLAY_RADIUS * 2, INLAY_RADIUS * 2);
-			p.drawEllipse((int) ((fr[i - 1] + fr[i]) / 2) - INLAY_RADIUS,
-			              height() * 2 / 3 - INLAY_RADIUS,
-			              INLAY_RADIUS * 2, INLAY_RADIUS * 2);
+		if (marks[i] == 0)
+			continue;
+		switch (globalMelodyEditorInlay)  {
+ 		case 0: // none
+			break;
+		case 1: // center dots
+			if (marks[i] == 1) {
+				p.drawEllipse((int) ((fr[i - 1] + fr[i]) / 2) - INLAY_RADIUS,
+				              height() / 2 - INLAY_RADIUS,
+				              INLAY_RADIUS * 2, INLAY_RADIUS * 2);
+			} else {
+				p.drawEllipse((int) ((fr[i - 1] + fr[i]) / 2) - INLAY_RADIUS,
+				              height() / 3 - INLAY_RADIUS,
+				              INLAY_RADIUS * 2, INLAY_RADIUS * 2);
+				p.drawEllipse((int) ((fr[i - 1] + fr[i]) / 2) - INLAY_RADIUS,
+				              height() * 2 / 3 - INLAY_RADIUS,
+				              INLAY_RADIUS * 2, INLAY_RADIUS * 2);
+			}
+			break;
+		case 2: // side dots
+			if (marks[i] == 1) {
+				p.drawEllipse((int) ((fr[i - 1] + fr[i]) / 2) - INLAY_RADIUS,
+				              height() - 2 * INLAY_RADIUS - SIDE_BORDER,
+				              INLAY_RADIUS * 2, INLAY_RADIUS * 2);
+			} else {
+				p.drawEllipse((int) ((fr[i - 1] + fr[i]) / 2) - INLAY_RADIUS,
+				              height() - 2 * INLAY_RADIUS - SIDE_BORDER,
+				              INLAY_RADIUS * 2, INLAY_RADIUS * 2);
+				p.drawEllipse((int) ((fr[i - 1] + fr[i]) / 2) - INLAY_RADIUS,
+				              height() - 4 * INLAY_RADIUS - 2 * SIDE_BORDER,
+				              INLAY_RADIUS * 2, INLAY_RADIUS * 2);
+			}
+			break;
+		case 3: // blocks
+			int h = height() * ((marks[i] == 1) ? 7 : 9) / 10;
+			p.drawRect((int) ((4 * fr[i - 1] + fr[i]) / 5),
+			           (height() - h) / 2, (int) (3 * (fr[i] - fr[i - 1]) / 5), h);
+			break;
 		}
 	}
 

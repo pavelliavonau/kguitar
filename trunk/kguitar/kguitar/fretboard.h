@@ -14,6 +14,7 @@ class Fretboard: public QWidget {
 public:
     Fretboard(TabTrack *, QWidget *parent = 0, const char *name = 0);
 	~Fretboard();
+	void drawBackground();
 
 public slots:
 	void setTrack(TabTrack *);
@@ -33,7 +34,6 @@ protected:
 private:
 	void handleMouse(QMouseEvent *);
 	void recalculateSizes();
-	void drawBackground();
 
 	TabTrack *trk;
 	double fr[MAX_FRETS + 1]; // Proper physical fret positions
