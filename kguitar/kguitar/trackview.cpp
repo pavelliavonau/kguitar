@@ -1,5 +1,5 @@
 #include "trackview.h"
-#include "track.h"
+#include "tabsong.h"
 
 #include "timesig.h"
 
@@ -38,8 +38,9 @@ TrackView::TrackView(QWidget *parent,const char *name): QTableView(parent,name)
     curt->b.resize(1);
 
     for (int i=0;i<MAX_STRINGS;i++)
-	curt->c[0].a[i]=-1;
-    curt->c[0].l=120;
+	curt->c[0].a[i] = -1;
+    curt->c[0].l = 120;
+    curt->c[0].flags = 0;
 
     curt->b[0].start=0;
     curt->b[0].time1=4;
@@ -84,7 +85,7 @@ void TrackView::paintCell(QPainter *p, int row, int col)
 {
     uint bn = row;                      // Drawing only this bar
 
-    int last;
+    uint last;
     if (curt->b.size()==bn+1)     // Current bar is the last one
 	last = curt->c.size()-1;        // Draw till the last note
     else                                // Else draw till the end of this bar
@@ -98,7 +99,7 @@ void TrackView::paintCell(QPainter *p, int row, int col)
     for (i=0;i<=s;i++)
 	p->drawLine(0,VERTSPACE+(s-i)*VERTLINE,width(),VERTSPACE+(s-i)*VERTLINE);
 
-    int xpos=40,xdelta;
+    int xpos=40, lastxpos=20, xdelta;
 
     // Starting bars - very thick and thick one
 
@@ -151,6 +152,18 @@ void TrackView::paintCell(QPainter *p, int row, int col)
 	    break;
 	}
 
+	// Draw dot
+
+	if (curt->c[t].flags & FLAG_DOT)
+	    p->drawRect(xpos+VERTLINE/2+3, BOTTOMDUR+5, 2, 2);
+
+	// Draw arcs to backward note
+
+	if (curt->c[t].flags & FLAG_ARC)
+	    p->drawArc(lastxpos+VERTLINE/2, BOTTOMDUR+8,
+		       xpos-lastxpos, 4,
+		       0, -180*16);
+
 	// Draw the number column
 	
 	p->setPen(NoPen);
@@ -182,10 +195,12 @@ void TrackView::paintCell(QPainter *p, int row, int col)
 	p->setPen(SolidLine);
 
 	// Length of interval
-	xdelta=(curt->c[t].l)/20*HORCELL;
+	xdelta = (curt->c[t].l)/20*HORCELL;
 	if (xdelta<HORCELL)
-	    xdelta=HORCELL;
-	xpos+=xdelta;
+	    xdelta = HORCELL;
+
+	lastxpos = xpos;
+	xpos += xdelta;
     }
 
     p->drawRect(xpos,VERTSPACE,1,VERTLINE*s);
@@ -202,12 +217,12 @@ void TrackView::resizeEvent(QResizeEvent *e)
 
 bool TrackView::moveFinger(int from, int dir)
 {
-    int n0=curt->c[curt->x].a[from];
-    int n=n0;
+    int n0 = curt->c[curt->x].a[from];
+    int n = n0;
     if (n<0)
 	return FALSE;
 
-    int to=from;
+    int to = from;
 
     do {
 	to+=dir;
@@ -223,45 +238,6 @@ bool TrackView::moveFinger(int from, int dir)
 
     curt->y=to;
     return TRUE;
-}
-
-void TrackView::arrangeBars()
-{
-    int barlen = 480;
-    int barnum = 1;
-    int cbl = 0;                        // Current bar length
-
-    curt->b[0].start=0;
-
-    for (uint i=0;i<curt->c.size();i++) {
-	cbl+=curt->c[i].l;
-	if (cbl>barlen) {
-	    curt->b.resize(barnum+1);
-	    curt->b[barnum].start = i;
-	    // GREYFIX - preserve other possible time signatures
-	    curt->b[barnum].time1 = curt->b[barnum-1].time1;
-	    curt->b[barnum].time2 = curt->b[barnum-1].time2;
-
-	    if ((curt->b[barnum].time1 != curt->b[barnum-1].time1) ||
-		(curt->b[barnum].time2 != curt->b[barnum-1].time2))
-		curt->b[barnum].showsig=TRUE;
-	    else 
-		curt->b[barnum].showsig=FALSE;
-
-	    barnum++;
-	    cbl-=barlen;
-	}
-    }
-    updateRows();
-}
-
-void TrackView::insertColumn(int x)
-{
-    curt->c.resize(curt->c.size()+1);
-    for (uint i=curt->c.size()-1;i>x;i--)
-	curt->c[i]=curt->c[i-1];
-    for (uint i=0;i<MAX_STRINGS;i++)
-	curt->c[curt->x].a[i]=-1;
 }
 
 void TrackView::timeSig()
@@ -324,8 +300,9 @@ void TrackView::keyPressEvent(QKeyEvent *e)
 	    curt->c.resize(curt->c.size()+1);
 	    curt->x++;
 	    for (int i=0;i<curt->string;i++)
-		curt->c[curt->x].a[i]=-1;
-	    curt->c[curt->x].l=120;
+		curt->c[curt->x].a[i] = -1;
+	    curt->c[curt->x].l = 120;
+	    curt->c[curt->x].flags = 0;
 	    updateRows();
 	} else {
 	    if (curt->b.size()==curt->xb+1)
@@ -374,15 +351,17 @@ void TrackView::keyPressEvent(QKeyEvent *e)
 	break;
     case Key_Delete:
 	if (e->state()==ControlButton) {
-// 	    if (curt->c.count()>1) {    // GREYFIX - deletion of column
-// 		curt->c.remove();
-// 		updateRows();
-// 	    }
+	    if (curt->c.size()>1) {
+		curt->removeColumn(curt->x);
+		if (curt->x==curt->c.size())
+		    curt->x--;
+		updateRows();
+	    }
 	} else 
 	    curt->c[curt->x].a[curt->y]=-1;
 	break;
     case Key_Insert:
-	insertColumn(curt->x);
+	curt->insertColumn(curt->x);
 	break;
     case Key_Plus:
 	if (curt->c[curt->x].l<480)
@@ -391,9 +370,18 @@ void TrackView::keyPressEvent(QKeyEvent *e)
     case Key_Minus:
 	if (curt->c[curt->x].l>15)
 	    curt->c[curt->x].l/=2;
-	break;	
+	break;
     case Key_A:
-	arrangeBars();
+	curt->arrangeBars();
+	updateRows();
+	break;
+    case Key_Period:
+	curt->c[curt->x].flags ^= FLAG_DOT; // It's XOR :-)
+	break;	    
+    case Key_L:
+	curt->c[curt->x].flags ^= FLAG_ARC;
+	for (uint i=0;i<MAX_STRINGS;i++)
+	    curt->c[curt->x].a[i]=-1;
 	break;
     default:
 	e->ignore();
