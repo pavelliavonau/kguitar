@@ -1,5 +1,3 @@
-#include "config.h"
-
 #include "trackview.h"
 #include "trackviewcommands.h"
 #include "tabsong.h"
@@ -9,10 +7,10 @@
 #include "timesig.h"
 #include "songview.h"
 #include "fretboard.h"
+#include "settings.h"
 
 #include <kglobalsettings.h>
 #include <kglobal.h>
-#include <kdebug.h>
 #include <kmessagebox.h>
 #include <klocale.h>
 #include <kpopupmenu.h>
@@ -207,7 +205,7 @@ void TrackView::melodyEditorPress(int num, int fret, ButtonState button = NoButt
 void TrackView::melodyEditorAction(int num, int fret, int action)
 {
 	// GREYFIX: make it *one* undo transaction
-	switch (globalMelodyEditorAction[action]) {
+	switch (Settings::melodyEditorAction(action)) {
 	case 0: // no action
 		break;
 	case 1: // set note
@@ -237,9 +235,9 @@ void TrackView::melodyEditorAction(int num, int fret, int action)
 // to next column, may happen.
 void TrackView::melodyEditorRelease(ButtonState button)
 {
-	if (((button & LeftButton)  && (globalMelodyEditorAdvance[0])) ||
-		((button & MidButton)   && (globalMelodyEditorAdvance[1])) ||
-		((button & RightButton) && (globalMelodyEditorAdvance[2])))  {
+	if (((button & LeftButton)  && (Settings::melodyEditorAdvance(0))) ||
+		((button & MidButton)   && (Settings::melodyEditorAdvance(1))) ||
+		((button & RightButton) && (Settings::melodyEditorAdvance(2))))  {
 		if (curt->sel) {
 			curt->sel = FALSE;
 			repaintContents();

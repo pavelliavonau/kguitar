@@ -1,11 +1,7 @@
 #include "accidentals.h"
-#include "globaloptions.h"
+#include "settings.h"
 #include "tabtrack.h"
 #include "playbacktracker.h"
-
-// using namespace std;
-
-// #include <iostream>
 
 // local functions used by beam code
 // LVIFIX: change into private TabTrack member functions
@@ -870,18 +866,18 @@ TSE3::PhraseEdit *TabTrack::midiTrack(bool tracking, int tracknum)
 
 // 			midi->insert(
 // 				TSE3::MidiEvent(TSE3::MidiCommand(TSE3::MidiCommand_NoteOn,
-// 				                                  channel - 1, globalMidiPort,
+// 				                                  channel - 1, Settings::midiPort(),
 // 				                                  pitch, velocity),
 // 				                timer + midiShift, velocity, timer + duration));
 
 			midi->insert(
 				TSE3::MidiEvent(TSE3::MidiCommand(TSE3::MidiCommand_NoteOn,
-				                                  channel - 1, globalMidiPort,
+				                                  channel - 1, Settings::midiPort(),
 				                                  pitch, velocity),
 				                timer + midiShift));
 			midi->insert(
 				TSE3::MidiEvent(TSE3::MidiCommand(TSE3::MidiCommand_NoteOff,
-				                                  channel - 1, globalMidiPort,
+				                                  channel - 1, Settings::midiPort(),
 				                                  pitch, velocity),
 				                timer + midiShift + duration - 1));
 
@@ -902,7 +898,7 @@ TSE3::PhraseEdit *TabTrack::midiTrack(bool tracking, int tracknum)
 		// GREYFIX: Workaround for TSE3 bug (?) - last event not playing
 		midi->insert(
 			TSE3::MidiEvent(TSE3::MidiCommand(TSE3::MidiCommand_NoteOff,
-											  0, globalMidiPort,
+											  0, Settings::midiPort(),
 											  0, 0), timer + 120)
 			);
 	}
@@ -910,7 +906,7 @@ TSE3::PhraseEdit *TabTrack::midiTrack(bool tracking, int tracknum)
 	// Initial setup, patches, midi volumes, choruses, etc.
 	midi->insert(TSE3::MidiEvent(TSE3::MidiCommand(
 										TSE3::MidiCommand_ProgramChange,
-										channel - 1, globalMidiPort, patch),
+										channel - 1, Settings::midiPort(), patch),
 								 tracking ? cursortimer : 0)
 				 );
 

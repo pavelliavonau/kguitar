@@ -46,14 +46,9 @@
 //	trp->drawBarLns(400 - 1, curt);
 //	trp->drawBar(row, curt, 0);
 
+#include "settings.h"
 
-using namespace std;
-#include <iostream>
-
-#include <qstring.h>			// required for globaloptions.h :-(
-#include "globaloptions.h"
-
-#include <qfontmetrics.h> 
+#include <qfontmetrics.h>
 #include <qpainter.h>
 
 #include "accidentals.h"
@@ -204,7 +199,7 @@ void TrackPrint::drawBar(int bn, TabTrack *trk, int es)
 	uint s = curt->string - 1;
 	int i = 0;
 	int trpCnt = 0;				// triplet count
-	
+
 	for (uint i = 0; i <= s; i++) {
 		ringing[i] = FALSE;
 	}
@@ -318,10 +313,10 @@ void TrackPrint::drawBar(int bn, TabTrack *trk, int es)
 							xdelta, ypostb + 2 * ysteptb);
 			case 120: // 1/4 - a long vertical line, so we need to find the highest note
 				for (i = s;((i >= 0) && (curt->c[t].a[i] == -1)); i--);
-	
+
 				// If it's an empty measure at all - draw the vertical line from bottom
 				if (i < 0)  i = 1;
-	
+
 				p->drawLine(xpos, ypostb - i * ysteptb + ysteptb / 2,
 							xpos, ypostb + 2 * ysteptb);
 				break;		// required to prevent print preview artefact
@@ -383,7 +378,7 @@ void TrackPrint::drawBar(int bn, TabTrack *trk, int es)
 		// See also: musicxml.cpp MusicXMLWriter::writeCol()
 
 		if (stNts) {
-	
+
 			// print notes
 			int ln = 0;				// line where note is printed
 			int nhPrinted = 0;		// # note heads printed
@@ -491,7 +486,7 @@ void TrackPrint::drawBar(int bn, TabTrack *trk, int es)
 					drawNtStmCntAt(xpos, yl, yh, tp, 'u');
 				}
 			}
-	
+
 			// if no note printed, print rest
 			if (nhPrinted == 0) {
 				drawRstCntAt(xpos, 4, trk->c[t].l);
@@ -613,7 +608,7 @@ void TrackPrint::drawBar(int bn, TabTrack *trk, int es)
 					ringing[i] = TRUE;
 					break;
 				} // end switch (curt->c[t].e[i])
-	
+
 				// draw palm muting as little cross behind note
 				if (curt->c[t].flags & FLAG_PM
 					&& trk->c[t].a[i] != -1) {
@@ -623,11 +618,11 @@ void TrackPrint::drawBar(int bn, TabTrack *trk, int es)
 					p->drawLine(x, y - sz_2, x + sz_2, y + sz_2);
 					p->drawLine(x, y + sz_2, x + sz_2, y - sz_2);
 				}
-			
+
 			} // end for (int i = 0 ... (end draw the number column ...)
 
 		} // end if (stTab ...
-		
+
 		lastxpos = xpos;
 		xpos += colWidth(t, trk);
 
@@ -853,7 +848,7 @@ void TrackPrint::drawKey(int l, TabTrack *trk)
 				} else {
 					drawStrCntAt(xpos + tabpp + br8w / 2,
 								 i,
-								 note_name(trk->tune[i] % 12));
+								 Settings::noteName(trk->tune[i] % 12));
 				}
 			}
 		} else {
@@ -1244,7 +1239,7 @@ void TrackPrint::initFonts()
 	fFetaFnd = true;
 	fn = "TeX feta19";
 	if (!initExactFont(fn, 18, fFeta)) {
-		cout << "KGuitar: could not find font '" << fn << "'" << endl;
+		kdDebug() << "KGuitar: could not find font '" << fn << "'" << endl;
 		fFetaFnd = false;
 	}
 	fn = "TeX feta-nummer10";
@@ -1303,7 +1298,7 @@ void TrackPrint::initPrStyle()
 {
 //	cout << "TrackPrint::initPrStyle()" << endl;
 	// check what was configured
-	switch (globalPrSty) {
+	switch (Settings::printingStyle()) {
 	case 0:
 		// (full) tab only
 		stNts = false;
