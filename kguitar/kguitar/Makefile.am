@@ -26,10 +26,10 @@ bin_PROGRAMS = kguitar
 # Which sources should be compiled for kguitar.
 kguitar_SOURCES	= application.cpp chord.cpp fingers.cpp fingerlist.cpp \
  main.cpp trackview.cpp setsong.cpp track.cpp settrack.cpp settabfret.cpp \
- radiustuner.cpp notespinbox.cpp \
+ radiustuner.cpp notespinbox.cpp options.cpp \
  application.moc.cpp chord.moc.cpp fingers.moc.cpp fingerlist.moc.cpp \
  trackview.moc.cpp setsong.moc.cpp settrack.moc.cpp settabfret.moc.cpp \
- radiustuner.moc.cpp notespinbox.moc.cpp
+ radiustuner.moc.cpp notespinbox.moc.cpp options.moc.cpp
 
 # the library search path
 kguitar_LDFLAGS = @all_libraries@ @KDE_RPATH@
@@ -40,12 +40,13 @@ kguitar_LDADD  = -lkfm -lkfile -lkdeui -lkdecore -lqt -lX11 -lXext @LIBSOCKET@
 
 # this option you can leave out. Just, if you use "make dist", you need it
 noinst_HEADERS = application.h chord.h fingers.h fingerlist.h trackview.h \
- setsong.h track.h settrack.h settabfret.h radiustuner.h notespinbox.h
+ setsong.h track.h settrack.h settabfret.h radiustuner.h notespinbox.h \
+ options.h
 
 # just to make sure, automake makes them 
 BUILTSOURCES =	application.moc.cpp chord.moc.cpp fingers.moc.cpp \
  fingerlist.moc.cpp trackview.moc.cpp setsong.moc.cpp settrack.moc.cpp \
- settabfret.moc.cpp radiustuner.moc.cpp notespinbox.moc.cpp
+ settabfret.moc.cpp radiustuner.moc.cpp notespinbox.moc.cpp options.moc.cpp
 
 EXTRA_DIST = kguitar.kdelnk kguitar.xpm kguitar-large.xpm
 
@@ -109,3 +110,6 @@ radiustuner.moc.cpp: radiustuner.h
 
 notespinbox.moc.cpp: notespinbox.h
 	$(MOC) notespinbox.h -o notespinbox.moc.cpp
+
+options.moc.cpp: options.h
+	$(MOC) options.h -o options.moc.cpp
