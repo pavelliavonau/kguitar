@@ -6,7 +6,7 @@
 msgid ""
 msgstr ""
 "Project-Id-Version: PACKAGE VERSION\n"
-"POT-Creation-Date: 2001-06-28 16:14-0400\n"
+"POT-Creation-Date: 2001-09-09 20:54+0200\n"
 "PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
 "Last-Translator: Wilane Ousmane <wilane@usa.net>\n"
 "Language-Team: FRENCH <fr@li.org>\n"
@@ -14,20 +14,20 @@ msgstr ""
 "Content-Type: text/plain; charset=ISO-8859-1\n"
 "Content-Transfer-Encoding: ISO-8859-1\n"
 
-#: application.cpp:135
+#: application.cpp:133
 msgid "P&roperties..."
 msgstr "P&ropriétés"
 
-#: application.cpp:140
+#: application.cpp:138
 #, fuzzy
 msgid "&Chord..."
 msgstr "A&ccord"
 
-#: application.cpp:144
+#: application.cpp:141
 msgid "&Save Options"
 msgstr ""
 
-#: application.cpp:147
+#: application.cpp:144
 msgid "&Arrange Track"
 msgstr ""
 
@@ -120,97 +120,97 @@ msgstr "&Piste..."
 msgid "&Stop"
 msgstr ""
 
-#: application.cpp:213
+#: application.cpp:217
 msgid "Move cursor right"
 msgstr ""
 
-#: application.cpp:215
+#: application.cpp:219
 msgid "Move cursor left"
 msgstr ""
 
-#: application.cpp:217 application.cpp:219
+#: application.cpp:221 application.cpp:223
 msgid "Move cursor up"
 msgstr ""
 
-#: application.cpp:221 application.cpp:223
+#: application.cpp:225 application.cpp:227
 msgid "Move cursor down"
 msgstr ""
 
-#: application.cpp:227
+#: application.cpp:231
 msgid "Dead note"
 msgstr ""
 
-#: application.cpp:231
+#: application.cpp:235
 msgid "Ctrl+Delete"
 msgstr ""
 
-#: application.cpp:235
+#: application.cpp:239
 msgid "Palm muting"
 msgstr ""
 
-#: application.cpp:237
+#: application.cpp:241
 msgid "Doted note"
 msgstr ""
 
-#: application.cpp:239
+#: application.cpp:243
 msgid "Key plus"
 msgstr ""
 
-#: application.cpp:241
+#: application.cpp:245
 msgid "Key minus"
 msgstr ""
 
-#: application.cpp:245
+#: application.cpp:249
 msgid "Key 1"
 msgstr ""
 
-#: application.cpp:247
+#: application.cpp:251
 msgid "Key 2"
 msgstr ""
 
-#: application.cpp:249
+#: application.cpp:253
 msgid "Key 3"
 msgstr ""
 
-#: application.cpp:251
+#: application.cpp:255
 msgid "Key 4"
 msgstr ""
 
-#: application.cpp:253
+#: application.cpp:257
 msgid "Key 5"
 msgstr ""
 
-#: application.cpp:255
+#: application.cpp:259
 msgid "Key 6"
 msgstr ""
 
-#: application.cpp:257
+#: application.cpp:261
 msgid "Key 7"
 msgstr ""
 
-#: application.cpp:259
+#: application.cpp:263
 msgid "Key 8"
 msgstr ""
 
-#: application.cpp:261
+#: application.cpp:265
 msgid "Key 9"
 msgstr ""
 
-#: application.cpp:263
+#: application.cpp:267
 msgid "Key 0"
 msgstr ""
 
-#: application.cpp:270
+#: application.cpp:274
 #, fuzzy
 msgid "Song Properties..."
 msgstr "Propriétés de la chansson"
 
-#: application.cpp:271
+#: application.cpp:275
 #, fuzzy
 msgid "Track Properties..."
 msgstr "Propriétés de la piste"
 
-#: application.cpp:306
+#: application.cpp:310
 #, fuzzy
 msgid ""
 "Jazz note names are very special and should be\n"
@@ -229,40 +229,40 @@ msgstr ""
 "\n"
 "Êtes vous sûrs de vouloir les utiliser?"
 
-#: application.cpp:325 application.cpp:333 application.cpp:373
-#: application.cpp:384 application.cpp:395 kguitar_shell.cpp:83
+#: application.cpp:329 application.cpp:337 application.cpp:377
+#: application.cpp:388 application.cpp:399 kguitar_shell.cpp:83
 msgid "Unnamed"
 msgstr ""
 
-#: application.cpp:344
+#: application.cpp:348
 msgid "Please select a file."
 msgstr ""
 
-#: application.cpp:348
+#: application.cpp:352
 msgid "You have no permission to read this file."
 msgstr ""
 
-#: application.cpp:365 application.cpp:376 application.cpp:387
+#: application.cpp:369 application.cpp:380 application.cpp:391
 msgid "Can't load the song!"
 msgstr ""
 
-#: application.cpp:398
+#: application.cpp:402
 msgid ""
 "This feature is at this time not implemented.\n"
 "If you would help to implement this feature\n"
 "please write an email to: greycat@users.sourceforge.net"
 msgstr ""
 
-#: application.cpp:423
+#: application.cpp:427
 msgid "Can't save the song!"
 msgstr ""
 
-#: application.cpp:431 application.cpp:439 application.cpp:447
-#: application.cpp:458
+#: application.cpp:435 application.cpp:443 application.cpp:451
+#: application.cpp:462
 msgid "Can't export the song!"
 msgstr ""
 
-#: application.cpp:468
+#: application.cpp:472
 msgid ""
 "Printing is at this time not implemented. If you would\n"
 "help to implement this feature in KGuitar please write\n"
@@ -321,7 +321,7 @@ msgstr ""
 msgid "Chord constructor"
 msgstr "Générateur d'accords"
 
-#: chord.cpp:313 trackview.cpp:712
+#: chord.cpp:313
 msgid ""
 "Can't open /dev/sequenzer !!\n"
 "Probably there is another program using it."
@@ -632,125 +632,125 @@ msgstr "Cordes:"
 msgid "Frets:"
 msgstr "Frets:"
 
-#: settrack.cpp:27
+#: settrack.cpp:28
 msgid "Fretted instrument"
 msgstr ""
 
-#: settrack.cpp:28
+#: settrack.cpp:29
 msgid "Drum track"
 msgstr ""
 
-#: settrack.cpp:30
+#: settrack.cpp:31
 msgid "&Track name:"
 msgstr "Nom de la pis&te:"
 
-#: settrack.cpp:31
+#: settrack.cpp:32
 msgid "&Channel:"
 msgstr "&Canal:"
 
-#: settrack.cpp:32
+#: settrack.cpp:33
 msgid "&Bank:"
 msgstr "&Banque"
 
-#: settrack.cpp:33
+#: settrack.cpp:34
 msgid "&Patch:"
 msgstr "&Patch:"
 
-#: settrack.cpp:34
+#: settrack.cpp:35
 msgid "&Mode:"
 msgstr ""
 
-#: settrack.cpp:55
+#: settrack.cpp:72
 #, fuzzy
 msgid "&General"
 msgstr "&Général..."
 
-#: settrack.cpp:62
+#: settrack.cpp:79 settrack.cpp:104 settrack.cpp:118
 msgid "&Mode-specific"
 msgstr ""
 
-#: settrack.cpp:67
+#: settrack.cpp:89
 msgid "Track properties"
 msgstr "Propriétés de la piste"
 
-#: strum.h:33
+#: strum.h:35
 #, fuzzy
 msgid "Chord"
 msgstr "A&ccord"
 
-#: strum.h:34
+#: strum.h:36
 msgid "Plain single chord, all notes sound at the same time."
 msgstr ""
 
-#: strum.h:37
+#: strum.h:39
 msgid "6/8 Standard Arpegio"
 msgstr ""
 
-#: strum.h:38
+#: strum.h:40
 msgid ""
 "Classic arpegio, played in 6/8. Makes very good accompaniment for slow, "
 "lyric songs. Used in the raw form (playing open strings) by Metallica in the "
 "song \"Nothing Else Matters\""
 msgstr ""
 
-#: strum.h:43
+#: strum.h:45
 msgid "4/4 Short Arpegio"
 msgstr ""
 
-#: strum.h:44
+#: strum.h:46
 msgid ""
 "Shortened variation of classic arpegio, with chord-like two simultaneous "
 "string pick in the middle. A cross between classic arpegio and bass pick "
 "technique."
 msgstr ""
 
-#: strum.h:49
+#: strum.h:51
 msgid "8/8 Arpegio 1"
 msgstr ""
 
-#: strum.h:50
+#: strum.h:52
 msgid ""
 "Pretty complex arpegio that makes dynamic progressing and continuous rhythm "
 "line. Fits best in medium tempo upbeat songs."
 msgstr ""
 
-#: strum.h:54
+#: strum.h:56
 msgid "8/8 Arpegio 2"
 msgstr ""
 
-#: strum.h:55
+#: strum.h:57
 msgid ""
 "Variantion of previous arpegio, can spice up sound if used several times "
 "with previous rhythm."
 msgstr ""
 
-#: strum.h:59
+#: strum.h:61
 msgid "3/4 Smooth Arpegio With Return"
 msgstr ""
 
-#: strum.h:60
+#: strum.h:62
 msgid ""
 "Smooth accelerating and decelarating arpegio. Played mostly with a pick, "
 "strumming relatively slow through the strings. Well-known from a song "
 "\"House of the Rising Sun\", performed by Animals and many others."
 msgstr ""
 
-#: strum.h:66
+#: strum.h:68
 msgid "4/4 Rock Ballad Arpegio 1"
 msgstr ""
 
-#: strum.h:67
+#: strum.h:69
 msgid ""
-"Most famous rock arpegio. If played in a correct way, could make a smooth "
-"continuous rhythm, good for verses. One of the most well-known songs that "
-"uses such arpegio is \"Don't Cry\" by Guns'n'Roses."
+"One of the most famous rock arpegios. If played in a correct way, could make "
+"a smooth continuous rhythm, good for verses. One of the most well-known "
+"songs that uses such arpegio is \"Don't Cry\" by Guns'n'Roses."
 msgstr ""
 
-#: strum.h:73
+#: strum.h:75
 msgid "4/4 Rock Ballad Arpegio 2"
 msgstr ""
 
-#: strum.h:74
+#: strum.h:76
 msgid ""
 "Smooth rock ballad arpegio. Picking pattern could seem a bit random-like, "
 "though the whole arpegio makes a pretty smooth rhythm. Good for slow and "
@@ -758,37 +758,69 @@ msgid ""
 "Alice\""
 msgstr ""
 
-#: strum.h:80
+#: strum.h:82
 msgid "4/4 Rock Ballad Arpegio 3"
 msgstr ""
 
-#: strum.h:81
+#: strum.h:83
 msgid ""
 "Weird, but simple combination of classic arpegios, makes a good continuous "
 "rock lyric arpegio, with a bit of spanish feel. Used in the song of "
 "Scorpions \"Holiday\""
 msgstr ""
 
-#: strum.h:86
+#: strum.h:88
+msgid "4/4 Rock Ballad Arpegio 4"
+msgstr ""
+
+#: strum.h:89
+msgid ""
+"Classic stairway rock arpegio, this thing was the learning pattern for lots "
+"of various musicians. Very regular 4/4, first accented note is a good "
+"metronome. Used in (and most likely originating from) Led Zeppelin's "
+"\"Stairway to Heaven\""
+msgstr ""
+
+#: strum.h:95
+msgid "4/4 Rock Ballad Arpegio 5"
+msgstr ""
+
+#: strum.h:96
+msgid ""
+"Folk style picking, named \"Travis picking\" after Merle Travis who "
+"apparently came up with it first. Arpegio line is somewhat syncopated, "
+"giving a special feel. Good example of such picking is Kansas' \"Dust in the "
+"Wind\""
+msgstr ""
+
+#: strum.h:102
 msgid "4/4 Normal Bass Pick"
 msgstr ""
 
-#: strum.h:93
+#: strum.h:103
+msgid ""
+"Classic bass pick technique with alteration. Played in 2 steps: at the first "
+"step some sort of bass note is picked and at the second step the bunch of "
+"trebles sounds. Very popular thing for lyric songs on acoustic (especially "
+"7-string) guitar."
+msgstr ""
+
+#: strum.h:109
 msgid "3/4 Waltz Bass Pick"
 msgstr ""
 
-#: strum.h:94
+#: strum.h:110
 msgid ""
 "Waltz style bass pick. Makes a perfect dance rhythm - played on 3/4, with "
 "the first beat accented by bass note. Could be used in classic guitar "
 "playing experience, for example, in orchestra."
 msgstr ""
 
-#: strum.h:99
+#: strum.h:115
 msgid "4/4 Deep Bass Pick"
 msgstr ""
 
-#: strum.h:100
+#: strum.h:116
 msgid ""
 "Normal bass pick with a shuffled, bluesey feel, made by delaying bass notes "
 "by an extra 1/8. A good simple rhythm for blues and folk songs."
@@ -928,6 +960,10 @@ msgstr "&Noms de la note"
 
 #: rc.cpp:14
 msgid "Show Toolbars"
+msgstr ""
+
+#: settabdrum.cpp:17
+msgid "Drums:"
 msgstr ""
 
 #, fuzzy
