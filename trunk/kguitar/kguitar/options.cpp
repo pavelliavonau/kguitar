@@ -21,22 +21,19 @@ Options::Options(QWidget *parent = 0, char *name = 0, bool modal)
 				  modal, TRUE)
 {
 	//Setup Tabs
-	setupChordTab();
+	setupTheoryTab();
 	setupMusixtexTab();
 #ifdef HAVE_LIBASOUND
 	setupAlsaTab();
 #endif
-	resize(530,300);
+	resize(530, 300);
 }
 
-void Options::setupChordTab()
+void Options::setupTheoryTab()
 {
-    //////////////////////////////////////////////////////////////////
-    // CHORD DIALOG SETTINGS TAB
-    //////////////////////////////////////////////////////////////////
-
 	// ALINXFIX: find or make a better icon for this page !!!
-	QFrame *cd = addPage(i18n("Chord"), 0, DesktopIcon("looknfeel", KIcon::SizeMedium));
+	QFrame *cd = addPage(i18n("Music Theory"), 0,
+						 DesktopIcon("looknfeel", KIcon::SizeMedium));
 
     // Dominant 7th name selection group
 
@@ -73,11 +70,8 @@ void Options::setupChordTab()
 
 void Options::setupMusixtexTab()
 {
-    ///////////////////////////////////////////////////////////////////
-    // MusiXTeX Settings Tab  - alinx
-    ///////////////////////////////////////////////////////////////////
-
-	QFrame *tex = addPage(i18n("MusiXTeX Export"), 0, DesktopIcon("kcmsound", KIcon::SizeMedium));
+	QFrame *tex = addPage(i18n("MusiXTeX Export"), 0,
+						  DesktopIcon("musixtex", KIcon::SizeMedium));
 
 	texlygr = new QButtonGroup(i18n("MusiXTeX Layout"), tex);
 	texlygr->setMinimumSize(175, 130);
