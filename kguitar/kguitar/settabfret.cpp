@@ -10,9 +10,11 @@
 #include <qlabel.h>
 #include <qlayout.h>
 
-SetTabFret::SetTabFret(QWidget *parent=0, const char *name=0): QGroupBox(parent,name)
+SetTabFret::SetTabFret(QWidget *parent=0, const char *name=0):
+    QGroupBox(i18n("Fret tabulature"),parent,name)
 {
-    l = new QVBoxLayout(this,5);
+    l = new QVBoxLayout(this,10);
+    l->addSpacing(10);
 
     // Controls
 
@@ -48,6 +50,7 @@ SetTabFret::SetTabFret(QWidget *parent=0, const char *name=0): QGroupBox(parent,
 	tuner[i] = new RadiusTuner(this);
 	rt->addWidget(tuner[i]);
     }
+    oldst=12; // GREYFIX!
 
     l->activate();
 }
@@ -61,12 +64,17 @@ void SetTabFret::setLibTuning(int n)
 
 void SetTabFret::stringChanged(int n)
 {
-    for (int i=0;i<n;i++)
-	if (!tuner[i])
-	    tuner[i] = new RadiusTuner(this);
-//	tuner[i]->show();
-    for (int i=n;i<MAX_STRINGS;i++)
-	delete tuner[i];
-//    tuner[i]->hide();
+    if (oldst==n)
+	return;
+
+    if (oldst<n) {       // Need to add
+	for (int i=oldst;i<n;i++)
+	    tuner[i]->show();
+    } else {             // Need to delete
+	for (int i=n;i<oldst;i++)
+	    tuner[i]->hide();
+    }
+    oldst=n;
+
     l->activate();
 }
