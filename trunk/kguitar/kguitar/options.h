@@ -16,8 +16,8 @@ class Options: public KDialogBase
 public:
     Options(QWidget *parent = 0, char *name = 0, bool modal = TRUE);
 
-    QButtonGroup *maj7gr,*flatgr, *texlygr, *texsizegr;
-    QRadioButton *maj7[3],*flat[2], *tabsize[4];
+    QButtonGroup *maj7gr,*flatgr, *texlygr, *texsizegr, *texexpgr;
+    QRadioButton *maj7[3],*flat[2], *tabsize[4], *expmode[2];
     QCheckBox *showbarnumb, *showstr, *showpagenumb;
 
 protected:

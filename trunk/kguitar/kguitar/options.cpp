@@ -74,7 +74,7 @@ void Options::setupMusixtexTab()
 						  DesktopIcon("musixtex", KIcon::SizeMedium));
 
 	texlygr = new QButtonGroup(i18n("MusiXTeX Layout"), tex);
-	texlygr->setMinimumSize(175, 130);
+	texlygr->setMinimumSize(175, 75);
 	showbarnumb = new QCheckBox(i18n("Show Barnumber"), texlygr);
 	showbarnumb->setGeometry(10, 35, 150, 20);
 	showstr = new QCheckBox(i18n("Show Tuning"), texlygr);
@@ -89,6 +89,17 @@ void Options::setupMusixtexTab()
 	texvb1->addWidget(showpagenumb);
 	texvb1->activate();
 
+	texexpgr = new QButtonGroup(i18n("Export as..."), tex);
+	texexpgr->setMinimumSize(175, 75);
+	expmode[0] = new QRadioButton(i18n("Tabulature"), texexpgr);
+	expmode[1] = new QRadioButton(i18n("Notes"), texexpgr);
+
+	QVBoxLayout *texvb2 = new QVBoxLayout(texexpgr, 15, 10);
+    texvb2->addSpacing(5); // Cosmetic space
+	texvb2->addWidget(expmode[0]);
+	texvb2->addWidget(expmode[1]);
+	texvb2->activate();
+
 	texsizegr = new QButtonGroup(i18n("Tab Size"), tex);
 	texsizegr->setMinimumSize(175, 130);
 	tabsize[0] = new QRadioButton(i18n("Smallest"), texsizegr);
@@ -96,15 +107,16 @@ void Options::setupMusixtexTab()
 	tabsize[2] = new QRadioButton(i18n("Normal"), texsizegr);
 	tabsize[3] = new QRadioButton(i18n("Big"), texsizegr);
 
-    QVBoxLayout *texvb2 = new QVBoxLayout(texsizegr, 15, 10);
-    texvb2->addSpacing(5); // Cosmetic space
+    QVBoxLayout *texvb3 = new QVBoxLayout(texsizegr, 15, 10);
+    texvb3->addSpacing(5); // Cosmetic space
     for (int i = 0; i < 4; i++)
-	    texvb2->addWidget(tabsize[i]);
-    texvb2->activate();
+	    texvb3->addWidget(tabsize[i]);
+    texvb3->activate();
 
 	QHBoxLayout *vbtex = new QHBoxLayout(tex, 15, 10);
 	vbtex->addWidget(texlygr);
 	vbtex->addWidget(texsizegr);
+	vbtex->addWidget(texexpgr);
 	vbtex->activate();
 }
 

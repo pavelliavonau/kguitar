@@ -10,6 +10,7 @@ extern int globalTabSize;
 extern bool globalShowBarNumb;
 extern bool globalShowStr;
 extern bool globalShowPageNumb;
+extern int globalTexExpMode;
 
 // Appearance
 extern bool globalShowMainTB;
