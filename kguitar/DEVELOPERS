@@ -26,7 +26,6 @@ Remember, the tags look like "rel0-1".
 
 	configure.in.in
 	VERSION
-	kguitar.spec
 
 * Commit everything to CVS repository
 
