@@ -51,6 +51,8 @@
 
 // LVIFIX: check and/or improve handling of extSpAftNote
 
+// LVIFIX: print "8va" below G-clef (when applicable (always, right now))
+
 #include <qstring.h>			// required for globaloptions.h :-(
 #include "globaloptions.h"
 
@@ -1738,14 +1740,16 @@ void SongPrint::initPrStyle()
 
 int SongPrint::line(const QString step, int oct)
 {
+	const int ClefOctCh = -1;
 	int cn = 0;				// if note not found, default to "C"
 	for (int i = 0; i < 7; i++) {
 		if (notes[i] == step) {
 			cn = i;
 		}
 	}
-	// magic constant "30" maps G4 to the second-lowest staffline
-	return cn + 7 * oct - 30;
+	// magic constant "30" maps G3 to the second-lowest staffline
+	// note implicit clef-octave-change of -1
+	return cn + 7 * (oct - ClefOctCh) - 30;
 }
 
 // print song song on printer printer
