@@ -16,7 +16,7 @@ TrackList::TrackList(TabSong *s, KXMLGUIClient *_XMLGUIClient, QWidget *parent =
 {
 	song = s;
     m_XMLGUIClient = _XMLGUIClient;
-
+	
 	setFocusPolicy(QWidget::StrongFocus);
     setAllColumnsShowFocus(TRUE);
 
@@ -27,6 +27,8 @@ TrackList::TrackList(TabSong *s, KXMLGUIClient *_XMLGUIClient, QWidget *parent =
 	addColumn(i18n("Patch"));
 
 	updateList();
+
+	connect(this, SIGNAL(selectionChanged(QListViewItem *)), SLOT(selectNewTrack(QListViewItem *)));
 
 	show();
 }
@@ -73,5 +75,11 @@ void TrackList::contentsMousePressEvent(QMouseEvent *e)
     setSelected(currentItem(), TRUE);
 }
 
+void TrackList::selectNewTrack(QListViewItem *item)
+{
+	if (!item)
+		return;
 
-
+	int num = item->text(0).toInt() - 1;
+	emit newTrackSelected(song->t.at(num));
+}
