@@ -18,12 +18,15 @@ public:
 public slots:
 /*     void setFirstFret(int fret); */
 
+signals:
+    void chordSelected(const int *);
+
 protected:
     virtual void paintCell(QPainter *, int row, int col);
     virtual void resizeEvent(QResizeEvent *); 
 /*     virtual void drawContents(QPainter *); */
 /*     virtual void mouseMoveEvent(QMouseEvent *); */
-/*     virtual void mousePressEvent(QMouseEvent *); */
+    virtual void mousePressEvent(QMouseEvent *);
 /*     void         mouseHandle(const QPoint &pos, bool domute); */
 
 private:
@@ -32,7 +35,7 @@ private:
     int num,perRow;
     int appl[100][MAX_STRINGS];
 
-    int current;
+    int curSel;
     int numstr;
 };
 
