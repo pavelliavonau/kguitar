@@ -49,15 +49,16 @@ BUILTSOURCES =	application.moc.cpp chord.moc.cpp fingers.moc.cpp \
  settabfret.moc.cpp radiustuner.moc.cpp notespinbox.moc.cpp options.moc.cpp \
  chordlist.moc.cpp
 
-EXTRA_DIST = kguitar.kdelnk kguitar.xpm kguitar-large.xpm
+EXTRA_DIST = kguitar.kdelnk kguitar.xpm kguitar-large.xpm kguitar-mini.xpm
 
 # if you "make distclean", this files get removed. If you want to remove
 # them while "make clean", use CLEANFILES
 CLEANFILES = $(BUILTSOURCES)
 
 # make messages.po. Move this one to ../po/ and "make merge" in po
+# the -x is for skipping messages already translated in kdelibs
 messages:
-	$(XGETTEXT) -C -ki18n $(kguitar_SOURCES)
+	$(XGETTEXT) -C -ki18n -x $(includedir)/kde/kde.pot $(kguitar_SOURCES) && mv messages.po ../po/kguitar.pot
 
 # just install datas here. Use install-exec-data for scripts and etc.
 # the binary itself is already installed from automake
@@ -73,8 +74,6 @@ install-data-local:
 	$(INSTALL_DATA) kguitar.xpm $(kde_icondir)
 	$(INSTALL_DATA) kguitar-large.xpm $(kde_icondir)/large/kguitar.xpm
 	$(INSTALL_DATA) kguitar-mini.xpm $(kde_minidir)/kguitar.xpm
-	$(mkinstalldirs) $(kde_datadir)/kguitar/toolbar/
-	$(INSTALL_DATA) toolbar/chord.xpm $(kde_datadir)/kguitar/toolbar/chord.xpm
 
 # remove ALL you have installed in install-data-local or install-exec-local
 uninstall-local:
@@ -82,7 +81,6 @@ uninstall-local:
 	-rm -f $(kde_icondir)/kguitar.xpm
 	-rm -f $(kde_minidir)/kguitar.xpm
 	-rm -f $(kde_icondir)/large/kguitar.xpm
-	-rm -f $(kde_datadir)/kguitar/toolbar/chord.xpm
 
 # add a dependency for every moc file to be full portable
 application.moc.cpp: application.h
