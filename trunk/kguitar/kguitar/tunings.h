@@ -5,9 +5,11 @@ typedef struct {
 } tuning;
 
 tuning lib_tuning[] = {
-    { 6, {40,45,50,55,59,64},      "Standard 6-string guitar" },
-    { 6, {39,44,49,54,58,63},      "Dropped 6-string guitar" },
-    { 4, {28,33,38,43},            "Standard 4-string bass" },
-    { 5, {28,33,38,43,47},         "Standard 5-string bass" },
+    { 6, {40,45,50,55,59,64},      "Guitar (6): standard" },
+    { 6, {39,44,49,54,58,63},      "Guitar (6): dropped 1/2 tone" },
+    { 6, {38,43,48,53,57,62},      "Guitar (6): dropped 1 tone" },
+    { 6, {38,45,50,55,59,64},      "Guitar (6): drop D" },
+    { 4, {28,33,38,43},            "Bass (4): standard" },
+    { 5, {28,33,38,43,47},         "Bass (5): standard" },
     { 0 }
 };
