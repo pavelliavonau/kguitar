@@ -15,22 +15,23 @@ Fingering::Fingering(TabTrack *p, QWidget *parent, const char *name):
 
     lastff=1;
     
-    setFixedSize(parm->string*SCALE+2*BORDER+FRETTEXT+SCROLLER,
-		 NUMFRETS*SCALE+SCALE+2*BORDER+2*SPACER+NOTES);
+    setFixedSize(parm->string * SCALE + 2 * BORDER + FRETTEXT + SCROLLER,
+	             NUMFRETS * SCALE + SCALE + 2 * BORDER + 2 * SPACER + NOTES);
     setFrameStyle(Panel | Sunken);
     setBackgroundMode(PaletteBase);
     
-    ff = new QScrollBar(1,parm->frets-NUMFRETS+1,1,5,1,QScrollBar::Vertical,this);
-    ff->setGeometry(width()-SCROLLER,0,SCROLLER,height());
-    connect(ff,SIGNAL(valueChanged(int)),SLOT(setFirstFret(int)));
+    ff = new QScrollBar(1, parm->frets-NUMFRETS + 1, 1, 5, 1,
+	                    QScrollBar::Vertical, this);
+    ff->setGeometry(width() - SCROLLER, 0, SCROLLER, height());
+    connect(ff, SIGNAL(valueChanged(int)), SLOT(setFirstFret(int)));
   
     clear();
 }
 
 void Fingering::clear()
 {
-    for (int i=0;i<parm->string;i++)
-	appl[i]=-1;
+    for (int i = 0; i < parm->string; i++)
+		appl[i] = -1;
     repaint();
     emit chordChange();
 }
