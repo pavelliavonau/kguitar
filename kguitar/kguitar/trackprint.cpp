@@ -88,6 +88,10 @@ int TrackPrint::barExpWidth(int bn, TabTrack *trk)
 
 int TrackPrint::barWidth(int bn, TabTrack *trk)
 {
+	if (onScreen)
+		return 480 * br8w * trk->b[bn].time1 / trk->b[bn].time2 / zoomLevel +
+			tsgfw + nt0fw + ntlfw + (int) (2.5 * br8w);
+
 	int w = 0;
 	for (uint t = trk->b[bn].start; ((int) t) <= trk->lastColumn(bn); t++)
 		w += colWidth(t, trk);
@@ -935,19 +939,21 @@ int TrackPrint::drawKey(TabTrack *trk, bool doDraw, bool flop)
 			// calculate vertical position:
 			// exactly halfway between top and bottom string
 			// center "TAB" at this height, use spacing of 0.25 * char height
-			if (doDraw) {
-				QFontMetrics fm  = p->fontMetrics();
-				int y = ypostb - ysteptb * lstStr / 2;
-				int br8h = fm.boundingRect("8").height();
-				y -= (int) ((0.5 + 0.25) * br8h);
-				p->drawText(xpos + tabpp, y, "T");
-				y += (int) ((1.0 + 0.25) * br8h);
-				p->drawText(xpos + tabpp, y, "A");
-				y += (int) ((1.0 + 0.25) * br8h);
-				p->drawText(xpos + tabpp, y, "B");
-			}
-			res = (int) (2.5 * br8w);
+// 			if (doDraw) {
+// 				QFontMetrics fm  = p->fontMetrics();
+// 				int y = ypostb - ysteptb * lstStr / 2;
+// 				int br8h = fm.boundingRect("8").height();
+// 				y -= (int) ((0.5 + 0.25) * br8h);
+// 				p->drawText(xpos + tabpp, y, "T");
+// 				y += (int) ((1.0 + 0.25) * br8h);
+// 				p->drawText(xpos + tabpp, y, "A");
+// 				y += (int) ((1.0 + 0.25) * br8h);
+// 				p->drawText(xpos + tabpp, y, "B");
+// 			}
+// 			res = (int) (2.5 * br8w);
 		}
+		if (onScreen)
+			res = (int) (2.5 * br8w);
 	}
 
 	if (stNts) {
@@ -961,7 +967,7 @@ int TrackPrint::drawKey(TabTrack *trk, bool doDraw, bool flop)
 		res = 4 * br8w;		// note: may increase res
 	}
 
-	if (doDraw) {
+	if (doDraw || onScreen) {
 		xpos += res;
 // Debug: show field width as horizontal line
 //		p->setPen(pLnBl);
@@ -1349,6 +1355,9 @@ int TrackPrint::drawTimeSig(int bn, TabTrack *trk, bool doDraw)
 		if (stNts || stTab) {
 			res += tsgfw;
 		}
+	} else if (onScreen) {
+		res += tsgfw;
+		xpos += tsgfw;
 	}
 // Debug: show field width as horizontal line
 //	if (doDraw) {
