@@ -16,8 +16,6 @@ public:
     TrackView(TabSong* s, QWidget *parent = 0, const char *name = 0);
     ~TrackView();
 
-//     TabSong* sng() { return song; }
-
     TabTrack* trk() { return curt; }
     void setCurt(TabTrack *trk) { curt = trk; }
 
@@ -52,7 +50,7 @@ public slots:
 	void keyDelete();
     void keyCtrlDelete();
 	void keyInsert();
-	void keyM();
+	void palmMute();
 	void keyPeriod();
 	void keyPlus();
 	void keyMinus();
