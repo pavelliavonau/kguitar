@@ -518,8 +518,15 @@ void KGuitarPart::insertChord()
 	// required to detect chord from tabulature
 	cs.detectChord();
 
+    int i;
+
+    // set fingering right if frets > 5
+    for (i = 0; i < tv->trk()->string; i++)
+        a[i] = cs.app(i);
+    cs.fng->setFingering(a);
+
 	if (cs.exec()) {
-		for (int i = 0; i < tv->trk()->string; i++)
+		for (i = 0; i < tv->trk()->string; i++)
 			a[i] = cs.app(i);
 		tv->trk()->insertStrum(cs.scheme(), a);
 	}
