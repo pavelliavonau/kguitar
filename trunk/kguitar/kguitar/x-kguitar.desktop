@@ -4,5 +4,5 @@ MimeType=application/x-kguitar
 Comment=KGuitar tabulature
 Comment[de]=KGuitar Tabulatur
 DefaultApp=kguitar
-Icon=kguitar
+Icon=kguitar_tab
 Patterns=*.kg;*.KG;
