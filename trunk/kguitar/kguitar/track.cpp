@@ -16,10 +16,46 @@ TabTrack::TabTrack(TrackMode _tm, QString _name, int _channel,
     frets=_frets;
 };
 
+// KG format specs
+// ===============
+// It's really internal stuff of KGuitar and could be changed without any
+// notices, but generally...
+
+// General header:
+// 3 bytes - 'K' 'G' 0 - general signature
+// 1 byte  - version number of _file_format_. Should be 1 for now.
+
+// Song properties (strings in Qt format)
+// string  - title
+// string  - author
+// string  - transcriber
+// string  - comments
+// 4 bytes - starting tempo number
+// 4 bytes - number of tracks
+
+// Then, track header and track data repeated for every track.
+// Track header:
+// 1 byte  - track mode
+// string  - track name
+// 1 byte  - MIDI channel
+// 2 bytes - MIDI bank
+// 1 byte  - MIDI patch
+// 1 byte  - number of strings (x)
+// 1 byte  - number of frets
+// x bytes - tuning, one byte per string
+
+// Track data - repeated event chunk.
+// Event chunk:
+
+// 1 byte  - event type (et)
+// 1 byte  - event length (length of following data in bytes)
+
+// et='X' - end of track, no more reading track chunks
+// et='T' - tab column: x bytes - raw tab data, 2 bytes - duration of column
+// et='B' - new bar start
+
 bool TabSong::load_from_kg(QString fileName)
 {
-    return FALSE;
-/*
     QFile f(fileName);
     if (!f.open(IO_ReadOnly))
 	return FALSE;
@@ -34,7 +70,7 @@ bool TabSong::load_from_kg(QString fileName)
 
     // FILE VERSION NUMBER
     Q_UINT8 ver;
-    s >> ver; // we could only read version 1 files
+    s >> ver;                           // we could only read version 1 files
     if (ver!=1)
 	return FALSE;
 
@@ -100,19 +136,31 @@ bool TabSong::load_from_kg(QString fileName)
 
 	bool finished=FALSE;
 
+	int x=0,bar=1;
+	t.current()->b.resize(1);
+	t.current()->b[0].start=0;
+
 	do {
 	    s >> event;
 	    s >> elength;
 
 	    switch (event) {
+	    case 'B':                   // Tab bar
+		bar++;
+		t.current()->b.resize(bar);
+		t.current()->b[bar-1].start=x;
+		break;
 	    case 'T':                   // Tab column
-		t.current()->c.append(new TabColumn());
+		x++;
+		printf("Reading column %d... ",x);
+		t.current()->c.resize(x);
 		for (int k=0;k<string;k++) {
 		    s >> cn;
-		    t.current()->c.current()->a[k] = cn;
+		    t.current()->c[x-1].a[k] = cn;
 		}
 		s >> i16;
-		t.current()->c.current()->l = i16;
+		t.current()->c[x-1].l = i16;
+		printf("done\n");
 		break;
 	    case 'X':                   // End of track
 		finished=TRUE;
@@ -124,18 +172,19 @@ bool TabSong::load_from_kg(QString fileName)
 		break;
 	    }
 	} while (!finished);
+
+	t.current()->x=0;
+	t.current()->xb=0;
+	t.current()->y=0;
     }
 
     f.close();
 
     return TRUE;
-*/
 }
 
 bool TabSong::save_to_kg(QString fileName)
 {
-    return FALSE;
-/*
     QFile f(fileName);
     if (!f.open(IO_WriteOnly))
 	return FALSE;
@@ -174,26 +223,34 @@ bool TabSong::save_to_kg(QString fileName)
 
 	// TRACK EVENTS
 
- 	QListIterator<TabColumn> ic(trk->c);
-
 	Q_UINT8 tcsize=trk->string+2;
+	uint bar=1;
 
- 	for (;ic.current();++ic) {
+ 	for (uint x=0;x<trk->c.size();x++) {
+	    if (bar+1<trk->b.size()) {  // This bar's not last
+		if (trk->b[bar+1].start==x)
+		    bar++;              // Time for next bar		
+	    }
+	    
+	    if (trk->b[bar].start==x) { // New bar event
+		s << (Q_UINT8) 'B';
+		s << (Q_UINT8) 0;		
+	    }
+
 	    s << (Q_UINT8) 'T';         // Tab column events
 	    s << (Q_UINT8) tcsize;      // Size of event
- 	    TabColumn *col = ic.current();
 	    for (int i=0;i<trk->string;i++)
-		s << (Q_INT8) col->a[i];
-	    s << (Q_INT16) col->l;      // Duration
+		s << (Q_INT8) trk->c[x].a[i];
+	    s << (Q_INT16) trk->c[x].l;      // Duration
  	}
 
 	s << (Q_UINT8) 'X';             // End of track marker
+	s << (Q_UINT8) 0;               // Length of end track event        
     }
 
     f.close();
 
     return TRUE;
-*/
 }
 
 bool TabSong::load_from_gtp(QString fileName)
