@@ -1,19 +1,9 @@
-/****************************************************************************
-** $Id$
-**
-** Copyright (C) 1992-1998 Troll Tech AS.  All rights reserved.
-**
-** This file is part of an example program for Qt.  This example
-** program may be used, distributed and modified without limitation.
-**
-*****************************************************************************/
-
 #include "application.h"
 #include "chord.h"
 
 #include <qpixmap.h>
-#include <qtoolbar.h>
-#include <qtoolbutton.h>
+#include <ktoolbar.h>
+#include <kbutton.h>
 #include <qpopupmenu.h>
 #include <qmenubar.h>
 #include <qkeycode.h>
@@ -23,7 +13,7 @@
 #include <qstatusbar.h>
 #include <qmessagebox.h>
 #include <qprinter.h>
-#include <qapplication.h>
+#include <kapp.h>
 #include <qaccel.h>
 #include <qtextstream.h>
 #include <qpainter.h>
@@ -35,49 +25,23 @@
 #include "fileprint.xpm"
 #include "chord.xpm"
 
-const char * fileOpenText = "Click this button to open a new file.\n\n"
-"You can also select the Open command from the File menu.";
-const char * fileSaveText = "Click this button to save the file you are "
-"editing.  You will be prompted for a file name.\n\n"
-"You can also select the Save command from the File menu.\n\n"
-"Note that implementing this function is left as an exercise for the reader.";
-const char * filePrintText = "Click this button to print the file you "
-"are editing.\n\n"
-"You can also select the Print command from the File menu.";
-
-ApplicationWindow::ApplicationWindow()
-    : QMainWindow( 0, "example application main window" )
+ApplicationWindow::ApplicationWindow(): KTMainWindow()
 {
     printer = new QPrinter;
     printer->setMinMax( 1, 10 );
     QPixmap openIcon, saveIcon, printIcon, chordIcon;
 
-    fileTools = new QToolBar( this, "file operations" );
+    fileTools = new KToolBar( this, "file operations" );
 
     openIcon = QPixmap(fileopen);
-    QToolButton * fileOpen = new QToolButton( openIcon, "Open File", 0,
-					      this, SLOT(load()),
-					      fileTools, "open file" );
-
     saveIcon = QPixmap(filesave);
-    QToolButton * fileSave = new QToolButton( saveIcon, "Save File", 0,
-					      this,SLOT(save()),
-					      fileTools, "save file" );
-
     printIcon = QPixmap(fileprint);
-    QToolButton * filePrint = new QToolButton( printIcon, "Print File", 0,
-					       this,SLOT(print()),
-					       fileTools, "print file");
-
     chordIcon = QPixmap(chord_xpm);
-    QToolButton *insertChord = new QToolButton(chordIcon,"Insert Chord",0,
-					       this,SLOT(inschord()),
-					       fileTools, "insert chord");
 
-    (void)QWhatsThis::whatsThisButton( fileTools );
-    QWhatsThis::add( fileOpen, fileOpenText, FALSE );
-    QWhatsThis::add( fileSave, fileSaveText, FALSE );
-    QWhatsThis::add( filePrint, filePrintText, FALSE );
+    fileTools->insertButton(openIcon,1);
+    fileTools->insertButton(saveIcon,2);
+    fileTools->insertButton(printIcon,3);
+    fileTools->insertButton(chordIcon,4);
     
     QPopupMenu * file = new QPopupMenu();
     menuBar()->insertItem("&File", file );
@@ -111,9 +75,8 @@ ApplicationWindow::ApplicationWindow()
     controls->setItemChecked( tb, TRUE );
     controls->setItemChecked( sb, TRUE );
 
-    e = new QMultiLineEdit( this, "editor" );
-    e->setFocus();
-    setCentralWidget( e );
+//     e = new QMultiLineEdit( this, "editor" );
+//     e->setFocus();
 
     cs = new ChordSelector();
 
