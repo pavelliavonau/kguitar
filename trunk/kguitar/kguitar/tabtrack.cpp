@@ -1,5 +1,8 @@
 #include "tabtrack.h"
 
+// GREYFIX
+#include <stdio.h>
+
 TabTrack::TabTrack(TrackMode _tm, QString _name, int _channel,
 		   int _bank, uchar _patch, uchar _string, uchar _frets)
 {
@@ -128,7 +131,7 @@ void TabTrack::arrangeBars()
     b[0].start = 0;
     barnum = 0;
 
-    for (nn=0;nn<an.size();nn++) {
+    for (nn=0; nn<an.size(); nn++) {
 	cl = an[nn].l;
 	firstnote = TRUE;
 
@@ -153,9 +156,22 @@ void TabTrack::arrangeBars()
     }
 
     // Clean up last bar if it's empty
-
     if (b[barnum].start == i)
 	b.resize(barnum);
+
+    // Make sure that cursor x is in legal range
+    if (x>=c.size())
+	x = c.size()-1;
+
+    // Find the bar the cursor in
+    if (x>=b[b.size()-1].start)
+	xb = b.size()-1;
+    else
+	for (i=0; i<b.size()-1; i++)
+	    if ((x>=b[i].start) && (x<b[i+1].start)) {
+		xb = i;
+		break;
+	    }
 
     // All should be done now.
 }
