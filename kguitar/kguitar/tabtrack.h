@@ -70,7 +70,9 @@ public:
 	uint xb;                            // Current tab bar
 	int y;                              // Current tab string
 
+	int lastColumn(uint n);
 	bool showBarSig(uint n);
+	bool barStatus(uint n);
 
 	void removeColumn(uint n);
 	void insertColumn(uint n);

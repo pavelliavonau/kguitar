@@ -50,6 +50,41 @@ bool TabTrack::showBarSig(uint n)
 			 (b[n - 1].time2 == b[n].time2));
 }
 
+// Returns the column that ends bar <n>. Thus bar <n> is all columns
+// from b[n].start to lastColumn(n) inclusive
+int TabTrack::lastColumn(uint n)
+{
+	int last;
+	if (b.size() == n + 1)       // Current bar is the last one
+		last = c.size() - 1;      // Draw till the last note
+	else							    // Else draw till the end of this bar
+		last = b[n + 1].start - 1;
+	if (last == -1)  last = 0;          // gotemfix: avoid overflow
+	return last;
+}
+
+// Returns bar status - what to show in track pane
+bool TabTrack::barStatus(uint n)
+{
+	if (n >= b.size())
+		return FALSE;
+
+	bool res = FALSE;
+
+	for (int i = b[n].start; i <= lastColumn(n); i++) {
+		for (int k = 0; k < string; k++) {
+			if (c[b[n].start].a[k] != -1) {
+				res = TRUE;
+				break;
+			}
+		}
+		if (res)
+			break;
+	}
+
+	return res;
+}
+
 // Inserts n columns at current cursor position
 void TabTrack::insertColumn(uint n)
 {
