@@ -14,6 +14,10 @@ typedef struct {
 //
 // Various instruments should be separated by an empty line.
 
+// Contributors:
+//
+// 04 Sep 2000 - Ukulele (4): standard - Alex Brand
+
 tuning lib_tuning[] = {
     { 1, {},                       "User defined" },
 
@@ -29,5 +33,8 @@ tuning lib_tuning[] = {
     { 4, {26,33,38,43},            "Bass (4): drop D" },
 
     { 5, {28,33,38,43,47},         "Bass (5): standard" },
+
+    { 4, {57,50,54,59},            "Ukulele (4): standard" },                   
+
     { 0 }
 };
