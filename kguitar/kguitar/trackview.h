@@ -45,6 +45,7 @@ public slots:
 	void addArtHarm();
 	void addLegato();
 	void addSlide();
+	void addLetRing();
 	void insertChord();
 	void keyLeft();
 	void keyRight();
@@ -106,6 +107,8 @@ private:
 //##	DeviceManager *midi;
 	KXMLGUIClient *m_XMLGUIClient;
 	KCommandHistory *m_cmdHist;
+
+	void drawLetRing(QPainter *p, int x, int y);
 
 	QFont *timeSigFont;
 	QFont *smallCaptionFont;

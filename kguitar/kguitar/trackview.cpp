@@ -29,7 +29,7 @@
 #define VERTSPACE 30
 #define VERTLINE 10
 #define HORDUR 4
-#define HORCELL 8
+#define HORCELL 14
 #define TIMESIGSIZE 14
 #define HORSCALE 10
 #define ABBRLENGTH 25
@@ -123,7 +123,7 @@ void TrackView::repaintCurrentColumn()
 
 	int ycoord = 0;
 	if (rowYPos(curt->xb, &ycoord))
-		repaint(selxcoord, ycoord, VERTLINE + 1, cellHeight());
+		repaint(selxcoord, ycoord, HORCELL + 1, cellHeight());
 	emit paneChanged();
 }
 
@@ -190,6 +190,13 @@ void TrackView::addSlide()
 	lastnumber = -1;
 }
 
+void TrackView::addLetRing()
+{
+	if (curt->c[curt->x].a[curt->y] >= 0)
+		m_cmdHist->addCommand(new AddFXCommand(this, curt, EFFECT_LETRING));
+	lastnumber = -1;
+}
+
 void TrackView::insertChord()
 {
 	int a[MAX_STRINGS];
@@ -226,6 +233,14 @@ int TrackView::horizDelta(uint n)
 	return res;
 }
 
+void TrackView::drawLetRing(QPainter *p, int x, int y)
+{
+	p->setPen(SolidLine);
+	p->drawLine(x, y, x - HORCELL / 3, y - VERTLINE / 3);
+	p->drawLine(x, y, x - HORCELL / 3, y + VERTLINE / 3);
+	p->setPen(NoPen);
+}
+
 void TrackView::paintCell(QPainter *p, int row, int col)
 {
 	if (row >= int(curt->b.size())) {
@@ -235,16 +250,16 @@ void TrackView::paintCell(QPainter *p, int row, int col)
 
 	uint bn = row;						// Drawing only this bar
 
-	//	int last = curt->lastColumn(bn);
-
 	QString tmp;
+	bool ringing[MAX_STRINGS];
 
 	int s = curt->string - 1;
-	int i;
 
-	for (i = 0; i <= s; i++)
+	for (int i = 0; i <= s; i++) {
 		p->drawLine(0, VERTSPACE + (s - i) * VERTLINE,
 					width(), VERTSPACE + (s - i) * VERTLINE);
+		ringing[i] = FALSE;
+	}
 
 	int xpos = 40, lastxpos = 20, xdelta;
 
@@ -268,7 +283,7 @@ void TrackView::paintCell(QPainter *p, int row, int col)
 					TIMESIGSIZE, TIMESIGSIZE, AlignCenter, tmp);
 		tmp.setNum(curt->b[bn].time2);
 		p->drawText(20, VERTSPACE + VERTLINE * s * 3 / 4 - TIMESIGSIZE / 2,
-					 TIMESIGSIZE, TIMESIGSIZE, AlignCenter, tmp);
+					TIMESIGSIZE, TIMESIGSIZE, AlignCenter, tmp);
 	}
 
 	p->setFont(KGlobalSettings::generalFont());
@@ -278,7 +293,7 @@ void TrackView::paintCell(QPainter *p, int row, int col)
 
 	if (curt->trackMode() == DrumTab) {
 		p->setPen(NoPen);
-		for (i = 0; i <= s; i++) {
+		for (int i = 0; i <= s; i++) {
 			p->drawRect(xpos, VERTSPACE + (s - i) * VERTLINE - VERTLINE / 2,
 						ABBRLENGTH, VERTLINE + 1);
 			p->drawText(xpos, VERTSPACE + (s - i) * VERTLINE - VERTLINE / 2,
@@ -293,38 +308,40 @@ void TrackView::paintCell(QPainter *p, int row, int col)
 
 		// Draw connection with previous, if applicable
 		if ((t > 0) && (t > curt->b[bn].start) && (curt->c[t - 1].l == curt->c[t].l))
-			xdelta = lastxpos + VERTLINE / 2;
+			xdelta = lastxpos + HORCELL / 2;
 		else
-			xdelta = xpos + VERTLINE / 2 + HORDUR;
+			xdelta = xpos + HORCELL / 2 + HORDUR;
 
 		switch (curt->c[t].l) {
 		case 15:  // 1/32
-			p->drawLine(xpos + VERTLINE / 2, BOTTOMDUR + VERTLINE - 4,
+			p->drawLine(xpos + HORCELL / 2, BOTTOMDUR + VERTLINE - 4,
 						xdelta, BOTTOMDUR + VERTLINE - 4);
 		case 30:  // 1/16
-			p->drawLine(xpos + VERTLINE / 2, BOTTOMDUR + VERTLINE - 2,
+			p->drawLine(xpos + HORCELL / 2, BOTTOMDUR + VERTLINE - 2,
 						xdelta, BOTTOMDUR + VERTLINE - 2);
 		case 60:  // 1/8
-			p->drawLine(xpos + VERTLINE / 2, BOTTOMDUR + VERTLINE,
+			p->drawLine(xpos + HORCELL / 2, BOTTOMDUR + VERTLINE,
 						xdelta, BOTTOMDUR + VERTLINE);
-		case 120: // 1/4 - a long vertical line, so we need to find the highest note
-			for (i = s;((i >= 0) && (curt->c[t].a[i] == -1)); i--);
+		case 120: { // 1/4 - a long vertical line, so we need to find the highest note
+			int i;
+			for (i = s; ((i >= 0) && (curt->c[t].a[i] == -1)); i--);
 
 			// If it's an empty measure at all - draw the vertical line from bottom
-			if (i < 0)  i = 1;
+			if (i < 0)  i = s / 2;
 
-			p->drawLine(xpos + VERTLINE / 2, VERTSPACE + VERTLINE * (s - i) + VERTLINE / 2,
-						xpos + VERTLINE / 2, BOTTOMDUR + VERTLINE);
+			p->drawLine(xpos + HORCELL / 2, VERTSPACE + VERTLINE * (s - i) + VERTLINE / 2,
+						xpos + HORCELL / 2, BOTTOMDUR + VERTLINE);
+		}
 		case 240: // 1/2
-			p->drawLine(xpos + VERTLINE / 2, BOTTOMDUR + 3,
-						xpos + VERTLINE / 2, BOTTOMDUR + VERTLINE);
+			p->drawLine(xpos + HORCELL / 2, BOTTOMDUR + 3,
+						xpos + HORCELL / 2, BOTTOMDUR + VERTLINE);
 		case 480:; // whole
 		}
 
 		// Draw dot
 
 		if (curt->c[t].flags & FLAG_DOT)
-			p->drawRect(xpos + VERTLINE / 2 + 3, BOTTOMDUR + 5, 2, 2);
+			p->drawRect(xpos + HORCELL / 2 + 3, BOTTOMDUR + 5, 2, 2);
 
 		// Draw triplet - GREYFIX: ugly code, needs to be fixed
 		// somehow... Ideally, triplets should be drawn in a second
@@ -336,14 +353,14 @@ void TrackView::paintCell(QPainter *p, int row, int col)
  				(curt->c[t + 1].flags & FLAG_TRIPLET) &&
 				(curt->c[t - 1].l == curt->c[t].l) &&
 				(curt->c[t + 1].l == curt->c[t].l)) {
-				p->drawLine(lastxpos + VERTLINE / 2, BOTTOMDUR + VERTLINE + 5,
-							xpos * 2 - lastxpos + VERTLINE / 2, BOTTOMDUR + VERTLINE + 5);
-				p->drawLine(lastxpos + VERTLINE / 2, BOTTOMDUR + VERTLINE + 2,
-							lastxpos + VERTLINE / 2, BOTTOMDUR + VERTLINE + 5);
-				p->drawLine(xpos * 2 - lastxpos + VERTLINE / 2, BOTTOMDUR + VERTLINE + 2,
-							xpos * 2 - lastxpos + VERTLINE / 2, BOTTOMDUR + VERTLINE + 5);
+				p->drawLine(lastxpos + HORCELL / 2, BOTTOMDUR + VERTLINE + 5,
+							xpos * 2 - lastxpos + HORCELL / 2, BOTTOMDUR + VERTLINE + 5);
+				p->drawLine(lastxpos + HORCELL / 2, BOTTOMDUR + VERTLINE + 2,
+							lastxpos + HORCELL / 2, BOTTOMDUR + VERTLINE + 5);
+				p->drawLine(xpos * 2 - lastxpos + HORCELL / 2, BOTTOMDUR + VERTLINE + 2,
+							xpos * 2 - lastxpos + HORCELL / 2, BOTTOMDUR + VERTLINE + 5);
 				p->setFont(*smallCaptionFont);
-				p->drawText(xpos, BOTTOMDUR + VERTLINE + 7, VERTLINE, VERTLINE, AlignHCenter | AlignTop, "3");
+				p->drawText(xpos, BOTTOMDUR + VERTLINE + 7, HORCELL, VERTLINE, AlignHCenter | AlignTop, "3");
 				p->setFont(KGlobalSettings::generalFont());
  			} else {
 				if (!(((curt->c.size() >= t + 2) &&
@@ -357,7 +374,7 @@ void TrackView::paintCell(QPainter *p, int row, int col)
 					   (curt->c[t - 1].l == curt->c[t].l) &&
 					   (curt->c[t - 2].l == curt->c[t].l)))) {
 					p->setFont(*smallCaptionFont);
-					p->drawText(xpos, BOTTOMDUR + VERTLINE + 7, VERTLINE, VERTLINE, AlignHCenter | AlignTop, "3");
+					p->drawText(xpos, BOTTOMDUR + VERTLINE + 7, HORCELL, VERTLINE, AlignHCenter | AlignTop, "3");
 					p->setFont(KGlobalSettings::generalFont());					
 				}
 			}
@@ -366,7 +383,7 @@ void TrackView::paintCell(QPainter *p, int row, int col)
 		// Draw arcs to backward note
 
 		if (curt->c[t].flags & FLAG_ARC)
-			p->drawArc(lastxpos + VERTLINE / 2, BOTTOMDUR + 9,
+			p->drawArc(lastxpos + HORCELL / 2, BOTTOMDUR + 9,
 					   xpos-lastxpos, 10, 0, -180 * 16);
 
 		// Draw palm muting
@@ -385,16 +402,20 @@ void TrackView::paintCell(QPainter *p, int row, int col)
 		// Draw the number column
 
 		p->setPen(NoPen);
-		for (i = 0; i <= s; i++) {
+		for (int i = 0; i <= s; i++) {
 			if (curt->c[t].a[i] != -1) {
 				if (curt->c[t].a[i] == DEAD_NOTE)
 					tmp = "X";
 				else
 					tmp.setNum(curt->c[t].a[i]);
-				p->drawRect(xpos,VERTSPACE + (s - i) * VERTLINE - VERTLINE / 2,
-							VERTLINE, VERTLINE + 1);
-				p->drawText(xpos,VERTSPACE + (s - i) * VERTLINE - VERTLINE / 2,
-							VERTLINE, VERTLINE, AlignCenter, tmp);
+				p->drawRect(xpos, VERTSPACE + (s - i) * VERTLINE - VERTLINE / 2,
+							HORCELL, VERTLINE);
+				p->drawText(xpos, VERTSPACE + (s - i) * VERTLINE - VERTLINE / 2,
+							HORCELL, VERTLINE, AlignCenter, tmp);
+				if (ringing[i]) {
+					drawLetRing(p, xpos, VERTSPACE + (s - i) * VERTLINE);
+					ringing[i] = FALSE;
+				}
 			}
 
 			if (t == curt->x)
@@ -410,27 +431,27 @@ void TrackView::paintCell(QPainter *p, int row, int col)
 			case EFFECT_HARMONIC:
  				p->setFont(*smallCaptionFont);
 				p->drawText(xpos + VERTLINE + 2, VERTSPACE + (s - i) * VERTLINE - VERTLINE * 2 / 3,
-							VERTLINE, VERTLINE, AlignCenter, "H");
+							HORCELL, VERTLINE, AlignCenter, "H");
  				p->setFont(KGlobalSettings::generalFont());
 				break;
 			case EFFECT_ARTHARM:
  				p->setFont(*smallCaptionFont);
 				p->drawText(xpos + VERTLINE + 2, VERTSPACE + (s - i) * VERTLINE - VERTLINE * 2 / 3,
-							VERTLINE * 2, VERTLINE, AlignCenter, "AH");
+							HORCELL * 2, VERTLINE, AlignCenter, "AH");
  				p->setFont(KGlobalSettings::generalFont());
 				break;
 			case EFFECT_LEGATO:
  				p->setPen(SolidLine);
-				p->drawArc(xpos + VERTLINE, VERTSPACE + (s - i) * VERTLINE - VERTLINE / 2,
-						   xdelta - VERTLINE, 10, 0, 180 * 16);
+				p->drawArc(xpos + HORCELL, VERTSPACE + (s - i) * VERTLINE - VERTLINE / 2,
+						   xdelta - HORCELL, 10, 0, 180 * 16);
 				if ((t < curt->c.size() - 1) && (curt->c[t + 1].a[i] >= 0)) {
  					p->setFont(*smallCaptionFont);
 					if (curt->c[t + 1].a[i] > curt->c[t].a[i]) {
-						p->drawText(xpos + xdelta / 2 - VERTLINE / 2, VERTSPACE + (s - i) * VERTLINE - VERTLINE / 3,
-									VERTLINE * 2, VERTLINE, AlignCenter, "HO");
+						p->drawText(xpos + xdelta / 2 - HORCELL / 2, VERTSPACE + (s - i) * VERTLINE - VERTLINE / 3,
+									HORCELL * 2, VERTLINE, AlignCenter, "HO");
 					} else if (curt->c[t + 1].a[i] < curt->c[t].a[i]) {
-						p->drawText(xpos + xdelta / 2 - VERTLINE / 2, VERTSPACE + (s - i) * VERTLINE - VERTLINE / 3,
-									VERTLINE * 2, VERTLINE, AlignCenter, "PO");
+						p->drawText(xpos + xdelta / 2 - HORCELL / 2, VERTSPACE + (s - i) * VERTLINE - VERTLINE / 3,
+									HORCELL * 2, VERTLINE, AlignCenter, "PO");
 					}
  					p->setFont(KGlobalSettings::generalFont());
 				}
@@ -440,14 +461,17 @@ void TrackView::paintCell(QPainter *p, int row, int col)
 				p->setPen(SolidLine);
 				if ((t < curt->c.size() - 1) && (curt->c[t + 1].a[i] >= 0)) {
 					if (curt->c[t + 1].a[i] > curt->c[t].a[i]) {
-						p->drawLine(xpos + VERTLINE + 2, VERTSPACE + (s - i) * VERTLINE + VERTLINE / 2 - 1,
+						p->drawLine(xpos + HORCELL + 2, VERTSPACE + (s - i) * VERTLINE + VERTLINE / 2 - 1,
 									xpos + xdelta, VERTSPACE + (s - i) * VERTLINE - VERTLINE / 2 + 1);
 					} else {
-						p->drawLine(xpos + VERTLINE + 2, VERTSPACE + (s - i) * VERTLINE - VERTLINE / 2 + 1,
+						p->drawLine(xpos + HORCELL + 2, VERTSPACE + (s - i) * VERTLINE - VERTLINE / 2 + 1,
 									xpos + xdelta, VERTSPACE + (s - i) * VERTLINE + VERTLINE / 2 - 1);
 					}
 				}
 				p->setPen(NoPen);
+				break;
+			case EFFECT_LETRING:
+				ringing[i] = TRUE;
 				break;
 			}
 		}
@@ -473,12 +497,12 @@ void TrackView::paintCell(QPainter *p, int row, int col)
 			if (curt->x > curt->lastColumn(bn))
 				p->drawRect(selx2coord, 0, cellWidth(), cellHeight());
 			else
-				p->drawRect(0, 0, selx2coord + VERTLINE + 1, cellHeight());
+				p->drawRect(0, 0, selx2coord + HORCELL + 1, cellHeight());
 		} else if ((selxcoord != -1) && (selx2coord == -1)) {
 			if (curt->xsel > curt->lastColumn(bn))
 				p->drawRect(selxcoord, 0, cellWidth(), cellHeight());
 			else
-				p->drawRect(0, 0, selxcoord + VERTLINE + 1, cellHeight());
+				p->drawRect(0, 0, selxcoord + HORCELL + 1, cellHeight());
 		} else { // both are -1
 			int x1 = KMIN(curt->x, curt->xsel);
 			int x2 = KMAX(curt->x, curt->xsel);
@@ -488,8 +512,8 @@ void TrackView::paintCell(QPainter *p, int row, int col)
 	}
 
 	if (selxcoord != -1) {
-		p->drawRect(selxcoord, VERTSPACE + (s - curt->y) * VERTLINE - VERTLINE / 2,
-					VERTLINE, VERTLINE + 1);
+		p->drawRect(selxcoord - 1, VERTSPACE + (s - curt->y) * VERTLINE - VERTLINE / 2 - 1,
+					HORCELL + 2, VERTLINE + 2);
 	}
 
 // 	p->setBrush(KGlobalSettings::baseColor());
