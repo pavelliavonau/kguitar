@@ -332,11 +332,11 @@ bool TabSong::save_to_kg(QString fileName)
 
 		for (uint x = 0; x < trk->c.size(); x++) {
 			if (bar+1 < trk->b.size()) {	// This bar's not last
-				if (trk->b[bar+1].start == x)
+				if ((uint)trk->b[bar+1].start == x)
 					bar++;				// Time for next bar
 			}
 
-			if ((bar < trk->b.size()) && (trk->b[bar].start == x)) {
+			if ((bar < (uint)trk->b.size()) && ((uint)trk->b[bar].start == x)) {
 				s << (Q_UINT8) 'B';     // New bar event
 				s << (Q_UINT8) 0;
 				if ((trk->b[bar].time1 != trk->b[bar - 1].time1) ||
@@ -521,18 +521,18 @@ bool TabSong::load_from_gtp(QString fileName)
 				// timing. Thus, it sets 480 ticks to be equal to 1/4 of a
 				// whole note. KGuitar has 120 ticks as 1/4, so we need to
 				// divide duration by 4
-				
+
 				trk->c[x].flags = 0;
 				trk->c[x].setFullDuration(readDelphiInteger(&s) / 4);
 
 				s >> num;                      // 1 unknown byte
 				s >> num;                      // type mask
 // 				s >> num2;                     // 1 unknown byte
-				
+
 				kdDebug() << "Read column " << x << ": duration " << trk->c[x].l << " (type mask=" << (int) num << ")" << endl;
-				
+
 				// Here comes "type mask" of a column.
-				
+
 				switch (num) {
 				case 0:
  					s >> num2;                      // 1 unknown byte
@@ -613,7 +613,7 @@ bool TabSong::load_from_gtp(QString fileName)
 						kdDebug() << "X";
 					}
 				}
-				
+
 				kdDebug() << endl;
 			}
 		}
@@ -644,6 +644,394 @@ bool TabSong::save_to_gtp(QString fileName)
     // Saving to Guitar Pro format here
     return FALSE;
 }
+
+/* This dirty piece of code is made by Sylvain "Sly" Vignaud
+ * Contact him for infos at:
+ * vignsyl@iit.edu
+ */
+
+#define SLY_LOGS
+//#define VERBOSE_NOTES
+
+#define RETURN_AND_CLEAN_ERROR_GP3	{free(buffer);return FALSE;}
+
+#ifdef SLY_LOGS
+	#define LOGS	{printf(message);fprintf(logs,message);}
+	#define WHEREAMI(str)	{sprintf(message,"\t%s\t: Offset %ld = %d %d * %d * %d %d %d\n", str,totalsize-size, buf[-2],buf[-1],buf[0],buf[1],buf[2],buf[3]);LOGS}
+#endif
+
+#define GET_STR(name_for_info)	{		\
+			unsigned long max;	\
+			GET_LONG( max );	\
+			unsigned char nb = *buf;\
+			DUMMIES( 1 );		\
+			if (max==0) max = nb;	\
+			else max--;		\
+			strncpy(str,(char*)buf,nb);	\
+			str[nb] = 0;		\
+			DUMMIES( max );		\
+		}
+
+#define GET_STR_NO_INCBUF	{		\
+			int nb = *buf;		\
+			strncpy(str,(char*)buf+1,nb);	\
+			str[nb] = 0;		\
+			}
+
+#define GET_LONG(i)	{i = get_long(buf); DUMMIES( 4 );}
+#define GET_CHAR(i)	i = *buf++, size--;
+#define DUMMIES(i)	buf += i, size -= i
+
+#define IS_CHAR(c)	(	( (c)>='a' && (c)<='z' ) || ( (c)>='A' && (c)<='Z' )	)
+#define VALID_COMMAND	( (buf[0]==0 && buf[2]!=0) || buf[0]!=1 || buf[0]==32 || buf[0]!=34 || buf[0]==40 || buf[0]==64)
+
+inline long get_long( unsigned char *buf) {
+	long res = buf[0] | buf[1]<<8 | buf[2]<<16 | buf[3]<<24;
+	return res;
+}
+
+inline int get_string(unsigned char *buf) {
+	int strings = buf[0];
+	int string = 8;
+	while (strings) {
+		strings >>= 1;
+		string--;
+	}
+	return string;	//1-6
+}
+
+bool TabSong::load_from_gp3(QString fileName)
+{
+	unsigned char *buffer;
+	unsigned char *buf;
+	unsigned long size, totalsize;
+	char str[10240];	//For temporary string storage while converting Delphi strings -> QStrings
+	#ifdef SLY_LOGS
+	FILE *logs;
+	char message[10240];	(void)message;
+	#endif
+
+	#ifdef SLY_LOGS
+	logs = fopen("logs.txt","wt");
+	if (!logs) {printf("Cannot create log file\n");return FALSE;}
+	#endif
+
+	//Open file
+	QFile gp3file(fileName);
+	if (!gp3file.open(IO_ReadOnly)) {
+		#ifdef SLY_LOGS
+		fclose( logs );
+		#endif
+		printf("Cannot open file\n");
+		return FALSE;
+	}
+
+	//Read whole file in a buffer
+	totalsize = size = gp3file.size();
+	buffer = (unsigned char*)malloc(size);
+	QDataStream fstream(&gp3file);
+	fstream.readRawBytes( (char*)buffer,size );
+	gp3file.close();
+
+	#if 0
+	//In order to know easily what wrong happened
+	#ifdef SLY_LOGS
+	#define NB_BYTES_PER_LINE 6
+	unsigned char *c = (unsigned char*)buffer;
+	unsigned int nb = 0;
+	while (nb+NB_BYTES_PER_LINE<=size) {
+		unsigned char *cc = (unsigned char*)c;
+		fprintf(logs,"%8d [ ",nb);
+		for (int i=0; i<NB_BYTES_PER_LINE; i++)
+			fprintf(logs,"%3d ",cc[i]);
+		fprintf(logs,"] ");
+		for (int i=0; i<NB_BYTES_PER_LINE; i++)
+			fprintf(logs,"%c ",cc[i]);
+		fprintf(logs,"\n");
+
+		c += NB_BYTES_PER_LINE;
+		nb+=NB_BYTES_PER_LINE;
+	}
+	#undef NB_BYTES_PER_LINE
+	#endif
+	#endif
+
+	//Check file signature
+	#define GTP_ID3	"FICHIER GUITAR PRO"
+
+	buf = buffer;
+	if ( strncmp((char*)buf+1,GTP_ID3,strlen(GTP_ID3)) ) {
+		printf("Not a Guitar Pro 3 file!\n[%s] != [%s]\n",GTP_ID3,(char*)buf+1);
+		RETURN_AND_CLEAN_ERROR_GP3;	//Not a GP3 file
+	}
+
+	//Now it's time to parse the whole thing
+
+	//First the header: general infos
+	DUMMIES( 31 );
+	GET_STR(title);		title = QString::fromLocal8Bit(str);
+	GET_STR(subtitle);
+	GET_STR(artist);	author = QString::fromLocal8Bit(str);
+	GET_STR(album);
+	GET_STR(author);
+	GET_STR(copyright);
+	GET_STR(tabled_by);	transcriber = QString::fromLocal8Bit(str);
+	GET_STR(instruction);
+	char variente = *buf==1;	//FIXME What's the real meaning of this byte?
+	if (variente)
+		DUMMIES( 4 );
+	GET_STR(notice);	comments = QString::fromLocal8Bit(str);
+	if (variente)
+		DUMMIES( 1 );
+	tempo = *buf;
+
+	//Find beginning of tracks
+	DUMMIES( 780 );
+	while (*buf<' ') DUMMIES(1);	//Find 1st character of the first track name
+	DUMMIES(-1);			//Get back on the "lenght" bytes
+
+	//Read track infos: name
+	t.clear();
+	int nbtrack = 0;
+
+	do {
+		GET_STR_NO_INCBUF;
+		printf("Track %s\n",str);
+		t.append( new TabTrack(FretTab, 0, 0, 0, 0, 6, 24) );	//First 24: 24 frets, cos don't know the exact number
+		t.current()->name = QString::fromLocal8Bit(str);
+		t.current()->b.resize(0);
+		t.current()->c.resize(0);
+		nbtrack++;
+		DUMMIES( 98 );	//There are 98 bytes of description per track. Title (fixed max lenght)+ ???
+	} while (IS_CHAR(buf[1]) && IS_CHAR(buf[2]));
+	printf("%d track(s)\n\n", nbtrack);
+	QListIterator<TabTrack> tracks(t);
+
+/* Format GP3 : Bar1(Track1,Track2,...,TrackN) , Bar2(Track1,Track2,...,TrackN) , ... , BarN(Track1,Track2,...,TrackN)
+A bar is:
+	long nb notes in this bar
+	Then:
+		0 ? fetchs : positions utilisees. Nb fetchs (bits=1) = nb notes next
+		1 ? fetchs : positions utilisees. Next notes = O       Nb fetchs (bits=1) = nb notes next
+		Then:
+			32 ? fetch = black o|
+			34 ? fetch = black o
+			40 ? fetch ? = |
+			64 ? ? ? = rest
+
+fetch = :
+e|64
+B|32
+G|16
+D|8
+A|4
+E|2
+*/
+
+	//Parse the tracks
+	DUMMIES( -1 );
+	unsigned long lgrbar;
+	unsigned long tempstotal[12] = {0,0,0,0,0,0,0,0,0,0,0,0};
+	unsigned long time[12] = {0,0,0,0,0,0,0,0,0,0,0,0};
+	unsigned long numbar = 0;
+	unsigned long size_tracks = size;
+	char error = 0;
+	GET_LONG( lgrbar );
+
+	do {
+//		printf("New bar lgr %ld | time[numtrack] = %ld / %ld | buf = %d %d\n",lgrbar,time[numtrack],tempstotal,buf[0],buf[1]);
+		tracks.toFirst();
+		for (int numtrack=0; numtrack<nbtrack; numtrack++) {
+			int lgr,strings=0,cur_string=0,string=0;
+			TabTrack *track = tracks.current();
+
+			tempstotal[numtrack] += lgrbar;
+			#ifdef VERBOSE_NOTES
+			sprintf(message,"Track %d bar %ld lenght %ld\n",numtrack,numbar,lgrbar);	LOGS
+			#endif
+			track->c.resize( track->c.size()+lgrbar );
+			track->b.resize( numbar+1 );
+			track->b[numbar].start = time[numtrack];
+			track->b[numbar].time1 = 4;
+			track->b[numbar].time2 = 4;
+
+			do {
+				int note;
+				#ifdef VERBOSE_NOTES
+//				sprintf(message,"in track %d\n",numtrack);	LOGS
+				#endif
+				switch (*buf) {
+					case 0:
+					case 1:	//Ronde
+						lgr = buf[1];
+						strings = buf[2];
+						cur_string = 2<<5;
+						#ifdef VERBOSE_NOTES
+//						printf("Strings = %d\n",strings);
+						#endif
+						string = 1;
+						#ifdef VERBOSE_NOTES
+//						printf("\n");
+						#endif
+						{
+						long duree = 30;
+						switch (buf[1]) {
+							case 0:
+								duree = 120;
+								break;
+							case 1:
+								duree = 60;
+								break;
+							case 2:
+								duree = 30;
+								break;
+							case 3:
+								duree = 15;
+								break;
+							case 4:
+								duree = 7;
+								break;
+						}
+						track->c[time[numtrack]].setFullDuration(duree);
+						}
+						track->c[time[numtrack]].flags = 0;
+						for (int j=0; j<MAX_STRINGS; j++) {
+							track->c[time[numtrack]].a[j] = -1;
+							track->c[time[numtrack]].e[j] = 0;
+						}
+						DUMMIES( 3 );
+						break;
+					case 32:	//Normal note
+					case 34:	//Ronde
+						if (strings<=cur_string || (strings&cur_string)) {
+							note = buf[2];
+							#ifdef VERBOSE_NOTES
+//							printf("%d %d\n",cur_string,strings);
+							#endif
+							while ((cur_string&strings)==0) {
+								cur_string >>= 1;
+								#ifdef VERBOSE_NOTES
+//								printf("\t");
+								#endif
+								string++;
+							}
+							#ifdef VERBOSE_NOTES
+							sprintf(message,"\tNote time = %ld / %ld : fetch %d \t corde %d cur_string %d strings %d   test %d\n",time[numtrack],tempstotal[numtrack],note,string,cur_string,strings, (cur_string-1)&strings);	LOGS
+							#endif
+							track->c[time[numtrack]].a[6-(string)] = note;
+							if ( ((cur_string-1)&strings) ==0)
+								time[numtrack]++;
+							cur_string >>= 1;
+							string++;
+							DUMMIES( 3 );
+						}
+						else {	//Trilet
+							#ifdef VERBOSE_NOTES
+							sprintf(message,"\tDeb triplet time = %ld\n",time[numtrack]);	LOGS
+							#endif
+							DUMMIES( 6 );
+							string = get_string(buf);;
+							note = buf[3];
+							track->c[time[numtrack]++].a[6-(string)] = note;
+							DUMMIES( 11 );
+							string = get_string(buf);;
+							note = buf[3];
+							track->c[time[numtrack]++].a[6-(string)] = note;
+							DUMMIES( 11 );
+							string = get_string(buf);;
+							note = buf[3];
+							track->c[time[numtrack]++].a[6-(string)] = note;
+							DUMMIES( 4 );
+							#ifdef VERBOSE_NOTES
+//							sprintf(message,"\tFin triplet time = %ld\n",time[numtrack]);	LOGS
+//							WHEREAMI("Fin Triplet");
+							#endif
+						}
+						break;
+					case 40:	//Dot note
+						#ifdef VERBOSE_NOTES
+//						WHEREAMI("dot");
+						#endif
+						while ((cur_string&strings)==0) {
+							cur_string >>= 1;
+							#ifdef VERBOSE_NOTES
+//							printf("\t");
+							#endif
+							string++;
+						}
+						note = buf[2];
+						#ifdef VERBOSE_NOTES
+//						sprintf(message,"\tDoted Note time = %ld string = %d\n",time[numtrack],string);	LOGS
+						#endif
+						track->c[time[numtrack]].a[6-(string)] = note;
+						time[numtrack]++;
+						cur_string >>= 1;
+						string++;
+						DUMMIES(4);
+						break;
+					case 64:	//Rest = Pause
+						#ifdef VERBOSE_NOTES
+						WHEREAMI("Pause");
+						#endif
+						DUMMIES( 4 );
+						time[numtrack]+=1;
+						if (buf[0]!=0 && buf[1]==0 && buf[2]==0 && time[numtrack]<tempstotal[numtrack]) {
+							time[numtrack]++;
+						}
+						break;
+					default:
+						error = 1;
+						sprintf(message,"Track %d bar %ld Time %ld / %ld\n",numtrack,numbar,time[numtrack],tempstotal[numtrack]);	LOGS
+						WHEREAMI("Unknown");
+						break;
+				}
+			}	//Next track
+			while (!error && time[numtrack]<tempstotal[numtrack] && VALID_COMMAND);
+			if (error) break;
+			if ( time[numtrack]<tempstotal[numtrack] && !VALID_COMMAND ) {
+				WHEREAMI("Unknown command");
+				break;
+			}
+
+			#ifdef VERBOSE_NOTES
+			WHEREAMI("fin bar");
+//			sprintf(message, "Track %d bar %ld fini\n",numtrack,numbar);	LOGS
+			#endif
+			GET_LONG( lgrbar );
+			#ifdef VERBOSE_NOTES
+//			printf("Fin bar : %ld | %ld / %ld\n", lgrbar,time[numtrack],tempstotal);
+			#endif
+			++tracks;
+		}	//Next bar
+		numbar++;
+	} while (!error && numbar<140 && lgrbar>0 && VALID_COMMAND);
+	if (size>0)
+		WHEREAMI("Stop parsing");
+	sprintf(message,"Managed to parse %.0f percent of the track infos\n", 100.0f-100.0f*(float)size/(float)size_tracks);	LOGS
+
+	for (int numtrack=0; numtrack<nbtrack; numtrack++)
+		if (time[numtrack]!=tempstotal[numtrack])
+			printf("Track %d - Time : %ld / %ld | We missed something\n", numtrack,time[numtrack],tempstotal[numtrack]);
+
+
+	//Close the logs file
+	#ifdef SLY_LOGS
+	fclose(logs);
+	#endif
+	free( buffer );
+	printf("GP3 loaded\n");
+	return TRUE;
+}
+
+bool TabSong::save_to_gp3(QString fileName)
+{
+    // Saving to Guitar Pro 3 format here
+    // From Sly: "In your dreams"
+    return FALSE;
+}
+
+/* End of Sly's dirty piece of code
+ */
 
 bool TabSong::load_from_xml(QString fileName)
 {
@@ -817,6 +1205,15 @@ bool TabSong::save_to_tse3(QString filename)
 	// GREYFIX: pretty ugly unicode string to standard string hack
 	return TRUE;
 }
+#else
+bool TabSong::save_to_mid(QString filename)
+{
+	return FALSE;
+}
+bool TabSong::save_to_tse3(QString filename)
+{
+	return FALSE;
+}
 #endif
 
 //////////////////////////////////////////////////////////////////////
@@ -889,11 +1286,11 @@ bool TabSong::save_to_tab(QString fileName)
 
 		for (uint x = 0; x < trk->c.size(); x++) {
 			if (bar + 1 < trk->b.size()) {  // This bar's not last
-				if (trk->b[bar+1].start == x)
+				if ((uint)trk->b[bar+1].start == x)
 					bar++;              // Time for next bar
 			}
 
-			if (trk->b[bar].start == x)   // Add a bar
+			if ((uint)trk->b[bar].start == x)   // Add a bar
 				for (int i = 0; i < trk->string; i++)
 					lin[i] = lin[i] + "|";
 
@@ -915,7 +1312,7 @@ bool TabSong::save_to_tab(QString fileName)
 						tmp = '-' + tmp;
 					lin[i] = lin[i] + tmp;
 				}
-				for (uint j = 0; j < (trk->c[x].l / 48); j++)
+				for (uint j = 0; j < (uint)(trk->c[x].l / 48); j++)
 					lin[i] = lin[i] + '-';
 			}
 
@@ -990,6 +1387,7 @@ QString TabSong::cleanString(QString str)  // insert control sequence
 
 QString TabSong::getNote(QString note, int duration, bool dot)
 {
+	(void)duration;(void)dot;
 	return "";
 }
 
@@ -1200,10 +1598,10 @@ bool TabSong::save_to_tex_tab(QString fileName)
 		for (uint j = 0; j < trksize; j++) { // for every column (j)
 			tmpline = notes;
 
-			if ((bbar + 1) < trk->b.size()) { // looking for bars
-				if (trk->b[bbar + 1].start == j)  bbar++;
+			if ((bbar + 1) < (uint)trk->b.size()) { // looking for bars
+				if ((uint)trk->b[bbar + 1].start == j)  bbar++;
 			}
-			if (trk->b[bbar].start == j)  s << bar;
+			if ((uint)trk->b[bbar].start == j)  s << bar;
 
 			for (int x = 0; x < trk->string; x++) // test how much tabs in this column
 				if (trk->c[j].a[x]>=0)  cho++;
