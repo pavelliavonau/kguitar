@@ -20,6 +20,8 @@
 // - xpos/ypos interface
 // - adapt linewidth to resolution of output device
 
+// LVIFIX: drum abbreviations markings are missing (drum tracks)
+
 #include "settings.h"
 
 #include <iostream>		// required for cout and friends
@@ -179,7 +181,7 @@ void TrackPrint::drawBar(int bn, TabTrack *trk, int es, int& sx, int& sx2)
 
 	TabTrack *curt = trk;		// LVIFIX
 
-	int lastxpos = 0;			// fix compiler warning
+	int lastxpos = tsgpp;
 	int extSpAftNote = 0;		// extra space, divided over the notes
 	int xdelta = 0;				// used for drawing beams, legato and slide
 	bool ringing[MAX_STRINGS];
@@ -262,6 +264,8 @@ void TrackPrint::drawBar(int bn, TabTrack *trk, int es, int& sx, int& sx2)
 
 	// init expandable space left for space distribution calculation
 	int barExpWidthLeft = barExpWidth(bn, trk);
+
+	int effvsz = 0;		// effect vertical size (depends on onScreen)
 
 	// loop t over all columns in this bar and print them
 	for (uint t = trk->b[bn].start; (int) t <= trk->lastColumn(bn); t++) {
@@ -353,9 +357,15 @@ void TrackPrint::drawBar(int bn, TabTrack *trk, int es, int& sx, int& sx2)
 
 			// Draw arcs to backward note
 
-			if (curt->c[t].flags & FLAG_ARC)
+			if (curt->c[t].flags & FLAG_ARC) {
+				if (onScreen) {
+					effvsz = ysteptb;
+				} else {
+					effvsz = ysteptb / 2;
+				}
 				p->drawArc(lastxpos, ypostb + 2 * ysteptb + 1,
-						   xpos - lastxpos, ysteptb / 2 + 1, 0, -180 * 16);
+						   xpos - lastxpos, effvsz, 0, -180 * 16);
+			}
 
 			// Draw palm muting moved to "draw effects" ...
 
@@ -572,29 +582,49 @@ void TrackPrint::drawBar(int bn, TabTrack *trk, int es, int& sx, int& sx2)
 					// the arc should be as wide as the line between
 					// this note and the next. see drawStrCntAt.
 					// extra space between notes must also be added
+					// LVIFIX: also write "HO" or "PO"
+					if (onScreen) {
+						effvsz = ysteptb;
+					} else {
+						effvsz = ysteptb / 2;
+					}
 					if ((t < curt->c.size() - 1) && (curt->c[t + 1].a[i] >= 0)) {
 						extSpAftNote = (colWidth(t, trk) * es) / barExpWidthLeft;
 						p->drawArc(xpos + ew_2, ypostb - i * ysteptb - ysteptb / 2,
-								   xdelta + extSpAftNote - 2 * ew_2, ysteptb / 2,
+								   xdelta + extSpAftNote - 2 * ew_2, effvsz,
 								   0, 180 * 16);
+						QString hopo = "";
+						if (curt->c[t + 1].a[i] > curt->c[t].a[i]) {
+							hopo = "HO";
+						} else {
+							hopo = "PO";
+						}
+						p->setFont(*fTBar2);
+						drawStrCntAt(xpos + (xdelta + extSpAftNote) / 2, i, hopo);
+						p->setFont(*fTBar1);
 					}
 					break;
 				case EFFECT_SLIDE:
 					// the slide symbol should be as wide as the line
 					// between this note and the next. see drawStrCntAt.
 					// extra space between notes must also be added
+					if (onScreen) {
+						effvsz = ysteptb / 2;
+					} else {
+						effvsz = ysteptb / 3;
+					}
 					if ((t < curt->c.size() - 1) && (curt->c[t + 1].a[i] >= 0)) {
 						extSpAftNote = (colWidth(t, trk) * es) / barExpWidthLeft;
 						if (curt->c[t + 1].a[i] > curt->c[t].a[i]) {
 							p->drawLine(xpos + ew_2,
-										ypostb - i * ysteptb + ysteptb / 3 - 2,
+										ypostb - i * ysteptb + effvsz,
 										xpos + xdelta + extSpAftNote - ew_2,
-										ypostb - i * ysteptb - ysteptb / 3 + 2);
+										ypostb - i * ysteptb - effvsz);
 						} else {
 							p->drawLine(xpos + ew_2,
-										ypostb - i * ysteptb - ysteptb / 3 + 2,
+										ypostb - i * ysteptb - effvsz,
 										xpos + xdelta + extSpAftNote - ew_2,
-										ypostb - i * ysteptb + ysteptb / 3 - 2);
+										ypostb - i * ysteptb + effvsz);
 						}
 					}
 					break;
@@ -606,7 +636,12 @@ void TrackPrint::drawBar(int bn, TabTrack *trk, int es, int& sx, int& sx2)
 				// draw palm muting as little cross behind note
 				if (curt->c[t].flags & FLAG_PM
 					&& trk->c[t].a[i] != -1) {
-					int sz_2 = ysteptb / 4;
+					int sz_2 = 0;
+					if (onScreen) {
+						sz_2 = ysteptb / 3;
+					} else {
+						sz_2 = ysteptb / 4;
+					}
 					int x    = xpos + ew_2;
 					int y    = ypostb - i * ysteptb;
 					p->drawLine(x, y - sz_2, x + sz_2, y + sz_2);
@@ -1227,6 +1262,7 @@ void TrackPrint::initMetrics()
 	nt0fw = 2 * br8w;
 	ntlfw =     br8w / 2;
 	if (onScreen) {
+		ysteptb = (int) (0.95 * fm.ascent());
 		tsgfw = (int) (4.5 * br8w);
 		tsgpp = 4 * br8w;
 	}
@@ -1263,9 +1299,14 @@ void TrackPrint::initPens()
 
 void TrackPrint::initPrStyle()
 {
+	initPrStyle(Settings::printingStyle());
+}
+
+void TrackPrint::initPrStyle(int prStyle)
+{
 //	cout << "TrackPrint::initPrStyle()" << endl;
 	// check what was configured
-	switch (Settings::printingStyle()) {
+	switch (prStyle) {
 	case 0:
 		// (full) tab only
 		stNts = false;

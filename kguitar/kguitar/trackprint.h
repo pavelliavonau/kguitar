@@ -3,7 +3,7 @@
  *
  * This file is part of KGuitar, a KDE tabulature editor
  *
- * copyright (C) 2003 the KGuitar development team
+ * copyright (C) 2003-2004 the KGuitar development team
  ***************************************************************************/
 
 /***************************************************************************
@@ -35,6 +35,7 @@ public:
 	void initMetrics();
 	void initPens();
 	void initPrStyle();
+	void initPrStyle(int prStyle);
 	void setOnScreen(bool scrn = TRUE);
 	void setPainter(QPainter *paint);
 
