@@ -1,0 +1,281 @@
+# Italian Translation for KGuitar
+# Copyright (C) 2000 Free Software Foundation, Inc.
+# Riccardo Vitelli <ric.vit@infinito.it>, 2000.
+#
+#, fuzzy
+msgid ""
+msgstr ""
+"Project-Id-Version: PACKAGE VERSION\n"
+"POT-Creation-Date: 2000-09-04 14:42-0400\n"
+"PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
+"Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
+"Language-Team: LANGUAGE <LL@li.org>\n"
+"MIME-Version: 1.0\n"
+"Content-Type: text/plain; charset=CHARSET\n"
+"Content-Transfer-Encoding: ENCODING\n"
+
+#: application.cpp:58
+msgid "New document"
+msgstr "Nuovo documento"
+
+#: application.cpp:64
+msgid "Insert chord"
+msgstr "Inserisci accordo"
+
+#: application.cpp:66
+msgid "Whole"
+msgstr "Totale"
+
+#: application.cpp:78 timesig.cpp:60
+msgid "Time signature"
+msgstr "Tempo"
+
+#: application.cpp:80
+msgid "Link with previous column"
+msgstr "Collega a colonna precedente"
+
+#: application.cpp:82
+msgid "Legato (hammer on/pull off)"
+msgstr "Legato"
+
+#: application.cpp:84
+msgid "Natural harmonic"
+msgstr "Armonica naturale"
+
+#: application.cpp:86
+msgid "Artificial harmonic"
+msgstr "Armonica artificiale"
+
+#: application.cpp:91
+msgid "&New"
+msgstr "&Nuovo"
+
+#: application.cpp:99
+msgid "ASCII &tab..."
+msgstr "&Tavolatura ASCII..."
+
+#: application.cpp:100
+msgid "&Export"
+msgstr "&Esporta"
+
+#: application.cpp:103
+msgid "P&roperties..."
+msgstr "P&ropietà..."
+
+#: application.cpp:111
+msgid "&Track..."
+msgstr "&Traccia..."
+
+#: application.cpp:115
+msgid "&Chord"
+msgstr "&Accordo"
+
+#: application.cpp:119
+msgid "&General..."
+msgstr "&Generale..."
+
+#: application.cpp:122
+msgid "American, sharps"
+msgstr "Americano, diesis"
+
+#: application.cpp:123
+msgid "American, flats"
+msgstr "Americano, bemolle"
+
+#: application.cpp:124
+msgid "American, mixed"
+msgstr "Americano, misto"
+
+#: application.cpp:126
+msgid "European, sharps"
+msgstr "Europeo, diesis"
+
+#: application.cpp:127
+msgid "European, flats"
+msgstr "Europeo, bemolle"
+
+#: application.cpp:128
+msgid "European, mixed"
+msgstr "Europeo, misto"
+
+#: application.cpp:130
+msgid "Jazz, sharps"
+msgstr "Jazz, diesis"
+
+#: application.cpp:131
+msgid "Jazz, flats"
+msgstr "Jazz, bemolle"
+
+#: application.cpp:132
+msgid "Jazz, mixed"
+msgstr "Jazz, misto"
+
+#: application.cpp:137
+msgid "&Note names"
+msgstr "&Nomi delle note"
+
+#: application.cpp:142
+msgid "A stringed instrument tabulature editor"
+msgstr "Un editor di tavolature per strumenti a corde"
+
+#: application.cpp:150 application.cpp:170
+msgid "Bar: "
+msgstr "Misura: "
+
+#: application.cpp:177
+msgid ""
+"Jazz note names are very special and should be\n"
+"used only if really know what you do. Usage of jazz\n"
+"note names without a purpose would confuse or mislead\n"
+"anyone reading the music who did not have a knowledge\n"
+"of jazz note naming.\n"
+"\n"
+"Are you sure you want to use jazz notes?"
+msgstr ""
+"I nomi di note jazz sono molto particolari e\n"
+"dovrebbero essere usati solo se sai veramente\n"
+"ciò che fai. L'uso di note jazz senza motivo\n"
+"potrebbe portare coluì che leggerà la tavolatura\n"
+"senza conoscere le note jazz, a non comprenderla.\n"
+"\n"
+"Sicuro di voler usare le note jazz?"
+
+#: chord.cpp:157
+msgid "Root"
+msgstr "Radice"
+
+#: chord.cpp:158
+msgid "Inv #1"
+msgstr "Inv #1"
+
+#: chord.cpp:159
+msgid "Inv #2"
+msgstr "Inv #2"
+
+#: chord.cpp:160
+msgid "Inv #3"
+msgstr "Inv #3"
+
+#: chord.cpp:161
+msgid "Inv #4"
+msgstr "Inv #4"
+
+#: chord.cpp:162
+msgid "Inv #5"
+msgstr "Inv #5"
+
+#: chord.cpp:163
+msgid "Inv #6"
+msgstr "Inv #6"
+
+#: chord.cpp:169
+msgid "Usual"
+msgstr "Usuale"
+
+#: chord.cpp:171
+msgid "Rare"
+msgstr "Raro"
+
+#: chord.cpp:173
+msgid "All"
+msgstr "Tutti"
+
+#: chord.cpp:207
+msgid "Chord constructor"
+msgstr "Costruttore di accordi"
+
+#: setsong.cpp:17
+msgid "&Title:"
+msgstr "&Titolo:"
+
+#: setsong.cpp:18
+msgid "&Author:"
+msgstr "&Autore:"
+
+#: setsong.cpp:19
+msgid "&Transcriber:"
+msgstr "&Trascrittore:"
+
+#: setsong.cpp:20
+msgid "&Comments:"
+msgstr "&Commenti:"
+
+#: setsong.cpp:53
+msgid "Song properties"
+msgstr "Proprietà del brano"
+
+#: settrack.cpp:24
+msgid "&Track name:"
+msgstr "Nome &traccia:"
+
+#: settrack.cpp:25
+msgid "&Channel:"
+msgstr "&Canale:"
+
+#: settrack.cpp:26
+msgid "&Bank:"
+msgstr "&Bank:"
+
+#: settrack.cpp:27
+msgid "&Patch:"
+msgstr "&Patch:"
+
+#: settrack.cpp:65
+msgid "Track properties"
+msgstr "Proprietà della traccia"
+
+#: settabfret.cpp:13
+msgid "Fret tabulature"
+msgstr "Tavolatura fret"
+
+#: settabfret.cpp:23
+msgid "Tuning:"
+msgstr "Accordatura:"
+
+#: settabfret.cpp:31
+msgid "Strings:"
+msgstr "Corde:"
+
+#: settabfret.cpp:37
+msgid "Frets:"
+msgstr "Fret:"
+
+#: options.cpp:18
+msgid "Dominant 7th"
+msgstr "7ma dominante"
+
+#: options.cpp:32
+msgid "Alterations"
+msgstr "Alterazioni"
+
+#: options.cpp:34
+msgid "-/+ symbols"
+msgstr "Simboli +/-"
+
+#: options.cpp:35
+msgid "b/# symbols"
+msgstr "Simboli b/#"
+
+#: options.cpp:43
+msgid "&Chords"
+msgstr "&Accordi"
+
+#: options.cpp:51
+msgid "Others"
+msgstr "Altri"
+
+#: options.cpp:61
+msgid "General options"
+msgstr "Opzioni generali"
+
+#: timesig.cpp:25
+msgid "&Beats per measure:"
+msgstr "&Battiti per misura:"
+
+#: timesig.cpp:26
+msgid "Beat &value:"
+msgstr "&Valore del battito"
+
+#: timesig.cpp:47
+msgid "Apply till the &end"
+msgstr "Applica fino alla &fine"

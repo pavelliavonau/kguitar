@@ -1,5 +1,5 @@
  
-GMOFILES = fr.gmo ru.gmo
+GMOFILES = fr.gmo it.gmo ru.gmo
 POFILES = $(GMOFILES:.gmo=.po) 
 
 localedir = $(kde_locale)
