@@ -653,10 +653,8 @@ bool TabSong::save_to_gtp(QString fileName)
 #define SLY_LOGS
 //#define VERBOSE_NOTES
 
-#define RETURN_AND_CLEAN_ERROR_GP3	{free(buffer);return FALSE;}
-
 #ifdef SLY_LOGS
-	#define LOGS	{printf(message);fprintf(logs,message);}
+	#define LOGS	{printf(message);fprintf(logs,message);fflush(stdout);fflush(logs);}
 	#define WHEREAMI(str)	{sprintf(message,"\t%s\t: Offset %ld = %d %d * %d * %d %d %d\n", str,totalsize-size, buf[-2],buf[-1],buf[0],buf[1],buf[2],buf[3]);LOGS}
 #endif
 
@@ -704,16 +702,18 @@ bool TabSong::load_from_gp3(QString fileName)
 {
 	unsigned char *buffer;
 	unsigned char *buf;
-	unsigned long size, totalsize;
+	long size, totalsize;
 	char str[10240];	//For temporary string storage while converting Delphi strings -> QStrings
 	#ifdef SLY_LOGS
 	FILE *logs;
 	char message[10240];	(void)message;
 	#endif
 
+	printf("\nGP3 loader by Sylvain Vignaud - please email bugs at vignsyl@iit.edu\n");fflush(stdout);
+
 	#ifdef SLY_LOGS
 	logs = fopen("logs.txt","wt");
-	if (!logs) {printf("Cannot create log file\n");return FALSE;}
+	if (!logs) {printf("Cannot create log file\n");fflush(stdout);return FALSE;}
 	#endif
 
 	//Open file
@@ -722,7 +722,7 @@ bool TabSong::load_from_gp3(QString fileName)
 		#ifdef SLY_LOGS
 		fclose( logs );
 		#endif
-		printf("Cannot open file\n");
+		printf("Cannot open file\n");fflush(stdout);
 		return FALSE;
 	}
 
@@ -733,36 +733,14 @@ bool TabSong::load_from_gp3(QString fileName)
 	fstream.readRawBytes( (char*)buffer,size );
 	gp3file.close();
 
-	#if 0
-	//In order to know easily what wrong happened
-	#ifdef SLY_LOGS
-	#define NB_BYTES_PER_LINE 6
-	unsigned char *c = (unsigned char*)buffer;
-	unsigned int nb = 0;
-	while (nb+NB_BYTES_PER_LINE<=size) {
-		unsigned char *cc = (unsigned char*)c;
-		fprintf(logs,"%8d [ ",nb);
-		for (int i=0; i<NB_BYTES_PER_LINE; i++)
-			fprintf(logs,"%3d ",cc[i]);
-		fprintf(logs,"] ");
-		for (int i=0; i<NB_BYTES_PER_LINE; i++)
-			fprintf(logs,"%c ",cc[i]);
-		fprintf(logs,"\n");
-
-		c += NB_BYTES_PER_LINE;
-		nb+=NB_BYTES_PER_LINE;
-	}
-	#undef NB_BYTES_PER_LINE
-	#endif
-	#endif
-
 	//Check file signature
 	#define GTP_ID3	"FICHIER GUITAR PRO"
 
 	buf = buffer;
 	if ( strncmp((char*)buf+1,GTP_ID3,strlen(GTP_ID3)) ) {
-		printf("Not a Guitar Pro 3 file!\n[%s] != [%s]\n",GTP_ID3,(char*)buf+1);
-		RETURN_AND_CLEAN_ERROR_GP3;	//Not a GP3 file
+		printf("Not a Guitar Pro 3 file!\n[%s] != [%s]\n",GTP_ID3,(char*)buf+1);fflush(stdout);
+		free(buffer);
+		return FALSE;	//Not a GP3 file
 	}
 
 	//Now it's time to parse the whole thing
@@ -796,7 +774,7 @@ bool TabSong::load_from_gp3(QString fileName)
 
 	do {
 		GET_STR_NO_INCBUF;
-		printf("Track %s\n",str);
+		printf("Track %s\n",str);fflush(stdout);
 		t.append( new TabTrack(FretTab, 0, 0, 0, 0, 6, 24) );	//First 24: 24 frets, cos don't know the exact number
 		t.current()->name = QString::fromLocal8Bit(str);
 		t.current()->b.resize(0);
@@ -804,7 +782,7 @@ bool TabSong::load_from_gp3(QString fileName)
 		nbtrack++;
 		DUMMIES( 98 );	//There are 98 bytes of description per track. Title (fixed max lenght)+ ???
 	} while (IS_CHAR(buf[1]) && IS_CHAR(buf[2]));
-	printf("%d track(s)\n\n", nbtrack);
+	printf("%d track(s)\n\n", nbtrack);fflush(stdout);
 	QListIterator<TabTrack> tracks(t);
 
 /* Format GP3 : Bar1(Track1,Track2,...,TrackN) , Bar2(Track1,Track2,...,TrackN) , ... , BarN(Track1,Track2,...,TrackN)
@@ -834,192 +812,293 @@ E|2
 	unsigned long tempstotal[12] = {0,0,0,0,0,0,0,0,0,0,0,0};
 	unsigned long time[12] = {0,0,0,0,0,0,0,0,0,0,0,0};
 	unsigned long numbar = 0;
-	unsigned long size_tracks = size;
+	long size_tracks = size;
 	char error = 0;
-	GET_LONG( lgrbar );
 
 	do {
 //		printf("New bar lgr %ld | time[numtrack] = %ld / %ld | buf = %d %d\n",lgrbar,time[numtrack],tempstotal,buf[0],buf[1]);
 		tracks.toFirst();
 		for (int numtrack=0; numtrack<nbtrack; numtrack++) {
 			int lgr,strings=0,cur_string=0,string=0;
-			TabTrack *track = tracks.current();
+			TabTrack *track = tracks.current();++tracks;
+
+			if (buf[1]==100) {	//Effect ?
+				DUMMIES(36);	//Seems to be a note that begin
+			}	//and end on 2 different bars, or a changement of timing (ie: 4/4 -> 12/8)
+			GET_LONG( lgrbar );
 
 			tempstotal[numtrack] += lgrbar;
 			#ifdef VERBOSE_NOTES
 			sprintf(message,"Track %d bar %ld lenght %ld\n",numtrack,numbar,lgrbar);	LOGS
 			#endif
+
+			unsigned long begin_bar = track->c.size();
 			track->c.resize( track->c.size()+lgrbar );
+			unsigned long end_bar = track->c.size();
+			//Defaut data (clear)
+			for (unsigned long i=begin_bar; i<end_bar; i++) {
+				for (int j=0; j<MAX_STRINGS; j++) {
+					track->c[i].a[j] = -1;
+					track->c[i].e[j] = 0;
+				}
+				track->c[i].flags = 0;
+			}
 			track->b.resize( numbar+1 );
 			track->b[numbar].start = time[numtrack];
 			track->b[numbar].time1 = 4;
 			track->b[numbar].time2 = 4;
 
+			if (lgrbar>0)
 			do {
-				int note;
-				#ifdef VERBOSE_NOTES
-//				sprintf(message,"in track %d\n",numtrack);	LOGS
-				#endif
+				int length;
+				int strings;
+				char *comment = NULL;
+				strings = 0;
+				int note_length = 0;
 				switch (*buf) {
-					case 0:
-					case 1:	//Ronde
-						lgr = buf[1];
+					case 0:		//Note(s)
+					case 1:		//Ronde
+						if (buf[1]==100) {	//Effect - pull
+							DUMMIES(39);
+							while (*buf<100 || *buf>115)
+								DUMMIES(-1);
+							DUMMIES(5);
+							continue;
+						}
+						else if (buf[1]==50) {	//Effect - Half-Pull
+							DUMMIES( 36 );
+							continue;
+						}
+
+						length = 120/(1+buf[1]);
 						strings = buf[2];
-						cur_string = 2<<5;
+//						if (strings==0)
+//							WHEREAMI("BUG : strings=0");
 						#ifdef VERBOSE_NOTES
-//						printf("Strings = %d\n",strings);
+						sprintf(message,"\tTick %ld strings=%d\n",time[numtrack],strings);	LOGS
 						#endif
-						string = 1;
-						#ifdef VERBOSE_NOTES
-//						printf("\n");
-						#endif
-						{
-						long duree = 30;
-						switch (buf[1]) {
-							case 0:
-								duree = 120;
-								break;
-							case 1:
-								duree = 60;
-								break;
-							case 2:
-								duree = 30;
-								break;
-							case 3:
-								duree = 15;
-								break;
-							case 4:
-								duree = 7;
-								break;
-						}
-						track->c[time[numtrack]].setFullDuration(duree);
-						}
-						track->c[time[numtrack]].flags = 0;
-						for (int j=0; j<MAX_STRINGS; j++) {
-							track->c[time[numtrack]].a[j] = -1;
-							track->c[time[numtrack]].e[j] = 0;
-						}
+						note_length = 1;
 						DUMMIES( 3 );
 						break;
-					case 32:	//Normal note
-					case 34:	//Ronde
-						if (strings<=cur_string || (strings&cur_string)) {
-							note = buf[2];
-							#ifdef VERBOSE_NOTES
-//							printf("%d %d\n",cur_string,strings);
-							#endif
-							while ((cur_string&strings)==0) {
-								cur_string >>= 1;
-								#ifdef VERBOSE_NOTES
-//								printf("\t");
-								#endif
-								string++;
-							}
-							#ifdef VERBOSE_NOTES
-							sprintf(message,"\tNote time = %ld / %ld : fetch %d \t corde %d cur_string %d strings %d   test %d\n",time[numtrack],tempstotal[numtrack],note,string,cur_string,strings, (cur_string-1)&strings);	LOGS
-							#endif
-							track->c[time[numtrack]].a[6-(string)] = note;
-							if ( ((cur_string-1)&strings) ==0)
-								time[numtrack]++;
-							cur_string >>= 1;
-							string++;
-							DUMMIES( 3 );
-						}
-						else {	//Trilet
-							#ifdef VERBOSE_NOTES
-							sprintf(message,"\tDeb triplet time = %ld\n",time[numtrack]);	LOGS
-							#endif
-							DUMMIES( 6 );
-							string = get_string(buf);;
-							note = buf[3];
-							track->c[time[numtrack]++].a[6-(string)] = note;
-							DUMMIES( 11 );
-							string = get_string(buf);;
-							note = buf[3];
-							track->c[time[numtrack]++].a[6-(string)] = note;
-							DUMMIES( 11 );
-							string = get_string(buf);;
-							note = buf[3];
-							track->c[time[numtrack]++].a[6-(string)] = note;
-							DUMMIES( 4 );
-							#ifdef VERBOSE_NOTES
-//							sprintf(message,"\tFin triplet time = %ld\n",time[numtrack]);	LOGS
-//							WHEREAMI("Fin Triplet");
-							#endif
-						}
-						break;
-					case 40:	//Dot note
-						#ifdef VERBOSE_NOTES
-//						WHEREAMI("dot");
-						#endif
-						while ((cur_string&strings)==0) {
-							cur_string >>= 1;
-							#ifdef VERBOSE_NOTES
-//							printf("\t");
-							#endif
-							string++;
-						}
-						note = buf[2];
-						#ifdef VERBOSE_NOTES
-//						sprintf(message,"\tDoted Note time = %ld string = %d\n",time[numtrack],string);	LOGS
-						#endif
-						track->c[time[numtrack]].a[6-(string)] = note;
-						time[numtrack]++;
-						cur_string >>= 1;
-						string++;
+					case 32:	//Triplet
+						#if 1
 						DUMMIES(4);
-						break;
-					case 64:	//Rest = Pause
+						#else
+//						WHEREAMI("Triplet");
+						length = 30;
+						DUMMIES(6);
+						string = get_string(buf)-1;
+						fetch = buf[3];
 						#ifdef VERBOSE_NOTES
-						WHEREAMI("Pause");
+						sprintf(message,"\tTick %d\n\t\tTriplet string %d fetches %d", time[numtrack], string-1,fetch);	LOGS
+						#endif
+						#ifdef NOT_IN_KGUITAR
+						track->add( string,fetch,time[numtrack]++,length );
+						#else
+						track->c[time[numtrack]].setFullDuration(length);
+						track->c[time[numtrack]++].a[5-(string)] = fetch;
+						#endif
+						DUMMIES( 11 );
+						string = get_string(buf)-1;
+						fetch = buf[3];
+						#ifdef VERBOSE_NOTES
+						sprintf(message,"-%d",fetch);	LOGS
+						#endif
+						#ifdef NOT_IN_KGUITAR
+						track->add( string,fetch,time[numtrack]++,length );
+						#else
+						track->c[time[numtrack]].setFullDuration(length);
+						track->c[time[numtrack]++].a[5-(string)] = fetch;
+						#endif
+						DUMMIES( 11 );
+						string = get_string(buf)-1;
+						fetch = buf[3];
+						#ifdef VERBOSE_NOTES
+						sprintf(message,"-%d\n",fetch);	LOGS
+						#endif
+						#ifdef NOT_IN_KGUITAR
+						track->add( string,fetch,time[numtrack]++,length );
+						#else
+						track->c[time[numtrack]].setFullDuration(length);
+						track->c[time[numtrack]++].a[5-(string)] = fetch;
 						#endif
 						DUMMIES( 4 );
-						time[numtrack]+=1;
-						if (buf[0]!=0 && buf[1]==0 && buf[2]==0 && time[numtrack]<tempstotal[numtrack]) {
-							time[numtrack]++;
+						#endif
+						break;
+					case 4:	//Text (song or comment) + note
+						length = 120/(1+buf[1]);
+						DUMMIES(2);
+						GET_STR(comment);
+						#ifdef VERBOSE_NOTES
+						sprintf(message,"\tTick %ld strings=%d\n\t\t{%s}\n",time[numtrack],strings, comment);	LOGS
+						#endif
+						free(comment);
+						comment = NULL;
+						strings = buf[0];
+						note_length = 1;
+						DUMMIES(1);
+						break;
+					case 64:	//Rest	2/4
+					case 65:	//Rest	4/4
+						#ifdef VERBOSE_NOTES
+						sprintf(message,"\tTick %ld\n\t\tRest\n", time[numtrack]);	LOGS
+						#endif
+						DUMMIES(4);
+						#ifdef NOT_IN_KGUITAR
+						track->add( 3,'S',time[numtrack],120 );
+						#endif
+						note_length = 1;
+						break;
+					case 68:	//New timing + rest + comment
+						DUMMIES(3);
+						GET_STR(comment);
+						DUMMIES(1);
+						#ifdef VERBOSE_NOTES
+						sprintf(message,"\tComment\n\t\t{%s}\n", comment);	LOGS
+						#endif
+						free(comment);
+						comment = NULL;
+						#ifdef NOT_IN_KGUITAR
+						track->add( 3,'S',time[numtrack],120 );
+						#endif
+						note_length = 1;
+						break;
+					case 20:	//Text without note
+						DUMMIES(2);
+						GET_STR(comment);
+						#ifdef VERBOSE_NOTES
+						sprintf(message,"\tComment\n\t\t{%s}\n",comment);	LOGS
+						#endif
+						free(comment);
+						comment = NULL;
+						break;
+					case 16:	//Track setting after 2 bytes
+						DUMMIES(2);
+						tempo = buf[7];
+						#ifdef VERBOSE_NOTES
+						sprintf(message,"New tempo = %d\n",tempo);	LOGS
+						#endif
+						DUMMIES(9+1);
+						break;
+					case 255:	//Track setting
+						tempo = buf[7];
+						#ifdef VERBOSE_NOTES
+						sprintf(message,"New tempo = %d\n",tempo);	LOGS
+						#endif
+						DUMMIES(9);
+						break;
+					case 2:		//Effect - Pull and back
+						DUMMIES(54);
+						break;
+					case 8:		//Efect - vibrato
+						DUMMIES(1);
+						break;
+					case 5:		//Effect - Slide + text + strings
+						if (buf[1]==0) {
+							DUMMIES(2);
+							GET_STR(comment);
+							strings = *buf;
+							note_length = 1;
+							length = 30;
+							#ifdef VERBOSE_NOTES
+							sprintf(message,"\tTick %ld strings=%d Slide up\n",time[numtrack],strings);	LOGS
+							#endif
+							DUMMIES(1);
+							free(comment);
+							comment = NULL;
 						}
+						else	DUMMIES(45);
 						break;
 					default:
+						#ifdef SLY_LOG
+						sprintf(message,"\n** Unknown command (%d)\n\n",*buf);	LOGS
+						#else
+						printf("\n** Unknown command (%d)\n\n",*buf);	fflush(stdout);
+						#endif
 						error = 1;
-						sprintf(message,"Track %d bar %ld Time %ld / %ld\n",numtrack,numbar,time[numtrack],tempstotal[numtrack]);	LOGS
-						WHEREAMI("Unknown");
 						break;
 				}
+				int mask,string;
+				for (mask=1<<6,string=0; string<6&& error==0; mask>>=1,string++) {
+					if (strings&mask) {
+						unsigned char fetch = 0;
+						switch (*buf) {
+							case 32:	//Fetch
+							case 34:	//Ronde
+								fetch = buf[2];
+								#ifdef VERBOSE_NOTES
+								sprintf(message,"\t\tString %d Fetch %2d Lenght %3d\n",string,fetch,length);	LOGS
+								#endif
+								#ifdef NOT_IN_KGUITAR
+								track->add( string,fetch,time[numtrack],length );
+								#else
+								track->c[time[numtrack]].setFullDuration(length);
+								track->c[time[numtrack]].a[5-(string)] = fetch;
+								#endif
+								DUMMIES(3);
+								break;
+							case 40:	//Dot note
+							case 42:	//Pull (?)
+								fetch = buf[2];
+								DUMMIES(4);
+								#ifdef VERBOSE_NOTES
+								sprintf(message,"\t\tString %d Fetch %2d Lenght %3d Dot\n",string,fetch,length);	LOGS
+								#endif
+								#ifdef NOT_IN_KGUITAR
+								track->add( string,fetch,time[numtrack],length );
+								#else
+								track->c[time[numtrack]].setFullDuration(length);
+								track->c[time[numtrack]].a[5-(string)] = fetch;
+								#endif
+								break;
+							default:
+								#ifdef SLY_LOGS
+								sprintf(message,"\n** Unknown note (%d)\n\n",*buf);	LOGS
+								#else
+								printf("\n** Unknown note (%d)\n\n",*buf);	fflush(stdout);
+								#endif
+								error = 1;
+								break;
+						}
+					}
+				}
+				time[numtrack] += note_length;
 			}	//Next track
-			while (!error && time[numtrack]<tempstotal[numtrack] && VALID_COMMAND);
-			if (error) break;
-			if ( time[numtrack]<tempstotal[numtrack] && !VALID_COMMAND ) {
-				WHEREAMI("Unknown command");
+			while (!error && time[numtrack]<tempstotal[numtrack] && size>=0);
+			if ( error ) {
+				WHEREAMI("Unknown at");
 				break;
 			}
 
 			#ifdef VERBOSE_NOTES
-			WHEREAMI("fin bar");
+WHEREAMI("fin bar");
 //			sprintf(message, "Track %d bar %ld fini\n",numtrack,numbar);	LOGS
 			#endif
-			GET_LONG( lgrbar );
-			#ifdef VERBOSE_NOTES
-//			printf("Fin bar : %ld | %ld / %ld\n", lgrbar,time[numtrack],tempstotal);
+			while (*buf==0) DUMMIES( -1 );	//Out of sync after a triplet at the end of the bar
+
+			#ifdef NOT_IN_KGUITAR
+			if (partition->get_time()<time[numtrack])
+				partition->set_time( time[numtrack] );
+			for (int i=0; i<MAX_STRINGS; i++)
+				track->add( i,'|',time[numtrack],0 );
 			#endif
-			++tracks;
+			if (time[numtrack]!=tempstotal[numtrack]) {
+				sprintf(message, "BUG! time[numtrack]!=tempstotal[numtrack]\n");	LOGS
+				error = 1;
+				break;
+			}
 		}	//Next bar
 		numbar++;
-	} while (!error && numbar<140 && lgrbar>0 && VALID_COMMAND);
-	if (size>0)
-		WHEREAMI("Stop parsing");
-	sprintf(message,"Managed to parse %.0f percent of the track infos\n", 100.0f-100.0f*(float)size/(float)size_tracks);	LOGS
+	} while (!error && numbar<140 && lgrbar>0 && size>=0);
+	if (size<0) size = 0;
 
-	for (int numtrack=0; numtrack<nbtrack; numtrack++)
-		if (time[numtrack]!=tempstotal[numtrack])
-			printf("Track %d - Time : %ld / %ld | We missed something\n", numtrack,time[numtrack],tempstotal[numtrack]);
-
+	printf("Managed to parse %.2f percent of the track infos\n\n", 100.0f-100.0f*(float)size/(float)size_tracks);
 
 	//Close the logs file
 	#ifdef SLY_LOGS
 	fclose(logs);
 	#endif
 	free( buffer );
-	printf("GP3 loaded\n");
 	return TRUE;
 }
 
