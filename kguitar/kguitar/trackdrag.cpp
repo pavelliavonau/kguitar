@@ -55,23 +55,23 @@ void TrackDrag::setTrack(TabTrack *trk)
 
 	Q_UINT8 tcsize = trk->string+2;
 	uint bar = 1;
-	
+
 	s << (Q_UINT8) 'S';				// Time signature event
 	s << (Q_UINT8) 2;				// 2 byte event length
 	s << (Q_UINT8) trk->b[0].time1; // Time signature itself
 	s << (Q_UINT8) trk->b[0].time2;
-	
+
 	for (uint x = 0; x < trk->c.size(); x++) {
 		if (bar+1 < trk->b.size()) {	// This bar's not last
 			if (trk->b[bar+1].start == x)
 				bar++;				// Time for next bar
 		}
-		
+
 		if ((bar < trk->b.size()) && (trk->b[bar].start == x)) {
 			s << (Q_UINT8) 'B';     // New bar event
 			s << (Q_UINT8) 0;
 		}
-		
+
 		if (trk->c[x].flags & FLAG_ARC) {
 			s << (Q_UINT8) 'L';		// Continue of previous event
 			s << (Q_UINT8) 2;		// Size of event
@@ -99,12 +99,12 @@ void TrackDrag::setTrack(TabTrack *trk)
 			}
 		}
 	}
-	
+
 	s << (Q_UINT8) 'X';				// End of track marker
 	s << (Q_UINT8) 0;				// Length of end track event
-	
+
 	buffer.close();
-	
+
 	setEncodedData(buffer.buffer());
 }
 
@@ -151,7 +151,7 @@ bool TrackDrag::decode(const QMimeSource *e, TabTrack *&trk)
 	if (string > MAX_STRINGS)
 		return FALSE;
 
-	TabTrack *newtrk = new TabTrack((TrackMode) tm,tn,channel,i16,patch,string,frets);
+	TabTrack *newtrk = new TabTrack((TabTrack::TrackMode) tm,tn,channel,i16,patch,string,frets);
 
 	for (int j = 0; j < string; j++) {
 		s >> cn;

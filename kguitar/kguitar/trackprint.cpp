@@ -841,7 +841,7 @@ void TrackPrint::drawKey(int l, TabTrack *trk)
 		const int lstStr = trk->string - 1;
 		if (l == 0) {
 			for (int i = 0; i < lstStr + 1; i++) {
-				if (trk->trackMode() == DrumTab) {
+				if (trk->trackMode() == TabTrack::DrumTab) {
 					drawStrCntAt(xpos + tabpp + 3 * br8w / 2,
 								 i,
 								 drum_abbr[trk->tune[i]]);
