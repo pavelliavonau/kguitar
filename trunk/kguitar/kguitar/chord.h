@@ -21,11 +21,10 @@ class FingerList;
 class TabTrack;
 class Strumming;
 
-class ChordSelector: public QDialog
-{
+class ChordSelector: public QDialog {
     Q_OBJECT
 public:
-    ChordSelector(TabTrack *p, QWidget *parent=0, const char *name=0);
+    ChordSelector(TabTrack *p, QWidget *parent = 0, const char *name = 0);
     int  app(int x) { return fng->app(x); }
     void setApp(int x, int fret) { fng->setApp(x, fret); }
 	int  scheme() { return strum_scheme; }
