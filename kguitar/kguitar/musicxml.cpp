@@ -473,7 +473,7 @@ bool MusicXMLParser::addNote()
 	x = trk->x + 1;
 
 	if (stRst) {
-		cout << "rest, l=" << len << endl;
+		// cout << "rest, l=" << len << endl;
 	}
 
 	// if not rest or tie: fill in fret (if rest: frets stay -1)
