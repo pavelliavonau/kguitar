@@ -59,7 +59,7 @@ public:
 private:
 	void drawBeam(int x1, int x2, int y, char tp, char dir);
 	void drawBeams(int bn, char dir, TabTrack *trk);
-	void drawKey(TabTrack *trk, bool flop);
+	int drawKey(TabTrack *trk, bool doDraw, bool flop);
 	int drawKeySig(TabTrack *trk, bool doDraw);
 	void drawLetRing(int x, int y);
 	void drawNtHdCntAt(int x, int y, int t, Accidentals::Accid a);

@@ -888,47 +888,81 @@ void TrackPrint::drawBeams(int bn, char dir, TabTrack *trk)
 // at all other lines the text "TAB"
 // note: print drum names instead in case of drumtrack
 
-void TrackPrint::drawKey(TabTrack *trk, bool flop)
+// LVIFIX: should return something like
+// left margin (b28w ?)
+// + max(width(key), width(drumnames))
+// + right margin (b28w ?)
+
+// Note: when called from mousepress the painter p is not active, which causes a crash
+// when p->setFont() is called. Also applies to drawKeySig() and drawTimeSig().
+
+int TrackPrint::drawKey(TabTrack *trk, bool doDraw, bool flop)
 {
-	if (stNts) {
-		// draw clef
-		QString s;
-		s = QChar(0x6A);
-		p->setFont(*fFeta);
-		// LVIFIX: determine correct location (both clef and key)
-		p->drawText(xpos + tabpp, yposst - ystepst, s);
-	}
+	int res = 0;
+// Debug: show field width as horizontal line
+//	int xstart = xpos;
 
 	if (stTab) {
-		p->setFont(*fTBar1);
+		if (doDraw) {
+			p->setFont(*fTBar1);
+		}
 		const int lstStr = trk->string - 1;
 		if (flop) {
 			for (int i = 0; i < lstStr + 1; i++) {
 				if (trk->trackMode() == TabTrack::DrumTab) {
-					drawStrCntAt(xpos + tabpp + 3 * br8w / 2,
+					if (doDraw) {
+						drawStrCntAt(xpos + tabpp + 3 * br8w / 2,
 								 i,
 								 drum_abbr[trk->tune[i]]);
+					}
+					res = 5 * br8w;
 				} else {
-					drawStrCntAt(xpos + tabpp + br8w / 2,
+					if (doDraw) {
+						drawStrCntAt(xpos + tabpp + br8w / 2,
 								 i,
 								 Settings::noteName(trk->tune[i] % 12));
+					}
+					res = (int) (2.5 * br8w);
 				}
 			}
 		} else {
 			// calculate vertical position:
 			// exactly halfway between top and bottom string
 			// center "TAB" at this height, use spacing of 0.25 * char height
-			QFontMetrics fm  = p->fontMetrics();
-			int y = ypostb - ysteptb * lstStr / 2;
-			int br8h = fm.boundingRect("8").height();
-			y -= (int) ((0.5 + 0.25) * br8h);
-			p->drawText(xpos + tabpp, y, "T");
-			y += (int) ((1.0 + 0.25) * br8h);
-			p->drawText(xpos + tabpp, y, "A");
-			y += (int) ((1.0 + 0.25) * br8h);
-			p->drawText(xpos + tabpp, y, "B");
+			if (doDraw) {
+				QFontMetrics fm  = p->fontMetrics();
+				int y = ypostb - ysteptb * lstStr / 2;
+				int br8h = fm.boundingRect("8").height();
+				y -= (int) ((0.5 + 0.25) * br8h);
+				p->drawText(xpos + tabpp, y, "T");
+				y += (int) ((1.0 + 0.25) * br8h);
+				p->drawText(xpos + tabpp, y, "A");
+				y += (int) ((1.0 + 0.25) * br8h);
+				p->drawText(xpos + tabpp, y, "B");
+			}
+			res = (int) (2.5 * br8w);
 		}
 	}
+
+	if (stNts) {
+		if (doDraw) {
+		// draw clef
+			QString s;
+			s = QChar(0x6A);
+			p->setFont(*fFeta);
+			// LVIFIX: determine correct location (both clef and key)
+			p->drawText(xpos + tabpp, yposst - ystepst, s);
+		}
+		res = 4 * br8w;		// note: may increase res
+	}
+
+	if (doDraw) {
+		xpos += res;
+// Debug: show field width as horizontal line
+//		p->setPen(pLnBl);
+//		p->drawLine(xstart, ypostb - 80, xpos, ypostb - 80);
+	}
+	return res;
 }
 
 // Key signature accidental placement table
@@ -943,9 +977,13 @@ static int accPosFlatTab[7]  = {-4,  0, -3,  1, -2,  2, -1};
 int TrackPrint::drawKeySig(TabTrack *trk, bool doDraw)
 {
 	int res = 0;
+// Debug: show field width as horizontal line
+//	int xstart = xpos;
 	QString s;
 	if (stNts) {
-		p->setFont(*fFeta);
+		if (doDraw) {
+			p->setFont(*fFeta);
+		}
 		int ypos;
 		int sig = trk->b[0].keysig;
 		if ((sig <= -8) || (8 <= sig)) {
@@ -979,6 +1017,11 @@ int TrackPrint::drawKeySig(TabTrack *trk, bool doDraw)
 			}
 		}
 	}
+// Debug: show field width as horizontal line
+//	if (doDraw) {
+//		p->setPen(pLnBl);
+//		p->drawLine(xstart, ypostb - 78, xpos, ypostb - 78);
+//	}
 	return res;
 }
 
@@ -988,15 +1031,15 @@ int TrackPrint::drawKeySig(TabTrack *trk, bool doDraw)
 // return xpixels used
 // actually draws only when doDraw is true
 
-int TrackPrint::drawKKsigTsig(int bn, TabTrack *trk, bool doDraw, bool fbol, bool flop)
+// LVIFIX: use fbol ?
+
+int TrackPrint::drawKKsigTsig(int bn, TabTrack *trk, bool doDraw, bool /* fbol */, bool flop)
 {
 	int res = 0;
-	if (doDraw) {
-		drawKey(trk, flop);
-	}
+	res += drawKey(trk, doDraw, flop);
 	res += drawKeySig(trk, doDraw);
 	res += drawTimeSig(bn, trk, doDraw);
-	return res;		// LVIFIX: result probably is incorrect
+	return res;
 }
 
 // draw "let ring" with point of arrowhead at x on string y
@@ -1243,6 +1286,8 @@ void TrackPrint::drawStrCntAt(int x, int n, const QString s)
 int TrackPrint::drawTimeSig(int bn, TabTrack *trk, bool doDraw)
 {
 	int res = 0;
+// Debug: show field width as horizontal line
+//	int xstart = xpos;
 	if (trk->showBarSig(bn)) {
 		if (doDraw) {
 			int brth;
@@ -1287,16 +1332,16 @@ int TrackPrint::drawTimeSig(int bn, TabTrack *trk, bool doDraw)
 			if (stNts || stTab) {
 				xpos += tsgfw;
 			}
-		} else {
-			if (stNts || stTab) {
-				res += tsgfw;
-			}
 		}
-//	} else {
-//		if (onScreen) {
-//			xpos += tsgfw;
-//		}
+		if (stNts || stTab) {
+			res += tsgfw;
+		}
 	}
+// Debug: show field width as horizontal line
+//	if (doDraw) {
+//		p->setPen(pLnBl);
+//		p->drawLine(xstart, ypostb - 76, xpos, ypostb - 76);
+//	}
 	return res;
 }
 
@@ -1356,7 +1401,11 @@ bool TrackPrint::findHiLo(int cl, int v, TabTrack *trk, int & hi, int & lo)
 
 int TrackPrint::getFirstColOffs(int bn, TabTrack *trk, bool fbol)
 {
-	return (int) (6 * br8w + 0.9 * wNote + 2);	// LVIFIX: correct value
+	bool doDraw = false;
+	return drawKKsigTsig(bn, trk, doDraw, fbol, bn == 0)
+		+ nt0fw			// see drawBar (space before first note)
+		+ (int) (0.9 * wNote);	// see drawBar (space before first note)
+//	return (int) (6 * br8w + 0.9 * wNote + 2);	// LVIFIX: correct value
 }
 
 // initialize fonts
@@ -1386,14 +1435,14 @@ void TrackPrint::initMetrics()
 	ysteptb = (int) (0.9 * fm.ascent());
 	tabfw = 4 * br8w;
 	tabpp =     br8w;
-	tsgfw = 5 * br8w;
-	tsgpp = 2 * br8w;
+	tsgfw = 3 * br8w;
+	tsgpp = 1 * br8w;
 	nt0fw = 2 * br8w;
 	ntlfw =     br8w / 2;
 	if (onScreen) {
 		ysteptb = (int) (0.95 * fm.ascent());
 		tsgfw = (int) (4.5 * br8w);
-		tsgpp = 4 * br8w;
+		tsgpp = 2 * br8w;
 	}
 	// determine font-dependent staff metrics
 	QChar c;
