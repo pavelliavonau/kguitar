@@ -32,6 +32,8 @@ int main(int argc, char **argv)
 	aboutData.addCredit("Matt Malone AKA Marlboro", 0, "Marlboro@users.sourceforge.net");
 	aboutData.addCredit("Wilane Ousmane", 0, "wilane@users.sourceforge.net");
 	aboutData.addCredit("Richard G. Roberto", 0, "robertor@users.sourceforge.net");
+    aboutData.addCredit(0, "Special Thanks to Ronald Gelten who\n"
+                        "allowed us to make changes to tabdefs.tex", 0);
 
 	KCmdLineArgs::init(argc, argv, &aboutData);
 	KCmdLineArgs::addCmdLineOptions(options);
@@ -45,7 +47,7 @@ int main(int argc, char **argv)
 		if (argc > 1) {
 			KCmdLineArgs *args = KCmdLineArgs::parsedArgs();
 			KURL url(QDir::currentDirPath()+"/", args->arg(0));
-			shell->openURL(url);	
+			shell->openURL(url);
 			args->clear();
 		}
 		shell->show();
