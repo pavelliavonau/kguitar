@@ -1,6 +1,7 @@
 #include "settrack.h"
 #include "settabfret.h"
 #include "settabdrum.h"
+#include "settabmidi.h"
 
 #include <klocale.h>
 #include <qlayout.h>
@@ -72,10 +73,24 @@ SetTrack::SetTrack(TabTrack *trk, QWidget *parent = 0, const char *name = 0)
 	addTab(gen, i18n("&General"));
 
     //////////////////////////////////////////////////////////////////
+    // TAB MIDI SPECIFIC WIDGET
+    //////////////////////////////////////////////////////////////////
+
+	QWidget *tabmidiPage = new SetTabMidi(this);
+	addTab(tabmidiPage, i18n("MIDI &effects"));
+
+	SetTabMidi *tabmidi = (SetTabMidi *) tabmidiPage;
+	//ToDo: set values from track
+	tabmidi->setVolume(0);
+	tabmidi->setPan(0);
+	tabmidi->setReverb(0);
+	tabmidi->setChorus(0);
+	tabmidi->setTranspose(0);
+    //////////////////////////////////////////////////////////////////
     // TAB MODE SPECIFIC WIDGET
     //////////////////////////////////////////////////////////////////
 
-    modespec = new SetTabFret(this);
+	modespec = new SetTabFret(this);
 	addTab(modespec, i18n("&Mode-specific"));
 
 	// Fill tab with information

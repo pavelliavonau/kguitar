@@ -1,0 +1,309 @@
+<!DOCTYPE UI><UI>
+<class>SetTabMidiBase</class>
+<widget>
+    <class>QWidget</class>
+    <property stdset="1">
+        <name>name</name>
+        <cstring>SetTabMidiBase</cstring>
+    </property>
+    <property stdset="1">
+        <name>geometry</name>
+        <rect>
+            <x>0</x>
+            <y>0</y>
+            <width>360</width>
+            <height>233</height>
+        </rect>
+    </property>
+    <property stdset="1">
+        <name>caption</name>
+        <string>SetTabMidi</string>
+    </property>
+    <grid>
+        <property stdset="1">
+            <name>margin</name>
+            <number>11</number>
+        </property>
+        <property stdset="1">
+            <name>spacing</name>
+            <number>6</number>
+        </property>
+        <widget row="4"  column="0" >
+            <class>QLabel</class>
+            <property stdset="1">
+                <name>name</name>
+                <cstring>TextLabel5</cstring>
+            </property>
+            <property stdset="1">
+                <name>text</name>
+                <string>Transpose:</string>
+            </property>
+        </widget>
+        <widget row="3"  column="0" >
+            <class>QLabel</class>
+            <property stdset="1">
+                <name>name</name>
+                <cstring>TextLabel4</cstring>
+            </property>
+            <property stdset="1">
+                <name>text</name>
+                <string>Chorus:</string>
+            </property>
+        </widget>
+        <widget row="4"  column="2" >
+            <class>QLCDNumber</class>
+            <property stdset="1">
+                <name>name</name>
+                <cstring>LCDTranspose</cstring>
+            </property>
+            <property stdset="1">
+                <name>numDigits</name>
+                <number>3</number>
+            </property>
+        </widget>
+        <widget row="0"  column="1" >
+            <class>QSlider</class>
+            <property stdset="1">
+                <name>name</name>
+                <cstring>SliderVolume</cstring>
+            </property>
+            <property stdset="1">
+                <name>maxValue</name>
+                <number>127</number>
+            </property>
+            <property stdset="1">
+                <name>pageStep</name>
+                <number>5</number>
+            </property>
+            <property stdset="1">
+                <name>orientation</name>
+                <enum>Horizontal</enum>
+            </property>
+            <property stdset="1">
+                <name>tickmarks</name>
+                <enum>Left</enum>
+            </property>
+        </widget>
+        <widget row="0"  column="0" >
+            <class>QLabel</class>
+            <property stdset="1">
+                <name>name</name>
+                <cstring>TextLabel1</cstring>
+            </property>
+            <property stdset="1">
+                <name>text</name>
+                <string>Volume:</string>
+            </property>
+        </widget>
+        <widget row="4"  column="1" >
+            <class>QSlider</class>
+            <property stdset="1">
+                <name>name</name>
+                <cstring>SliderTranspose</cstring>
+            </property>
+            <property stdset="1">
+                <name>minimumSize</name>
+                <size>
+                    <width>85</width>
+                    <height>0</height>
+                </size>
+            </property>
+            <property stdset="1">
+                <name>minValue</name>
+                <number>-12</number>
+            </property>
+            <property stdset="1">
+                <name>maxValue</name>
+                <number>12</number>
+            </property>
+            <property stdset="1">
+                <name>pageStep</name>
+                <number>1</number>
+            </property>
+            <property stdset="1">
+                <name>orientation</name>
+                <enum>Horizontal</enum>
+            </property>
+            <property stdset="1">
+                <name>tickmarks</name>
+                <enum>Left</enum>
+            </property>
+        </widget>
+        <widget row="2"  column="2" >
+            <class>QLCDNumber</class>
+            <property stdset="1">
+                <name>name</name>
+                <cstring>LCDReverb</cstring>
+            </property>
+            <property stdset="1">
+                <name>numDigits</name>
+                <number>3</number>
+            </property>
+        </widget>
+        <widget row="1"  column="0" >
+            <class>QLabel</class>
+            <property stdset="1">
+                <name>name</name>
+                <cstring>TextLabel2</cstring>
+            </property>
+            <property stdset="1">
+                <name>text</name>
+                <string>Pan:</string>
+            </property>
+        </widget>
+        <widget row="2"  column="1" >
+            <class>QSlider</class>
+            <property stdset="1">
+                <name>name</name>
+                <cstring>SliderReverb</cstring>
+            </property>
+            <property stdset="1">
+                <name>maxValue</name>
+                <number>127</number>
+            </property>
+            <property stdset="1">
+                <name>pageStep</name>
+                <number>5</number>
+            </property>
+            <property stdset="1">
+                <name>orientation</name>
+                <enum>Horizontal</enum>
+            </property>
+            <property stdset="1">
+                <name>tickmarks</name>
+                <enum>Left</enum>
+            </property>
+        </widget>
+        <widget row="3"  column="1" >
+            <class>QSlider</class>
+            <property stdset="1">
+                <name>name</name>
+                <cstring>SliderChorus</cstring>
+            </property>
+            <property stdset="1">
+                <name>maxValue</name>
+                <number>127</number>
+            </property>
+            <property stdset="1">
+                <name>pageStep</name>
+                <number>5</number>
+            </property>
+            <property stdset="1">
+                <name>orientation</name>
+                <enum>Horizontal</enum>
+            </property>
+            <property stdset="1">
+                <name>tickmarks</name>
+                <enum>Left</enum>
+            </property>
+        </widget>
+        <widget row="2"  column="0" >
+            <class>QLabel</class>
+            <property stdset="1">
+                <name>name</name>
+                <cstring>TextLabel3</cstring>
+            </property>
+            <property stdset="1">
+                <name>text</name>
+                <string>Reverb:</string>
+            </property>
+        </widget>
+        <widget row="3"  column="2" >
+            <class>QLCDNumber</class>
+            <property stdset="1">
+                <name>name</name>
+                <cstring>LCDChorus</cstring>
+            </property>
+            <property stdset="1">
+                <name>numDigits</name>
+                <number>3</number>
+            </property>
+        </widget>
+        <widget row="0"  column="2" >
+            <class>QLCDNumber</class>
+            <property stdset="1">
+                <name>name</name>
+                <cstring>LCDVolume</cstring>
+            </property>
+            <property stdset="1">
+                <name>numDigits</name>
+                <number>3</number>
+            </property>
+        </widget>
+        <widget row="1"  column="2" >
+            <class>QLCDNumber</class>
+            <property stdset="1">
+                <name>name</name>
+                <cstring>LCDPan</cstring>
+            </property>
+            <property stdset="1">
+                <name>numDigits</name>
+                <number>3</number>
+            </property>
+        </widget>
+        <widget row="1"  column="1" >
+            <class>QSlider</class>
+            <property stdset="1">
+                <name>name</name>
+                <cstring>SliderPan</cstring>
+            </property>
+            <property stdset="1">
+                <name>minValue</name>
+                <number>-64</number>
+            </property>
+            <property stdset="1">
+                <name>maxValue</name>
+                <number>64</number>
+            </property>
+            <property stdset="1">
+                <name>pageStep</name>
+                <number>4</number>
+            </property>
+            <property stdset="1">
+                <name>value</name>
+                <number>0</number>
+            </property>
+            <property stdset="1">
+                <name>orientation</name>
+                <enum>Horizontal</enum>
+            </property>
+            <property stdset="1">
+                <name>tickmarks</name>
+                <enum>Left</enum>
+            </property>
+        </widget>
+    </grid>
+</widget>
+<connections>
+    <connection>
+        <sender>SliderVolume</sender>
+        <signal>valueChanged(int)</signal>
+        <receiver>LCDVolume</receiver>
+        <slot>display(int)</slot>
+    </connection>
+    <connection>
+        <sender>SliderReverb</sender>
+        <signal>valueChanged(int)</signal>
+        <receiver>LCDReverb</receiver>
+        <slot>display(int)</slot>
+    </connection>
+    <connection>
+        <sender>SliderChorus</sender>
+        <signal>valueChanged(int)</signal>
+        <receiver>LCDChorus</receiver>
+        <slot>display(int)</slot>
+    </connection>
+    <connection>
+        <sender>SliderTranspose</sender>
+        <signal>valueChanged(int)</signal>
+        <receiver>LCDTranspose</receiver>
+        <slot>display(int)</slot>
+    </connection>
+    <connection>
+        <sender>SliderPan</sender>
+        <signal>valueChanged(int)</signal>
+        <receiver>LCDPan</receiver>
+        <slot>display(int)</slot>
+    </connection>
+</connections>
+</UI>

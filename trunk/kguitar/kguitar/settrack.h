@@ -10,6 +10,7 @@ class KIntNumInput;
 class QComboBox;
 class SetTabFret;
 class SetTabDrum;
+class SetTabMidi;
 class TabTrack;
 
 class SetTrack: public QTabDialog {
