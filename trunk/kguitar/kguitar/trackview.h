@@ -5,6 +5,7 @@
 
 class TabSong;
 class TabTrack;
+class DeviceManager;
 
 class TrackView: public QTableView
 {
@@ -17,6 +18,8 @@ public:
 
     TabTrack* trk() { return curt; }
     void setCurt(TabTrack *trk) { curt = trk; }
+
+	DeviceManager* devMan() { return midi; }
 
     void setFinger(int num, int fret);
     int finger(int num);
@@ -62,13 +65,12 @@ public slots:
     void key9();
     void key0();
 
-
 signals:
-    void statusBarChanged();
+	void statusBarChanged();
 
 protected:
-    virtual void paintCell(QPainter *, int row, int col);    
-    virtual void resizeEvent(QResizeEvent *e);
+	virtual void paintCell(QPainter *, int row, int col);    
+	virtual void resizeEvent(QResizeEvent *e);
 	virtual void mousePressEvent(QMouseEvent *e);
 
 private:
@@ -76,9 +78,10 @@ private:
     void setLength(int l);
 	int horizDelta(uint n);
     void insertTab(int num);
-
+	
     TabSong *song;
     TabTrack *curt;
+	DeviceManager *midi;
 
     uchar lastnumber;
 };

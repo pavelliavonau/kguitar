@@ -21,10 +21,13 @@ class FingerList;
 class TabTrack;
 class Strumming;
 
+class DeviceManager;
+
 class ChordSelector: public QDialog {
     Q_OBJECT
 public:
-    ChordSelector(TabTrack *p, QWidget *parent = 0, const char *name = 0);
+    ChordSelector(DeviceManager *_dm, TabTrack *p, QWidget *parent = 0,
+				  const char *name = 0);
     int  app(int x) { return fng->app(x); }
     void setApp(int x, int fret) { fng->setApp(x, fret); }
 	int  scheme() { return strum_scheme; }
@@ -37,6 +40,11 @@ public slots:
     void findSelection();
     void findChords();
 	void askStrum();
+	void playMidi();
+
+protected: 
+    virtual void resizeEvent(QResizeEvent *e);
+
 private:
     TabTrack *parm;
 
@@ -51,8 +59,7 @@ private:
     FingerList *fnglist;
 
 	int strum_scheme;
-protected: 
-    virtual void resizeEvent(QResizeEvent *e);
+	DeviceManager *dm;
 };
 
 #endif

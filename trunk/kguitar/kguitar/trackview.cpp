@@ -4,7 +4,6 @@
 #include "timesig.h"
 
 #include <kglobalsettings.h>
-#include <iostream.h>
 
 #include <qwidget.h>
 #include <qpainter.h>
@@ -15,7 +14,9 @@
 #include <qcombobox.h>
 #include <qcheckbox.h>
 
-TrackView::TrackView(QWidget *parent,const char *name): QTableView(parent,name)
+#include <libkmid/deviceman.h>
+
+TrackView::TrackView(QWidget *parent, const char *name): QTableView(parent, name)
 {
 	setTableFlags(Tbl_autoVScrollBar | Tbl_smoothScrolling);
 	setFrameStyle(Panel | Sunken);
@@ -26,7 +27,7 @@ TrackView::TrackView(QWidget *parent,const char *name): QTableView(parent,name)
 	setFocusPolicy(QWidget::StrongFocus);
 
 	song = new TabSong("Unnamed", 120);
-	song->t.append(new TabTrack(GuitarTab ,"Guitar" ,1 ,0 ,25 ,6 ,24));
+	song->t.append(new TabTrack(GuitarTab, "Guitar", 1, 0, 25, 6, 24));
 
 	curt = song->t.first();
 
@@ -48,17 +49,32 @@ TrackView::TrackView(QWidget *parent,const char *name): QTableView(parent,name)
 	curt->b[0].start = 0;
 	curt->b[0].time1 = 4;
 	curt->b[0].time2 = 4;
-	
+
 	updateRows();
 
 	curt->x = 0;
 	curt->xb = 0;
 	curt->y = 0;
 	lastnumber = 0;
+
+    // MIDI INIT STUFF
+
+	midi = new DeviceManager( /*mididev*/ -1);
+	midi->initManager();
+
+ 	midi->openDev();
+ 	midi->initDev();
 }
 
 TrackView::~TrackView()
 {
+//	printf("Closing device\n");
+//	midi->closeDev();
+
+	printf("Deleting devicemanager\n");
+	delete midi;
+
+	printf("Deleting song...\n");
 	delete song;
 }
 
@@ -135,21 +151,21 @@ void TrackView::paintCell(QPainter *p, int row, int col)
 	uint bn = row;						// Drawing only this bar
 
 	int last;
-	if (curt->b.size() == bn + 1)        // Current bar is the last one
-		last = curt->c.size() - 1;       // Draw till the last note
-	else							     // Else draw till the end of this bar
+	if (curt->b.size() == bn + 1)       // Current bar is the last one
+		last = curt->c.size() - 1;      // Draw till the last note
+	else							    // Else draw till the end of this bar
 		last = curt->b[bn+1].start - 1;
-	if(last == -1) last = 0;             // gotemfix: avoid overflow
+	if (last == -1)  last = 0;          // gotemfix: avoid overflow
 	QString tmp;
 
 	uint s = curt->string - 1;
-	uint i;
+	int i;
 
 	for (i = 0; i <= s; i++)
-		p->drawLine(0, VERTSPACE + (s - i) * VERTLINE, width(), 
-					VERTSPACE +(s - i) * VERTLINE);
+		p->drawLine(0, VERTSPACE + (s - i) * VERTLINE,
+					width(), VERTSPACE + (s - i) * VERTLINE);
 	
-	int xpos=40, lastxpos=20, xdelta;
+	int xpos = 40, lastxpos = 20, xdelta;
 
 	// Starting bars - very thick and thick one
 
@@ -553,7 +569,7 @@ void TrackView::insertTab(int num)
 		num = lastnumber * 10 + num;
 
 	// If frets < 10
-	if (num <= curt->frets)		
+	if (num <= curt->frets)
 		curt->c[curt->x].a[curt->y] = num;
 
 	update();
