@@ -35,7 +35,6 @@ typedef struct {
 	char a[MAX_STRINGS];                // Number of fret
 	char e[MAX_STRINGS];                // Effect parameter
 	uint flags;                         // Various flags
-	QRect clickrect;                    // Click rectangle
 } TabColumn;
 
 typedef struct {

@@ -9,6 +9,9 @@
 
 #include <kdebug.h>
 
+//GREYFIX
+#include <iostream.h>
+
 TabSong::TabSong(QString _title, int _tempo)
 {
 	tempo = _tempo;
@@ -401,6 +404,27 @@ bool TabSong::save_to_kg(QString fileName)
 	return TRUE;
 }
 
+void TabSong::readDelphiString(QDataStream *s, char *c)
+{
+	Q_UINT8 maxl, l;
+	(*s) >> maxl;
+	maxl--;
+	(*s) >> l;
+	s->readRawBytes(c, maxl);
+	c[l] = 0;
+}
+
+int TabSong::readDelphiInteger(QDataStream *s)
+{
+	Q_UINT8 x;
+	int r;
+	(*s) >> x; r = x;
+	(*s) >> x; r += x << 8;
+	(*s) >> x; r += x << 16;
+	(*s) >> x; r += x << 24;
+	return r;
+}
+
 bool TabSong::load_from_gtp(QString fileName)
 {
 	QFile f(fileName);
@@ -409,10 +433,173 @@ bool TabSong::load_from_gtp(QString fileName)
 
 	QDataStream s(&f);
 
+	Q_UINT8 num, num2, fx;
+	char c[300];
+
+	// SIGNATURE CHECK
+
+	s >> num;
+	s.readRawBytes(c, num);
+	if (strncmp(c, "FICHIER GUITAR", 14) != 0)
+		return FALSE;
+
+	// SEVERAL UNKNOWN BYTES
+
+	num2 = 30 - num;
+	s.readRawBytes(c, num2);
+
+	// SONG ATTRIBUTES
+
+	readDelphiString(&s, c);                   // Song title
+	title = QString::fromLocal8Bit(c);
+
+	readDelphiString(&s, c);                   // Author
+	author = QString::fromLocal8Bit(c);
+
+	readDelphiString(&s, c);                   // Comments
+	comments = QString::fromLocal8Bit(c);
+
+	transcriber = QString("KGuitar");
+
+	tempo = readDelphiInteger(&s);             // Tempo
+
+	readDelphiInteger(&s);                     // GREYFIX - Triplet feel
+	readDelphiInteger(&s);                     // Unknown 4 bytes
+
+	// TUNING INFORMATION
+
+	t.clear();
+
+	for (int i = 0; i < 8; i++) {
+		num = readDelphiInteger(&s);           // Number of strings
+		t.append(new TabTrack(FretTab, 0, 0, 0, 0, num, 24));
+		for (int j = 0; j < num; j++)
+			t.current()->tune[j] = readDelphiInteger(&s);
+	}
+
+	int maxbar = readDelphiInteger(&s);        // Quantity of bars
+
+	// TRACK ATTRIBUTES
+
+	QListIterator<TabTrack> it(t);
+	for (; it.current(); ++it) {
+		TabTrack *trk = it.current();
+		trk->patch = readDelphiInteger(&s);    // MIDI Patch
+		trk->frets = readDelphiInteger(&s);    // Frets
+		readDelphiString(&s, c);               // Track name
+		trk->name = QString::fromLocal8Bit(c);
+		s >> num;                              // Flags - GREYFIX!
+		readDelphiInteger(&s);                 // Slider: Volume (0-0x7F) - GREYFIX!
+		readDelphiInteger(&s);                 // Slider: Pan
+		readDelphiInteger(&s);                 // Slider: Chorus
+		readDelphiInteger(&s);                 // Slider: Reverb
+		readDelphiInteger(&s);                 // Capo
+	};
+
+	s.readRawBytes(c, 10);                     // 10 unknown bytes
+
+#define kdDebug()  cout
+
+	//	for (
+	it.toFirst();// it.current(); ++it) {
+		TabTrack *trk = it.current();
+
+		trk->b.resize(maxbar);
+		trk->c.resize(0);
+
+		int x = 0;
+
+		for (int xb = 0; xb < maxbar; xb++) {
+			s >> num; trk->b[xb].time1 = num;  // Time signature
+			s >> num; trk->b[xb].time2 = num;
+			trk->b[xb].start = x;
+
+			kdDebug() << "==================== NEW BAR: " <<
+				(int) trk->b[xb].time1 << ":" << (int) trk->b[xb].time2 << ", from " << x << endl;
+
+			s.readRawBytes(c, 8);              // 8 unknown bytes
+
+			int thisbar = readDelphiInteger(&s);// Number of tab columns
+			trk->c.resize(trk->c.size() + thisbar);
+
+			s.readRawBytes(c, 93);             // 93 unknown bytes
+
+			for (int j = 0; j < thisbar; x++, j++) {
+
+				// Guitar Pro uses maximal system for MIDI event
+				// timing. Thus, it sets 480 ticks to be equal to 1/4 of a
+				// whole note. KGuitar has 120 ticks as 1/4, so we need to
+				// divide duration by 4
+				
+				trk->c[x].l = readDelphiInteger(&s) / 4;// duration of column
+				trk->c[x].flags = 0;
+				
+				kdDebug() << "Read column " << x << ": duration " << trk->c[x].l << endl;
+				
+				s >> num;                      // 1 unknown byte
+				s >> num;
+				if (num == 8) {
+					kdDebug() << "Rest 8" << endl;
+					for (int i = 0; i < MAX_STRINGS; i++) {
+						trk->c[x].a[i] = -1;
+						trk->c[x].e[i] = 0;
+					}
+					s >> num;
+					continue;
+				}
+				s >> num;                      // 1 unknown byte
 
 
-    // Loading from Guitar Pro format here
-    return FALSE;
+				s >> num2;                     // mask of following fret numbers
+				s >> fx;                       // effects
+				s >> num;                      // 1 unknown byte
+				
+				kdDebug() << "Frets using mask " << (int) num2 << ", fx " << (int) fx << ": ";
+				
+				for (int i = 5; i >= 0; i--) {
+					if (num2 & (1 << i)) {
+						s >> num; trk->c[x].a[i] = num;// fret number
+						kdDebug() << (int) num;
+						s >> num;              // volume>? - GREYFIX
+						if (fx & (1 << i)) {
+							s >> num;
+							switch (num) {
+							case 1: kdDebug() << "h"; trk->c[x].e[i] = EFFECT_LEGATO; break;
+							case 2: kdDebug() << "p"; trk->c[x].e[i] = EFFECT_LEGATO; break;
+							case 3: kdDebug() << "su"; break;
+							case 4: kdDebug() << "sd"; break;
+							}
+						}
+					} else {
+						trk->c[x].a[i] = -1;
+						trk->c[x].e[i] = 0;
+						kdDebug() << "X";
+					}
+				}
+				
+				kdDebug() << endl;
+			}
+		}
+		//    };
+
+	printf("%d byte:\n", f.at());
+	num2 = 0;
+	while (!s.atEnd()) {
+		s >> num;
+		printf("%02x ", num);
+		num2++;
+		if (num2 == 8)
+			printf(" ");
+		if (num2 == 16) {
+			printf("\n");
+			num2 = 0;
+		}
+	}
+	printf("\n");
+
+	f.close();
+
+    return TRUE;
 }
 
 bool TabSong::save_to_gtp(QString fileName)

@@ -43,6 +43,9 @@ private:
 	QString tab(bool chord, int string, int fret);
 	QString getNote(QString note, int duration, bool dot);
 	QString cleanString(QString str);
+
+	void readDelphiString(QDataStream *s, char *c);
+	int readDelphiInteger(QDataStream *s);
 };
 
 #endif
