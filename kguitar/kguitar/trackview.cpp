@@ -124,7 +124,7 @@ void TrackView::setZoomLevel(int newZoomLevel)
 	if (newZoomLevel > 0) {
 		zoomLevel = newZoomLevel;
 		repaintContents();
-	}	
+	}
 }
 
 void TrackView::zoomIn()
@@ -191,11 +191,42 @@ void TrackView::ensureCurrentVisible()
 // things may happen.
 void TrackView::melodyEditorPress(int num, int fret, ButtonState button = NoButton)
 {
-	setFinger(num, fret);
- 	if (button & MidButton) {
- 		setFinger(num + 1, fret + 2);
- 		setFinger(num + 2, fret + 2);
- 	}
+	if (button & LeftButton)
+		melodyEditorAction(num, fret, 0);
+	if (button & MidButton)
+		melodyEditorAction(num, fret, 1);
+	if (button & RightButton)
+		melodyEditorAction(num, fret, 2);
+}
+
+// Execute one of melody editors actions, as defined in
+// globalMelodyEditorAction array
+void TrackView::melodyEditorAction(int num, int fret, int action)
+{
+	// GREYFIX: make it *one* undo transaction
+	switch (globalMelodyEditorAction[action]) {
+	case 0: // no action
+		break;
+	case 1: // set note
+		setFinger(num, fret);
+		break;
+	case 3: // set 022 power chord
+		setFinger(num + 2, fret + 2);
+	case 2: // set 02 power chord
+		setFinger(num + 1, fret + 2);
+		setFinger(num, fret);
+		break;
+	case 5: // set 0022 power chord
+		setFinger(num + 3, fret + 2);
+		setFinger(num + 2, fret + 2);
+	case 4: // set 00 power chord
+		setFinger(num + 1, fret);
+		setFinger(num, fret);
+		break;
+	case 6: // delete note
+		setFinger(num, NULL_NOTE);
+		break;
+	}
 }
 
 // Process a mouse release in melody editor. Depending on given
@@ -203,7 +234,9 @@ void TrackView::melodyEditorPress(int num, int fret, ButtonState button = NoButt
 // to next column, may happen.
 void TrackView::melodyEditorRelease(ButtonState button)
 {
-	if (button & RightButton || button & MidButton) {
+	if (((button & LeftButton)  && (globalMelodyEditorAdvance[0])) ||
+		((button & MidButton)   && (globalMelodyEditorAdvance[1])) ||
+		((button & RightButton) && (globalMelodyEditorAdvance[2])))  {
 		if (curt->sel) {
 			curt->sel = FALSE;
 			repaintContents();
@@ -292,7 +325,7 @@ void TrackView::insertChord()
 
 	ChordSelector cs(
 #ifdef WITH_TSE3
-	                 scheduler, 
+	                 scheduler,
 #endif
 	                 curt);
 
