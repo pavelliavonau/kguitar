@@ -1,6 +1,8 @@
 Makefile
 Makefile.in
 configure
+configure.in
+configure.files
 stamp-h.in
 stamp-h
 config.h.in
