@@ -58,6 +58,8 @@ public:
 	QPen pLnBl;					// used for black lines & text
 	QPen pLnWh;					// used for white lines
 
+	int zoomLevel;
+
 private:
 	void drawBeam(int x1, int x2, int y, char tp, char dir);
 	void drawBeams(int bn, char dir, TabTrack *trk);
