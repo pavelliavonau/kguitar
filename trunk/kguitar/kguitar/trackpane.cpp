@@ -32,7 +32,7 @@ void TrackPane::updateList()
 }
 
 // Draws that pretty squares for track pane.
-void TrackPane::drawContents(QPainter *p, int clipx, int clipy, int clipw, int cliph)
+void TrackPane::drawContents(QPainter *p, int clipx, int /*clipy*/, int clipw, int /*cliph*/)
 {
 	int x1 = clipx / cellSide - 1;
 	int x2 = (clipx + clipw) / cellSide + 1;
