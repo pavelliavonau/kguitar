@@ -319,7 +319,12 @@ bool TrackView::moveFinger(int from, int dir)
 	
 	curt->c[curt->x].a[from] = -1;
 	curt->c[curt->x].a[to] = n;
-	
+
+    // ...also for the effect parameter
+	uchar fx = curt->c[curt->x].e[from];
+	curt->c[curt->x].e[from] = 0;
+	curt->c[curt->x].e[to] = fx;
+
 	curt->y = to;
 	return TRUE;
 }
@@ -372,9 +377,9 @@ void TrackView::keyRight()
 	if (curt->x+1 == curt->c.size()) {
 		curt->c.resize(curt->c.size()+1);
 		curt->x++;
-		for (uint i=0; i<curt->string; i++) {
-			curt->c[curt->x].a[i] = -1;
-			curt->c[curt->x].e[i] = 0;
+		for (uint i = 0; i < MAX_STRINGS; i++) {  // Set it for all strings,  
+			curt->c[curt->x].a[i] = -1;           // so we didn't get crazy
+			curt->c[curt->x].e[i] = 0;            // data - alinx
 		}
 		curt->c[curt->x].l = curt->c[curt->x-1].l;
 		curt->c[curt->x].flags = 0;

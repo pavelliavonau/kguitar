@@ -393,6 +393,12 @@ void ApplicationWindow::loadFile(KURL _url)
 void ApplicationWindow::recentLoad(const KURL& _url)
 {
 	QString fn = _url.path();
+	QFileInfo *fi = new QFileInfo(fn);
+
+	if (!fi->exists()){
+		KMessageBox::sorry(this, i18n("File doesn't exist."));
+		return;
+	}
 	openFile(fn);
 }
 
