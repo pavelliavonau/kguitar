@@ -13,10 +13,10 @@ void MidiData::getMidiList(TabTrack *trk, MidiList &ml, bool useTSE3 = FALSE)
 
 	for (uint x = 0; x < trk->c.size(); x++) {
 		// Calculate real duration (including all the linked beats)
-		midilen = dot2len(trk->c[x].l, trk->c[x].flags & FLAG_DOT);
+		midilen = trk->c[x].fullDuration();
 		while ((x + 1 < trk->c.size()) && (trk->c[x + 1].flags & FLAG_ARC)) {
 			x++;
-			midilen += dot2len(trk->c[x].l, trk->c[x].flags & FLAG_DOT);
+			midilen += trk->c[x].fullDuration();
 		}
 
 		// Note on/off events
