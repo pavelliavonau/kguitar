@@ -43,7 +43,7 @@ QString note_name(int num)
 	if ((num < 0) || (num > 11))
 		return "Unknown";
 
-	switch (global_notenames) {
+	switch (globalNoteNames) {
 	case 0: return notes_us1[num];
 	case 1: return notes_us2[num];
 	case 2: return notes_us3[num];
@@ -111,7 +111,7 @@ ChordSelector::ChordSelector(TabTrack *p, QWidget *parent = 0,
 	stephigh = new QListBox(this);
 	stephigh->insertItem("");
 	stephigh->insertItem("7");
-	stephigh->insertItem(maj7name[global_maj7]);
+	stephigh->insertItem(maj7name[globalMaj7]);
 	stephigh->insertItem("6");
 	stephigh->insertItem("9");
 	stephigh->insertItem("11");
@@ -142,9 +142,9 @@ ChordSelector::ChordSelector(TabTrack *p, QWidget *parent = 0,
 			st[i - 1] = new QComboBox(FALSE, this);
 			st[i - 1]->insertItem("x");
 			if ((i == 2) || (i >= 4)) {
-				st[i - 1]->insertItem(flat[global_flatplus]);
+				st[i - 1]->insertItem(flat[globalFlatPlus]);
 				st[i - 1]->insertItem("0");
-				st[i - 1]->insertItem(sharp[global_flatplus]);
+				st[i - 1]->insertItem(sharp[globalFlatPlus]);
 			}
 			connect(st[i - 1], SIGNAL(activated(int)), SLOT(findSelection()));
 			connect(st[i - 1], SIGNAL(activated(int)), SLOT(findChords()));
@@ -152,12 +152,12 @@ ChordSelector::ChordSelector(TabTrack *p, QWidget *parent = 0,
 	}
 	
 	st[0]->insertItem("2");
-	st[0]->insertItem(flat[global_flatplus]);
+	st[0]->insertItem(flat[globalFlatPlus]);
 	st[0]->insertItem("3");
 	st[0]->insertItem("4");
 
 	st[2]->insertItem("6");
-	st[2]->insertItem(flat[global_flatplus]);
+	st[2]->insertItem(flat[globalFlatPlus]);
 	st[2]->insertItem("7");
 
 	inv = new QComboBox(FALSE, this);
