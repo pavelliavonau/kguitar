@@ -5,8 +5,7 @@
 #include "global.h"
 
 #include <qspinbox.h>
-
-class QComboBox;
+#include <qlineedit.h>
 
 class SetTabDrum: public QWidget {
     Q_OBJECT
@@ -27,6 +26,7 @@ private:
 
     QSpinBox *dr;
     QSpinBox *tuner[MAX_STRINGS];
+	QLineEdit *tname[MAX_STRINGS];
     int oldst;
 };
 
