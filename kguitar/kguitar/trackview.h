@@ -42,12 +42,14 @@ public slots:
 	void addArtHarm();
 	void addLegato();
 	void insertChord();
-	void moveLeft();
-	void moveRight();
+	void keyLeft();
+	void keyRight();
 	void moveUp();
 	void moveDown();
 	void transposeUp();
 	void transposeDown();
+	void selectLeft();
+	void selectRight();
 	void deadNote();
 	void deleteNote();
 	void deleteColumn();
@@ -97,13 +99,16 @@ private:
 	int horizDelta(uint n);
 	void insertTab(int num);
 
+	void moveLeft();
+	void moveRight();
+
 	TabSong *song;
 	TabTrack *curt;
 	DeviceManager *midi;
 	KXMLGUIClient *m_XMLGUIClient;
 
 	char lastnumber;
-	uint selxcoord;
+	int selxcoord;
 
 	// MIDI stuff
 	MidiList midiList;
