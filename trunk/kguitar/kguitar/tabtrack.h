@@ -73,6 +73,7 @@ public:
 
     void removeColumn(uint n);
     void insertColumn(uint n);
+	void insertStrum(int sch, int *chord);
     void arrangeBars();
     void addFX(char fx);
 	void updateXB();

@@ -1,5 +1,9 @@
 #include "tabtrack.h"
 
+#include "strumlib.h"
+
+extern strummer lib_strum[];
+
 TabTrack::TabTrack(TrackMode _tm, QString _name, int _channel,
                    int _bank, uchar _patch, uchar _string, uchar _frets)
 {
@@ -15,18 +19,40 @@ TabTrack::TabTrack(TrackMode _tm, QString _name, int _channel,
 // Pretty sophisticated expression that determines if we can omit the time sig
 bool TabTrack::showBarSig(uint n)
 {
-	return !((n>0) && (b[n-1].time1==b[n].time1) && (b[n-1].time2==b[n].time2));
+	return !((n > 0) &&
+			 (b[n - 1].time1 == b[n].time1) &&
+			 (b[n - 1].time2 == b[n].time2));
 }
 
 // Inserts n columns at current cursor position
 void TabTrack::insertColumn(uint n)
 {
-	c.resize(c.size()+n);
-	for (uint i=c.size()-n;i>x;i--)
-		c[i] = c[i-n];
-	for (uint i=0;i<n;i++)
-		for (uint j=0;j<MAX_STRINGS;j++)
-			 c[x+i].a[j] = -1;
+	c.resize(c.size() + n);
+	for (uint i = c.size() - n; i > x; i--)
+		c[i] = c[i - n];
+	for (uint i = 0; i < n; i++)
+		for (uint j = 0; j < MAX_STRINGS; j++)
+			 c[x + i].a[j] = -1;
+}
+
+// Inserts a chord, stated in chord array, 
+void TabTrack::insertStrum(int sch, int *chord)
+{
+	if (sch == 0) { // Special "chord" scheme
+		for (int i = 0; i < string; i++)
+			c[x].a[i] = chord[i];
+	} else { // Normal strum pattern scheme
+		for (int j = 0; lib_strum[sch].len[j]; j++) {
+			if (x + j + 1 > c.size())
+				c.resize(c.size() + 1);
+			c[x + j].flags = 0;
+			c[x + j].l = lib_strum[sch].len[j];
+			for (int i = 0; i < string; i++) {
+				c[x + j].a[i] = (lib_strum[sch].mask[j] & (1 << i)) ? chord[i] : -1;
+				c[x + j].e[i] = 0;
+			}
+		}
+	}
 }
 
 // Removes n columns starting with current cursor position
