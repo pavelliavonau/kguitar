@@ -10,9 +10,9 @@ class FingerList: public QTableView
 {
     Q_OBJECT
 public:
-    FingerList(QWidget *parent = 0, const char *name = 0);
+    FingerList(QWidget *parent=0, const char *name=0);
 
-    void addFingering(const int a[MAX_STRINGS]);
+    void addFingering(const int a[MAX_STRINGS], bool update=TRUE);
     void clear();
 
 public slots:
