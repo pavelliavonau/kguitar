@@ -33,21 +33,21 @@ typedef enum {
 #define DEAD_NOTE       -2
 
 typedef struct {
-	uint l;                             // Duration of note or chord
+	int l;                              // Duration of note or chord
 	char a[MAX_STRINGS];                // Number of fret
 	char e[MAX_STRINGS];                // Effect parameter
 	uint flags;                         // Various flags
 } TabColumn;
 
 typedef struct {
-	uint start;                         // Starting column
+	int start;                          // Starting column
 	uchar time1,time2;                  // Time signature
 } TabBar;
 
 class TabTrack {
 public:
 	TabTrack(TrackMode _tm, QString _name, int _channel,
-			 int _bank, uchar _patch, uchar _string, uchar _frets);
+			 int _bank, uchar _patch, char _string, char _frets);
 
 	QArray<TabColumn> c;                // Array of columns
 	QArray<TabBar> b;                   // Array of bars
@@ -67,19 +67,19 @@ public:
 
 	QString name;                       // Track text name
 
-	uint x;                             // Current tab column
-	uint xb;                            // Current tab bar
+	int x;                              // Current tab column
+	int xb;                             // Current tab bar
 	int y;                              // Current tab string
 
 	bool sel;                           // Selection mode enabled
-	uint xsel;                          // If yes, then selection start column
+	int xsel;                           // If yes, then selection start column
 
-	int lastColumn(uint n);
-	bool showBarSig(uint n);
-	bool barStatus(uint n);
+	int lastColumn(int n);
+	bool showBarSig(int n);
+	bool barStatus(int n);
 
-	void removeColumn(uint n);
-	void insertColumn(uint n);
+	void removeColumn(int n);
+	void insertColumn(int n);
 	void arrangeBars();
 	void addFX(char fx);
 	void updateXB();

@@ -2,7 +2,7 @@
 
 
 TabTrack::TabTrack(TrackMode _tm, QString _name, int _channel,
-				   int _bank, uchar _patch, uchar _string, uchar _frets)
+				   int _bank, uchar _patch, char _string, char _frets)
 {
 	tm=_tm;
 	name=_name;
@@ -43,7 +43,7 @@ TabTrack::TabTrack(TrackMode _tm, QString _name, int _channel,
 }
 
 // Pretty sophisticated expression that determines if we can omit the time sig
-bool TabTrack::showBarSig(uint n)
+bool TabTrack::showBarSig(int n)
 {
 	return !((n > 0) &&
 			 (b[n - 1].time1 == b[n].time1) &&
@@ -52,7 +52,7 @@ bool TabTrack::showBarSig(uint n)
 
 // Returns the column that ends bar <n>. Thus bar <n> is all columns
 // from b[n].start to lastColumn(n) inclusive
-int TabTrack::lastColumn(uint n)
+int TabTrack::lastColumn(int n)
 {
 	int last;
 	if (b.size() == n + 1)       // Current bar is the last one
@@ -64,7 +64,7 @@ int TabTrack::lastColumn(uint n)
 }
 
 // Returns bar status - what to show in track pane
-bool TabTrack::barStatus(uint n)
+bool TabTrack::barStatus(int n)
 {
 	if (n >= b.size())
 		return FALSE;
@@ -86,20 +86,20 @@ bool TabTrack::barStatus(uint n)
 }
 
 // Inserts n columns at current cursor position
-void TabTrack::insertColumn(uint n)
+void TabTrack::insertColumn(int n)
 {
 	c.resize(c.size() + n);
-	for (uint i = c.size() - n; i > x; i--)
+	for (int i = c.size() - n; i > x; i--)
 		c[i] = c[i - n];
-	for (uint i = 0; i < n; i++)
-		for (uint j = 0; j < MAX_STRINGS; j++)
+	for (int i = 0; i < n; i++)
+		for (int j = 0; j < MAX_STRINGS; j++)
 			 c[x + i].a[j] = -1;
 }
 
 // Removes n columns starting with current cursor position
-void TabTrack::removeColumn(uint n)
+void TabTrack::removeColumn(int n)
 {
-	for (uint i=x;i<c.size()-n;i++)
+	for (int i=x;i<c.size()-n;i++)
 		c[i]=c[i+n];
 
 	// Remove empty bars
@@ -126,7 +126,7 @@ void TabTrack::updateXB()
 	if (x>=b[b.size()-1].start)
 		xb = b.size()-1;
 	else
-		for (uint i=0; i<b.size()-1; i++)
+		for (int i=0; i<b.size()-1; i++)
 			if ((x>=b[i].start) && (x<b[i+1].start)) {
 				xb = i;
 				break;
@@ -182,7 +182,7 @@ void TabTrack::updateXB()
 		if (dot)  c[i-1].flags |= FLAG_DOT;				\
 		if (!firstnote) {								\
 			c[i-1].flags |= FLAG_ARC;					\
-			for (uint k=0;k<MAX_STRINGS;k++)			\
+			for (int k=0;k<MAX_STRINGS;k++)			\
 				c[i-1].a[k] = -1;						\
 		}												\
 		firstnote = FALSE;								\
@@ -192,13 +192,13 @@ void TabTrack::arrangeBars()
 {
 	int barlen = 480 * b[0].time1 / b[0].time2;
 	int barnum = 1;
-	uint cl = 0;						// Current length
+	int cl = 0;						// Current length
 
 	// COLLECT ALL NOTES INFORMATION
 
 	QArray<TabColumn> an;				// Collected columns information
-	uint nn = 0;						// Number of already made columns
-	uint i;
+	int nn = 0;						// Number of already made columns
+	int i;
 
 	for (i=0;i<c.size();i++) {
 		cl = c[i].l;
@@ -217,9 +217,9 @@ void TabTrack::arrangeBars()
 	// RECONSTRUCTING BARS & COLUMNS ARRAYS
 
 	i = 0;
-	uint ln;
-	uint cbl;
-	uint toput;
+	int ln;
+	int cbl;
+	int toput;
 	bool firstnote = TRUE, dot = FALSE;
 
 	cbl = barlen;
