@@ -24,17 +24,18 @@ bin_PROGRAMS = kguitar
 lib_LTLIBRARIES = libkguitar.la
 
 # Which sources should be compiled for kguitar.
-libkguitar_la_SOURCES = application.cpp songview.cpp chord.cpp	 \
-fingers.cpp fingerlist.cpp trackview.cpp setsong.cpp tabsong.cpp \
-tabtrack.cpp tabcolumn.cpp settrack.cpp settabmidibase.ui		 \
-settabmidi.cpp settabfret.cpp settabdrum.cpp radiustuner.cpp	 \
-notespinbox.cpp chordlistitem.cpp chordlist.cpp timesig.cpp		 \
-strumming.cpp filebrowser.cpp tracklist.cpp trackpane.cpp		 \
-trackdrag.cpp trackviewcommands.cpp songviewcommands.cpp		 \
-kguitar_shell.cpp songprint.cpp musicxml.cpp rhythmer.cpp		 \
-accidentals.cpp keysig.cpp trackprint.cpp fretboard.cpp			 \
-melodyeditor.cpp options.cpp optionsmusictheory.cpp				 \
-optionsmelodyeditor.cpp playbacktracker.cpp
+libkguitar_la_SOURCES = application.cpp songview.cpp chord.cpp		\
+fingers.cpp fingerlist.cpp trackview.cpp setsong.cpp tabsong.cpp	\
+tabtrack.cpp tabcolumn.cpp settrack.cpp settabmidibase.ui			\
+settabmidi.cpp settabfret.cpp settabdrum.cpp radiustuner.cpp		\
+notespinbox.cpp chordlistitem.cpp chordlist.cpp timesig.cpp			\
+strumming.cpp filebrowser.cpp tracklist.cpp trackpane.cpp			\
+trackdrag.cpp trackviewcommands.cpp songviewcommands.cpp			\
+kguitar_shell.cpp songprint.cpp musicxml.cpp rhythmer.cpp			\
+accidentals.cpp keysig.cpp trackprint.cpp fretboard.cpp				\
+melodyeditor.cpp options.cpp optionspage.cpp optionsmusictheory.cpp	\
+optionsmelodyeditor.cpp optionsexportmusixtex.cpp optionsmidi.cpp	\
+optionsprinting.cpp playbacktracker.cpp
 
 METASOURCES = AUTO
 
@@ -47,14 +48,16 @@ kguitar_LDFLAGS = $(KDE_RPATH) $(all_libraries)
 kguitar_LDADD = $(LIB_KFILE) libkguitar.la
 
 # this option you can leave out. Just, if you use "make dist", you need it
-noinst_HEADERS = application.h songview.h chord.h fingers.h			   \
-fingerlist.h trackview.h setsong.h tabsong.h tabtrack.h tabcolumn.h	   \
-settabmidi.h settrack.h settabfret.h settabdrum.h radiustuner.h		   \
-notespinbox.h chordlistitem.h chordlist.h timesig.h strumming.h		   \
-filebrowser.h tracklist.h trackpane.h trackdrag.h trackviewcommands.h  \
-songviewcommands.h kguitar_shell.h songprint.h musicxml.h rhythmer.h   \
-accidentals.h keysig.h trackprint.h fretboard.h melodyeditor.h		   \
-options.h optionsmelodyeditor.h optionsmusictheory.h playbacktracker.h
+noinst_HEADERS = application.h songview.h chord.h fingers.h			  \
+fingerlist.h trackview.h setsong.h tabsong.h tabtrack.h tabcolumn.h	  \
+settabmidi.h settrack.h settabfret.h settabdrum.h radiustuner.h		  \
+notespinbox.h chordlistitem.h chordlist.h timesig.h strumming.h		  \
+filebrowser.h tracklist.h trackpane.h trackdrag.h trackviewcommands.h \
+songviewcommands.h kguitar_shell.h songprint.h musicxml.h rhythmer.h  \
+accidentals.h keysig.h trackprint.h fretboard.h melodyeditor.h		  \
+options.h optionspage.h optionsmelodyeditor.h optionsmusictheory.h	  \
+optionsexportmusixtex.h optionsmidi.h optionsprinting.h				  \
+playbacktracker.h
 
 libkguitar_la_LDFLAGS = $(all_libraries) -module -no-undefined
 libkguitar_la_LIBADD = $(LIB_KFILE) $(LIBTSE3) -lkparts -lkdeprint
