@@ -102,11 +102,12 @@ void TrackView::selectTrack(TabTrack *trk)
 
 void TrackView::selectBar(uint n)
 {
-	if (n < curt->b.size()) {
+	if (n != curt->xb && n < curt->b.size()) {
 		curt->x = curt->b[n].start;
-		curt->updateXB();
+		curt->xb = n;
 		ensureCurrentVisible();
 		emit statusBarChanged();
+		emit columnChanged();
 	}
 	lastnumber = -1;
 }
@@ -185,34 +186,48 @@ void TrackView::ensureCurrentVisible()
 	ensureCellVisible(curt->xb, 0);
 }
 
-// Set number of fret "fret" in current column on string
+// Process a mouse press of fret "fret" in current column on string
 // "num". Depending on given "button" mouse state flags, additional
 // things may happen.
-void TrackView::setMelodyClick(int num, int fret, ButtonState button = NoButton)
+void TrackView::melodyEditorPress(int num, int fret, ButtonState button = NoButton)
 {
 	setFinger(num, fret);
-	if (button & MidButton) {
-		setFinger(num + 1, fret + 2);
-		setFinger(num + 2, fret + 2);
-	}
+ 	if (button & MidButton) {
+ 		setFinger(num + 1, fret + 2);
+ 		setFinger(num + 2, fret + 2);
+ 	}
+}
+
+// Process a mouse release in melody editor. Depending on given
+// "button" mouse state flags, additional things, such as proceeding
+// to next column, may happen.
+void TrackView::melodyEditorRelease(ButtonState button)
+{
 	if (button & RightButton || button & MidButton) {
 		if (curt->sel) {
 			curt->sel = FALSE;
 			repaintContents();
 		}
 		moveRight();
-	} else {
-		repaintCurrentColumn();
 	}
 }
 
+// Add tab number insertion command on current column, string "num",
+// setting fret number "fret". Perform various checks, including
+// no repeats for same insertion.
 void TrackView::setFinger(int num, int fret)
 {
 	if (num < 0 || num >= curt->string)
 		return;
 	if (fret > curt->frets)
 		return;
-	curt->c[curt->x].a[num] = fret;
+	if (curt->c[curt->x].a[num] == fret)
+		return;
+
+	curt->y = num;
+	cmdHist->addCommand(new InsertTabCommand(this, curt, fret));
+	repaintCurrentColumn();
+	emit columnChanged();
 }
 
 int TrackView::finger(int num)
@@ -342,11 +357,11 @@ void TrackView::paintCell(QPainter *p, int row, int col)
 		return;
 	}
 
-	uint bn = row;						// Drawing only this bar
+	uint bn = row;                      // Drawing only this bar
 
 	QString tmp;
 	bool ringing[MAX_STRINGS];
-	int trpCnt = 0;						// triplet count
+	int trpCnt = 0;                     // triplet count
 
 	int s = curt->string - 1;
 
@@ -696,6 +711,7 @@ bool TrackView::moveFinger(int from, int dir)
 	} while (curt->c[curt->x].a[to] != -1);
 
 	cmdHist->addCommand(new MoveFingerCommand(this, curt, from, to, n));
+	emit columnChanged();
 
 	return TRUE;
 }
@@ -828,6 +844,7 @@ void TrackView::moveLeft()
 			curt->x--;
 		}
 		repaintCurrentCell();
+		emit columnChanged();
 	}
 	lastnumber = -1;
 }
@@ -836,6 +853,7 @@ void TrackView::moveRight()
 {
 	if (curt->x + 1 == curt->c.size()) {
 		cmdHist->addCommand(new AddColumnCommand(this, curt));
+		emit columnChanged();
 	} else {
 		if (curt->b.size() == curt->xb + 1)
 			curt->x++;
@@ -851,6 +869,7 @@ void TrackView::moveRight()
 			}
 		}
 		repaintCurrentCell();
+		emit columnChanged();
 	}
 	lastnumber = -1;
 }
@@ -859,12 +878,14 @@ void TrackView::moveHome()
 {
 	curt->x = curt->b[curt->xb].start;
 	repaintCurrentCell();
+	emit columnChanged();
 }
 
 void TrackView::moveEnd()
 {
 	curt->x = curt->lastColumn(curt->xb);
 	repaintCurrentCell();
+	emit columnChanged();
 }
 
 void TrackView::moveCtrlHome()
@@ -874,6 +895,7 @@ void TrackView::moveCtrlHome()
 	ensureCurrentVisible();
 	repaintContents();
 	emit statusBarChanged();
+	emit columnChanged();
 }
 
 void TrackView::moveCtrlEnd()
@@ -883,6 +905,7 @@ void TrackView::moveCtrlEnd()
 	ensureCurrentVisible();
 	repaintContents();
 	emit statusBarChanged();
+	emit columnChanged();
 }
 
 void TrackView::selectLeft()
@@ -947,30 +970,36 @@ void TrackView::transposeDown()
 void TrackView::deadNote()
 {
 	cmdHist->addCommand(new SetFlagCommand(this, curt, DEAD_NOTE));
+	emit columnChanged();
 	lastnumber = -1;
 }
 
 void TrackView::deleteNote()
 {
-	if (curt->c[curt->x].a[curt->y] != -1)
+	if (curt->c[curt->x].a[curt->y] != -1) {
 		cmdHist->addCommand(new DeleteNoteCommand(this, curt));
+		emit columnChanged();
+	}
 	lastnumber = -1;
 }
 
 void TrackView::deleteColumn()
 {
 	cmdHist->addCommand(new DeleteColumnCommand(this, curt));
+	emit columnChanged();
 	lastnumber = -1;
 }
 
 void TrackView::deleteColumn(QString name)
 {
 	cmdHist->addCommand(new DeleteColumnCommand(name, this, curt));
+	emit columnChanged();
 }
 
 void TrackView::insertColumn()
 {
 	cmdHist->addCommand(new InsertColumnCommand(this, curt));
+	emit columnChanged();
 	lastnumber = -1;
 }
 
@@ -1015,6 +1044,7 @@ void TrackView::arrangeTracks()
 	repaintContents();
 
 	emit paneChanged();
+	emit columnChanged();
 }
 
 void TrackView::insertTab(int num)
@@ -1034,12 +1064,14 @@ void TrackView::insertTab(int num)
 
 	if ((totab <= curt->frets) && (curt->c[curt->x].a[curt->y] != totab))
 		cmdHist->addCommand(new InsertTabCommand(this, curt, totab));
+	emit columnChanged();
 }
 
 void TrackView::arrangeBars()
 {
 	song->arrangeBars();
 	emit statusBarChanged();
+	emit columnChanged();
 	updateRows();
 }
 
@@ -1105,6 +1137,7 @@ void TrackView::mousePressEvent(QMouseEvent *e)
 
 				curt->sel = FALSE;
 
+				emit columnChanged();
 				emit statusBarChanged();
 				found = TRUE;
 				break;
