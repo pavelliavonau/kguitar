@@ -3,7 +3,7 @@
  *
  * This file is part of KGuitar, a KDE tabulature editor
  *
- * copyright (C) 2002 the KGuitar development team
+ * copyright (C) 2002-2003 the KGuitar development team
  ***************************************************************************/
 
 /***************************************************************************
@@ -20,12 +20,37 @@
 
 #include <qfont.h>
 #include <qpen.h>
+#include <qpoint.h>
 #include <qstring.h>
+
+#include "accidentals.h"
 
 class KPrinter;
 class QPainter;
 class TabSong;
 class TabTrack;
+
+/***************************************************************************
+ * class StemInfo
+ ***************************************************************************/
+
+// this class holds info about a note stem:
+// - where it is attached
+// - if it has beams
+// as it will be used in a QMemArray, it cannot have constructor,
+// destructor or virtual functions
+
+class StemInfo {
+public:
+	QPoint bp;					// attach point
+	char l1;					// level 1 beam
+	char l2;					// level 2 beam
+	char l3;					// level 3 beam
+};
+
+/***************************************************************************
+ * class SongPrint
+ ***************************************************************************/
 
 class SongPrint {
 public:
@@ -36,13 +61,21 @@ public:
 	int colWidth(int cl, TabTrack *trk);
 	void drawBar(int bn, TabTrack *trk, int es);
 	void drawBarLns(int w, TabTrack *trk);
+	void drawBeam(int x1, int x2, int yh, char tp);
+	void drawBeams(int bn, TabTrack *trk);
 	void drawKey(int l, TabTrack *trk);
+	void drawNtHdCntAt(int x, int y, int t, Accidentals::Accid a);
+	void drawNtStmCntAt(int x, int yl, int yh, int t);
 	void drawPageHdr(int n, TabSong *song);
+	void drawRstCntAt(int x, int y, int t);
+	void drawStLns(int w);
 	void drawStrCntAt(int x, int y, const QString s);
 	int eraWidth(const QString s);
 	void initFonts();
 	void initMetrics(KPrinter *printer);
 	void initPens();
+	void initPrStyle();
+	int line(const QString step, int oct);
 	void printSong(KPrinter *printer, TabSong *song);
 private:
 	// Almost all functions use a pointer to the same painter, instead of
@@ -51,8 +84,11 @@ private:
 	// Variables describing paper dimensions
 	int pprh;					// height
 	int pprw;					// width
+	// Variables describing staff dimensions
+	int wNote;					// width 1/4 notehead
+	int ystepst;				// y step from line to line
 	// Variables describing tab bar dimensions
-	int ystep;					// y step from line to line
+	int ysteptb;				// y step from line to line
 	int br8h;					// bounding box "8" height
 	int br8w;					// bounding box "8" width
 	// Variables describing fields within the tab bar
@@ -74,6 +110,9 @@ private:
 	int hdrh3;					// space between line 2 and music or trkname
 	int hdrh4;					// height trkname (top of text to top of music)
 	// Fonts used
+	bool fFetaFnd;				// true if feta fonts found
+	QFont fFeta;				// used for notes on the staff
+	QFont fFetaNr;				// used for time signature on the staff
 	QFont fHdr1;				// used for headers (title/author)
 	QFont fHdr2;				// used for headers (pagenr/trkname)
 	QFont fHdr3;				// used for headers (transcriber)
@@ -81,11 +120,18 @@ private:
 	QFont fTBar2;				// used for notes on the tab bar
 	QFont fTSig;				// used for time signature
 	// Pens used
-	QPen pLnBl;				// used for black lines & text
-	QPen pLnWh;				// used for white lines
+	QPen pLnBl;					// used for black lines & text
+	QPen pLnWh;					// used for white lines
 	// The current write location
 	int xpos;
-	int ypos;
+	int yposst;					// on the staff
+	int ypostb;					// on the tab bar
+	// Variables describing printing style
+	bool stNts;					// print notes
+	bool stTab;					// print tab
+	// Description of all stems in a track
+	// LVIFIX: should this be part of TabColumn ?
+	QMemArray<StemInfo> st;
 };
 
 #endif // SONGPRINT_H
