@@ -1,4 +1,4 @@
-AM_INIT_AUTOMAKE(kguitar-0.5, "0.5")
+AM_INIT_AUTOMAKE(kguitar, "0.5")
 #MIN_CONFIG
 
 #--------------------------------------------------------------
