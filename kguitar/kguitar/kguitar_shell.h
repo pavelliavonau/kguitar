@@ -11,8 +11,7 @@ class KAction;
 class KActionCollection;
 class FileBrowser;
 
-class KGuitarShell : public KParts::MainWindow
-{
+class KGuitarShell : public KParts::MainWindow {
     Q_OBJECT
 public:
     KGuitarShell();

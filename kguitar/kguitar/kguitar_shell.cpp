@@ -16,6 +16,8 @@
 #include "kguitar_shell.h"
 #include "application.h"
 #include "filebrowser.h"
+#include "trackview.h"
+#include "tabsong.h"
 
 KGuitarShell::KGuitarShell()
 {
@@ -86,7 +88,7 @@ KGuitarShell::KGuitarShell()
 	toolBar("editToolBar")->setText(i18n("Edit Toolbar"));
 
 	statusBar()->insertItem(QString(i18n("Bar: ")) + "1", 1);
-	connect(m_kgpart->tv, SIGNAL(statusBarChanged()), SLOT(updateStatusBar()));
+	connect(m_kgpart->sv->tv, SIGNAL(statusBarChanged()), SLOT(updateStatusBar()));
 }
 
 KGuitarShell::~KGuitarShell()
@@ -178,7 +180,7 @@ void KGuitarShell::slotFileSaveAs()
 
 void KGuitarShell::slotFileSave()
 {
-	QString fn = m_kgpart->tv->sng()->filename;
+	QString fn = m_kgpart->sv->sng()->filename;
 
 	if (!fn.isEmpty()) {
 		KURL url = KURL(fn);
@@ -202,11 +204,11 @@ void KGuitarShell::openBrowserURL(const KURL& url)
 {
 	if (openURL(url))
 		if (fb != 0L) {
-			m_kgpart->tv->updateRows();
-			m_kgpart->tv->repaint();
-			fb->tlabel->setText(m_kgpart->tv->sng()->title);
-			fb->alabel->setText(m_kgpart->tv->sng()->author);
-			fb->tslabel->setText(m_kgpart->tv->sng()->transcriber);
+			m_kgpart->sv->tv->updateRows();
+			m_kgpart->sv->repaint();
+			fb->tlabel->setText(m_kgpart->sv->sng()->title);
+			fb->alabel->setText(m_kgpart->sv->sng()->author);
+			fb->tslabel->setText(m_kgpart->sv->sng()->transcriber);
 		}
 }
 
@@ -254,7 +256,7 @@ void KGuitarShell::slotConfigTB()
 void KGuitarShell::updateStatusBar()
 {
 	QString tmp;
-	tmp.setNum(m_kgpart->tv->trk()->xb + 1);
+	tmp.setNum(m_kgpart->sv->tv->trk()->xb + 1);
 	tmp = i18n("Bar: ") + tmp;
 	statusBar()->changeItem(tmp, 1);
 }
