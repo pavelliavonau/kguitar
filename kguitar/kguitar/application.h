@@ -20,7 +20,6 @@ public:
 private slots:
     void newDoc();
     void load();
-    void load( const char *fileName );
     void save();
     void print();
     void closeDoc();
