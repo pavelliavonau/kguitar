@@ -76,12 +76,47 @@ public slots:
 	void addLetRing();
 	void insertChord();
 	void rhythmer();
+
+	/**
+	 * Move cursor left one column, breaking selection
+	 */
 	void keyLeft();
+
+	/**
+	 * Move cursor right one column, breaking selection
+	 */
 	void keyRight();
+
+	/**
+	 * Move cursor to previous bar, breaking selection
+	 */
+	void keyLeftBar();
+
+	/**
+	 * Move cursor to next bar, breaking selection
+	 */
+	void keyRightBar();
+
+	/**
+	 * Move cursor to the beginning of bar, breaking selection
+	 */
 	void keyHome();
+
+	/**
+	 * Move cursor to the ending of bar, breaking selection
+	 */
 	void keyEnd();
+
+	/**
+	 * Move cursor to the very beginning of the song, breaking selection
+	 */
 	void keyCtrlHome();
+
+	/**
+	 * Move cursor to the very end of the song, breaking selection
+	 */
 	void keyCtrlEnd();
+
 	void moveUp();
 	void moveDown();
 	void transposeUp();
@@ -148,6 +183,8 @@ private:
 
 	void moveLeft();
 	void moveRight();
+	void moveLeftBar();
+	void moveRightBar();
 	void moveHome();
 	void moveEnd();
 	void moveCtrlHome();
