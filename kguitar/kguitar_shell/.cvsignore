@@ -1,0 +1,8 @@
+Makefile
+Makefile.in
+kguitar
+.deps
+.libs
+*.moc.cpp
+*.lo
+*.moc.lo
