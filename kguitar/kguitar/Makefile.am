@@ -46,7 +46,7 @@ noinst_HEADERS = application.h chord.h fingers.h fingerlist.h trackview.h \
  setsong.h tabsong.h tabtrack.h settrack.h settabfret.h settabdrum.h \
  radiustuner.h notespinbox.h options.h chordlistitem.h chordlist.h \
  timesig.h strumming.h filebrowser.h midilist.h songview.h tracklist.h \
- kguitar_shell.h
+ trackpane.h kguitar_shell.h
 
 libkguitar_la_LDFLAGS = $(all_libraries) -version-info 1:0:0 -module -no-undefined
 libkguitar_la_LIBADD = $(LIB_KFILE) -lkparts -lkmid
@@ -75,40 +75,6 @@ messages: rc.cpp
 
 KDE_ICON = AUTO
 
-# EXTRA_DIST = x-kguitar.desktop
 
-#install-data-local:
-#	$(mkinstalldirs) $(kde_mimedir)
-#	$(mkinstalldirs) $(kde_mimedir)/application
-#	$(INSTALL_DATA) x-kguitar.desktop $(kde_mimedir)/application/x-kguitar.desktop
-
-#uninstall-local:
-#	-rm -f $(kde_mimedir)/application/x-kguitar.desktop
-
-# OLD Makefile.am ===========================================================
-
-# EXTRA_DIST = kguitar.kdelnk kguitar.xpm kguitar-large.xpm kguitar-mini.xpm
-
-# just install datas here. Use install-exec-data for scripts and etc.
-# the binary itself is already installed from automake
-# use mkinstalldirs, not "install -d"
-# don't install a list of file. Just one file per install.
-# if you have more of them, create a subdirectory with an extra Makefile 
-#install-data-local: 
-#	$(mkinstalldirs) $(APPSDIR)
-#	$(INSTALL_DATA) kguitar.kdelnk $(APPSDIR)
-#	$(mkinstalldirs) $(kde_icondir)
-#	$(mkinstalldirs) $(kde_minidir)
-#	$(mkinstalldirs) $(kde_icondir)/large
-#	$(INSTALL_DATA) kguitar.xpm $(kde_icondir)
-#	$(INSTALL_DATA) kguitar-large.xpm $(kde_icondir)/large/kguitar.xpm
-#	$(INSTALL_DATA) kguitar-mini.xpm $(kde_minidir)/kguitar.xpm
-
-# remove ALL you have installed in install-data-local or install-exec-local
-#uninstall-local:
-#	-rm -f $(APPSDIR)/kguitar.kdelnk
-#	-rm -f $(kde_icondir)/kguitar.xpm
-#	-rm -f $(kde_minidir)/kguitar.xpm
-#	-rm -f $(kde_icondir)/large/kguitar.xpm
 
 
