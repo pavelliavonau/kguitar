@@ -16,10 +16,6 @@ extern bool global_showMainTB;
 extern bool global_showEditTB;
 extern int global_mainTBPos;
 extern int global_editTBPos;
-extern int global_mainWinWidth;
-extern int global_mainWinHeight;
-extern int global_mainWinX;
-extern int global_mainWinY;
 
 // Features for global options
 
