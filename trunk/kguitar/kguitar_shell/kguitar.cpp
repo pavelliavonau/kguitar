@@ -126,11 +126,11 @@ void KGuitar::fileOpen()
 {
 	QString file_name =
 		KFileDialog::getOpenFileName(0,
-	                                 "*.kg *.gtp *.gp3 *.mid *.tab *.xml|" + i18n("All music files") + "\n"
+	                                 "*.kg *.gp4 *.gp3 *.mid *.tab *.xml|" + i18n("All music files") + "\n"
 	                                 "*.kg|" + i18n("KGuitar files") + " (*.kg)\n"
 	                                 "*.tab|" + i18n("ASCII files") + " (*.tab)\n"
 	                                 "*.mid|" + i18n("MIDI files") + " (*.mid)\n"
-	                                 "*.gtp|" + i18n("Guitar Pro files") + " (*.gtp)\n"
+	                                 "*.gp4|" + i18n("Guitar Pro 4 files") + " (*.gp4)\n"
 	                                 "*.gp3|" + i18n("Guitar Pro 3 files") + " (*.gp3)\n"
 	                                 "*.xml|" + i18n("MusicXML files") + " (*.xml)\n"
 	                                 "*|" + i18n("All files"), this);
