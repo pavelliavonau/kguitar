@@ -91,7 +91,7 @@ QString Directory::text(int column) const
 //---------------------------------------------
 
 
-FileBrowser::FileBrowser(ApplicationWindow *parent, const char *name) 
+FileBrowser::FileBrowser(QWidget *parent, const char *name) 
 	: KDialog(parent, name, TRUE)
 {
 	p = parent;
@@ -368,18 +368,5 @@ void FileBrowser::loadSong(QListViewItem* item)
 	fpath = item->text(3);
 	fname = fpath + "/" + fname;
 
-	if (p->tv->sng()->load_from_kg(fname)) {
-		p->setCaption(fname);
-		p->tv->setCurt(p->tv->sng()->t.first());
-		p->tv->sng()->t.first()->x = 0;
-		p->tv->sng()->t.first()->y = 0;
-		p->tv->sng()->filename = fname;
-		p->tv->updateRows();
-		p->tv->repaint();
-		tlabel->setText(p->tv->sng()->title);
-		alabel->setText(p->tv->sng()->author);
-		tslabel->setText(p->tv->sng()->transcriber);
-		p->addRecentFile(fname);
-	} else
-		KMessageBox::error(this,  i18n("Can't load the song!"), i18n("File browser"));
+	emit loadFile(KURL(fname));
 }

@@ -7,7 +7,6 @@
 #include "settrack.h"
 #include "settabfret.h"
 #include "options.h"
-#include "filebrowser.h"
 
 #include <qpopupmenu.h>
 
@@ -22,7 +21,6 @@
 #include <kaccel.h>
 #include <kmessagebox.h>
 #include <knuminput.h>
-#include <kedittoolbar.h>
 #include <kurl.h>
 #include <kkeydialog.h>
 
@@ -37,6 +35,7 @@
 #include <qradiobutton.h>
 #include <qfileinfo.h>
 
+#include <stdio.h>
 
 // Global variables - real declarations
 
@@ -52,49 +51,79 @@ bool globalShowStr;
 bool globalShowPageNumb;
 int globalTexExpMode;
 
-// Appearance
-bool globalShowMainTB;
-bool globalShowEditTB;
-
 // ALSA
 int globalAlsaClient;
 int globalAlsaPort;
 
-ApplicationWindow::ApplicationWindow(): KMainWindow()
+extern "C"{
+	void *init_libkguitar()
+	{
+		return new KGuitarFactory;
+	}
+};
+
+KInstance *KGuitarFactory::s_instance = 0L;
+
+KGuitarFactory::KGuitarFactory()
+{
+}
+
+KGuitarFactory::~KGuitarFactory()
+{
+	if (s_instance)
+		delete s_instance;
+	s_instance = 0;
+}
+
+KParts::Part *KGuitarFactory::createPart(QWidget *parentWidget, const char *widgetName, 
+									 QObject *parent, const char *name, const char *className, 
+									 const QStringList &)
+{
+	bool bBrowserView = (strcmp(className, "Browser/View") == 0);
+	KParts::Part *obj = new KGuitarPart(bBrowserView, parentWidget, widgetName, parent, name);
+	emit objectCreated(obj);
+	return obj;
+}
+
+KInstance *KGuitarFactory::instance()
+{
+	if (!s_instance)
+		s_instance = new KInstance("kguitar");
+	return s_instance;
+}
+
+//------------------------------------------------------------------------
+
+KGuitarPart::KGuitarPart(bool bBrowserView, QWidget *parentWidget, 
+						 const char *, QObject *parent, const char *name)
+	: KParts::ReadWritePart(parent, name)
 {
 // 	printer = new QPrinter;
 // 	printer->setMinMax(1,10);
 
+	p = parentWidget;
+	isBrowserView = bBrowserView;
+
+	setInstance(KGuitarFactory::instance());
+
 	// MAIN WIDGET
-	tv = new TrackView(this);
-	setCentralWidget(tv);
+	tv = new TrackView(parentWidget);
+	tv->setFocusPolicy(QWidget::StrongFocus);
+	setWidget(tv);
 	tv->setFocus();
+
 
 	// SET UP STANDART ACTIONS
 	newAct = KStdAction::openNew(this, SLOT(fileNew()), 
 								 actionCollection(), "file_new");
-	openAct = KStdAction::open(this, SLOT(fileOpen()), 
-							   actionCollection(), "file_open");
-	openRecentAct = KStdAction::openRecent(this, SLOT(recentLoad(const KURL&)),
-										   actionCollection(), "file_recent");
-	saveAct = KStdAction::save(this, SLOT(fileSave()), actionCollection(), "file_save");
-	saveAsAct = KStdAction::saveAs(this, SLOT(fileSaveAs()), 
-								   actionCollection(), "file_saveAs");
-	printAct = KStdAction::print(this, SLOT(filePrint()), 
-								 actionCollection(), "file_print");
-	closeAct = KStdAction::close(this, SLOT(fileClose()), 
-								 actionCollection(), "file_close");
-	quitAct = KStdAction::quit(this, SLOT(fileQuit()), actionCollection(), "file_quit");
+
 	preferencesAct = KStdAction::preferences(this, SLOT(options()), 
 											 actionCollection(), "pref_options");
-	confTBAct = KStdAction::configureToolbars(this, SLOT(configToolBars()), 
+	confTBAct = KStdAction::configureToolbars(this, SLOT(slotConfigToolBars()), 
 											  actionCollection(), "config_toolbars");
 	confKeyAct = KStdAction::keyBindings(this, SLOT(configKeys()),
 										 actionCollection(), "config_keys");
 
-	// SET UP ACTIONS
-	browserAct = new KAction(i18n("Browser..."),  KAccel::stringToKey("Shift+B"), this, 
-							 SLOT(openBrowser()), actionCollection(), "open_browser");
 	sngPropAct = new KAction(i18n("P&roperties..."), 0, this, SLOT(songProperties()),
 							 actionCollection(), "song_properties");
 
@@ -103,10 +132,7 @@ ApplicationWindow::ApplicationWindow(): KMainWindow()
 	insChordAct = new KAction(i18n("&Chord..."), "chord",  KAccel::stringToKey("Shift+C"), 
 							  this, SLOT(insertChord()), actionCollection(), "insert_chord");
 
-	showMainTBAct = new KToggleAction(i18n("Main Toolbar"), 0, this, 
-									  SLOT(setMainTB()), actionCollection(), "tog_mainTB");
-	showEditTBAct = new KToggleAction(i18n("Edit Toolbar"), 0, this,
-									  SLOT(setEditTB()), actionCollection(), "tog_editTB");
+
 	saveOptionAct = new KAction(i18n("&Save Options"), 0, this, 
 								SLOT(saveOptions()), actionCollection(), "save_options");
 
@@ -165,7 +191,7 @@ ApplicationWindow::ApplicationWindow(): KMainWindow()
 								   SLOT(setJZmixed()), actionCollection(), "jazz_mix");
 
 	// SET UP ACCEL...
-	mainAccel = new KAccel(this);
+	mainAccel = new KAccel(tv);
 
 	// ...FOR CURSOR
 	mainAccel->insertItem(i18n("Move cursor right"), "key_right", "Right");
@@ -221,34 +247,30 @@ ApplicationWindow::ApplicationWindow(): KMainWindow()
 	mainAccel->insertItem(i18n("Key 0"), "key_0", "0");
 	mainAccel->connectItem("key_0", tv, SLOT(key0()));
 
-	// SET UP GUI
-	createGUI("kguitarui.rc");
+	m_extension = new KGuitarBrowserExtension(this);
+
+	if (bBrowserView) {
+		mainAccel->setEnabled(FALSE);
+		sngPropAct->setText(i18n("Song Properties..."));
+		trkPropAct->setText(i18n("Track Properties..."));
+		setXMLFile("kguitar_konq.rc");
+	} else
+		setXMLFile("kguitar_part.rc");
 
 	// READ CONFIGS
 	readOptions();
 
-	openRecentAct->setMaxItems(5);
-
 	updateMenu();
-	updateTbMenu();
 
-	setCaption(i18n("Unnamed"));
-
-	// Used for translation
-	toolBar("mainToolBar")->setText(i18n("Main Toolbar"));
-	toolBar("editToolBar")->setText(i18n("Edit Toolbar"));
-
-	statusBar()->insertItem(QString(i18n("Bar: ")) + "1", 1);
-	connect(tv, SIGNAL(statusBarChanged()), SLOT(updateStatusBar()));
 }
 
-ApplicationWindow::~ApplicationWindow()
+KGuitarPart::~KGuitarPart()
 {
-	delete tv;
 //	delete printer;
+	saveOptions();
 }
 
-void ApplicationWindow::updateMenu()
+void KGuitarPart::updateMenu()
 {
 	usSharpAct->setChecked(globalNoteNames == 0);
 	usFlatAct->setChecked(globalNoteNames == 1);
@@ -261,33 +283,9 @@ void ApplicationWindow::updateMenu()
 	jazzMixAct->setChecked(globalNoteNames == 8);
 }
 
-void ApplicationWindow::updateTbMenu()
+bool KGuitarPart::jazzWarning()
 {
-	showMainTBAct->setChecked(globalShowMainTB);
-	showEditTBAct->setChecked(globalShowEditTB);
-
-	if (globalShowMainTB)
-		toolBar("mainToolBar")->show();
-	else
-		toolBar("mainToolBar")->hide();
-
-	if (globalShowEditTB)
-		toolBar("editToolBar")->show();
-	else
-		toolBar("editToolBar")->hide();
-}
-
-void ApplicationWindow::updateStatusBar()
-{
-	QString tmp;
-	tmp.setNum(tv->trk()->xb + 1);
-	tmp = i18n("Bar: ") + tmp;
-	statusBar()->changeItem(tmp, 1);
-}
-
-bool ApplicationWindow::jazzWarning()
-{
-	return KMessageBox::warningYesNo(this,
+	return KMessageBox::warningYesNo(p,
 									 i18n("Jazz note names are very special and should be\n"
 										  "used only if really know what you do. Usage of jazz\n"
 										  "note names without a purpose would confuse or mislead\n"
@@ -296,234 +294,164 @@ bool ApplicationWindow::jazzWarning()
 										  "Are you sure you want to use jazz notes?")) == KMessageBox::Yes;
 }
 
-void ApplicationWindow::fileNew()
+void KGuitarPart::fileNew()
 {
-	ApplicationWindow *ed = new ApplicationWindow;
-	ed->resize(400, 400);
-	ed->show();
+// 	KGuitarPart *ed = new KGuitarPart;
+// 	ed->resize(400, 400);
+// 	ed->show();
 }
 
-void ApplicationWindow::openFile(QString fn)
+bool KGuitarPart::saveFile()   // KParts
 {
+	bool ret = fileSave(m_file);
+	if (!ret)
+		setWinCaption(i18n("Unnamed"));
+	return ret;
+}
+
+bool KGuitarPart::openFile()   // KParts
+{
+	bool ret = slotOpenFile(m_file);
+	if (!ret)
+		setWinCaption(i18n("Unnamed"));
+	return ret;
+}
+
+bool KGuitarPart::slotOpenFile(QString fn)
+{
+	bool ret = FALSE;
 	if (!fn.isEmpty()) {
 		QFileInfo *fi = new QFileInfo(fn);
 
-		if (!fi->isFile()){
-			KMessageBox::sorry(this, i18n("Please select a file."));
-			return;
+		if (!fi->isFile()) {
+			KMessageBox::sorry(p, i18n("Please select a file."));
+			return FALSE;
 		}
-		if (!fi->isReadable()){
-			KMessageBox::sorry(this, i18n("You have no permission to read this file."));
-			return;
+		if (!fi->isReadable()) {
+			KMessageBox::sorry(p, i18n("You have no permission to read this file."));
+			return FALSE;
 		}
 
 		QString ext = fi->extension();
 		ext = ext.upper();
 
-		if (ext == "KG"){
+		if (ext == "KG") {
 			if (tv->sng()->load_from_kg(fn)) {
-				setCaption(fn);
+				setWinCaption(fn);
 				tv->setCurt(tv->sng()->t.first());
 				tv->sng()->t.first()->x = 0;
 				tv->sng()->t.first()->y = 0;
 				tv->sng()->filename = fn;
 				tv->updateRows();
-				addRecentFile(fn);
+				ret = TRUE;
 			} else {
-				KMessageBox::sorry(this, i18n("Can't load the song!"));
-				return;
+				KMessageBox::sorry(p, i18n("Can't load the song!"));
+				return FALSE;
 			}
 		}
 
-		if (ext == "TAB"){
-			if (tv->sng()->load_from_tab(fn)){
+		if (ext == "TAB") {
+			if (tv->sng()->load_from_tab(fn)) {
 				tv->sng()->filename = "";
-				setCaption(i18n("Unnamed"));
-				addRecentFile(fn);
+				setWinCaption(i18n("Unnamed"));
+				ret = TRUE;
 			} else {
-				KMessageBox::sorry(this, i18n("Can't load the song!"));
-				return;
+				KMessageBox::sorry(p, i18n("Can't load the song!"));
+				return FALSE;
 			}
 		}
 
-		if (ext == "MID"){
-			if (tv->sng()->load_from_mid(fn)){
+		if (ext == "MID") {
+			if (tv->sng()->load_from_mid(fn)) {
 				tv->sng()->filename = "";
-				setCaption(i18n("Unnamed"));
-				addRecentFile(fn);
+				setWinCaption(i18n("Unnamed"));
+				ret = TRUE;
 			} else {
-				KMessageBox::sorry(this, i18n("Can't load the song!"));
-				return;
+				KMessageBox::sorry(p, i18n("Can't load the song!"));
+				return FALSE;
 			}
 		}
 
-		if (ext == "GTP"){
-			if (tv->sng()->load_from_gtp(fn)){
+		if (ext == "GTP") {
+			if (tv->sng()->load_from_gtp(fn)) {
 				tv->sng()->filename = "";
-				setCaption(i18n("Unnamed"));
-				addRecentFile(fn);
+				setWinCaption(i18n("Unnamed"));
+				ret = TRUE;
 			} else {
-				KMessageBox::sorry(this, i18n("This feature is at this time not implemented.\n"
-											  "If you would help to implement this feature\n"
-											  "please write an email to: greycat@users.sourceforge.net"));
-				return;
+				KMessageBox::sorry(p, i18n("This feature is at this time not implemented.\n"
+										   "If you would help to implement this feature\n"
+										   "please write an email to: greycat@users.sourceforge.net"));
+				return FALSE;
 			}
 		}
 	}
+	return ret;
 }
 
-void ApplicationWindow::fileOpen()
+bool KGuitarPart::fileSave(QString fn)
 {
-	QString fn = KFileDialog::getOpenFileName(0,
-											  "*.kg|KGuitar files (*.kg)\n"
-											  "*.tab|ASCII files (*.tab)\n"
-											  "*.mid|MIDI files (*.mid)\n"
-											  "*.gtp|Guitar Pro files (*.gtp)\n"
-											  "*|All files", this);
-	openFile(fn);
-}
-
-void ApplicationWindow::loadFile(KURL _url)
-{
-	QString fn = _url.path();
-	openFile(fn);
-}
-
-void ApplicationWindow::recentLoad(const KURL& _url)
-{
-	QString fn = _url.path();
-	QFileInfo *fi = new QFileInfo(fn);
-
-	if (!fi->exists()){
-		KMessageBox::sorry(this, i18n("File doesn't exist."));
-		return;
-	}
-	openFile(fn);
-}
-
-void ApplicationWindow::addRecentFile(const char *fn)
-{
-	KURL _url(fn);
-	openRecentAct->addURL(_url);
-	openRecentAct->saveEntries(kapp->config());
-}
-
-void ApplicationWindow::openBrowser()
-{
-	FileBrowser *fb = new FileBrowser(this);
-	fb->show();
-	delete fb;
-}
-
-void ApplicationWindow::fileSave()
-{
-	QString fn = tv->sng()->filename;
-
-	if (fn.isEmpty()) {
-		fileSaveAs();
-		return;
-	}
+	bool ret = FALSE;
 
 	QFileInfo *fi = new QFileInfo(fn);
+	QString ext = fi->extension();
+	ext = ext.upper();
 
-	if (fi->isWritable()) {		
-		tv->arrangeBars();//gotemfix: arrange bars before saving
-		tv->sng()->save_to_kg(fn);
-		tv->sng()->filename = fn;
-		setCaption(fn);
-		addRecentFile(fn);
-	} else
-		KMessageBox::sorry(this, i18n("You have no permission to write this file!"));
-}
-
-void ApplicationWindow::fileSaveAs()
-{
-	KFileDialog *dlg=new KFileDialog(0, "*.kg|KGuitar files (*.kg)\n"
-									 "*.tab|ASCII files (*.tab)\n"
-									 "*.mid|MIDI files (*.mid)\n"
-									 "*.gtp|Guitar Pro files (*.gtp)\n"
-									 "*.tex|MusiXTeX (*.tex)\n"
-									 "*|All files", this, 0, TRUE);
-	dlg->setCaption(i18n("Save as..."));
-
-	dlg->show();
-
-	QString filter = dlg->currentFilter();
-	QString fn = dlg->selectedFile();
-
-	if (!fn.isEmpty()) {
-		QFileInfo *fi = new QFileInfo(fn);
-		if (fi->exists())
-			if (KMessageBox::warningYesNo(this, i18n("This file exists! "
-													 "Do you overwrite this file?")) == KMessageBox::No)
-				return;
-		if (fi->exists() && !fi->isWritable()) {
-			KMessageBox::sorry(this, i18n("You have no permission to write this file!"));
-			return;
-		}
-
-		if (filter == "*"){
-			filter = fi->extension();
-			filter = filter.lower();
-			if (!((filter == "kg") || (filter == "mid") || (filter == "gtp") || 
-				(filter == "tex") || (filter == "tab"))) {
-				KMessageBox::sorry(this, i18n("Please select a Filter or add an extension."));
-				return;
-			}
-			filter = "*." + filter;
-		}
-		if (filter == "*.kg") {
-			tv->arrangeBars();
-			if (tv->sng()->save_to_kg(fn)) {
-				tv->sng()->filename = fn;
-				setCaption(fn);
-				addRecentFile(fn);
-			} else {
-				KMessageBox::sorry(this, i18n("Can't save the song!"));
-				return;
-			}
-		}
-		if (filter == "*.tab") {
-			if (tv->sng()->save_to_tab(fn))
-				addRecentFile(fn);
-			else {
-				KMessageBox::sorry(this, i18n("Can't export the song!"));
-				return;
-			}
-		}
-		if (filter == "*.mid") {
-			if (tv->sng()->save_to_mid(fn))
-				addRecentFile(fn);
-			else {
-				KMessageBox::sorry(this, i18n("Can't export the song!"));
-				return;
-			}
-		}
-		if (filter == "*.gtp") {
-			if (tv->sng()->save_to_gtp(fn))
-				addRecentFile(fn);
-			else {
-				KMessageBox::sorry(this, i18n("Can't export the song!"));
-				return;
-			}
-		}
-		if (filter == "*.tex") {
-			bool ret;
-			switch (globalTexExpMode) {
-			case 0: ret = tv->sng()->save_to_tex_tab(fn); break;
-			case 1: ret = tv->sng()->save_to_tex_notes(fn); break;
-			default: ret = FALSE; break;
-			}
-			if (!ret) {
-				KMessageBox::sorry(this, i18n("Can't export the song!"));
-				return;
-			}
+	if (ext == "KG") {
+		tv->arrangeBars();
+		if (tv->sng()->save_to_kg(fn)) {
+			tv->sng()->filename = fn;
+			setWinCaption(fn);
+			ret = TRUE;
+		} else {
+			KMessageBox::sorry(p, i18n("Can't save the song!"));
+			return FALSE;
 		}
 	}
+	if (ext == "TAB") {
+		if (tv->sng()->save_to_tab(fn)) {
+			ret = TRUE;
+		} else {
+			KMessageBox::sorry(p, i18n("Can't export the song!"));
+			return FALSE;
+		}
+	}
+	if (ext == "MID") {
+		if (tv->sng()->save_to_mid(fn)) {
+			ret = TRUE;
+		} else {
+			KMessageBox::sorry(p, i18n("Can't export the song!"));
+			return FALSE;
+		}
+	}
+	if (ext == "GTP") {
+		if (tv->sng()->save_to_gtp(fn)) {
+			ret = TRUE;
+		} else {
+			KMessageBox::sorry(p, i18n("Can't export the song!"));
+			return FALSE;
+		}
+	}
+	if (ext == "TEX") {
+		switch (globalTexExpMode) {
+		case 0: ret = tv->sng()->save_to_tex_tab(fn); break;
+		case 1: ret = tv->sng()->save_to_tex_notes(fn); break;
+		default: ret = FALSE; break;
+		}
+		if (!ret) {
+			KMessageBox::sorry(p, i18n("Can't export the song!"));
+			return FALSE;
+		}
+	}
+	return ret;
 }
 
-void ApplicationWindow::filePrint()
+void KGuitarPart::filePrint()
 {
+
+	KMessageBox::sorry(p, i18n("Printing is at this time not implemented. If you would\n"
+							   "help to implement this feature in KGuitar please write\n"
+							   "an email to: greycat@users.sourceforge.net"));
+
 //	   const int MARGIN = 10;
 //	   int pageNo = 1;
 
@@ -558,18 +486,7 @@ void ApplicationWindow::filePrint()
 
 }
 
-void ApplicationWindow::fileClose()
-{
-	close(TRUE); // close AND DELETE!
-}
-
-void ApplicationWindow::fileQuit()
-{
-	saveOptions();
-	fileClose(); //ALINXFIX: exit(0) is impossible, because options will not be saved
-}
-
-void ApplicationWindow::insertChord()
+void KGuitarPart::insertChord()
 {
 	int a[MAX_STRINGS];
 
@@ -587,13 +504,17 @@ void ApplicationWindow::insertChord()
 	}
 }
 
-void ApplicationWindow::songProperties()
+void KGuitarPart::songProperties()
 {
 	SetSong *ss = new SetSong();
 	ss->title->setText(tv->sng()->title);
+	ss->title->setReadOnly(isBrowserView);
 	ss->author->setText(tv->sng()->author);
+	ss->author->setReadOnly(isBrowserView);
 	ss->transcriber->setText(tv->sng()->transcriber);
+	ss->transcriber->setReadOnly(isBrowserView);
 	ss->comments->setText(tv->sng()->comments);
+	ss->comments->setReadOnly(isBrowserView);
 
 	if (ss->exec()) {
 		tv->sng()->title = ss->title->text();
@@ -605,19 +526,25 @@ void ApplicationWindow::songProperties()
 	delete ss;
 }
 
-void ApplicationWindow::trackProperties()
+void KGuitarPart::trackProperties()
 {
 	SetTrack *st = new SetTrack();
 
 	st->title->setText(tv->trk()->name);
+	st->title->setReadOnly(isBrowserView);
 	st->channel->setValue(tv->trk()->channel);
+	st->channel->setDisabled(isBrowserView);
 	st->bank->setValue(tv->trk()->bank);
+	st->bank->setDisabled(isBrowserView);
 	st->patch->setValue(tv->trk()->patch);
+	st->patch->setDisabled(isBrowserView);
+	st->mode->setDisabled(isBrowserView);
 
 	st->fret->setString(tv->trk()->string);
 	st->fret->setFrets(tv->trk()->frets);
 	for (int i = 0; i < tv->trk()->string; i++)
 		st->fret->setTune(i, tv->trk()->tune[i]);
+	st->fret->setDisabled(isBrowserView);
 
 	if (st->exec()) {
 		tv->trk()->name = st->title->text();
@@ -634,7 +561,7 @@ void ApplicationWindow::trackProperties()
 	delete st;
 }
 
-void ApplicationWindow::options()
+void KGuitarPart::options()
 {
 	Options *op = new Options();
 
@@ -669,20 +596,17 @@ void ApplicationWindow::options()
 	delete op;
 }
 
-void ApplicationWindow::configToolBars()
+void KGuitarPart::slotConfigToolBars()
 {
-	KEditToolbar dlg(actionCollection(), "kguitarui.rc");
-
-	if (dlg.exec())
-		createGUI("kguitarui.rc");
+	emit configToolBars();
 }
 
-void ApplicationWindow::configKeys()
+void KGuitarPart::configKeys()
 {
-	KKeyDialog::configureKeys(actionCollection(), "kguitarui.rc"); 
+	KKeyDialog::configureKeys(actionCollection(), "kguitar_part.rc"); 
 }
 
-void ApplicationWindow::readOptions()
+void KGuitarPart::readOptions()
 {
 	KConfig *config = kapp->config();
 
@@ -698,24 +622,12 @@ void ApplicationWindow::readOptions()
 	globalShowPageNumb = config->readBoolEntry("ShowPageNumb", TRUE);
 	globalTexExpMode = config->readNumEntry("TexExpMode", 0);
 
-	config->setGroup("Appearance");
-	globalShowMainTB = config->readBoolEntry("ShowMainTB", TRUE);
-	globalShowEditTB = config->readBoolEntry("ShowEditTB", TRUE);
-	QSize size = config->readSizeEntry("Geometry");
-	if (!size.isEmpty())
-		resize(size);
-
-	openRecentAct->loadEntries(config);
-
-	toolBar("mainToolBar")->applySettings(config, "MainToolBar");
-	toolBar("editToolBar")->applySettings(config, "EditToolBar");
-
 	config->setGroup("ALSA");
 	globalAlsaClient = config->readNumEntry("client", 64);
 	globalAlsaPort = config->readNumEntry("port", 0);
 }
 
-void ApplicationWindow::saveOptions()
+void KGuitarPart::saveOptions()
 {
 	KConfig *config = kapp->config();
 
@@ -731,17 +643,26 @@ void ApplicationWindow::saveOptions()
 	config->writeEntry("ShowPageNumb", globalShowPageNumb);
 	config->writeEntry("TexExpMode", globalTexExpMode);
 
-	config->setGroup("Appearance");
-	config->writeEntry("ShowMainTB", globalShowMainTB);
-	config->writeEntry("ShowEditTB", globalShowEditTB);
-	config->writeEntry("Geometry", size());
-
-	openRecentAct->saveEntries(config);
-
-	toolBar("mainToolBar")->saveSettings(config, "MainToolBar");
-	toolBar("editToolBar")->saveSettings(config, "EditToolBar");
-
 	config->setGroup("ALSA");
 	config->writeEntry("Client", globalAlsaClient);
 	config->writeEntry("Port", globalAlsaPort);
+}
+
+void KGuitarPart::setWinCaption(const QString& caption)
+{
+	emit setWindowCaption(caption);
+}
+
+
+//-------------------------------------------------------------------
+
+
+KGuitarBrowserExtension::KGuitarBrowserExtension(KGuitarPart *parent)
+	: KParts::BrowserExtension(parent, "KGuitarBrowserExtension")
+{
+}
+
+void KGuitarBrowserExtension::print()
+{
+  ((KGuitarPart *)parent())->filePrint();
 }

@@ -12,10 +12,6 @@ extern bool globalShowStr;
 extern bool globalShowPageNumb;
 extern int globalTexExpMode;
 
-// Appearance
-extern bool globalShowMainTB;
-extern bool globalShowEditTB;
-
 // ALSA MIDI
 extern int globalAlsaClient;
 extern int globalAlsaPort;
