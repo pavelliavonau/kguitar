@@ -48,6 +48,8 @@
 
 // LVIFIX: rests in lower voice are not supported
 
+// LVIFIX: notes in triplet are beamed incorrectly
+
 #include <qstring.h>			// required for globaloptions.h :-(
 #include "globaloptions.h"
 
