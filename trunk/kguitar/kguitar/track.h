@@ -1,12 +1,11 @@
 #ifndef TRACK_H
 #define TRACK_H
 
-// GREYFIX - change to global.h
-#define MAX_STRINGS 12
-
 #include <qlist.h>
 #include <qstring.h>
 #include <qtextstream.h>
+
+#include "global.h"
 
 typedef enum {
     GuitarTab,
