@@ -12,17 +12,15 @@
 #include <ktoolbar.h>
 #include <kiconloader.h>
 #include <klocale.h>
+#include <kfiledialog.h>
+#include <kaccel.h>
 
 #include <qpixmap.h>
 #include <qkeycode.h>
 #include <qmultilinedit.h>
-#include <qfile.h>
-#include <qfiledialog.h>
 #include <qstatusbar.h>
 #include <qmessagebox.h>
 #include <qprinter.h>
-#include <kaccel.h>
-#include <qtextstream.h>
 #include <qpainter.h>
 #include <qpaintdevicemetrics.h>
 #include <qwhatsthis.h>
@@ -104,34 +102,22 @@ void ApplicationWindow::newDoc()
 
 void ApplicationWindow::load()
 {
-    QString fn = QFileDialog::getOpenFileName(0,0,this);
-    if ( !fn.isEmpty() )
-	load( fn );
-    else
-	statusBar()->message( "Loading aborted", 2000 );
-}
-
-void ApplicationWindow::load( const char *fileName )
-{
-    QFile f( fileName );
-    if ( !f.open( IO_ReadOnly ) )
-	return;
-
-    QTextStream t(&f);
-    while ( !t.eof() ) {
-	QString s = t.readLine();
+    QString fn = KFileDialog::getOpenFileName(0,"*.kg",this);
+    if (!fn.isEmpty()) {
+	if (tv->sng()->load_from_kg(fn)) {
+	    setCaption(fn);
+	    tv->setCurt(tv->sng()->t.first());
+	    tv->sng()->t.first()->x=0;
+	    tv->sng()->t.first()->y=0;
+	}
     }
-    f.close();
-
-    setCaption( fileName );
-    QString s;
-    s.sprintf( "Loaded document %s", fileName );
-    statusBar()->message( s, 2000 );
 }
 
 void ApplicationWindow::save()
 {
-    statusBar()->message( "File->Save is not implemented" );
+    QString fn = KFileDialog::getSaveFileName(0,"*.kg",this);
+    if (!fn.isEmpty())
+	tv->sng()->save_to_kg(fn);
 }
 
 void ApplicationWindow::print()
@@ -210,7 +196,10 @@ void ApplicationWindow::toggleStatusBar()
 
 void ApplicationWindow::inschord()
 {
-    cs->exec();
+    if (cs->exec()) {
+	for (int i=0;i<tv->trk()->string();i++)
+	    tv->setFinger(i,cs->app(i));
+    }
 }
 
 void ApplicationWindow::songProperties()
