@@ -12,11 +12,11 @@
 
 #include <qspinbox.h>
 #include <qcombobox.h>
+#include <qcheckbox.h>
 
 TrackView::TrackView(QWidget *parent,const char *name): QTableView(parent,name)
 {
-//    setTableFlags(Tbl_autoVScrollBar | Tbl_smoothScrolling);
-    setTableFlags(Tbl_autoVScrollBar | Tbl_autoHScrollBar | Tbl_smoothScrolling);
+    setTableFlags(Tbl_autoVScrollBar | Tbl_smoothScrolling);
     setFrameStyle(Panel | Sunken);
     setBackgroundMode(PaletteBase);
 
@@ -37,8 +37,10 @@ TrackView::TrackView(QWidget *parent,const char *name): QTableView(parent,name)
     curt->c.resize(1);
     curt->b.resize(1);
 
-    for (int i=0;i<MAX_STRINGS;i++)
+    for (int i=0;i<MAX_STRINGS;i++) {
 	curt->c[0].a[i] = -1;
+	curt->c[0].e[i] = 0;
+    }
     curt->c[0].l = 120;
     curt->c[0].flags = 0;
 
@@ -169,6 +171,13 @@ void TrackView::paintCell(QPainter *p, int row, int col)
 		       xpos-lastxpos, 10,
 		       0, -180*16);
 
+	// Length of interval to next column - adjusted if dotted
+
+	xdelta = (curt->c[t].flags & FLAG_DOT ?
+		  curt->c[t].l*3/2 : curt->c[t].l) / 20 * HORCELL;
+	if (xdelta<HORCELL)
+	    xdelta = HORCELL;
+
 	// Draw the number column
 	
 	p->setPen(NoPen);
@@ -180,7 +189,10 @@ void TrackView::paintCell(QPainter *p, int row, int col)
 			    VERTLINE,VERTLINE+1);
 		p->setBrush(KApplication::getKApplication()->windowColor);
 		if (curt->c[t].a[i]!=-1) {
-		    tmp.setNum(curt->c[t].a[i]);
+		    if (curt->c[t].a[i]==DEAD_NOTE)
+			tmp = "X";
+		    else
+			tmp.setNum(curt->c[t].a[i]);
 		    p->setPen(KApplication::getKApplication()->selectTextColor);
 		    p->drawText(xpos,VERTSPACE+(s-i)*VERTLINE-VERTLINE/2,
 				VERTLINE,VERTLINE,AlignCenter,tmp);
@@ -188,21 +200,25 @@ void TrackView::paintCell(QPainter *p, int row, int col)
 		}
 	    } else {
 		if (curt->c[t].a[i]!=-1) {
-		    tmp.setNum(curt->c[t].a[i]);
+		    if (curt->c[t].a[i]==DEAD_NOTE)
+			tmp = "X";
+		    else
+			tmp.setNum(curt->c[t].a[i]);
 		    p->drawRect(xpos,VERTSPACE+(s-i)*VERTLINE-VERTLINE/2,
 				VERTLINE,VERTLINE+1);
 		    p->drawText(xpos,VERTSPACE+(s-i)*VERTLINE-VERTLINE/2,
 				VERTLINE,VERTLINE,AlignCenter,tmp);
 		}
 	    }
+	    
+	    // Draw effects
+
+	    if (curt->c[t].e[i]==EFFECT_HARMONIC)
+		p->drawText(xpos+VERTLINE+2,VERTSPACE+(s-i)*VERTLINE-VERTLINE/2,
+			    VERTLINE,VERTLINE,AlignCenter,"H");
 	}
 
 	p->setPen(SolidLine);
-
-	// Length of interval
-	xdelta = (curt->c[t].l)/20*HORCELL;
-	if (xdelta<HORCELL)
-	    xdelta = HORCELL;
 
 	lastxpos = xpos;
 	xpos += xdelta;
@@ -264,12 +280,26 @@ void TrackView::timeSig()
 	int time1 = sts->time1->value();
 	int time2 = ((QString) sts->time2->currentText()).toUInt();
 
-	if ((time1!=curt->b[curt->xb].time1) ||
-	    (time2!=curt->b[curt->xb].time2)) {
-	    curt->b[curt->xb].time1 = time1;
-	    curt->b[curt->xb].time2 = time2;
+	// Sophisticated construction to mark all or only one bar with
+	// new sig, depending on user's selection of checkbox
+
+	for (uint i=curt->xb;
+	     i<(sts->toend->isChecked() ? curt->b.size() : curt->xb+1);
+	     i++) {
+	    curt->b[i].time1 = time1;
+	    curt->b[i].time2 = time2;
 	}
     }
+}
+
+void TrackView::linkPrev()
+{
+    curt->c[curt->x].flags ^= FLAG_ARC;
+    for (uint i=0;i<MAX_STRINGS;i++) {
+	curt->c[curt->x].a[i] = -1;
+	curt->c[curt->x].e[i] = 0;
+    }
+    update();
 }
 
 void TrackView::keyPressEvent(QKeyEvent *e)
@@ -295,8 +325,10 @@ void TrackView::keyPressEvent(QKeyEvent *e)
     switch (e->key()) {
     case Key_Left:
 	if (curt->x>0) {
-	    if (curt->b[curt->xb].start==curt->x)
+	    if (curt->b[curt->xb].start==curt->x) {
 		curt->xb--;
+		emit statusBarChanged();
+	    }
 	    curt->x--;
 	}
 	break;
@@ -304,8 +336,10 @@ void TrackView::keyPressEvent(QKeyEvent *e)
 	if (curt->x+1==curt->c.size()) {
 	    curt->c.resize(curt->c.size()+1);
 	    curt->x++;
-	    for (int i=0;i<curt->string;i++)
+	    for (uint i=0;i<curt->string;i++) {
 		curt->c[curt->x].a[i] = -1;
+		curt->c[curt->x].e[i] = 0;
+	    }
 	    curt->c[curt->x].l = curt->c[curt->x-1].l;
 	    curt->c[curt->x].flags = 0;
 	    updateRows();
@@ -313,8 +347,10 @@ void TrackView::keyPressEvent(QKeyEvent *e)
 	    if (curt->b.size()==curt->xb+1)
 		curt->x++;
 	    else {
-		if (curt->b[curt->xb+1].start==curt->x+1)
+		if (curt->b[curt->xb+1].start==curt->x+1) {
 		    curt->xb++;
+		    emit statusBarChanged();
+		}
 		curt->x++;
 	    }
 	}
@@ -346,7 +382,7 @@ void TrackView::keyPressEvent(QKeyEvent *e)
     case Key_9:
     case Key_0:
 	if (curt->c[curt->x].flags & FLAG_ARC)
-	    break;
+	    curt->c[curt->x].flags -= FLAG_ARC;
 
 	num=num-'0'; // GREYFIX - may be a bad thing to do
 
@@ -357,6 +393,15 @@ void TrackView::keyPressEvent(QKeyEvent *e)
 	curt->c[curt->x].a[curt->y]=num;
 	lastnumber=num;
 	break;
+    case Key_X:
+	if (curt->c[curt->x].flags & FLAG_ARC)
+	    curt->c[curt->x].flags -= FLAG_ARC;
+	curt->c[curt->x].a[curt->y]=DEAD_NOTE;
+	break;
+    case Key_H:
+	if (curt->c[curt->x].a[curt->y]>=0)
+	    curt->c[curt->x].e[curt->y] = EFFECT_HARMONIC;
+	break;
     case Key_Delete:
 	if (e->state()==ControlButton) {
 	    if (curt->c.size()>1) {
@@ -365,8 +410,10 @@ void TrackView::keyPressEvent(QKeyEvent *e)
 		    curt->x--;
 		updateRows();
 	    }
-	} else 
-	    curt->c[curt->x].a[curt->y]=-1;
+	} else {
+	    curt->c[curt->x].a[curt->y] = -1;
+	    curt->c[curt->x].e[curt->y] = 0;
+	}
 	break;
     case Key_Insert:
 	curt->insertColumn(curt->x);
@@ -381,16 +428,16 @@ void TrackView::keyPressEvent(QKeyEvent *e)
 	break;
     case Key_A:
 	curt->arrangeBars();
+	emit statusBarChanged();
 	updateRows();
 	break;
     case Key_Period:
 	curt->c[curt->x].flags ^= FLAG_DOT; // It's XOR :-)
 	break;	    
     case Key_L:
-	curt->c[curt->x].flags ^= FLAG_ARC;
-	for (uint i=0;i<MAX_STRINGS;i++)
-	    curt->c[curt->x].a[i]=-1;
-	break;
+	linkPrev();
+	e->accept();
+	return;
     default:
 	e->ignore();
 	return;
