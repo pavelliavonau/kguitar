@@ -5,7 +5,7 @@
 msgid ""
 msgstr ""
 "Project-Id-Version: PACKAGE VERSION\n"
-"POT-Creation-Date: 2001-09-09 20:54+0200\n"
+"POT-Creation-Date: 2001-09-19 10:22+0200\n"
 "PO-Revision-Date: 2001-09-15 12:29+00:00\n"
 "Last-Translator: Wilane Ousmane <wilane@mint.sn>\n"
 "Language-Team: FR <traduc@traduc.org>\n"
@@ -323,8 +323,9 @@ msgid "Chord constructor"
 msgstr "Générateur d'accords"
 
 #: chord.cpp:313
+#, fuzzy
 msgid ""
-"Can't open /dev/sequenzer !!\n"
+"Can't open /dev/sequencer !!\n"
 "Probably there is another program using it."
 msgstr ""
 "Impossible d'ouvrir /dev/sequencer !!\n"
@@ -735,9 +736,10 @@ msgid "8/8 Arpegio 2"
 msgstr "Arpège 2 en 8/8"
 
 #: strum.h:57
+#, fuzzy
 msgid ""
-"Variantion of previous arpegio, can spice up sound if used several times "
-"with previous rhythm."
+"Variation of previous arpegio, can spice up sound if used several times with "
+"previous rhythm."
 msgstr ""
 "Variation de l'arpège précédente, pourrait agrémenter une chanson\n"
 "lorsqu'elle est utilisée plusieurs fois avec les rythmes précédents."
