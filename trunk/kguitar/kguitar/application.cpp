@@ -32,21 +32,21 @@
 // Global variables - real declarations
 
 // General
-int global_maj7;
-int global_flatplus;
-int global_notenames;
+int globalMaj7;
+int globalFlatPlus;
+int globalNoteNames;
 
 // MusiXTeX
-int global_tabsize;
-bool global_showbarnumb;
-bool global_showstr;
-bool global_showpagenumb;
+int globalTabSize;
+bool globalShowBarNumb;
+bool globalShowStr;
+bool globalShowPageNumb;
 
 // Appearance
-bool global_showMainTB;       // Toolbars
-bool global_showEditTB;
-int global_mainTBPos;
-int global_editTBPos;
+bool globalShowMainTB;
+bool globalShowEditTB;
+int globalMainTBPos;
+int globalEditTBPos;
 
 ApplicationWindow::ApplicationWindow(): KTMainWindow()
 {
@@ -62,14 +62,14 @@ ApplicationWindow::ApplicationWindow(): KTMainWindow()
 	tv->setFocus();
 
 	// SET UP MAIN TOOLBAR
-	toolBar()->insertButton(Icon("filenew.xpm"),1,SIGNAL(clicked()),
-							this,SLOT(newDoc()),TRUE,i18n("New document"));
-	toolBar()->insertButton(Icon("fileopen.xpm"),1,SIGNAL(clicked()),
-							this,SLOT(load()),TRUE,i18n("Open a file"));
-	toolBar()->insertButton(Icon("filefloppy.xpm"),1,SIGNAL(clicked()),
-							this,SLOT(save()),TRUE,i18n("Save a file"));
-	toolBar()->insertButton(Icon("fileprint.xpm"),1,SIGNAL(clicked()),
-							this,SLOT(print()),TRUE,i18n("Print"));
+	toolBar()->insertButton(Icon("filenew.xpm"), 1, SIGNAL(clicked()),
+							this, SLOT(newDoc()), TRUE, i18n("New document"));
+	toolBar()->insertButton(Icon("fileopen.xpm"), 1, SIGNAL(clicked()),
+							this, SLOT(load()), TRUE, i18n("Open a file"));
+	toolBar()->insertButton(Icon("filefloppy.xpm"), 1, SIGNAL(clicked()),
+							this, SLOT(save()), TRUE, i18n("Save a file"));
+	toolBar()->insertButton(Icon("fileprint.xpm"), 1, SIGNAL(clicked()),
+							this, SLOT(print()), TRUE, i18n("Print"));
 	toolBar()->insertSeparator();
 
 	// SET UP EDITING TOOLBAR
@@ -98,8 +98,8 @@ ApplicationWindow::ApplicationWindow(): KTMainWindow()
 	toolBar(1)->insertButton(Icon("fx-harmonic.xpm"),1,SIGNAL(clicked()),
 							tv,SLOT(addArtHarm()),TRUE,i18n("Artificial harmonic"));
 	
-	toolBar()->setBarPos(KToolBar::BarPosition(global_mainTBPos));
-	toolBar(1)->setBarPos(KToolBar::BarPosition(global_editTBPos));
+	toolBar()->setBarPos(KToolBar::BarPosition(globalMainTBPos));
+	toolBar(1)->setBarPos(KToolBar::BarPosition(globalEditTBPos));
 
 	// SET UP MAIN MENU
 
@@ -205,22 +205,22 @@ void ApplicationWindow::closeEvent(QCloseEvent *e)
 void ApplicationWindow::updateMenu()
 {
 	for (int i = 0; i < 9; i++)
-		nnMenu->setItemChecked(ni[i], i == global_notenames);
+		nnMenu->setItemChecked(ni[i], i == globalNoteNames);
 	saveOptions();
 }
 
 void ApplicationWindow::updateTbMenu()
 {
-	tbMenu->setItemChecked(tb[0], global_showMainTB);
-	tbMenu->setItemChecked(tb[1], global_showEditTB);
+	tbMenu->setItemChecked(tb[0], globalShowMainTB);
+	tbMenu->setItemChecked(tb[1], globalShowEditTB);
 	saveOptions();
 
-	if (global_showMainTB)
+	if (globalShowMainTB)
 		enableToolBar(KToolBar::Show, 0);
 	else
 		enableToolBar(KToolBar::Hide, 0);
 
-	if (global_showEditTB)
+	if (globalShowEditTB)
 		enableToolBar(KToolBar::Show, 1);
 	else
 		enableToolBar(KToolBar::Hide, 1);
@@ -492,28 +492,28 @@ void ApplicationWindow::options()
 {
 	Options *op = new Options();
 
-	op->maj7gr->setButton(global_maj7);
-	op->flatgr->setButton(global_flatplus);
+	op->maj7gr->setButton(globalMaj7);
+	op->flatgr->setButton(globalFlatPlus);
 
-	op->texsizegr->setButton(global_tabsize);
-	op->showbarnumb->setChecked(global_showbarnumb);
-	op->showstr->setChecked(global_showstr);
-	op->showpagenumb->setChecked(global_showpagenumb);
+	op->texsizegr->setButton(globalTabSize);
+	op->showbarnumb->setChecked(globalShowBarNumb);
+	op->showstr->setChecked(globalShowStr);
+	op->showpagenumb->setChecked(globalShowPageNumb);
 
 	if (op->exec()) {
-		if (op->maj7[0]->isChecked())  global_maj7 = 0;
-		if (op->maj7[1]->isChecked())  global_maj7 = 1;
-		if (op->maj7[2]->isChecked())  global_maj7 = 2;
+		if (op->maj7[0]->isChecked())  globalMaj7 = 0;
+		if (op->maj7[1]->isChecked())  globalMaj7 = 1;
+		if (op->maj7[2]->isChecked())  globalMaj7 = 2;
 
-		if (op->flat[0]->isChecked())  global_flatplus = 0;
-		if (op->flat[1]->isChecked())  global_flatplus = 1;
+		if (op->flat[0]->isChecked())  globalFlatPlus = 0;
+		if (op->flat[1]->isChecked())  globalFlatPlus = 1;
 
 		for (int i = 0;i <= 3; i++)
-			if (op->tabsize[i]->isChecked()) global_tabsize = i;
+			if (op->tabsize[i]->isChecked()) globalTabSize = i;
 
-		global_showbarnumb = op->showbarnumb->isChecked();
-		global_showstr = op->showstr->isChecked();
-		global_showpagenumb = op->showpagenumb->isChecked();
+		globalShowBarNumb = op->showbarnumb->isChecked();
+		globalShowStr = op->showstr->isChecked();
+		globalShowPageNumb = op->showpagenumb->isChecked();
 	}
 
 	delete op;
@@ -523,21 +523,21 @@ void ApplicationWindow::options()
 void ApplicationWindow::readOptions()
 {
 	kapp->getConfig()->setGroup("General");
-	global_maj7 = kapp->getConfig()->readNumEntry("maj7", 0);
-	global_flatplus = kapp->getConfig()->readNumEntry("flatplus", 0);
-	global_notenames = kapp->getConfig()->readNumEntry("notenames", 0);
+	globalMaj7 = kapp->getConfig()->readNumEntry("maj7", 0);
+	globalFlatPlus = kapp->getConfig()->readNumEntry("flatplus", 0);
+	globalNoteNames = kapp->getConfig()->readNumEntry("notenames", 0);
 
 	kapp->getConfig()->setGroup("MusiXTeX");
-	global_tabsize = kapp->getConfig()->readNumEntry("tabsize", 2);
-	global_showbarnumb = kapp->getConfig()->readBoolEntry("showbarnumb", TRUE);
-	global_showstr = kapp->getConfig()->readBoolEntry("showstr", TRUE);
-	global_showpagenumb = kapp->getConfig()->readBoolEntry("showpagenumb", TRUE);
+	globalTabSize = kapp->getConfig()->readNumEntry("tabsize", 2);
+	globalShowBarNumb = kapp->getConfig()->readBoolEntry("showbarnumb", TRUE);
+	globalShowStr = kapp->getConfig()->readBoolEntry("showstr", TRUE);
+	globalShowPageNumb = kapp->getConfig()->readBoolEntry("showpagenumb", TRUE);
 
 	kapp->getConfig()->setGroup("Appearance");
-	global_showMainTB = kapp->getConfig()->readBoolEntry("showMainTB", TRUE);
-	global_showEditTB = kapp->getConfig()->readBoolEntry("showEditTB", TRUE);
-	global_mainTBPos = kapp->getConfig()->readNumEntry("mainTBPos", 0);
-	global_editTBPos = kapp->getConfig()->readNumEntry("editTBPos", 0);
+	globalShowMainTB = kapp->getConfig()->readBoolEntry("showMainTB", TRUE);
+	globalShowEditTB = kapp->getConfig()->readBoolEntry("showEditTB", TRUE);
+	globalMainTBPos = kapp->getConfig()->readNumEntry("mainTBPos", 0);
+	globalEditTBPos = kapp->getConfig()->readNumEntry("editTBPos", 0);
 	QSize size = kapp->getConfig()->readSizeEntry("geometry");
 	if (!size.isEmpty())
 		resize(size);
@@ -547,19 +547,19 @@ void ApplicationWindow::readOptions()
 void ApplicationWindow::saveOptions()
 {
 	kapp->getConfig()->setGroup("General");
-	kapp->getConfig()->writeEntry("maj7", global_maj7);
-	kapp->getConfig()->writeEntry("flatplus", global_flatplus);
-	kapp->getConfig()->writeEntry("notenames", global_notenames);
+	kapp->getConfig()->writeEntry("maj7", globalMaj7);
+	kapp->getConfig()->writeEntry("flatplus", globalFlatPlus);
+	kapp->getConfig()->writeEntry("notenames", globalNoteNames);
 
 	kapp->getConfig()->setGroup("MusiXTeX");
-	kapp->getConfig()->writeEntry("tabsize", global_tabsize);
-	kapp->getConfig()->writeEntry("showbarnumb", global_showbarnumb);
-	kapp->getConfig()->writeEntry("showstr", global_showstr);
-	kapp->getConfig()->writeEntry("showpagenumb", global_showpagenumb);
+	kapp->getConfig()->writeEntry("tabsize", globalTabSize);
+	kapp->getConfig()->writeEntry("showbarnumb", globalShowBarNumb);
+	kapp->getConfig()->writeEntry("showstr", globalShowStr);
+	kapp->getConfig()->writeEntry("showpagenumb", globalShowPageNumb);
 
 	kapp->getConfig()->setGroup("Appearance");
-	kapp->getConfig()->writeEntry("showMainTB", global_showMainTB);
-	kapp->getConfig()->writeEntry("showEditTB", global_showEditTB);
+	kapp->getConfig()->writeEntry("showMainTB", globalShowMainTB);
+	kapp->getConfig()->writeEntry("showEditTB", globalShowEditTB);
 	kapp->getConfig()->writeEntry("mainTBPos", toolBar()->barPos());
 	kapp->getConfig()->writeEntry("editTBPos", toolBar(1)->barPos());
 	kapp->getConfig()->writeEntry("geometry", size());
