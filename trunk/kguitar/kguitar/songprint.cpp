@@ -72,13 +72,6 @@ using namespace std;
 
 static const QString notes[7] = {"C", "D", "E", "F", "G", "A", "B"};
 
-// local functions
-static char beamL1(int t, int v, int bn, TabTrack *trk);
-static char beamL2plus(int t, int v, int bn, int lvl, TabTrack *trk);
-static bool isRest(int t, TabTrack *trk);
-static bool mustBreakBeam(int t, int bn, TabTrack *trk);
-static int tStart(int t, int bn, TabTrack *trk);
-
 /***************************************************************************
  * class SongPrint
  ***************************************************************************/
@@ -135,29 +128,6 @@ int SongPrint::barWidth(int bn, TabTrack *trk)
 	w += ntlfw;					// space after last note
 	w += 1;						// LVIFIX: the trailing vertical line
 	return w;
-}
-
-// calculate beams for track trk
-// LVIFIX: move to tabtrack.cpp ??
-
-void SongPrint::calcBeams(TabTrack *trk)
-{
-	// loop bn over all bars in this track
-	for (uint bn = 0; bn < trk->b.size(); bn++) {
-		// loop t over all columns in this bar and calculate beams
-		for (uint t = trk->b[bn].start; (int) t <= trk->lastColumn(bn); t++) {
-			trk->c[t].stl.bp.setX(0);
-			trk->c[t].stl.bp.setY(0);
-			trk->c[t].stl.l1 = beamL1(t, 0,bn, trk);
-			trk->c[t].stl.l2 = beamL2plus(t, 0, bn, 2, trk);
-			trk->c[t].stl.l3 = beamL2plus(t, 0, bn, 3, trk);
-			trk->c[t].stu.bp.setX(0);
-			trk->c[t].stu.bp.setY(0);
-			trk->c[t].stu.l1 = beamL1(t, 1,bn, trk);
-			trk->c[t].stu.l2 = beamL2plus(t, 1, bn, 2, trk);
-			trk->c[t].stu.l3 = beamL2plus(t, 1, bn, 3, trk);
-		}
-	}
 }
 
 // return width in pixels of column cl in track trk
@@ -240,229 +210,6 @@ int SongPrint::colWidth(int cl, TabTrack *trk)
 	}
 	// cout << " w=" << w << endl;
 	return w;
-}
-
-// determine if column t in track trk is a rest
-
-static bool isRest(int t, TabTrack *trk)
-{
-	for (int i = 0; i < trk->string; i++) {
-		if (trk->c[t].a[i] > -1) {
-			return false;
-		}
-	}
-	return true;
-}
-
-// determine starting time of note t in bar bn of track trk
-
-static int tStart(int t, int bn, TabTrack *trk)
-{
-	int tstart = 0;
-	for (uint i = trk->b[bn].start; (int) i < t; i++) {
-		// add real duration including dots/triplets
-		tstart += trk->c[i].fullDuration();
-	}
-	return tstart;
-}
-
-// determine if beam needs to be broken at note t in track trk for bar bn
-// break beam if t does not end in the beat where it started
-// results in drawing three beams for six 1/8 notes in a 3/4 measure
-// this is independent of voice allocation
-
-static bool mustBreakBeam(int t, int bn, TabTrack *trk)
-{
-	int bv = 1;					// this bar's beat value as duration
-	switch (trk->b[bn].time2) {
-	case  1: bv = 480; break;
-	case  2: bv = 240; break;
-	case  4: bv = 120; break;
-	case  8: bv =  60; break;
-	case 16: bv =  30; break;
-	case 32: bv =  15; break;
-	default: bv =   1; break;	// safe default
-	}
-	int ts = tStart(t, bn, trk);			// note start
-	int te = ts + trk->c[t].fullDuration();	// note end
-	int bs = ts / bv;						// beat where note starts
-	int be = te / bv;						// beat where note ends
-	return (bs != be);
-}
-
-// determine L1 beam for note t in voice v in bar bn of track trk
-// returns: c (continue) e (end) n (none) s (start)
-// LVIFIX: save results ?
-
-static char beamL1(int t, int v, int bn, TabTrack *trk)
-{
-	// if column is a rest, then no beam
-	if (isRest(t, trk)) {
-		return 'n';
-	}
-	// if no note in this voice, then no beam
-	int dt;						// dots (not used)
-	int tp;						// note type
-	bool tr;					// triplet (not used)
-	if (!trk->getNoteTypeAndDots(t, v, tp, dt, tr)) {
-		return 'n';
-	}
-	// if note is 1/4 or longer, then no beam
-	if (tp >= 120) {
-		return 'n';
-	}
-
-	int f = trk->b[bn].start;	// first note of bar
-	int l = trk->lastColumn(bn);// last note of bar
-	int p = 0;					// previous note
-	int n = 0;					// next nnote
-	p = (t == f) ? -1 : (t - 1);
-	n = (t == l) ? -1 : (t + 1);
-	int ptp = 480;				// previous note type, default to 1/1
-	int ntp = 480;				// next note type, default to 1/1
-	if ((p == -1) || !trk->getNoteTypeAndDots(p, v, ptp, dt, tr)) {
-		// no previous note (or not in this voice),
-		// therefore pretend 1/1 (which has no stem)
-		ptp = 480;
-	}
-	if ((n == -1) || !trk->getNoteTypeAndDots(n, v, ntp, dt, tr)) {
-		// no previous note (or not in this voice),
-		// therefore pretend 1/1 (which has no stem)
-		ntp = 480;
-	}
-	if (mustBreakBeam(t, bn, trk)) {
-		// note ends at n * divisor
-		if ((p != -1) && (ptp <= 60) && !mustBreakBeam(p, bn, trk)
-			&& !isRest(p, trk)) {
-			// previous note exists which has beam to this one
-			return 'e';
-		} else {
-			return 'n';
-		}
-	} else {
-		// note does not end at n * divisor
-		bool left = false;		// beam at left side ?
-		bool right = false;		// beam at right side ?
-		if ((p != -1) && (ptp <= 60) && !mustBreakBeam(p, bn, trk)
-			&& !isRest(p, trk)) {
-			// previous note exists which has beam to this one
-			left = true;
-		}
-		if ((n != -1) && (ntp <= 60) && !isRest(n, trk)) {
-			// next note exists to draw beam to
-			right = true;
-		}
-		// test all possible combinations of left and right
-		if (left && right) {
-			return 'c';
-		}
-		if (left && !right) {
-			return 'e';
-		}
-		if (!left && right) {
-			return 's';
-		}
-		if (!left && !right) {
-			return 'n';
-		}
-	}
-	return 'n';
-}
-
-// determine beam for note t in voice v in bar bn in track trk
-// at beam level lvl
-// returns: b (backward) c (continue) e (end) f (forward) n (none) s (start)
-// note: no need to check for rests (done in beamL1)
-// LVIFIX: save results ?
-
-static char beamL2plus(int t, int v, int bn, int lvl, TabTrack *trk)
-{
-	// if no note in this voice, then no beam
-	int dt;						// dots (not used)
-	int tp;						// note type
-	bool tr;					// triplet (not used)
-	if (!trk->getNoteTypeAndDots(t, v, tp, dt, tr)) {
-		return 'n';
-	}
-	// determine duration for this level
-	int dur = 0;
-	if (lvl == 2) {
-		// if note is 1/8 or longer, then no beam
-		if (tp >= 60) {
-			return 'n';
-		} else {
-			dur = 30;
-		}
-	} else if (lvl == 3) {
-		// if note is 1/16 or longer, then no beam
-		if (tp >= 30) {
-			return 'n';
-		} else {
-			dur = 15;
-		}
-	} else {
-		return 'n';
-	}
-	int f = trk->b[bn].start;	// first note of bar
-	int l = trk->lastColumn(bn);// last note of bar
-	int p = 0;					// previous note
-	int n = 0;					// next next
-	p = (t == f) ? -1 : (t - 1);
-	n = (t == l) ? -1 : (t + 1);
-	int ptp = 480;				// previous note type, default to 1/1
-	int ntp = 480;				// next note type, default to 1/1
-	if ((p == -1) || !trk->getNoteTypeAndDots(p, v, ptp, dt, tr)) {
-		// no previous note (or not in this voice),
-		// therefore pretend 1/1 (which has no stem)
-		ptp = 480;
-	}
-	if ((n == -1) || !trk->getNoteTypeAndDots(n, v, ntp, dt, tr)) {
-		// no previous note (or not in this voice),
-		// therefore pretend 1/1 (which has no stem)
-		ntp = 480;
-	}
-	char L1 = beamL1(t, v, bn, trk);
-	if (L1 == 's') {
-		if ((n != -1) && (ntp <= dur)) {
-			return 's';
-		} else {
-			return 'f';
-		}
-	} else if (L1 == 'c') {
-		bool left = false;		// beam at left side ?
-		bool right = false;		// beam at right side ?
-		if ((p != -1) && (ptp <= dur) && !(mustBreakBeam(p, bn, trk))) {
-			// previous note exists which has beam to this one
-			left = true;
-		}
-		if ((n != -1) && (ntp <= dur)) {
-			// next note exists to draw beam to
-			right = true;
-		}
-		// test all possible combinations of left and right
-		if (left && right) {
-			return 'c';
-		}
-		if (left && !right) {
-			return 'e';
-		}
-		if (!left && right) {
-			return 's';
-		}
-		if (!left && !right) {
-			return 'f';
-		}
-	} else if (L1 == 'e') {
-		if ((p != -1) && (ptp <= dur)) {
-			// previous note exists which has beam to this one
-			return 'e';
-		} else {
-			return 'b';
-		}
-	} else {
-		return 'n';
-	}
-	return 'n';
 }
 
 // draw bar bn's contents starting at xpos,ypostb adding extra space es
@@ -1796,7 +1543,7 @@ void SongPrint::printSong(KPrinter *printer, TabSong *song)
 		trk->calcStepAltOct();
 
 		// Determine beams for this track
-		calcBeams(trk);
+		trk->calcBeams();
 
 	// LVIFIX: start debug only, remove
 	/*

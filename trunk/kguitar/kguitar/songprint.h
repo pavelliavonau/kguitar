@@ -41,7 +41,6 @@ public:
 private:
 	int barExpWidth(int bn, TabTrack *trk);
 	int barWidth(int bn, TabTrack *trk);
-	void calcBeams(TabTrack *trk);
 	int colWidth(int cl, TabTrack *trk);
 	void drawBar(int bn, TabTrack *trk, int es);
 	void drawBarLns(int w, TabTrack *trk);

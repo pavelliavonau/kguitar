@@ -74,6 +74,7 @@ public:
 	void arrangeBars();
 	void addFX(char fx);
 	void updateXB();
+	void calcBeams();
 	void calcStepAltOct();
 	void calcVoices();
 	bool hasMultiVoices();
