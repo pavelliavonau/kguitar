@@ -12,7 +12,7 @@ class FingerList: public QTableView
 public:
     FingerList(QWidget *parent=0, const char *name=0);
 
-    void addFingering(const int a[MAX_STRINGS], bool update=TRUE);
+    void addFingering(const int a[MAX_STRINGS], bool update);
     void clear();
     void switchAuto(bool update);
 
