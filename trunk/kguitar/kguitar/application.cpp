@@ -45,16 +45,6 @@ ApplicationWindow::ApplicationWindow(): KTMainWindow()
 	printer->setMinMax(1,10);
 
 	// READ CONFIGS
-	// GREYFIX to read reading
-
-	global_maj7=0;
-	global_flatplus=0;
-	global_notenames=0;
-	global_tabsize=2;
-	global_showbarnumb=TRUE;
-	global_showstr=TRUE;
-	global_showpagenumb=TRUE;
-
 	readOptions();
 
 	// MAIN WIDGET
