@@ -266,7 +266,7 @@ void TrackView::SetFlagCommand::execute()
 		trk->c[x].flags ^= flag;
 		if (flag == FLAG_ARC)
 			for (uint i = 0; i < MAX_STRINGS; i++) {
-				trk->c[x].a[i] = -1;
+				trk->c[x].a[i] = NULL_NOTE;
 				trk->c[x].e[i] = 0;
 			}
 	}
