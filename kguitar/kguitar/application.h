@@ -37,8 +37,8 @@ private:
 class KGuitarPart: public KParts::ReadWritePart {
     Q_OBJECT
 public:
-    KGuitarPart(bool bBrowserView, QWidget *parentWidget, const char *widgetName,
-                QObject *parent, const char *name);
+    KGuitarPart(bool bBrowserView, KCommandHistory *_cmdHist, QWidget *parentWidget,
+				const char *widgetName, QObject *parent, const char *name);
     virtual ~KGuitarPart();
 	SongView *sv;
 

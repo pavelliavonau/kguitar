@@ -1,7 +1,9 @@
 #include "trackview.h"
+#include "trackviewcommands.h"
 #include "tabsong.h"
 #include "chord.h"
 #include "timesig.h"
+#include "songview.h"
 
 #include <kglobalsettings.h>
 #include <kglobal.h>
@@ -34,8 +36,9 @@
 
 #define BOTTOMDUR	VERTSPACE+VERTLINE*(s+1)
 
-TrackView::TrackView(TabSong *s, KXMLGUIClient *_XMLGUIClient, DeviceManager *_dm,
-					 QWidget *parent = 0, const char *name = 0): QTableView(parent, name)
+TrackView::TrackView(TabSong *s, KXMLGUIClient *_XMLGUIClient, KCommandHistory* _cmdHist,
+					 DeviceManager *_dm, QWidget *parent = 0, const char *name = 0):
+	QTableView(parent, name)
 {
 	setTableFlags(Tbl_autoVScrollBar | Tbl_smoothScrolling);
 	setFrameStyle(Panel | Sunken);
@@ -46,6 +49,7 @@ TrackView::TrackView(TabSong *s, KXMLGUIClient *_XMLGUIClient, DeviceManager *_d
 	setFocusPolicy(QWidget::StrongFocus);
 
 	m_XMLGUIClient = _XMLGUIClient;
+	m_cmdHist = _cmdHist;
 	midi = _dm;
 
 	song = s;
@@ -137,8 +141,12 @@ int TrackView::finger(int num)
 
 void TrackView::setLength(int l)
 {
-	curt->c[curt->x].l = l;
-	repaintCurrentCell();
+	if (curt->c[curt->x].l != l) {                       //only if needed
+		m_cmdHist->addCommand(new SetLengthCommand(l));
+
+		curt->c[curt->x].l = l; //ALINXFIX: remove this two lines if SetLengthCommand
+		repaintCurrentCell();   //          is implemented.
+	}
 }
 
 void TrackView::linkPrev()
@@ -710,16 +718,14 @@ void TrackView::keyPeriod()
 void TrackView::keyPlus()
 {
 	if (curt->c[curt->x].l < 480)
-		curt->c[curt->x].l *= 2;
-	repaintCurrentCell();
+		setLength(curt->c[curt->x].l * 2);
 	lastnumber = -1;
 }
 
 void TrackView::keyMinus()
 {
 	if (curt->c[curt->x].l > 15)
-		curt->c[curt->x].l /= 2;
-	repaintCurrentCell();
+		setLength(curt->c[curt->x].l / 2);
 	lastnumber = -1;
 }
 
