@@ -23,7 +23,7 @@ public:
 	QString transcriber;				// Who made the tab
 	QString comments;					// Comments
 
-	QString filename;					// File name to save under
+// 	QString filename;					// File name to save under
 
 	int freeChannel();
 	uint maxLen();

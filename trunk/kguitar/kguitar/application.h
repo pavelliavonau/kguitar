@@ -34,7 +34,6 @@ private:
 	static KInstance *s_instance;
 };
 
-
 class KGuitarPart: public KParts::ReadWritePart {
 	Q_OBJECT
 public:
@@ -48,8 +47,7 @@ public slots:
 
 private slots:
 	void fileNew();
-	bool slotOpenFile(QString fn);
-	bool fileSave(QString fn);
+// 	bool fileSave(QString fn);
 	void options();
 	void saveOptions();
 	void slotConfigToolBars();

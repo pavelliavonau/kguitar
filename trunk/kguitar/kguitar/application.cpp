@@ -126,33 +126,33 @@ KGuitarPart::KGuitarPart(bool bBrowserView, KCommandHistory *_cmdHist, QWidget *
 								 actionCollection(), "file_new");
 
 	preferencesAct = KStdAction::preferences(this, SLOT(options()),
-											 actionCollection(), "pref_options");
+	                                         actionCollection(), "pref_options");
 	confTBAct = KStdAction::configureToolbars(this, SLOT(slotConfigToolBars()),
-											  actionCollection(), "config_toolbars");
+	                                          actionCollection(), "config_toolbars");
 	confKeyAct = KStdAction::keyBindings(this, SLOT(configKeys()),
-										 actionCollection(), "config_keys");
+	                                     actionCollection(), "config_keys");
 
 	sngPropAct = new KAction(i18n("P&roperties..."), 0, sv, SLOT(songProperties()),
-							 actionCollection(), "song_properties");
+	                         actionCollection(), "song_properties");
 
 	trkNewAct = new KAction(i18n("&New..."), 0, sv, SLOT(trackNew()),
-							actionCollection(), "track_new");
+	                        actionCollection(), "track_new");
 	trkDeleteAct = new KAction(i18n("&Delete"), 0, sv, SLOT(trackDelete()),
-							   actionCollection(), "track_delete");
+	                           actionCollection(), "track_delete");
 	trkBassLineAct = new KAction(i18n("&Generate Bass Line"), 0, sv, SLOT(trackBassLine()),
 	                             actionCollection(), "track_bassline");
 	trkPropAct = new KAction(i18n("P&roperties..."), 0, sv, SLOT(trackProperties()),
-							 actionCollection(), "track_properties");
+	                         actionCollection(), "track_properties");
 	rhythmerAct = new KAction(i18n("&Rhythm..."), "rhythmer", KAccel::stringToKey("Shift+R"),
-							  sv->tv, SLOT(rhythmer()), actionCollection(), "rhythmer");
+	                          sv->tv, SLOT(rhythmer()), actionCollection(), "rhythmer");
 	insChordAct = new KAction(i18n("&Chord..."), "chord", KAccel::stringToKey("Shift+C"),
-							  sv->tv, SLOT(insertChord()), actionCollection(), "insert_chord");
+	                          sv->tv, SLOT(insertChord()), actionCollection(), "insert_chord");
 
 	saveOptionAct = new KAction(i18n("&Save Options"), 0, this,
-								SLOT(saveOptions()), actionCollection(), "save_options");
+	                            SLOT(saveOptions()), actionCollection(), "save_options");
 
 	arrTrkAct = new KAction(i18n("&Arrange Track"), KAccel::stringToKey("Shift+A"), sv->tv,
-							SLOT(arrangeTracks()), actionCollection(), "arrange_trk");
+	                        SLOT(arrangeTracks()), actionCollection(), "arrange_trk");
 
 	// SET UP DURATION
 	len1Act = new KAction(i18n("Whole"), "note1", KAccel::stringToKey("Ctrl+1"),
@@ -366,204 +366,102 @@ void KGuitarPart::fileNew()
 // 	ed->show();
 }
 
-bool KGuitarPart::saveFile()   // KParts
+// Reimplemented method from KParts to current song to file m_file
+bool KGuitarPart::saveFile()
 {
-	bool ret = fileSave(m_file);
-	if (!ret)
-		setWinCaption(i18n("Unnamed"));
-	else cmdHist->clear();
-	return ret;
-}
+	QFileInfo *fi = new QFileInfo(m_file);
+	QString ext = fi->extension().lower();
 
-bool KGuitarPart::openFile()   // KParts
-{
-	bool ret = slotOpenFile(m_file);
-	if (!ret)
-		setWinCaption(i18n("Unnamed"));
-	else cmdHist->clear();
-	return ret;
-}
+	bool success = FALSE;
 
-bool KGuitarPart::slotOpenFile(QString fn)
-{
-	bool ret = FALSE;
-	if (!fn.isEmpty()) {
-		QFileInfo *fi = new QFileInfo(fn);
-
-		if (!fi->isFile()) {
-			KMessageBox::sorry(p, i18n("Please select a file."));
-			return FALSE;
-		}
-		if (!fi->isReadable()) {
-			KMessageBox::sorry(p, i18n("You have no permission to read this file."));
-			return FALSE;
-		}
-
-		QString ext = fi->extension();
-		ext = ext.upper();
-
-		if (ext == "KG") {
-			if (sv->sng()->load_from_kg(fn)) {
-				setWinCaption(fn);
-				sv->sng()->filename = fn;
-				sv->refreshView();
-				ret = TRUE;
-			} else {
-				KMessageBox::sorry(p, i18n("Can't load the song!"));
-				return FALSE;
-			}
-		}
-
-		if (ext == "TAB") {
-			if (sv->sng()->load_from_tab(fn)) {
-				sv->sng()->filename = "";
-				setWinCaption(i18n("Unnamed"));
-				ret = TRUE;
-			} else {
-				KMessageBox::sorry(p, i18n("Can't load the song!"));
-				return FALSE;
-			}
-		}
-
-#ifdef WITH_TSE3
-		if (ext == "MID") {
-			if (sv->sng()->load_from_mid(fn)) {
-				sv->sng()->filename = "";
-				setWinCaption(i18n("Unnamed"));
-				ret = TRUE;
-			} else {
-				KMessageBox::sorry(p, i18n("Can't load the song!"));
-				return FALSE;
-			}
-		}
-#endif
-
-		if (ext == "GTP") {
-			if (sv->sng()->load_from_gtp(fn)) {
-				sv->sng()->filename = "";
-				setWinCaption(i18n("Unnamed"));
-				sv->refreshView();
-				ret = TRUE;
-			} else {
-				KMessageBox::sorry(p, i18n("Error happened while reading Guitar Pro file.\n"
-							"Check if it is really a GTP file, and if it still\n"
-							"doesn't work, write an email to: greycat@users.sourceforge.net"));
-				return FALSE;
-			}
-		}
-
-		if (ext == "GP3") {
-			if (sv->sng()->load_from_gp3(fn)) {
-				sv->sng()->filename = "";
-				setWinCaption(i18n("Unnamed"));
-				sv->refreshView();
-				ret = TRUE;
-			} else {
-				KMessageBox::sorry(p, i18n("Error happened while reading Guitar Pro file.\n"
-							"Check if it is really a GP3 file, and if it still\n"
-							"doesn't work, write an email to: vignsyl@iit.edu\n"
-							"with the file if you can"));
-				return FALSE;
-			}
-		}
-
-		if (ext == "XML") {
-			if (sv->sng()->load_from_xml(fn)) {
-				setWinCaption(fn);
-				sv->sng()->filename = fn;
-				sv->refreshView();
-				ret = TRUE;
-			} else {
-				KMessageBox::sorry(p, i18n("Can't load the song!"));
-				return FALSE;
-			}
-		}
-	}
-	return ret;
-}
-
-bool KGuitarPart::fileSave(QString fn)
-{
-	bool ret = FALSE;
-
-	QFileInfo *fi = new QFileInfo(fn);
-	QString ext = fi->extension();
-	ext = ext.upper();
-
-	if (ext == "KG") {
+	if (ext == "kg") {
 		sv->tv->arrangeBars(); // GREYFIX !
-		if (sv->sng()->save_to_kg(fn)) {
-			sv->sng()->filename = fn;
-			setWinCaption(fn);
-			ret = TRUE;
-		} else {
-			KMessageBox::sorry(p, i18n("Can't save the song!"));
-			return FALSE;
-		}
+		success = sv->sng()->save_to_kg(m_file);
 	}
-	if (ext == "TAB") {
-		if (sv->sng()->save_to_tab(fn)) {
-			ret = TRUE;
-		} else {
-			KMessageBox::sorry(p, i18n("Can't export the song!"));
-			return FALSE;
-		}
-	}
+	if (ext == "tab")
+		success = sv->sng()->save_to_tab(m_file);
 #ifdef WITH_TSE3
-	if (ext == "MID") {
-		if (sv->sng()->save_to_mid(fn)) {
-			ret = TRUE;
-		} else {
-			KMessageBox::sorry(p, i18n("Can't export the song!"));
-			return FALSE;
-		}
-	}
-	if (ext == "TSE3") {
-		if (sv->sng()->save_to_tse3(fn)) {
-			ret = TRUE;
-		} else {
-			KMessageBox::sorry(p, i18n("Can't export the song!"));
-			return FALSE;
-		}
-	}
+	if (ext == "mid")
+		success = sv->sng()->save_to_mid(m_file);
+	if (ext == "tse3")
+		success = sv->sng()->save_to_tse3(m_file);
 #endif
-	if (ext == "GTP") {
-		if (sv->sng()->save_to_gtp(fn)) {
-			ret = TRUE;
-		} else {
-			KMessageBox::sorry(p, i18n("Can't export the song!"));
-			return FALSE;
-		}
-	}
-	if (ext == "GP3") {
-		if (sv->sng()->save_to_gp3(fn)) {
-			ret = TRUE;
-		} else {
-			KMessageBox::sorry(p, i18n("Can't export the song!"));
-			return FALSE;
-		}
-	}
-	if (ext == "TEX") {
+	if (ext == "gtp")
+		success = sv->sng()->save_to_gtp(m_file);
+	if (ext == "gp3")
+		success = sv->sng()->save_to_gp3(m_file);
+	if (ext == "tex") {
 		switch (globalTexExpMode) {
-		case 0: ret = sv->sng()->save_to_tex_tab(fn); break;
-		case 1: ret = sv->sng()->save_to_tex_notes(fn); break;
-		default: ret = FALSE; break;
-		}
-		if (!ret) {
-			KMessageBox::sorry(p, i18n("Can't export the song!"));
-			return FALSE;
+		case 0: success = sv->sng()->save_to_tex_tab(m_file); break;
+		case 1: success = sv->sng()->save_to_tex_notes(m_file); break;
+		default: success = FALSE; break;
 		}
 	}
-	if (ext == "XML") {
-		if (sv->sng()->save_to_xml(fn)) {
-			ret = TRUE;
-		} else {
-			KMessageBox::sorry(p, i18n("Can't export the song!"));
-			return FALSE;
-		}
+	if (ext == "XML")
+		success = sv->sng()->save_to_xml(m_file);
+
+	if (success) {
+		setWinCaption(m_file);
+		cmdHist->clear();
+	} else {
+		KMessageBox::sorry(p, i18n("Can't save song in %1 format").arg(ext));
+	}
+	
+	return success;
+}
+
+// Reimplemented method from KParts to open file m_file
+bool KGuitarPart::openFile()
+{
+// 	if (m_file.isEmpty()) {
+// 		KMessageBox::sorry(p, i18n("
+// 		return FALSE;
+// 	}
+
+	QFileInfo *fi = new QFileInfo(m_file);
+
+	if (!fi->isFile()) {
+		KMessageBox::sorry(p, i18n("No file specified, please select a file."));
+		return FALSE;
+	}
+	if (!fi->isReadable()) {
+		KMessageBox::sorry(p, i18n("You have no permission to read this file."));
+		return FALSE;
 	}
 
-	return ret;
+	bool success = FALSE;
+
+	QString ext = fi->extension();
+	ext = ext.lower();
+
+	if (ext == "kg")
+		success = sv->sng()->load_from_kg(m_file);
+	if (ext == "tab")
+		success = sv->sng()->load_from_tab(m_file);
+#ifdef WITH_TSE3
+	if (ext == "mid")
+		success = sv->sng()->load_from_mid(m_file);
+#endif
+	if (ext == "gtp")
+		success = sv->sng()->load_from_gtp(m_file);
+	if (ext == "gp3")
+		success = sv->sng()->load_from_gp3(m_file);
+	if (ext == "xml")
+		success = sv->sng()->load_from_xml(m_file);
+
+	if (success) {
+		setWinCaption(m_file);
+		sv->refreshView();
+		cmdHist->clear();
+	} else {
+		setWinCaption(i18n("Unnamed"));
+		KMessageBox::sorry(p, i18n("Can't load or import song!"
+								   "It may be a damaged/wrong file format or, "
+								   "if you're trying experimental importers "
+								   "it may be a flaw with the import code."));
+	}
+
+	return success;
 }
 
 void KGuitarPart::filePrint()
@@ -572,9 +470,8 @@ void KGuitarPart::filePrint()
 //  slotStatusMsg(i18n("Printing..."));
 
 	KPrinter printer(true, QPrinter::HighResolution);
-	if (printer.setup()) {
+	if (printer.setup())
 		sv->print(&printer);
-	}
 
 //  slotStatusMsg(i18n("Ready."));
 }
