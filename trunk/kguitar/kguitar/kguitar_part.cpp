@@ -146,7 +146,8 @@ KGuitarPart::KGuitarPart(QWidget *parentWidget,
 
 KGuitarPart::~KGuitarPart()
 {
-	kdDebug() << "KGuitarPart::~KGuitarPart()" << endl;
+	saveOptions();
+	delete cmdHist;
 }
 
 void KGuitarPart::setReadWrite(bool rw)
@@ -186,36 +187,36 @@ KAboutData *KGuitarPart::createAboutData()
 // Reimplemented method from KParts to open file m_file
 bool KGuitarPart::openFile()
 {
-	QFileInfo *fi = new QFileInfo(m_file);
+	QFileInfo fi(m_file);
 
-	if (!fi->isFile()) {
+	if (!fi.isFile()) {
 		KMessageBox::sorry(0, i18n("No file specified, please select a file."));
 		return FALSE;
 	}
-	if (!fi->isReadable()) {
+	if (!fi.isReadable()) {
 		KMessageBox::sorry(0, i18n("You have no permission to read this file."));
 		return FALSE;
 	}
 
 	bool success = FALSE;
 
-	QString ext = fi->extension();
+	QString ext = fi.extension();
 	ext = ext.lower();
 
 	if (ext == "kg")
-		success = sv->sng()->loadFromKg(m_file);
+		success = sv->song()->loadFromKg(m_file);
 	if (ext == "tab")
-		success = sv->sng()->loadFromTab(m_file);
+		success = sv->song()->loadFromTab(m_file);
 #ifdef WITH_TSE3
 	if (ext == "mid")
-		success = sv->sng()->loadFromMid(m_file);
+		success = sv->song()->loadFromMid(m_file);
 #endif
 	if (ext == "gtp")
-		success = sv->sng()->loadFromGtp(m_file);
+		success = sv->song()->loadFromGtp(m_file);
 	if (ext == "gp3")
-		success = sv->sng()->loadFromGp3(m_file);
+		success = sv->song()->loadFromGp3(m_file);
 	if (ext == "xml")
-		success = sv->sng()->loadFromXml(m_file);
+		success = sv->song()->loadFromXml(m_file);
 
 	if (success) {
 		sv->refreshView();
@@ -284,39 +285,39 @@ bool KGuitarPart::saveFile()
 
 	if (ext == "kg") {
 		sv->tv->arrangeBars(); // GREYFIX !
-		success = sv->sng()->saveToKg(m_file);
+		success = sv->song()->saveToKg(m_file);
 	}
 	if (ext == "tab") {
 		Settings::config->setGroup("ASCII");
 		if (exportOptionsDialog(ext)) {
-			success = sv->sng()->saveToTab(m_file);
+			success = sv->song()->saveToTab(m_file);
 		} else {
 			return FALSE;
 		}
 	}
 #ifdef WITH_TSE3
 	if (ext == "mid")
-		success = sv->sng()->saveToMid(m_file);
+		success = sv->song()->saveToMid(m_file);
 	if (ext == "tse3")
-		success = sv->sng()->saveToTse3(m_file);
+		success = sv->song()->saveToTse3(m_file);
 #endif
 	if (ext == "gtp")
-		success = sv->sng()->saveToGtp(m_file);
+		success = sv->song()->saveToGtp(m_file);
 	if (ext == "gp3")
-		success = sv->sng()->saveToGp3(m_file);
+		success = sv->song()->saveToGp3(m_file);
 	if (ext == "tex") {
 		Settings::config->setGroup("MusiXTeX");
 		if (exportOptionsDialog(ext)) {
 			switch (Settings::texExportMode()) {
-			case 0: success = sv->sng()->saveToTexTab(m_file); break;
-			case 1: success = sv->sng()->saveToTexNotes(m_file); break;
+			case 0: success = sv->song()->saveToTexTab(m_file); break;
+			case 1: success = sv->song()->saveToTexNotes(m_file); break;
 			}
 		} else {
 			return FALSE;
 		}
 	}
 	if (ext == "xml")
-		success = sv->sng()->saveToXml(m_file);
+		success = sv->song()->saveToXml(m_file);
 
 	if (success) {
 		setWinCaption(m_file);
@@ -492,9 +493,7 @@ void KGuitarPart::setWinCaption(const QString& caption)
 	emit setWindowCaption(caption);
 }
 
-
 //-------------------------------------------------------------------
-
 
 // KGuitarBrowserExtension::KGuitarBrowserExtension(KGuitarPart *parent)
 // 	: KParts::BrowserExtension(parent, "KGuitarBrowserExtension")
