@@ -3,7 +3,7 @@
  *
  * This file is part of KGuitar, a KDE tabulature editor
  *
- * copyright (C) 2002-2003 the KGuitar development team
+ * copyright (C) 2002-2004 the KGuitar development team
  *
  * Copyright of the MusicXML file format:
  * (C) Recordare LLC. All rights reserved. http://www.recordare.com
@@ -104,13 +104,15 @@ public:
 	MusicXMLWriter(TabSong *);
 	void write(QTextStream&);
 private:
+	void calcDivisions();
 	QString strAccid(Accidentals::Accid);
 	void writeBeams(QTextStream&, TabTrack *, int, int);
-	int writeCol(QTextStream&, TabTrack *, int, int);
+	int writeCol(QTextStream&, TabTrack *, int, int, bool);
 	void writePitch(QTextStream&, int, QString, QString);
 	void writeStaffDetails(QTextStream&, TabTrack *);
 	void writeTime(QTextStream&, int, int);
 	Accidentals accSt;			// accidental state
+	int divisions;				// divisions
 	TabSong * ts;				// pointer to calling tabsong
 	// following variables are used by writeCol only
 	int tEndPrev;				// end time of previous note
