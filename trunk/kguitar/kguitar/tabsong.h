@@ -34,6 +34,8 @@ public:
 	bool save_to_tab(QString fileName);
 	bool save_to_tex_tab(QString fileName);		// MusiXTeX/kgtabs.tex tabulatures
 	bool save_to_tex_notes(QString fileName);	// MusiXTeX notes
+	bool load_from_xml(QString fileName);		// MusicXML format
+	bool save_to_xml(QString fileName);
 
 private:
 	void writeCentered(QTextStream *s, QString l);
