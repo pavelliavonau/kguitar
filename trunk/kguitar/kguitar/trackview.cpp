@@ -82,6 +82,34 @@ void TrackView::setLength(int l)
     repaint();
 }
 
+void TrackView::linkPrev()
+{
+    curt->c[curt->x].flags ^= FLAG_ARC;
+    for (uint i=0;i<MAX_STRINGS;i++) {
+	curt->c[curt->x].a[i] = -1;
+	curt->c[curt->x].e[i] = 0;
+    }
+    update();
+}
+
+void TrackView::addHarmonic()
+{
+    curt->addFX(EFFECT_HARMONIC);
+    update();
+}
+
+void TrackView::addArtHarm()
+{
+    curt->addFX(EFFECT_ARTHARM);
+    update();
+}
+
+void TrackView::addLegato()
+{
+    curt->addFX(EFFECT_LEGATO);
+    update();
+}
+
 #define VERTSPACE 30
 #define VERTLINE 10
 #define HORDUR 4
@@ -315,16 +343,6 @@ void TrackView::timeSig()
     }
 }
 
-void TrackView::linkPrev()
-{
-    curt->c[curt->x].flags ^= FLAG_ARC;
-    for (uint i=0;i<MAX_STRINGS;i++) {
-	curt->c[curt->x].a[i] = -1;
-	curt->c[curt->x].e[i] = 0;
-    }
-    update();
-}
-
 void TrackView::keyPressEvent(QKeyEvent *e)
 {
     int num = e->ascii();
@@ -422,13 +440,13 @@ void TrackView::keyPressEvent(QKeyEvent *e)
 	curt->c[curt->x].a[curt->y]=DEAD_NOTE;
 	break;
     case Key_H:
-	curt->addFX(EFFECT_HARMONIC);
+	addHarmonic();
 	break;
     case Key_R:
-	curt->addFX(EFFECT_ARTHARM);
+	addArtHarm();
 	break;
     case Key_P:
-	curt->addFX(EFFECT_LEGATO);
+	addLegato();
 	break;
     case Key_Delete:
 	if (e->state()==ControlButton) {
@@ -464,8 +482,7 @@ void TrackView::keyPressEvent(QKeyEvent *e)
 	break;	    
     case Key_L:
 	linkPrev();
-	e->accept();
-	return;
+	break;
     default:
 	e->ignore();
 	return;
