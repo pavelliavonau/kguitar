@@ -83,7 +83,7 @@ void TrackView::selectTrack(TabTrack *trk)
 {
 	setCurt(trk);
 	updateRows();
-	update();
+	repaintContents();
 }
 
 void TrackView::selectBar(uint n)
@@ -609,7 +609,7 @@ void TrackView::keyLeft()
 {
 	if (curt->sel) {
 		curt->sel = FALSE;
-		repaint();
+		repaintContents();
 	} else {
 		moveLeft();
 	}
@@ -619,7 +619,7 @@ void TrackView::keyRight()
 {
 	if (curt->sel) {
 		curt->sel = FALSE;
-		repaint();
+		repaintContents();
 	} else {
 		moveRight();
 	}
@@ -791,7 +791,7 @@ void TrackView::arrangeTracks()
 	curt->arrangeBars();
 	emit statusBarChanged();
 	updateRows();
-	update();
+	repaintContents();
 
 	emit paneChanged();
 }
@@ -894,7 +894,7 @@ void TrackView::mousePressEvent(QMouseEvent *e)
 		}
 
 		if (found)
-			repaint();
+			repaintContents();
 	}
 }
 
