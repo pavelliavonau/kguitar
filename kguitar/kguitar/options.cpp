@@ -170,10 +170,10 @@ void Options::setupPrintingTab()
 
 	prstygr = new QButtonGroup(i18n("Style"), prn);
 	prstygr->setMinimumSize(150, 110);
-	prsty[0] = new QRadioButton(i18n("tab"), prstygr);
-	prsty[1] = new QRadioButton(i18n("(not implemented) notes"), prstygr);
-	prsty[2] = new QRadioButton(i18n("(not implemented) notes + tab"), prstygr);
-	prsty[3] = new QRadioButton(i18n("(not implemented) notes + min tab"), prstygr);
+	prsty[0] = new QRadioButton(i18n("Tabulature"), prstygr);
+	prsty[1] = new QRadioButton(i18n("Notes"), prstygr);
+	prsty[2] = new QRadioButton(i18n("Tabulature (full) and notes"), prstygr);
+	prsty[3] = new QRadioButton(i18n("Tabulature (minimum) and notes (not implemented)"), prstygr);
 
 	QVBoxLayout *vb1 = new QVBoxLayout(prstygr, 15, 10);
 	vb1->addSpacing(5); // Cosmetic space
@@ -190,6 +190,8 @@ void Options::fillMidiBox()
 {
 #ifdef WITH_TSE3
 	std::vector<int> portNums;
+	if (!sch)
+		return;
 	sch->portNumbers(portNums);
 
 	midiport->clear();
