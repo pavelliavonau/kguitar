@@ -240,11 +240,11 @@ void TrackView::insertChord()
 // Call rhythm construction dialog and may be parse something from it
 void TrackView::rhythmer()
 {
-	Rhythmer r(
 #ifdef WITH_TSE3
-			   scheduler
+	Rhythmer r(scheduler);
+#else
+	Rhythmer r;
 #endif
-			   );
 
 	if (r.exec())
 		cmdHist->addCommand(new InsertRhythm(this, curt, r.quantized));
