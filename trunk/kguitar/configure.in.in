@@ -1,1 +1,285 @@
 #MIN_CONFIG
+
+#--------------------------------------------------------------
+# KGuitar configure script
+#--------------------------------------------------------------
+# (Everything above this one is standard KDE stuff)
+#
+# TSE3 configuration stuff is is based on Anthem and Noteedit
+# configure scripts, edited to suit KGuitar by alinx.
+#
+# Minor changes for formatting and porting to KDE3 by GreyCat
+#--------------------------------------------------------------
+
+# Required TSE3 library version
+REQUIREDTSEVERSIONNO=0.2.3
+
+stdlibdirs="/lib /usr/lib /usr/local/lib"
+stdincdirs="/usr/include /usr/local/include"
+
+dnl ---------------------------------------------------------------------------
+dnl FIND_PACKAGE(<name>, <libname>, <includename>, <libdirs>, <incldirs>)
+
+AC_DEFUN(FIND_PACKAGE,[
+    AC_MSG_CHECKING("for $1 library")
+	for dir in $4
+	do
+		if test -e $dir/lib$2.so; then
+			lib_$1=$dir
+			break
+		fi
+	done
+    if test $lib_$1; then
+      AC_MSG_RESULT("yes \($lib_$1\)")
+    else
+      AC_MSG_RESULT(no)
+    fi
+
+    AC_MSG_CHECKING("for $1 includes")
+	for dir in $5
+	do
+		if test -f $dir/$3; then
+			inc_$1=$dir
+			break
+		fi
+	done
+    if test $inc_$1; then
+      AC_MSG_RESULT("yes \($inc_$1\)")
+    else
+      AC_MSG_RESULT(no)
+    fi
+])
+
+dnl ---------------------------------------------------------------------------
+dnl AC_NEW_ARG(<arg-name>)
+
+AC_DEFUN(AC_NEW_ARG,[
+	AC_ARG_WITH($1-includes, [  --with-$1-includes=DIR   $1 headers in DIR])
+	AC_ARG_WITH($1-libraries,[  --with-$1-libraries=DIR  $1 libraries in DIR])
+	AC_ARG_WITH($1-dir,      [  --with-$1-dir=DIR        $1 uninstalled in DIR])
+])
+
+dnl ---------------------------------------------------------------------------
+dnl TSE_VERSION(versionno)
+
+AC_DEFUN(TSE_VERSION,[
+    AC_MSG_CHECKING("for TSE3 library version $REQUIREDTSEVERSIONNO")
+    AC_LANG_SAVE
+    AC_LANG_CPLUSPLUS
+    cat >tse3vtest.cpp << EOF
+#include <iostream>
+#include <string>
+#include <tse3/TSE3.h>
+int main() {
+    std::string version = TSE3::TSE3_Version();
+    std::cout << version;
+    return version.compare("$REQUIREDTSEVERSIONNO") < 0;
+}
+EOF
+    $CXX $CXXFLAGS -I$inc_libtse3 -L$lib_libtse3 tse3vtest.cpp -Wl,-rpath $lib_libtse3 -ltse3 -o tse3vtest
+    if test $? -ne 0; then
+      echo "*****************************************************"
+      echo "    Couldn't build a simple TSE3 example program."
+      echo "    Have you correctly installed the TSE library?"
+      echo ""
+      echo "     You will not have MIDI Support in KGuitar"
+      echo "*****************************************************"
+      libtse3found="no"
+    else
+      TSEVERSIONNO=`./tse3vtest`
+      TSE3VERSION_OK=$?
+      if test $TSE3VERSION_OK -ne 0; then
+        AC_MSG_RESULT("no \(found version $TSEVERSIONNO\)")
+      else
+        AC_MSG_RESULT("yes \(found version $TSEVERSIONNO\)")
+      fi
+      AC_LANG_RESTORE
+      rm -f tse3vtest tse3vtest.cpp
+      if test $TSE3VERSION_OK -ne 0; then
+        echo ""
+        echo ""
+        echo "*******************************************************"
+        echo "  You do not have a correct version of TSE3."
+        echo "  TSE3 $TSEVERSIONNO found but this version" 
+        echo "  of \"KGuitar\" needs >= TSE3-$REQUIREDTSEVERSIONNO"
+        echo ""
+        echo "  See http://TSE3.sourceforge.net for downloading newer"
+        echo "  versions of TSE3"
+        echo ""
+        echo "  You will not have MIDI Support in KGuitar"
+        echo "*******************************************************"
+        echo ""
+        libtse3found="no"
+      else
+        libtse3found="yes"
+      fi
+    fi
+])
+
+# -----------------------------------------------------------------------------
+# Searching for the TSE3 library
+#------------------------------------------------------------------------------
+
+libtse3found="yes"
+
+#
+#Add extra args.
+#
+AC_NEW_ARG(tse3)
+AC_ARG_ENABLE(midisupport, [  --disable-midisupport      Disable MIDI Support if TSE3 is found],
+      USE_MIDISUPPORT=$enableval, USE_MIDISUPPORT=yes)
+AC_ARG_WITH(alt-qtsmanip,[  --with-alt-qtsmanip        If you get conflicts with QTSManip])
+
+
+if test "X$USE_EXCEPTIONS" = "X"
+then
+	echo ""
+	echo "########################################################"
+	echo "# Your compiler does not support \"-fexceptions\" option #"
+	echo "# This will probably cause problems during compilation #"
+	echo "# of \"songview.cpp\" file.                              #"
+	echo "########################################################"
+	echo ""
+fi
+
+
+#
+#Search TeTeX
+#
+AC_PATH_PROG(TETEX, kpsetool, no)
+TETEXDIR=$datadir
+
+if test "$TETEX" = no
+then
+	AC_MSG_WARN(*** No TeTeX found! kgtabs.tex will not be installed. ***)
+    AC_MSG_WARN(*** You can install it later with \"install-kgtabs.sh\" ***)
+else
+    AC_MSG_CHECKING(for TeTeX directory)
+    TEXMF="`kpsetool -v '$TEXMF' | sed 's/!//g'`"
+    AC_MSG_RESULT(found in $TEXMF)
+    INSTALLKGTABS="install-kgtabs"
+    UNINSTALLKGTABS="uninstall-kgtabs"
+fi
+
+INSTALL_KGTABS="install-kgtabs"
+UNINSTALL_KGTABS="uninstall-kgtabs"
+
+
+#
+#Search TSE3
+#
+if test "X$with_tse3_includes" = "X"; then
+  with_tse3_includes=$stdincdirs
+fi
+if test "X$with_tse3_libraries" = "X"; then
+  with_tse3_libraries=$stdlibdirs
+fi
+if test "X$with_tse3_dir" != "X"; then
+  echo "*** using uninstalled TSE3 directory specified,"
+  echo "*** libraries must be symlinked from libs"
+  echo "*** you can do this be entering the root TSE3 directory"
+  echo "*** and typing make tse3-lib-local"
+  with_tse3_libraries="$with_tse3_dir/lib"
+  with_tse3_includes="$with_tse3_dir/src"
+fi
+
+FIND_PACKAGE(libtse3, tse3, tse3/TSE3.h, $with_tse3_libraries, $with_tse3_includes)
+if test "X$lib_libtse3" = "X" -o "X$inc_libtse3" = "X"
+	then
+        echo ""
+	echo "   *************************************************"
+	echo "   *                TSE3 not found!                *"
+        echo "   *                                               *"
+        echo "   *   You will not have MIDI Support in KGuitar!  *" 
+        echo "   *                                               *"
+        echo "   * Download TSE3 at: http://tse3.sourceforge.net *"
+        echo "   *               ------------------              *"
+	echo "   *  If you have installed libtse3 in an unusual  *"
+        echo "   *   directory use \"--with-libtse3-include=\"     *"
+	echo "   *          and/or \"--with-libtse3-libs=\"        *"
+	echo "   *************************************************"
+	echo ""
+	libtse3found="no"
+    else
+        libtse3found="yes"
+	fi
+
+#
+# TSE3 found, now test the version
+#
+if test "$libtse3found" = "yes"
+then
+    TSE_VERSION()
+fi
+
+#
+# TSE3 found; test if user disabled MIDI Support
+#
+if test "$libtse3found" = "yes"
+then
+    if test "$USE_MIDISUPPORT" = "no"
+    then
+        echo ""
+        echo "   **************************************************"
+        echo "   *                                                *"
+        echo "   *           KGuitar WITHOUT MIDI Support         *"
+        echo "   *                                                *"
+        echo "   * Correct version of TSE3 found. So MIDI Support *"
+        echo "   *   will be possible if you rerun ./configure    *"
+        echo "   *                                                *"
+        echo "   **************************************************"
+        echo ""
+        libtse3found="no"
+    fi
+fi
+
+if test "$libtse3found" = "yes"
+then
+    AC_DEFINE(WITH_TSE3, 1, [Define if libtse3 is found])
+    AC_DEFINE(HAVE_MIDI, 1, [Define if MIDI support is required (via libtse3)])
+    TSE3INCLUDE="-I$inc_libtse3"
+    TSE3LIBS="-L$lib_libtse3"
+    LIBTSE3="-ltse3"
+    if test "$with_alt_qtsmanip" = "yes"
+    then
+        echo ""
+        echo "   *************************************************"
+        echo "   *                                               *"
+        echo "   *           KGuitar with MIDI Support           *"
+        echo "   *                                               *"
+        echo "   *************************************************"
+        echo ""
+        CXXFLAGS="$CXXFLAGS -DQT_ALTERNATE_QTSMANIP"
+    else
+        echo ""
+        echo "   *************************************************"
+        echo "   *                                               *"
+        echo "   *           KGuitar with MIDI Support           *"
+        echo "   *                                               *"
+        echo "   *                                               *"
+        echo "   *  -------------------------------------------  *"
+        echo "   *  If you get conflicts while building KGuitar  *"
+        echo "   *        with \"QTSManip ...\" please try:        *"
+        echo "   *                                               *"
+        echo "   *        ./configure --with-alt-qtsmanip        *"
+        echo "   *                                               *"
+        echo "   *************************************************"
+        echo ""
+    fi
+fi
+
+
+AC_SUBST(TSE3INCLUDE)
+AC_SUBST(TSE3LIBS)
+AC_SUBST(LIBTSE3)
+AC_SUBST(TEXMF)
+AC_SUBST(INSTALLKGTABS)
+AC_SUBST(INSTALL_KGTABS)
+AC_SUBST(UNINSTALLKGTABS)
+AC_SUBST(UNINSTALL_KGTABS)
+
+#--------------------------------------------------------------
+# KGuitar configure script finished
+#--------------------------------------------------------------
+# (Everything below this one is standard KDE stuff)
+#--------------------------------------------------------------
