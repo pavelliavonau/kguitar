@@ -18,12 +18,14 @@
 #ifndef TRACKPRINT_H
 #define TRACKPRINT_H
 
+class KgFontMap;
 class TabTrack;
 
 class TrackPrint
 {
 public:
 	TrackPrint();
+	~TrackPrint();
 	int barExpWidth(int bn, TabTrack *trk);
 	int barWidth(int bn, TabTrack *trk);
 	int colWidth(int cl, TabTrack *trk);
@@ -96,8 +98,10 @@ private:
 	// Variables describing printing style
 	bool stNts;					// print notes
 	bool stTab;					// print tab
-	// print mode: on screen or on paper
+	// Print mode: on screen or on paper
 	bool onScreen;
+	// Font map
+	KgFontMap *fmp;
 };
 
 #endif
