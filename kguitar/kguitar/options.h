@@ -11,6 +11,9 @@ class QListView;
 class QListBox;
 class QSlider;
 
+class OptionsMusicTheory;
+class OptionsMelodyEditor;
+
 #ifdef WITH_TSE3
 #include <tse3/MidiScheduler.h>
 #endif
@@ -25,12 +28,14 @@ public:
 			QWidget *parent = 0, char *name = 0,//##
 			bool modal = TRUE);
 
-    QButtonGroup *maj7gr,*flatgr, *texlygr, *texsizegr, *texexpgr, *prstygr;
-    QRadioButton *maj7[3],*flat[2], *tabsize[4], *expmode[2], *prsty[4];
+    QButtonGroup *texLyGroup, *texSizeGroup, *texExpGroup, *prStyGroup;
+    QRadioButton *tabsize[4], *expmode[2], *prsty[4];
     QCheckBox *showbarnumb, *showstr, *showpagenumb;
 
+	OptionsMusicTheory *mt;
+	OptionsMelodyEditor *me;
+
 protected:
-	void setupTheoryTab();
 	void setupMusixtexTab();
 	void setupMidiTab();
 	void setupPrintingTab();

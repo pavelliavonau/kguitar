@@ -1,6 +1,9 @@
 #include "options.h"
 #include "globaloptions.h"
 
+#include "optionsmusictheory.h"
+#include "optionsmelodyeditor.h"
+
 #include <klocale.h>
 #include <kiconloader.h>
 #include <kiconeffect.h>
@@ -24,8 +27,15 @@ Options::Options(
 	: KDialogBase(IconList, i18n("Preferences"), Help|Default|Ok|Apply|Cancel,
 				  Ok, parent, name, modal, TRUE)
 {
+	resize(530, 300);
+
+	QFrame *mtPage = addPage(i18n("Music Theory"), 0,
+							 DesktopIcon("lookandfeel", KIcon::SizeMedium));
+	QVBoxLayout *mtLayout = new QVBoxLayout(mtPage);
+	mt = new OptionsMusicTheory();
+	mtLayout->addWidget(mt);
+
 	// Setup Tabs
-	setupTheoryTab();
 	setupMusixtexTab();
 
 #ifdef WITH_TSE3
@@ -35,49 +45,20 @@ Options::Options(
 
 	setupPrintingTab();
 
-	resize(530, 300);
+	me = new OptionsMelodyEditor(addPage(i18n("Melody Editor"), 0,
+										 DesktopIcon("melodyeditor", KIcon::SizeMedium)));
+
+	texSizeGroup->setButton(globalTabSize);
+	showbarnumb->setChecked(globalShowBarNumb);
+	showstr->setChecked(globalShowStr);
+	showpagenumb->setChecked(globalShowPageNumb);
+	texExpGroup->setButton(globalTexExpMode);
+
+	prStyGroup->setButton(globalPrSty);
+
 	connect(this, SIGNAL(defaultClicked()), SLOT(defaultBtnClicked()));
 	connect(this, SIGNAL(okClicked()), SLOT(applyBtnClicked()));
 	connect(this, SIGNAL(applyClicked()), SLOT(applyBtnClicked()));
-}
-
-void Options::setupTheoryTab()
-{
-	// ALINXFIX: find or make a better icon for this page !!!
-	QFrame *cd = addPage(i18n("Music Theory"), 0,
-						 DesktopIcon("looknfeel", KIcon::SizeMedium));
-
-    // Dominant 7th name selection group
-
-	maj7gr = new QButtonGroup(i18n("Dominant 7th"), cd);
-	maj7gr->setMinimumSize(150, 110);
-	maj7[0] = new QRadioButton("7M", maj7gr);
-	maj7[1] = new QRadioButton("maj7", maj7gr);
-	maj7[2] = new QRadioButton("dom7", maj7gr);
-
-	QVBoxLayout *vb1 = new QVBoxLayout(maj7gr, 15, 10);
-	vb1->addSpacing(5); // Cosmetic space
-	for (int i = 0; i < 3; i++)
-		vb1->addWidget(maj7[i]);
-	vb1->activate();
-
-    // Chord step alterations selection group
-
-	flatgr = new QButtonGroup(i18n("Alterations"), cd);
-	flatgr->setMinimumSize(150, 110);
-	flat[0] = new QRadioButton(i18n("-/+ symbols"), flatgr);
-	flat[1] = new QRadioButton(i18n("b/# symbols"), flatgr);
-
-	QVBoxLayout *vb2 = new QVBoxLayout(flatgr, 15, 10);
-	vb2->addSpacing(5); // Cosmetic space
-	vb2->addWidget(flat[0]);
-	vb2->addWidget(flat[1]);
-	vb2->activate();
-
-	QHBoxLayout *vbcd = new QHBoxLayout(cd, 15, 10);
-	vbcd->addWidget(maj7gr);
-	vbcd->addWidget(flatgr);
-	vbcd->activate();
 }
 
 void Options::setupMusixtexTab()
@@ -85,50 +66,50 @@ void Options::setupMusixtexTab()
 	QFrame *tex = addPage(i18n("MusiXTeX Export"), 0,
 						  DesktopIcon("musixtex", KIcon::SizeMedium));
 
-	texlygr = new QButtonGroup(i18n("MusiXTeX Layout"), tex);
-	texlygr->setMinimumSize(175, 75);
-	showbarnumb = new QCheckBox(i18n("Show Barnumber"), texlygr);
+	texLyGroup = new QButtonGroup(i18n("MusiXTeX Layout"), tex);
+	texLyGroup->setMinimumSize(175, 75);
+	showbarnumb = new QCheckBox(i18n("Show Bar Number"), texLyGroup);
 	showbarnumb->setGeometry(10, 35, 150, 20);
-	showstr = new QCheckBox(i18n("Show Tuning"), texlygr);
+	showstr = new QCheckBox(i18n("Show Tuning"), texLyGroup);
 	showstr->setGeometry(10, 60, 150, 20);
-	showpagenumb = new QCheckBox(i18n("Show Pagenumber"), texlygr);
+	showpagenumb = new QCheckBox(i18n("Show Page Number"), texLyGroup);
 	showpagenumb->setGeometry(10, 85, 150, 20);
 
-	QVBoxLayout *texvb1 = new QVBoxLayout(texlygr, 15, 10);
+	QVBoxLayout *texvb1 = new QVBoxLayout(texLyGroup, 15, 10);
 	texvb1->addSpacing(5);
 	texvb1->addWidget(showbarnumb);
 	texvb1->addWidget(showstr);
 	texvb1->addWidget(showpagenumb);
 	texvb1->activate();
 
-	texexpgr = new QButtonGroup(i18n("Export as..."), tex);
-	texexpgr->setMinimumSize(175, 75);
-	expmode[0] = new QRadioButton(i18n("Tabulature"), texexpgr);
-	expmode[1] = new QRadioButton(i18n("Notes"), texexpgr);
+	texExpGroup = new QButtonGroup(i18n("Export as..."), tex);
+	texExpGroup->setMinimumSize(175, 75);
+	expmode[0] = new QRadioButton(i18n("Tabulature"), texExpGroup);
+	expmode[1] = new QRadioButton(i18n("Notes"), texExpGroup);
 
-	QVBoxLayout *texvb2 = new QVBoxLayout(texexpgr, 15, 10);
+	QVBoxLayout *texvb2 = new QVBoxLayout(texExpGroup, 15, 10);
     texvb2->addSpacing(5); // Cosmetic space
 	texvb2->addWidget(expmode[0]);
 	texvb2->addWidget(expmode[1]);
 	texvb2->activate();
 
-	texsizegr = new QButtonGroup(i18n("Tab Size"), tex);
-	texsizegr->setMinimumSize(175, 130);
-	tabsize[0] = new QRadioButton(i18n("Smallest"), texsizegr);
-	tabsize[1] = new QRadioButton(i18n("Small"), texsizegr);
-	tabsize[2] = new QRadioButton(i18n("Normal"), texsizegr);
-	tabsize[3] = new QRadioButton(i18n("Big"), texsizegr);
+	texSizeGroup = new QButtonGroup(i18n("Tab Size"), tex);
+	texSizeGroup->setMinimumSize(175, 130);
+	tabsize[0] = new QRadioButton(i18n("Smallest"), texSizeGroup);
+	tabsize[1] = new QRadioButton(i18n("Small"), texSizeGroup);
+	tabsize[2] = new QRadioButton(i18n("Normal"), texSizeGroup);
+	tabsize[3] = new QRadioButton(i18n("Big"), texSizeGroup);
 
-    QVBoxLayout *texvb3 = new QVBoxLayout(texsizegr, 15, 10);
+    QVBoxLayout *texvb3 = new QVBoxLayout(texSizeGroup, 15, 10);
     texvb3->addSpacing(5); // Cosmetic space
     for (int i = 0; i < 4; i++)
 	    texvb3->addWidget(tabsize[i]);
     texvb3->activate();
 
 	QHBoxLayout *vbtex = new QHBoxLayout(tex, 15, 10);
-	vbtex->addWidget(texlygr);
-	vbtex->addWidget(texsizegr);
-	vbtex->addWidget(texexpgr);
+	vbtex->addWidget(texLyGroup);
+	vbtex->addWidget(texSizeGroup);
+	vbtex->addWidget(texExpGroup);
 	vbtex->activate();
 }
 
@@ -168,21 +149,21 @@ void Options::setupPrintingTab()
 
     // Printing style group
 
-	prstygr = new QButtonGroup(i18n("Style"), prn);
-	prstygr->setMinimumSize(150, 110);
-	prsty[0] = new QRadioButton(i18n("Tabulature"), prstygr);
-	prsty[1] = new QRadioButton(i18n("Notes"), prstygr);
-	prsty[2] = new QRadioButton(i18n("Tabulature (full) and notes"), prstygr);
-	prsty[3] = new QRadioButton(i18n("Tabulature (minimum) and notes (not implemented)"), prstygr);
+	prStyGroup = new QButtonGroup(i18n("Style"), prn);
+	prStyGroup->setMinimumSize(150, 110);
+	prsty[0] = new QRadioButton(i18n("Tabulature"), prStyGroup);
+	prsty[1] = new QRadioButton(i18n("Notes"), prStyGroup);
+	prsty[2] = new QRadioButton(i18n("Tabulature (full) and notes"), prStyGroup);
+	prsty[3] = new QRadioButton(i18n("Tabulature (minimum) and notes (not implemented)"), prStyGroup);
 
-	QVBoxLayout *vb1 = new QVBoxLayout(prstygr, 15, 10);
+	QVBoxLayout *vb1 = new QVBoxLayout(prStyGroup, 15, 10);
 	vb1->addSpacing(5); // Cosmetic space
 	for (int i = 0; i < 4; i++)
 		vb1->addWidget(prsty[i]);
 	vb1->activate();
 
 	QHBoxLayout *vbcd = new QHBoxLayout(prn, 15, 10);
-	vbcd->addWidget(prstygr);
+	vbcd->addWidget(prStyGroup);
 	vbcd->activate();
 }
 
@@ -209,15 +190,9 @@ void Options::fillMidiBox()
 #endif
 }
 
+// Saves options back from dialog to memory
 void Options::applyBtnClicked()
 {
-	if (maj7[0]->isChecked())  globalMaj7 = 0;
-	if (maj7[1]->isChecked())  globalMaj7 = 1;
-	if (maj7[2]->isChecked())  globalMaj7 = 2;
-
-	if (flat[0]->isChecked())  globalFlatPlus = 0;
-	if (flat[1]->isChecked())  globalFlatPlus = 1;
-
 	for (int i = 0; i <= 3; i++)
 		if (tabsize[i]->isChecked())  globalTabSize = i;
 
@@ -237,18 +212,21 @@ void Options::applyBtnClicked()
 	if (prsty[1]->isChecked())  globalPrSty = 1;
 	if (prsty[2]->isChecked())  globalPrSty = 2;
 	if (prsty[3]->isChecked())  globalPrSty = 3;
+
+	mt->applyBtnClicked();
+	me->applyBtnClicked();
 }
 
 void Options::defaultBtnClicked()
 {
-	maj7gr->setButton(0);
-	flatgr->setButton(0);
-
-	texsizegr->setButton(2);
+	texSizeGroup->setButton(2);
 	showbarnumb->setChecked(TRUE);
 	showstr->setChecked(TRUE);
 	showpagenumb->setChecked(TRUE);
-	texexpgr->setButton(0);
+	texExpGroup->setButton(0);
 
-	prstygr->setButton(0);
+	prStyGroup->setButton(0);
+
+	mt->defaultBtnClicked();
+	me->defaultBtnClicked();
 }
