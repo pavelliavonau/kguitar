@@ -7,6 +7,7 @@
 #include "settrack.h"
 #include "settabfret.h"
 #include "options.h"
+#include "filebrowser.h"
 
 #include <qpopupmenu.h>
 
@@ -115,6 +116,9 @@ ApplicationWindow::ApplicationWindow(): KTMainWindow()
 		recMenu->insertItem(recentFiles.at(i));
 
 	p->insertSeparator();
+	p->insertItem(i18n("Browser..."), this, SLOT(openBrowser()));
+	p->insertSeparator();
+
 	p->insertItem(i18n("&Save"), this, SLOT(save()));
 	p->insertItem(i18n("S&ave as..."), this, SLOT(saveAs()));
 
@@ -258,7 +262,7 @@ void ApplicationWindow::load()
 	if (!fn.isEmpty()) {
 		if (tv->sng()->load_from_kg(fn)) {
 			QString tmp = PACKAGE;
-			tmp += " <" + fn + ">";
+			tmp =  fn + " - " + tmp;
 			setCaption(tmp);
 			tv->setCurt(tv->sng()->t.first());
 			tv->sng()->t.first()->x = 0;
@@ -277,7 +281,7 @@ void ApplicationWindow::recentLoad(int _id)
 	if (!fn.isEmpty()) {
 		if (tv->sng()->load_from_kg(fn)) {
 			QString tmp = PACKAGE;
-			tmp += " <" + fn + ">";
+			tmp =  fn + " - " + tmp;
 			setCaption(tmp);
 			tv->setCurt(tv->sng()->t.first());
 			tv->sng()->t.first()->x = 0;
@@ -291,6 +295,8 @@ void ApplicationWindow::recentLoad(int _id)
 			recMenu->clear();
 			for (int i = 0 ; i < (int) recentFiles.count(); i++)
 				recMenu->insertItem(recentFiles.at(i));
+			KMsgBox::message(this, "KGuitar",
+							 i18n("Can't load the song!"));
 		}
 	}
 }
@@ -311,6 +317,13 @@ void ApplicationWindow::addRecentFile(QString fn)
 	}
 }
 
+void ApplicationWindow::openBrowser()
+{
+	FileBrowser *fb = new FileBrowser(this);
+	fb->show();
+	delete fb;
+}
+
 void ApplicationWindow::save()
 {
 	QString fn = tv->sng()->filename;
@@ -323,7 +336,7 @@ void ApplicationWindow::save()
 		tv->sng()->save_to_kg(fn);
 		tv->sng()->filename = fn;
 		QString tmp = PACKAGE;
-		tmp += " <" + fn + ">";
+		tmp =  fn + " - " + tmp;
 		setCaption(tmp);
 		addRecentFile(fn);
 	}
@@ -336,7 +349,7 @@ void ApplicationWindow::saveAs()
 		tv->sng()->save_to_kg(fn);
 		tv->sng()->filename = fn;
 		QString tmp = PACKAGE;
-		tmp += " <" + fn + ">";
+		tmp =  fn + " - " + tmp;
 		setCaption(tmp);
 		addRecentFile(fn);
 	}

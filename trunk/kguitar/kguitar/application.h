@@ -18,11 +18,14 @@ class ApplicationWindow: public KTMainWindow
 public:
     ApplicationWindow();
     ~ApplicationWindow();
+    TrackView *tv;                    //ALINX: I need it public for file browser
+    void addRecentFile(QString fn);   //ALINX: I need it public for file browser
 
 private slots:
     void newDoc();
     void load();
     void recentLoad(int _id);
+    void openBrowser();
     void save();
     void saveAs();
 	void importMID();
@@ -58,11 +61,11 @@ private slots:
 private:
     void updateMenu();
     void updateTbMenu();
-    void addRecentFile(QString fn);
+//    void addRecentFile(QString fn);   //ALINX: set disabled because I need it public for file browser
     bool jazzWarning();
 
     QPrinter *printer;
-    TrackView *tv;
+//    TrackView *tv;      //ALINX: set disabled because I need it public for file browser
     KToolBar *fileTools;
     QPopupMenu *nnMenu, *tbMenu, *recMenu;
     int ni[9], tb[2];
