@@ -7,8 +7,8 @@
 
 TabSong::TabSong(QString _title, int _tempo)
 {
-	tempo=_tempo;
-	title=_title;
+	tempo = _tempo;
+	title = _title;
 	t.setAutoDelete(TRUE);
 };
 
@@ -17,13 +17,13 @@ TabSong::TabSong(QString _title, int _tempo)
 // Dot + undotted length -> full length
 Q_UINT16 TabSong::dot2len(int len, bool dot)
 {
-	return (Q_UINT16) (dot ? len+len/2 : len );
+	return (Q_UINT16) (dot ? len + len / 2 : len );
 }
 
 // Normal durations
-int nordur[6] = {480,240,120,60,30,15};
+int nordur[6] = {480, 240, 120, 60, 30, 15};
 // Dotted durations
-int dotdur[6] = {720,360,180,90,45,23};
+int dotdur[6] = {720, 360, 180, 90, 45, 23};
 
 // Full length -> dot + undotted length
 void TabSong::len2dot(int l, int *len, bool *dot)
@@ -93,7 +93,7 @@ bool TabSong::load_from_kg(QString fileName)
 	
 	// HEADER SIGNATURE
 	char hdr[4];
-	s.readRawBytes(hdr,3); // should be KG\0 header
+	s.readRawBytes(hdr, 3); // should be KG\0 header
 	if (!((hdr[0]=='K') && (hdr[1]=='G') && (hdr[2]==0)))
 		return FALSE;
 	
@@ -541,244 +541,246 @@ bool TabSong::save_to_tab(QString fileName)
 
 QString TabSong::tab(bool chord, int string, int fret)
 {
-  QString tmp, st, fr;
+	QString tmp, st, fr;
   
-  st.setNum(string);
-  fr.setNum(fret);
-  
-  if (chord==TRUE){
-    tmp="\\chotab";
-  } else tmp="\\tab";
-  tmp += st;
-  tmp += "{";
-  tmp += fr;
-  tmp += "}";
+	st.setNum(string);
+	fr.setNum(fret);
+	
+	if (chord==TRUE)
+		tmp="\\chotab";
+	else
+		tmp="\\tab";
 
-  return tmp;
+	tmp += st;
+	tmp += "{";
+	tmp += fr;
+	tmp += "}";
+	
+	return tmp;
 }
 
 bool TabSong::save_to_tex(QString fileName)
 {
-  QFile f(fileName);
+	QFile f(fileName);
     if (!f.open(IO_WriteOnly))
 		return FALSE;
 
-  QTextStream s(&f);
+	QTextStream s(&f);
+	
+	QString nn[MAX_STRINGS];
+	QString tmp;
+	bool flatnote;
 
-  QString nn[MAX_STRINGS];
-  QString tmp;
-  bool flatnote;
-
-  QString bar, notes, tsize, showstr;  
+	QString bar, notes, tsize, showstr;  
  
-  bar = "\\bar";
-  bar += "\n";
-  notes = "\\Notes";
-  showstr = "\\showstrings";
+	bar = "\\bar";
+	bar += "\n";
+	notes = "\\Notes";
+	showstr = "\\showstrings";
   
-  switch (global_tabsize){
-     case 0: tsize = "\\smalltabsize";
-             break;
-     case 1: tsize = "\\normaltabsize";
-             break;
-     case 2: tsize = "\\largetabsize";
-             break;
-     case 3: tsize = "\\Largetabsize";
-             break;
-     default: tsize = "\\largetabsize";
-              break;
-  }
-  tsize +="\n"; 
+	switch (global_tabsize){
+	case 0: tsize = "\\smalltabsize";
+		break;
+	case 1: tsize = "\\normaltabsize";
+		break;
+	case 2: tsize = "\\largetabsize";
+		break;
+	case 3: tsize = "\\Largetabsize";
+		break;
+	default: tsize = "\\largetabsize";
+		break;
+	}
+	tsize +="\n"; 
+	
+	QListIterator<TabTrack>it(t);
+	TabTrack *trk=it.current();
+	
+	// Stuff if global_showstr=TRUE
+	
+	flatnote = FALSE;
+	for (int i=0;i<trk->string;i++) {
+		nn[i]=note_name(trk->tune[i]%12);
+		if ((nn[i].contains("#",FALSE)==1) && (nn[i].length()==2)) {
+			nn[i]=nn[i].left(1)+"$\\sharp$";
+			flatnote=TRUE;
+		}
+	}
+	
+	tmp = "\\othermention{%";
+	tmp += "\n";
+	tmp += "\\noindent Tuning:\\\\";
+	tmp += "\n";
+
+	if (trk->string==4){
+		tmp += "\\tuning{1}{"+nn[3];
+		tmp += "} \\quad \\tuning{3}{"+nn[1]+"} \\quad \\\\";
+		tmp += "\n";
+		tmp += "\\tuning{2}{"+nn[2];
+		tmp += "} \\quad \\tuning{4}{"+nn[0]+"}";   //Error at Bass (4 Strings) standart: 
+		tmp += "\n";                                // nn[0]="D" is not correct (alinx)
+	}
+
+	if (trk->string==5){
+		tmp += "\\tuning{1}{"+nn[4];
+		tmp += "} \\quad \\tuning{4}{"+nn[1]+"} \\quad \\\\";
+		tmp += "\n";
+		tmp += "\\tuning{2}{"+nn[3];
+		tmp += "} \\quad \\tuning{5}{"+nn[0]+"} \\quad \\\\";
+		tmp += "\n";
+		tmp += "\\tuning{3}{"+nn[2]+"}";
+		tmp += "\n";
+	}
+
+	if (trk->string==6){
+		tmp += "\\tuning{1}{"+nn[5];
+		tmp += "} \\quad \\tuning{4}{"+nn[2]+"} \\quad \\\\";
+		tmp += "\n";
+		tmp += "\\tuning{2}{"+nn[4];
+		tmp += "} \\quad \\tuning{5}{"+nn[1]+"} \\quad \\\\";
+		tmp += "\n";
+		tmp += "\\tuning{3}{"+nn[3];
+		tmp += "} \\quad \\tuning{6}{"+nn[0]+"}";
+		tmp += "\n";
+	}
+
+	if (trk->string>=7){
+		s << "Sorry, but MusiXTeX/tabdefs.tex has only 6 tablines" << "\n";
+		s << "\\end" << "\n";
+		f.close();
+		return FALSE;
+	}
   
-  QListIterator<TabTrack>it(t);
-  TabTrack *trk=it.current();
+	tmp+="}";
+	tmp+="\n";
 
+	if (trk->string<4)
+		tmp="";
 
-  // Stuff if global_showstr=TRUE
-  
-  flatnote=FALSE;
-  for (int i=0;i<trk->string;i++){
-     nn[i]=note_name(trk->tune[i]%12);
-     if ((nn[i].contains("#",FALSE)==1) && (nn[i].length()==2)){
-        nn[i]=nn[i].left(1)+"$\\sharp$";
-        flatnote=TRUE;
-     }
-  }
+	for (int i=(trk->string-1);i>=0;i--){       // alinx - if it is an "D" you get an
+		showstr += " ";                          //         error from TeX
+		showstr += note_name(trk->tune[i]%12);   //         I have to fix it....
+	}
 
-  tmp = "\\othermention{%";
-  tmp += "\n";
-  tmp += "\\noindent Tuning:\\\\";
-  tmp += "\n";
+	switch (trk->string){
+	case 1: showstr += " X X X X X";         // now it is a defined control sequence
+		break;
+	case 2: showstr += " X X X X";
+		break;
+	case 3: showstr += " X X X";
+		break;
+	case 4: showstr += " X X";
+		break;
+	case 5: showstr += " X";
+		break;
+	default: break;
+	}
+	
+	showstr += "\n";
+	
+	// TeX-File INFO-HEADER
 
-  if (trk->string==4){
-    tmp += "\\tuning{1}{"+nn[3];
-    tmp += "} \\quad \\tuning{3}{"+nn[1]+"} \\quad \\\\";
-    tmp += "\n";
-    tmp += "\\tuning{2}{"+nn[2];
-    tmp += "} \\quad \\tuning{4}{"+nn[0]+"}";   //Error at Bass (4 Strings) standart: 
-    tmp += "\n";                                // nn[0]="D" is not correct (alinx)
-  } 
-  if (trk->string==5){
-    tmp += "\\tuning{1}{"+nn[4];
-    tmp += "} \\quad \\tuning{4}{"+nn[1]+"} \\quad \\\\";
-    tmp += "\n";
-    tmp += "\\tuning{2}{"+nn[3];
-    tmp += "} \\quad \\tuning{5}{"+nn[0]+"} \\quad \\\\";
-    tmp += "\n";
-    tmp += "\\tuning{3}{"+nn[2]+"}";
-    tmp += "\n";
-  }
-  if (trk->string==6){
-    tmp += "\\tuning{1}{"+nn[5];
-    tmp += "} \\quad \\tuning{4}{"+nn[2]+"} \\quad \\\\";
-    tmp += "\n";
-    tmp += "\\tuning{2}{"+nn[4];
-    tmp += "} \\quad \\tuning{5}{"+nn[1]+"} \\quad \\\\";
-    tmp += "\n";
-    tmp += "\\tuning{3}{"+nn[3];
-    tmp += "} \\quad \\tuning{6}{"+nn[0]+"}";
-    tmp += "\n";
-  }
-  if (trk->string>=7){
-    s<<"Sorry, but MusiXTeX/tabdefs.tex has only 6 tablines"<<"\n";
-    s<<"\\end"<<"\n";
-    f.close();
-    return FALSE;
-  }
-  
-  tmp+="}";
-  tmp+="\n";
-
-  if (trk->string<4)
-    tmp="";
-
-  for (int i=(trk->string-1);i>=0;i--){       // alinx - if it is an "D" you get an
-     showstr += " ";                          //         error from TeX
-     showstr += note_name(trk->tune[i]%12);   //         I have to fix it....
-  }
-  switch (trk->string){
-     case 1: showstr += " X X X X X";         // now it is a defined control sequence
-             break;
-     case 2: showstr += " X X X X";
-             break;
-     case 3: showstr += " X X X";
-             break;
-     case 4: showstr += " X X";
-             break;
-     case 5: showstr += " X";
-             break;
-     default: break;
-  }
-
-  showstr += "\n";
-
-
-  // TeX-File INFO-HEADER
-
-  s<<"%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%"<<"\n";
-  s<<"%"<<"\n";
-  s<<"% This MusiXTex File was created with KGuitar "<<VERSION<<"\n";
-  s<<"%"<<"\n";
-  s<<"% You can download the latest Version at:"<<"\n";
-  s<<"%          http://kguitar.sourceforge.net"<<"\n";
-  s<<"%"<<"\n"<<"%"<<"\n";
-  s<<"% You must have installed MusiXTeX and tabdefs.tex by R. Gelten"<<"\n";
-  s<<"% This stuff you can download at:"<<"\n"<<"%"<<"\n";
-  s<<"%       ftp.dante.de/tex-archive/macros/musixtex/taupin"<<"\n";
-  s<<"%   and ftp.dante.de/tex-archive/macros/musixtex/taupin/add-ons"<<"\n";
-  s<<"%"<<"\n";
-  s<<"%    or http://www.gmd.de/Misc/Music"<<"\n";
-  s<<"%"<<"\n"<<"%"<<"\n";
-  s<<"% IMPORTANT: Note that this File should not be used with LaTeX"<<"\n"<<"%"<<"\n";
-  s<<"%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%"<<"\n";
-
-  // TeX-File HEADER
-  s<<"\\input musixtex"<<"\n";
-  s<<"\\input musixsty"<<"\n";
-  s<<"\\input tabdefs.tex"<<"\n";
-  
-  // SONG HEADER   
+	s << "%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%" << "\n";
+	s << "%" << "\n";
+	s << "% This MusiXTex File was created with KGuitar "<<VERSION<<"\n";
+	s << "%" << "\n";
+	s << "% You can download the latest version at:" << "\n";
+	s << "%          http://kguitar.sourceforge.net" << "\n";
+	s << "%" << "\n" << "%" << "\n";
+	s << "% You must have installed MusiXTeX and tabdefs.tex by R. Gelten" << "\n";
+	s << "% This stuff you can download at:" << "\n" << "%" << "\n";
+	s << "%       ftp.dante.de/tex-archive/macros/musixtex/taupin" << "\n";
+	s << "%   and ftp.dante.de/tex-archive/macros/musixtex/taupin/add-ons" << "\n";
+	s << "%" << "\n";
+	s << "%    or http://www.gmd.de/Misc/Music" << "\n";
+	s << "%" << "\n" << "%" << "\n";
+	s << "% IMPORTANT: Note that this file should not be used with LaTeX" << "\n" << "%" << "\n";
+	s << "%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%" << "\n";
+	
+	// TeX-File HEADER
+	s << "\\input musixtex" << "\n";
+	s << "\\input musixsty" << "\n";
+	s << "\\input tabdefs.tex" << "\n";
+	
+	// SONG HEADER   
  
-  if (global_showpagenumb==FALSE)
-    s<<"\\nopagenumbers"<<"\n";
+	if (global_showpagenumb==FALSE)
+		s << "\\nopagenumbers" << "\n";
  
-  s<<"\\fulltitle{"<<title<<"}";
-  s<<"\n";
-  s<<"\\subtitle{\\svtpoint\\bf Author: "<<author<<"}"<<"\n";
-  s<<"\\author{Transcribed by: "<<transcriber;
-  s<<"\\\\%"<<"\n";
-  s<<"        Tempo: "<<tempo<<"}";
-  s<<"\n";
+	s << "\\fulltitle{"<<title<<"}";
+	s << "\n";
+	s << "\\subtitle{\\svtpoint\\bf Author: "<<author<<"}" << "\n";
+	s << "\\author{Transcribed by: "<<transcriber;
+	s << "\\\\%" << "\n";
+	s << "        Tempo: "<<tempo<<"}";
+	s << "\n";
 
-  if (global_showstr)
-    s<<tmp;
+	if (global_showstr)
+		s<<tmp;
 
-  s<<"\\maketitle"<<"\n";
-  s<<"\n";
-  s<<"\\settab1"<<"\n";
+	s << "\\maketitle" << "\n";
+	s << "\n";
+	s << "\\settab1" << "\n";
 
-  if (global_showbarnumb==FALSE)
-    s<<"\\nobarnumbers"<<"\n";
+	if (global_showbarnumb==FALSE)
+		s << "\\nobarnumbers" << "\n";
 
-  s<<"\\let\\extractline\\leftline"<<"\n";
-  s<<"\n";
-    
+	s << "\\let\\extractline\\leftline" << "\n";
+	s << "\n";
 
-  // TRACK DATA
-  int n=1;         // Trackcounter
-  int cho;         // more than one string in this column
-  int trksize;
-
-  for (;it.current();++it){                      // For every Track
-     TabTrack *trk = it.current();
-     
-     s<<"Track "<<n<<": "<<trk->name;
-     s<<"\n";
-     s<<"\\generalmeter{\\meterfrac{"<<trk->b[0].time1<<"}{"<<trk->b[0].time2<<"}}";
-     s<<"\n"<<"\n";            //the 2nd LF is very important!!
-     s<<tsize;
-    
-     if (global_showstr && (flatnote==FALSE))
-       s<<showstr;
-
-     s<<"\\startextract"<<"\n";
-
-     /*  make here the tabs   */
+	// TRACK DATA
+	int n=1;         // Trackcounter
+	int cho;         // more than one string in this column
+	int trksize;
+	
+	for (;it.current();++it) { // For every track
+		TabTrack *trk = it.current();
 		
-     cho=0;
-     trksize=trk->c.size();
-     QString tmpline;
+		s << "Track "<<n<<": "<<trk->name;
+		s << "\n";
+		s << "\\generalmeter{\\meterfrac{"<<trk->b[0].time1<<"}{"<<trk->b[0].time2<<"}}";
+		s << "\n" << "\n"; // the 2nd LF is very important!!
+		s<<tsize;
+		
+		if (global_showstr && (flatnote==FALSE))
+			s<<showstr;
+		
+		s << "\\startextract" << "\n";
+		
+		// make here the tabs
+		
+		cho=0;
+		trksize=trk->c.size();
+		QString tmpline;
 
-     for (int j=0;j<trksize;j++){  // for every column (j)
+		for (int j=0;j<trksize;j++) { // for every column (j)
+			tmpline=notes;
+			
+			for (int x=0;x<trk->string;x++)  // test how much tabs in this column
+				if (trk->c[j].a[x]>=0) cho++;
 
-       tmpline=notes;
-
-       for (int x=0;x<trk->string;x++)  // test how much tabs in this column
-         if (trk->c[j].a[x]>=0) cho++;
-
-       for (int x=0;x<trk->string;x++){
-         if ((trk->c[j].a[x]>=0) && (cho==1))
-           s<<notes<<tab(FALSE,((x-trk->string)*(-1)),trk->c[j].a[x]);
-         if ((trk->c[j].a[x]>=0) && (cho>1))
-           tmpline += tab(TRUE,((x-trk->string)*(-1)),trk->c[j].a[x]);
-       }
-       if (cho>1)
-         s<<tmpline;
-       if ((j+1)==trksize)   // Last time?		
-         s<<"\\sk\\en";
-       else
-         s<<"\\en"<<"\n";
-       cho=0;
-     }                        //end of (j)
-
-     s<<"\n";
-     s<<"\\endextract"<<"\n";
-
-     n++;
-  }  
-  // End of TeX-File
-  s<<"\\end";
-
-  f.close();
-  return TRUE;
+			for (int x=0;x<trk->string;x++){
+				if ((trk->c[j].a[x]>=0) && (cho==1))
+					s<<notes<<tab(FALSE,((x-trk->string)*(-1)),trk->c[j].a[x]);
+				if ((trk->c[j].a[x]>=0) && (cho>1))
+					tmpline += tab(TRUE,((x-trk->string)*(-1)),trk->c[j].a[x]);
+			}
+			if (cho>1)
+				s<<tmpline;
+			if ((j+1)==trksize)   // Last time?		
+				s << "\\sk\\en";
+			else
+				s << "\\en" << "\n";
+			cho=0;
+		}                        //end of (j)
+		
+		s << "\n";
+		s << "\\endextract" << "\n";
+		
+		n++;
+	}  
+	// End of TeX-File
+	s << "\\end";
+	
+	f.close();
+	return TRUE;
 }
