@@ -6,6 +6,7 @@
 
 class QSpinBox;
 class QComboBox;
+class QCheckBox;
 
 class SetTimeSig: public QDialog
 {
@@ -13,7 +14,8 @@ class SetTimeSig: public QDialog
 public:
     SetTimeSig(QWidget *parent=0, const char *name=0);
     QSpinBox *time1;
-    QComboBox *time2;    
+    QComboBox *time2;
+    QCheckBox *toend;
 };
 
 #endif

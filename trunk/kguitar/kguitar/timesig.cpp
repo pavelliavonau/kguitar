@@ -4,6 +4,7 @@
 
 #include <qspinbox.h>
 #include <qcombobox.h>
+#include <qcheckbox.h>
 #include <qlabel.h>
 #include <qpushbutton.h>
 #include <qlayout.h>
@@ -42,6 +43,10 @@ SetTimeSig::SetTimeSig(QWidget *parent=0, const char *name=0):
     g->addColSpacing(0,150);
     g->addColSpacing(1,50);
     g->addRowSpacing(0,25); g->addRowSpacing(1,25);
+
+    toend = new QCheckBox(i18n("Apply till the &end"),this);
+    toend->setMinimumSize(100,25);
+    l->addWidget(toend,1);
 
     QHBoxLayout *b = new QHBoxLayout(10);
     l->addLayout(b);
