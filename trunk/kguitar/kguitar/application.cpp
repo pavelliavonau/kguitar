@@ -77,7 +77,7 @@ ApplicationWindow::ApplicationWindow(): KTMainWindow()
     toolBar()->insertButton(Icon("timesig.xpm"),1,SIGNAL(clicked()),
 			    tv,SLOT(timeSig()),TRUE,i18n("Time signature"));
     toolBar()->insertButton(Icon("arc.xpm"),1,SIGNAL(clicked()),
-			    tv,SLOT(timeSig()),TRUE,i18n("Arc to previous note"));
+			    tv,SLOT(linkPrev()),TRUE,i18n("Link with previous column"));
     
     // SET UP MAIN MENU
 
@@ -156,7 +156,8 @@ ApplicationWindow::ApplicationWindow(): KTMainWindow()
     menuBar()->insertSeparator();
     menuBar()->insertItem(i18n("&Help"), p);
 
-    statusBar()->message( "Ready", 2000 );
+    statusBar()->insertItem(QString(i18n("Bar: "))+"1",1);
+    connect(tv,SIGNAL(statusBarChanged()),SLOT(updateStatusBar()));
 }
 
 ApplicationWindow::~ApplicationWindow()
@@ -169,6 +170,14 @@ void ApplicationWindow::updateMenu()
 {
     for (int i=0;i<9;i++)
 	nnMenu->setItemChecked(ni[i], i==global_notenames);
+}
+
+void ApplicationWindow::updateStatusBar()
+{
+    QString tmp;
+    tmp.setNum(tv->trk()->xb+1);
+    tmp = i18n("Bar: ") + tmp;
+    statusBar()->changeItem(tmp,1);
 }
 
 bool ApplicationWindow::jazzWarning()
