@@ -21,12 +21,13 @@ SUBDIRS = toolbar
 #DEFS = @DEFS@ -I. -I$(srcdir) -I.. -DDOTRACE
 ####### This part is very kguitar specific
 # you can add here more. This one gets installed 
-bin_PROGRAMS = 	kguitar
+bin_PROGRAMS = kguitar
 
 # Which sources should be compiled for kguitar.
 kguitar_SOURCES	= application.cpp chord.cpp fingers.cpp fingerlist.cpp \
- main.cpp \
- application.moc.cpp chord.moc.cpp fingers.moc.cpp fingerlist.moc.cpp
+ main.cpp trackview.cpp \
+ application.moc.cpp chord.moc.cpp fingers.moc.cpp fingerlist.moc.cpp \
+ trackview.moc.cpp
 
 # the library search path
 kguitar_LDFLAGS = @all_libraries@ @KDE_RPATH@
@@ -36,10 +37,11 @@ kguitar_LDFLAGS = @all_libraries@ @KDE_RPATH@
 kguitar_LDADD  = -lkdeui -lkdecore -lqt -lX11 -lXext @LIBSOCKET@
 
 # this option you can leave out. Just, if you use "make dist", you need it
-noinst_HEADERS = application.h chord.h fingers.h fingerlist.h
+noinst_HEADERS = application.h chord.h fingers.h fingerlist.h trackview.h
 
 # just to make sure, automake makes them 
-BUILTSOURCES =	application.moc.cpp chord.moc.cpp fingers.moc.cpp fingerlist.moc.cpp
+BUILTSOURCES =	application.moc.cpp chord.moc.cpp fingers.moc.cpp \
+ fingerlist.moc.cpp trackview.moc.cpp
 
 EXTRA_DIST = kguitar.kdelnk kguitar.xpm kguitar-large.xpm
 
@@ -85,3 +87,6 @@ fingers.moc.cpp: fingers.h
 
 fingerlist.moc.cpp: fingerlist.h
 	$(MOC) fingerlist.h -o fingerlist.moc.cpp
+
+trackview.moc.cpp: trackview.h
+	$(MOC) trackview.h -o trackview.moc.cpp
