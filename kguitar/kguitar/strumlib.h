@@ -22,7 +22,7 @@
 
 typedef struct {
 	int mask[MAX_STRUM_LENGTH];
-	uint len[MAX_STRUM_LENGTH];
+	int len[MAX_STRUM_LENGTH];
 	QString name;
 	QString description;
 } strummer;
