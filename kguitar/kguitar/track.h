@@ -6,6 +6,7 @@
 
 #include <qlist.h>
 #include <qstring.h>
+#include <qtextstream.h>
 
 typedef enum {
     GuitarTab,
@@ -33,8 +34,8 @@ public:
 class TabTrack
 {
 public:
-    TabTrack(TrackMode _tm, QString _name, int _bank,
-	     uchar _patch, uchar _string, uchar _frets);
+    TabTrack(TrackMode _tm, QString _name, int _channel,
+	     int _bank, uchar _patch, uchar _string, uchar _frets);
 
     QList<TabColumn> c;                 // Tab columns
 
@@ -44,6 +45,7 @@ public:
 
     TrackMode trackmode() { return tm; }
 
+    uchar channel;                      // MIDI channel
     int bank;                           // MIDI bank
     uchar patch;                        // MIDI patch
 
@@ -70,12 +72,16 @@ public:
 
     QString filename;                   // File name to save under
 
-    bool load_from_kg(QString fileName);
+    bool load_from_kg(QString fileName);        // Native format - kg
     bool save_to_kg(QString fileName);
-    bool load_from_gtp(QString fileName);
+    bool load_from_gtp(QString fileName);       // Guitar Pro format
     bool save_to_gtp(QString fileName);
-    bool load_from_mid(QString fileName);
+    bool load_from_mid(QString fileName);       // MIDI files
     bool save_to_mid(QString fileName);
+    bool load_from_tab(QString fileName);       // ASCII tabulatures
+    bool save_to_tab(QString fileName);
+private:
+    void writeCentered(QTextStream *s, QString l);
 };
 
 #endif
