@@ -34,6 +34,7 @@ public slots:
 	void trackBassLine();
 	void songProperties();
 	void playTrack();
+	void playSong();
 	void stopPlayTrack();
 	void slotCut();
 	void slotCopy();
@@ -41,7 +42,7 @@ public slots:
 	void slotSelectAll();
 
 private slots:
-	void playMidi(MidiList &ml);
+	void playMidi(MidiList &ml, bool playSong = TRUE);
 
 private:
 	TabTrack *highlightedTabs();

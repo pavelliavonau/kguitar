@@ -39,14 +39,15 @@ enum {
 
 class MidiEvent {
 public:
-	MidiEvent(long _timestamp, uchar _type, uchar _data1, uchar _data2) {
+	MidiEvent(long _timestamp, uchar _chn, uchar _type, uchar _data1, uchar _data2) {
 		timestamp = _timestamp;
+		chn = _chn;
 		type = _type;
 		data1 = _data1;
 		data2 = _data2;
 	};
 	long timestamp;
-	Q_UINT8 type, data1, data2;
+	Q_UINT8 chn, type, data1, data2;
 };
 
 class MidiList: public QList<MidiEvent> {

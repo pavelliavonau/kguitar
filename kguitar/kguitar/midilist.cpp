@@ -47,8 +47,8 @@ void MidiData::getMidiList(TabTrack *trk, MidiList &ml)
                 }
             }
 
-            ml.inSort(new MidiEvent(timer, noteon, pitch, 0x60));
-            ml.inSort(new MidiEvent(timer + duration, noteon, pitch, 0));
+            ml.inSort(new MidiEvent(timer, trk->channel - 1, noteon, pitch, 0x60));
+            ml.inSort(new MidiEvent(timer + duration, trk->channel - 1, noteon, pitch, 0));
         }
         timer += midilen;
     }

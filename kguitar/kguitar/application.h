@@ -83,7 +83,7 @@ private:
 		*len1Act, *len2Act, *len4Act, *len8Act, *len16Act, *len32Act,
 		*timeSigAct, *arcAct, *legatoAct, *natHarmAct, *artHarmAct,
 		*palmMuteAct, *saveOptionAct, *confKeyAct, *arrTrkAct,
-		*midiPlayTrackAct, *midiStopPlayAct;
+		*midiPlayTrackAct, *midiPlaySongAct, *midiStopPlayAct;
     KToggleAction *showMainTBAct, *showEditTBAct, *usSharpAct, *usFlatAct,
 		*usMixAct, *euSharpAct, *euFlatAct, *euMixAct, *jazzSharpAct,
 		*jazzFlatAct, *jazzMixAct;
