@@ -5,8 +5,7 @@
 #include "global.h"
 #include "globaloptions.h"
 
-class ChordListItem: public QListBoxText
-{
+class ChordListItem: public QListBoxText {
 public:
     ChordListItem(int _tonic, int _bass, int s3, int s5, int s7,
 		  int s9, int s11, int s13);
