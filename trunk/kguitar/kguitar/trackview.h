@@ -7,6 +7,7 @@
 #define VERTLINE 10
 
 class TabSong;
+class TabTrack;
 
 class TrackView: public QTableView
 {
@@ -17,8 +18,10 @@ public:
 protected:
     virtual void paintCell(QPainter *, int row, int col);    
     virtual void resizeEvent(QResizeEvent *e);
+    virtual void keyPressEvent(QKeyEvent *e);
 private:
     TabSong *song;
+    TabTrack *curt;
 };
 
 #endif
