@@ -32,21 +32,21 @@ public:
 	TSE3::Song *midiSong(bool tracking = FALSE);
 #endif
 
-	bool load_from_kg(QString fileName);		// Native format - kg
-	bool save_to_kg(QString fileName);
-	bool load_from_gtp(QString fileName);		// Guitar Pro format
-	bool save_to_gtp(QString fileName);
-	bool load_from_gp3(QString fileName);		// Guitar Pro 3 format
-	bool save_to_gp3(QString fileName);
-	bool load_from_mid(QString fileName);		// MIDI files
-	bool save_to_mid(QString fileName);
-	bool save_to_tse3(QString fileName);        // TSE3MDL files
-	bool load_from_tab(QString fileName);		// ASCII tabulatures
-	bool save_to_tab(QString fileName);
-	bool save_to_tex_tab(QString fileName);		// MusiXTeX/kgtabs.tex tabulatures
-	bool save_to_tex_notes(QString fileName);	// MusiXTeX notes
-	bool load_from_xml(QString fileName);		// MusicXML format
-	bool save_to_xml(QString fileName);
+	bool loadFromKg(QString fileName);		// Native format - kg
+	bool saveToKg(QString fileName);
+	bool loadFromGtp(QString fileName);		// Guitar Pro format
+	bool saveToGtp(QString fileName);
+	bool loadFromGp3(QString fileName);		// Guitar Pro 3 format
+	bool saveToGp3(QString fileName);
+	bool loadFromMid(QString fileName);		// MIDI files
+	bool saveToMid(QString fileName);
+	bool saveToTse3(QString fileName);        // TSE3MDL files
+	bool loadFromTab(QString fileName);		// ASCII tabulatures
+	bool saveToTab(QString fileName);
+	bool saveToTexTab(QString fileName);		// MusiXTeX/kgtabs.tex tabulatures
+	bool saveToTexNotes(QString fileName);	// MusiXTeX notes
+	bool loadFromXml(QString fileName);		// MusicXML format
+	bool saveToXml(QString fileName);
 
 private:
 	void writeCentered(QTextStream *s, QString l);
