@@ -7,42 +7,39 @@
 #include "optionsexportmusixtex.h"
 #include "optionsmidi.h"
 #include "optionsprinting.h"
+#include "optionsexportascii.h"
 
+#include <kconfig.h>
 #include <klocale.h>
 #include <kiconloader.h>
-#include <kiconeffect.h>
 
 #include <qlayout.h>
 #include <qbuttongroup.h>
 #include <qradiobutton.h>
 #include <qcheckbox.h>
 
-#ifdef WITH_TSE3
-#include <qframe.h>
-#include <qlistview.h>
-#include <qlabel.h>
-#include <qpushbutton.h>
-#endif
-
 Options::Options(
 #ifdef WITH_TSE3
 				 TSE3::MidiScheduler *sch,
 #endif
-				 QWidget *parent, char *name, bool modal)
-	: KDialogBase(IconList, i18n("Preferences"), Help|Default|Ok|Apply|Cancel,
+                 KConfig *config, QWidget *parent, char *name, bool modal)
+	: KDialogBase(TreeList, i18n("Preferences"), Help|Default|Ok|Apply|Cancel,
 	              Ok, parent, name, modal, TRUE)
 {
 	resize(530, 300);
 
     QFrame *optPage[OPTIONS_PAGES_NUM];
 
-	optPage[0] = addPage(i18n("Music Theory"), 0, DesktopIcon("lookandfeel", KIcon::SizeMedium));
-	optPage[1] = addPage(i18n("Melody Constructor"), 0, DesktopIcon("melodyeditor", KIcon::SizeMedium));
-	optPage[2] = addPage(i18n("MusiXTeX Export"), 0, DesktopIcon("musixtex", KIcon::SizeMedium));
+	optPage[0] = addPage(i18n("Music Theory"), 0, SmallIcon("lookandfeel"));
+	optPage[1] = addPage(i18n("Melody Constructor"), 0, SmallIcon("melodyeditor"));
+	optPage[2] = addPage(QStringList::split('/', i18n("Export") + "/" + i18n("MusiXTeX")),
+	                     0, SmallIcon("musixtex"));
 #ifdef WITH_TSE3
-	optPage[3] = addPage(i18n("MIDI"), 0, DesktopIcon("kcmmidi", KIcon::SizeMedium));
+	optPage[3] = addPage(i18n("MIDI Devices"), 0, SmallIcon("kcmmidi"));
 #endif
-	optPage[4] = addPage(i18n("Printing"), 0, DesktopIcon("printmgr", KIcon::SizeMedium));
+	optPage[4] = addPage(i18n("Printing"), 0, SmallIcon("printmgr"));
+	optPage[5] = addPage(QStringList::split('/', i18n("Export") + "/" + i18n("ASCII")),
+	                     0, SmallIcon("ascii"));
 
 	optWidget[0] = new OptionsMusicTheory(optPage[0]);
 	optWidget[1] = new OptionsMelodyEditor(optPage[1]);
@@ -51,10 +48,11 @@ Options::Options(
 	optWidget[3] = new OptionsMidi(sch, optPage[3]);
 #endif
 	optWidget[4] = new OptionsPrinting(optPage[4]);
+	optWidget[5] = new OptionsExportAscii(config, optPage[5]);
 
 	// Special weird layout stuff to pack everything
 	for (int i = 0; i < OPTIONS_PAGES_NUM; i++) {
-		if (optWidget[i])  {
+		if (optWidget[i]) {
 			QVBoxLayout *l = new QVBoxLayout(optPage[i]);
 			l->addWidget(optWidget[i]);
 		}

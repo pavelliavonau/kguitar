@@ -4,6 +4,7 @@
 #include <kdialogbase.h>
 #include "global.h"
 
+class KConfig;
 class QButtonGroup;
 class QRadioButton;
 class QListView;
@@ -16,7 +17,7 @@ class OptionsPage;
 #include <tse3/MidiScheduler.h>
 #endif
 
-#define OPTIONS_PAGES_NUM 5
+#define OPTIONS_PAGES_NUM 6
 
 class Options: public KDialogBase {
 	Q_OBJECT
@@ -25,6 +26,7 @@ public:
 #ifdef WITH_TSE3
 			TSE3::MidiScheduler *sch,
 #endif
+			KConfig *config,
 			QWidget *parent = 0, char *name = 0,//##
 			bool modal = TRUE);
 
