@@ -1,8 +1,5 @@
 #include "tabtrack.h"
 
-// GREYFIX
-#include <stdio.h>
-
 TabTrack::TabTrack(TrackMode _tm, QString _name, int _channel,
 		   int _bank, uchar _patch, uchar _string, uchar _frets)
 {
@@ -14,6 +11,13 @@ TabTrack::TabTrack(TrackMode _tm, QString _name, int _channel,
     string=_string;
     frets=_frets;
 };
+
+// Pretty sophisticated expression that determines if we can omit the time sig
+
+bool TabTrack::showBarSig(uint n)
+{
+    return !((n>0) && (b[n-1].time1==b[n].time1) && (b[n-1].time2==b[n].time2));
+}
 
 void TabTrack::insertColumn(uint n)
 {
@@ -144,14 +148,14 @@ void TabTrack::arrangeBars()
 		// GREYFIX - preserve other possible time signatures
 		b[barnum].time1 = b[barnum-1].time1;
 		b[barnum].time2 = b[barnum-1].time2;
-		if ((b[barnum].time1 != b[barnum-1].time1) ||
-		    (b[barnum].time2 != b[barnum-1].time2))
-		    b[barnum].showsig=TRUE;
-		else 
-		    b[barnum].showsig=FALSE;
 	    }
 	}
     }
+
+    // Clean up last bar if it's empty
+
+    if (b[barnum].start == i)
+	b.resize(barnum);
 
     // All should be done now.
 }
