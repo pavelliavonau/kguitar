@@ -559,7 +559,12 @@ QString TabSong::tab(bool chord, int string, int fret)
 	return tmp;
 }
 
-bool TabSong::save_to_tex(QString fileName)
+QString TabSong::getNote(QString note, int duration, bool dot)
+{
+	return "";
+}
+
+bool TabSong::save_to_tex_tab(QString fileName)
 {
 	QFile f(fileName);
     if (!f.open(IO_WriteOnly))
@@ -697,7 +702,8 @@ bool TabSong::save_to_tex(QString fileName)
 	s << "%" << "\n";
 	s << "%    or http://www.gmd.de/Misc/Music" << "\n";
 	s << "%" << "\n" << "%" << "\n";
-	s << "% IMPORTANT: Note that this file should not be used with LaTeX" << "\n" << "%" << "\n";
+	s << "% IMPORTANT: Note that this file should not be used with LaTeX" << "\n";
+	s << "%" << "\n";
 	s << "%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%" << "\n";
 	
 	// TeX-File HEADER
@@ -734,7 +740,9 @@ bool TabSong::save_to_tex(QString fileName)
 	// TRACK DATA
 	int n = 1;       // Trackcounter
 	int cho;         // more than one string in this column
-	int trksize;
+	uint trksize;
+	int width;
+	uint bbar;       // who are bars?
 	
 	for (;it.current();++it) { // For every track
 		TabTrack *trk = it.current();
@@ -754,12 +762,19 @@ bool TabSong::save_to_tex(QString fileName)
 		// make here the tabs
 		
 		cho = 0;
+		width = 0;
+		bbar = 1;
 		trksize = trk->c.size();
 		QString tmpline;
 
-		for (int j=0;j<trksize;j++) { // for every column (j)
+		for (uint j=0;j<trksize;j++) { // for every column (j)
 			tmpline = notes;
-			
+
+			if ((bbar+1)<trk->b.size()){         // looking for bars
+			  if(trk->b[bbar+1].start==j) bbar++;
+			}
+			if (trk->b[bbar].start==j) s << bar;
+
 			for (int x=0;x<trk->string;x++)  // test how much tabs in this column
 				if (trk->c[j].a[x]>=0) cho++;
 
@@ -772,10 +787,19 @@ bool TabSong::save_to_tex(QString fileName)
 
 			if (cho>1)
 				s << tmpline;
+			if (cho>0) width++;                // if tab is set
 			if (((j+1)==trksize) && (cho>0))   // Last time?		
 				s << "\\sk\\en";
-			else
+			else {
 				if (cho>0) s << "\\en" << "\n";
+				if ((cho>0) && (width>=26)){     // we need a LF in tab
+				  s << "\\endextract" << "\n";
+				  if (global_showstr && (flatnote==FALSE))
+					s << showstr;
+				  s << "\\startextract" << "\n";
+				  width = 0;
+				}
+			}
 			cho = 0;
 		}                        //end of (j)
 		
@@ -787,6 +811,77 @@ bool TabSong::save_to_tex(QString fileName)
 	// End of TeX-File
 	s << "\\end";
 	
+	f.close();
+	return TRUE;
+}
+
+bool TabSong::save_to_tex_notes(QString fileName)
+{
+	QFile f(fileName);
+    if (!f.open(IO_WriteOnly))
+		return FALSE;
+
+	QTextStream s(&f);
+
+	QListIterator<TabTrack>it(t);
+	TabTrack *trk=it.current();
+
+	// TeX-File INFO-HEADER
+	s << "%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%" << "\n";
+	s << "%" << "\n";
+	s << "% This MusiXTex File was created with KGuitar " << VERSION << "\n";
+	s << "%" << "\n";
+	s << "% You can download the latest version at:" << "\n";
+	s << "%          http://kguitar.sourceforge.net" << "\n";
+	s << "%" << "\n" << "%" << "\n";
+	s << "% You must have installed MusiXTeX " << "\n";
+	s << "% This stuff you can download at:" << "\n" << "%" << "\n";
+	s << "%       ftp.dante.de/tex-archive/macros/musixtex/taupin" << "\n";
+	s << "%" << "\n";
+	s << "%    or http://www.gmd.de/Misc/Music" << "\n";
+	s << "%" << "\n" << "%" << "\n";
+	s << "% IMPORTANT: Note that this file should not be used with LaTeX" << "\n";
+	s << "%" << "\n";
+	s << "% MusiXTeX runs as a tree pass system. That means: for best ";
+	s << "results" << "\n";
+	s << "% you have to run: TeX => musixflx => TeX" << "\n" << "%" << "\n";
+	s << "% For example:" << "\n";
+	s << "%     $ tex foobar.tex " << "\n";
+	s << "%     $ musixflx foobar.mx1" << "\n";
+	s << "%     $ tex foobar.tex" << "\n";
+	s << "%" << "\n";
+	s << "%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%" << "\n";
+	
+	// TeX-File HEADER
+	s << "\\input musixtex" << "\n" << "\n";
+
+	// SONG HEADER   	
+	if (global_showpagenumb==FALSE)
+		s << "\\nopagenumbers" << "\n";
+	if (global_showbarnumb==FALSE)
+		s << "\\nobarnumbers" << "\n";
+	s << "\n";
+
+
+	// TRACK DATA
+	int n = 1;       // Trackcounter
+
+	for (;it.current();++it) { // For every track
+		TabTrack *trk = it.current();
+		s << "\\generalmeter{\\meterfrac{" << trk->b[0].time1;
+		s << "}{" << trk->b[0].time2 << "}}";
+		s << "\n" << "\n";
+		s << "\\startpiece" << "\n";
+
+		// make here the notes
+
+
+		s << "\\endpiece" << "\n" << "\n";
+		n++;                      // next Track
+	}
+	// End of TeX-File
+	s << "\\end" << "\n";
+
 	f.close();
 	return TRUE;
 }
