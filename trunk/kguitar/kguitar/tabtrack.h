@@ -33,7 +33,7 @@ public:
 
 	uchar string;                       // Number of strings
 	uchar frets;                        // Number of frets
-	uchar tune[MAX_STRINGS];            // Tuning, if appicable
+	uchar tune[MAX_STRINGS];            // Tuning, if applicable
 
 	TrackMode trackMode() { return tm; }
 	void setTrackMode(TrackMode t) { tm = t; }
@@ -58,12 +58,18 @@ public:
 	bool showBarSig(int n);
 	bool barStatus(int n);
 	Q_UINT16 currentBarDuration();
+	int trackDuration();
 	Q_UINT16 maxCurrentBarDuration();
 	Q_UINT16 noteDuration(uint t, int i);
 	int noteNrCols(uint t, int i);
+	int findCStart(int t, int & dur);
+	int findCEnd(int t, int & dur);
+	bool isRingingAt(int str, int col);
 
 	void removeColumn(int n);
 	void insertColumn(int n);
+	int insertColumn(int ts, int te);
+	void splitColumn(int col, int dur);
 	void arrangeBars();
 	void addFX(char fx);
 	void updateXB();
