@@ -7,8 +7,10 @@
 
 #ifdef HAVE_LIBASOUND
 #include <sys/asoundlib.h>
-#include <qlistbox.h>
+#include <qframe.h>
+#include <qlistview.h>
 #include <qlabel.h>
+#include <qpushbutton.h>
 #endif
 
 Options::Options(QWidget *parent=0, const char *name=0): QTabDialog(parent,name,TRUE)
@@ -85,15 +87,26 @@ Options::Options(QWidget *parent=0, const char *name=0): QTabDialog(parent,name,
 
     QWidget *alsa = new QWidget(this);
 
-	alsaport = new QListBox(alsa);
+	alsaport = new QListView(alsa);
+	alsaport->setSorting(-1); // no text sorting
+	alsaport->setFrameStyle(QFrame::Panel | QFrame::Sunken);
+	alsaport->addColumn(i18n("Port"));
+	alsaport->addColumn(i18n("Client Info"));
+	alsaport->addColumn(i18n("Port Info"));
+
 	fillAlsaBox();
 
 	QLabel *alsaport_l = new QLabel(alsaport, i18n("MIDI &output port"), alsa);
-	alsaport_l->setMinimumSize(100, 20);
+	alsaport_l->setMinimumSize(100, 15);
 
-	QVBoxLayout *alsavb = new QVBoxLayout(alsa, 10);
+	QPushButton *alsarefresh = new QPushButton(i18n("&Refresh"), alsa);
+	connect(alsarefresh, SIGNAL(clicked()), SLOT(fillAlsaBox()));
+	alsarefresh->setMinimumSize(75, 30);
+
+	QVBoxLayout *alsavb = new QVBoxLayout(alsa, 10, 5);
 	alsavb->addWidget(alsaport_l);
 	alsavb->addWidget(alsaport, 1);
+	alsavb->addWidget(alsarefresh);
 	alsavb->activate();
 
 	addTab(alsa, i18n("ALSA"));
@@ -121,6 +134,10 @@ void Options::fillAlsaBox()
 	int err;
 	snd_seq_t *handle;
 
+	QString tmp, tmp2;
+
+	alsaport->clear();
+
 	err = snd_seq_open(&handle, SND_SEQ_OPEN);
 	if (err < 0) {
 		perror("Could not open sequencer");
@@ -141,15 +158,15 @@ void Options::fillAlsaBox()
 			continue;
 
 		for (port = 0; port < sysinfo.ports; port++) {
-
 			err = snd_seq_get_any_port_info(handle, client, port, &pinfo);
 			if (err < 0)
 				continue;
 			
 			if ((pinfo.capability & cap) == cap) {
-				alsaport->insertItem(QString(cinfo.name) + QString(": ") + QString(pinfo.name));
-//				printf("%3d:%-3d   %-30.30s    %s\n",
-//					   pinfo.client, pinfo.port, cinfo.name, pinfo.name);
+				tmp.setNum(pinfo.client);
+				tmp2.setNum(pinfo.port);
+				tmp = tmp + ":" + tmp2;
+				(void) new QListViewItem(alsaport, tmp, cinfo.name, pinfo.name);
 			}
 		}
 	}
