@@ -295,4 +295,3 @@ void KGuitarShell::writeSettings()
 
 	config->sync();
 }
-

@@ -36,6 +36,8 @@
 #include <qradiobutton.h>
 #include <qfileinfo.h>
 
+#include <libkmid/deviceman.h>
+
 #include <stdio.h>
 
 // Global variables - real declarations
@@ -56,7 +58,7 @@ int globalTexExpMode;
 int globalAlsaClient;
 int globalAlsaPort;
 
-extern "C"{
+extern "C" {
 	void *init_libkguitar()
 	{
 		return new KGuitarFactory;
@@ -81,7 +83,8 @@ KParts::Part *KGuitarFactory::createPart(QWidget *parentWidget, const char *widg
 									 const QStringList &)
 {
 	bool bBrowserView = (strcmp(className, "Browser/View") == 0);
-	KParts::Part *obj = new KGuitarPart(bBrowserView, parentWidget, widgetName, parent, name);
+	KParts::Part *obj = new KGuitarPart(bBrowserView, parentWidget, widgetName,
+										parent, name);
 	emit objectCreated(obj);
 	return obj;
 }
@@ -115,8 +118,7 @@ KGuitarPart::KGuitarPart(bool bBrowserView, QWidget *parentWidget,
 	setWidget(tv);
 	tv->setFocus();
 
-
-	// SET UP STANDART ACTIONS
+	// SET UP STANDARD ACTIONS
 	newAct = KStdAction::openNew(this, SLOT(fileNew()), 
 								 actionCollection(), "file_new");
 
@@ -264,7 +266,6 @@ KGuitarPart::KGuitarPart(bool bBrowserView, QWidget *parentWidget,
 	readOptions();
 
 	updateMenu();
-
 }
 
 KGuitarPart::~KGuitarPart()
@@ -495,7 +496,7 @@ void KGuitarPart::insertChord()
 {
 	int a[MAX_STRINGS];
 
-	ChordSelector cs(tv->trk());
+	ChordSelector cs(tv->devMan(), tv->trk());
 	for (int i = 0; i < tv->trk()->string; i++)
 		cs.setApp(i, tv->finger(i));
 
@@ -568,7 +569,7 @@ void KGuitarPart::trackProperties()
 
 void KGuitarPart::options()
 {
-	Options *op = new Options();
+	Options *op = new Options(tv->devMan());
 
 	op->maj7gr->setButton(globalMaj7);
 	op->flatgr->setButton(globalFlatPlus);
@@ -579,24 +580,7 @@ void KGuitarPart::options()
 	op->showpagenumb->setChecked(globalShowPageNumb);
 	op->texexpgr->setButton(globalTexExpMode);
 
-	if (op->exec()) {
-		if (op->maj7[0]->isChecked())  globalMaj7 = 0;
-		if (op->maj7[1]->isChecked())  globalMaj7 = 1;
-		if (op->maj7[2]->isChecked())  globalMaj7 = 2;
-
-		if (op->flat[0]->isChecked())  globalFlatPlus = 0;
-		if (op->flat[1]->isChecked())  globalFlatPlus = 1;
-
-		for (int i = 0; i <= 3; i++)
-			if (op->tabsize[i]->isChecked())  globalTabSize = i;
-
-		globalShowBarNumb = op->showbarnumb->isChecked();
-		globalShowStr = op->showstr->isChecked();
-		globalShowPageNumb = op->showpagenumb->isChecked();
-
-		if (op->expmode[0]->isChecked()) globalTexExpMode = 0;
-		if (op->expmode[1]->isChecked()) globalTexExpMode = 1;
-	}
+	op->exec();
 
 	delete op;
 }
@@ -627,9 +611,13 @@ void KGuitarPart::readOptions()
 	globalShowPageNumb = config->readBoolEntry("ShowPageNumb", TRUE);
 	globalTexExpMode = config->readNumEntry("TexExpMode", 0);
 
-	config->setGroup("ALSA");
-	globalAlsaClient = config->readNumEntry("client", 64);
-	globalAlsaPort = config->readNumEntry("port", 0);
+// 	config->setGroup("ALSA");
+// 	globalAlsaClient = config->readNumEntry("client", 64);
+// 	globalAlsaPort = config->readNumEntry("port", 0);
+
+	config->setGroup("MIDI");
+	int d = config->readNumEntry("Device", 0);
+	tv->devMan()->setDefaultDevice(d);
 }
 
 void KGuitarPart::saveOptions()
@@ -655,9 +643,12 @@ void KGuitarPart::saveOptions()
 	config->writeEntry("ShowPageNumb", globalShowPageNumb);
 	config->writeEntry("TexExpMode", globalTexExpMode);
 
-	config->setGroup("ALSA");
-	config->writeEntry("Client", globalAlsaClient);
-	config->writeEntry("Port", globalAlsaPort);
+// 	config->setGroup("ALSA");
+// 	config->writeEntry("Client", globalAlsaClient);
+// 	config->writeEntry("Port", globalAlsaPort);
+
+	config->setGroup("MIDI");
+	config->writeEntry("Device", tv->devMan()->defaultDevice());
 
 	config->sync();
 
@@ -680,5 +671,5 @@ KGuitarBrowserExtension::KGuitarBrowserExtension(KGuitarPart *parent)
 
 void KGuitarBrowserExtension::print()
 {
-  ((KGuitarPart *)parent())->filePrint();
+	((KGuitarPart *)parent())->filePrint();
 }
