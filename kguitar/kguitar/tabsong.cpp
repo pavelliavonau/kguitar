@@ -41,6 +41,7 @@
 // et='X' - end of track, no more reading track chunks
 // et='T' - tab column: x bytes - raw tab data, 2 bytes - duration of column
 // et='C' - continuation of prev column: 2 bytes - duration addition
+// et='E' - effect column: x bytes - raw FX data
 // et='B' - new bar start
 // et='S' - new time signature: 2 bytes - time1:time2
 
@@ -151,10 +152,21 @@ bool TabSong::load_from_kg(QString fileName)
 		for (int k=0;k<string;k++) {
 		    s >> cn;
 		    t.current()->c[x-1].a[k] = cn;
+		    t.current()->c[x-1].e[k] = 0;
 		}
 		s >> i16;
 		t.current()->c[x-1].l = i16;
 		t.current()->c[x-1].flags = 0;
+		break;
+	    case 'E':                   // Effect column
+		if (x==0) {             // Ignore if there were no tab cols
+		    printf("Warning: FX column with no tab columns, ignoring...\n");
+		    break;
+		}
+		for (int k=0;k<string;k++) {
+		    s >> cn;
+		    t.current()->c[x-1].e[k] = cn;
+		}		
 		break;
 	    case 'L':                   // Continuation of previous column
 		x++;
@@ -173,7 +185,7 @@ bool TabSong::load_from_kg(QString fileName)
 		finished=TRUE;
 		break;
 	    default:
-		printf("Non-fatal error: unknown event %c. Skipping...\n",event);
+		printf("Warning: unknown event %c. Skipping...\n",event);
 		for (int k=0;k<elength;k++)
 		    s >> cn;
 		break;
@@ -213,6 +225,8 @@ bool TabSong::save_to_kg(QString fileName)
 
     // TRACK DATA
     s << t.count();                     // Number of tracks
+
+    bool needfx = FALSE;                // Should we write FX event after tab?
 
     QListIterator<TabTrack> it(t);
     for (;it.current();++it) {          // For every track
@@ -256,9 +270,19 @@ bool TabSong::save_to_kg(QString fileName)
 	    } else {
 		s << (Q_UINT8) 'T';     // Tab column events
 		s << (Q_UINT8) tcsize;  // Size of event
-		for (int i=0;i<trk->string;i++)
+		needfx = FALSE;
+		for (int i=0;i<trk->string;i++) {
 		    s << (Q_INT8) trk->c[x].a[i];
+		    if (trk->c[x].e[i])
+			needfx = TRUE;
+		}
 		s << (Q_UINT16) trk->c[x].l; // Duration
+		if (needfx) {
+		    s << (Q_UINT8) 'E'; // Effect event
+		    s << (Q_UINT8) trk->string; // Size of event
+		    for (int i=0;i<trk->string;i++)
+			s << (Q_UINT8) trk->c[x].e[i];
+		}
 	    }
 	}
 	
