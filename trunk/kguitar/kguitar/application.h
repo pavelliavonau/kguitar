@@ -1,53 +1,66 @@
 #ifndef APPLICATION_H
 #define APPLICATION_H
 
-#include <kmainwindow.h>
+#include <kio/job.h>
+#include <kparts/browserextension.h>
+#include <kparts/factory.h>
+
 #include <kaction.h>
+
+#include "trackview.h"
+#include "tabsong.h"
 
 #include "global.h"
 #include "globaloptions.h"
 
-#define DESCRIPTION	I18N_NOOP("A stringed instrument tabulature editor")
 
 class KToolBar;
 class QPopupMenu;
 class QLabel;
 class ChordSelector;
-class TrackView;
 
-class ApplicationWindow: public KMainWindow
+class KGuitarBrowserExtension;
+
+class KGuitarFactory : public KParts::Factory
 {
     Q_OBJECT
 public:
-    ApplicationWindow();
-    ~ApplicationWindow();
-    TrackView *tv;                    //ALINX: I need it public for file browser
-    void addRecentFile(const char *fn);
-    void loadFile(KURL _url);
+    KGuitarFactory();
+    virtual ~KGuitarFactory();
+
+    virtual KParts::Part *createPart( QWidget *parentWidget, const char *widgetName, 
+            QObject *parent, const char *name, const char *classname, const QStringList &args );
+
+    static KInstance *instance();
+
+private:
+    static KInstance *s_instance;
+};
+
+
+class KGuitarPart: public KParts::ReadWritePart
+{
+    Q_OBJECT
+public:
+    KGuitarPart(bool bBrowserView, QWidget *parentWidget, const char *widgetName, 
+                QObject *parent, const char *name);
+    virtual ~KGuitarPart();
+    TrackView *tv;
+
+public slots:
+    void filePrint();
 
 private slots:
     void fileNew();
-    void fileOpen();
-    void recentLoad(const KURL &_url);
-    void openFile(QString fn);
-    void openBrowser();
-    void fileSave();
-    void fileSaveAs();
-    void filePrint();
-    void fileClose();
-    void fileQuit();
+    bool slotOpenFile(QString fn);
+    bool fileSave(QString fn);
     void insertChord();
     void songProperties();
     void trackProperties();
     void options();
     void saveOptions();
-    void configToolBars();
+    void slotConfigToolBars();
     void configKeys();
-
-    void updateStatusBar();
-
-    void setMainTB()  { globalShowMainTB = !globalShowMainTB; updateTbMenu(); };
-    void setEditTB()  { globalShowEditTB = !globalShowEditTB; updateTbMenu(); };
 
     void setUSsharp() { globalNoteNames = 0; updateMenu(); };
     void setUSflats() { globalNoteNames = 1; updateMenu(); };
@@ -63,29 +76,57 @@ private slots:
 
 private:
     void updateMenu();
-    void updateTbMenu();
+    void setWinCaption(const QString& caption);
     bool jazzWarning();
 
-    QPrinter *printer;
-//    TrackView *tv;      //ALINX: set disabled because I need it public for file browser
+    KGuitarBrowserExtension *m_extension;
 
-    KAction *newAct, *openAct, *saveAct, *saveAsAct, *printAct, *closeAct,
-            *quitAct, *preferencesAct, *confTBAct, *browserAct, *sngPropAct,
+    QPrinter *printer;
+
+    KAction *newAct, *preferencesAct, *confTBAct, *browserAct, *sngPropAct,
             *trkPropAct, *insChordAct, *len1Act, *len2Act, *len4Act, *len8Act, 
             *len16Act, *len32Act, *timeSigAct, *arcAct, *legatoAct, *natHarmAct, 
             *artHarmAct, *saveOptionAct, *confKeyAct, *arrTrkAct;
     KToggleAction *showMainTBAct, *showEditTBAct, *usSharpAct, *usFlatAct, 
                   *usMixAct, *euSharpAct, *euFlatAct, *euMixAct, *jazzSharpAct, 
                   *jazzFlatAct, *jazzMixAct;
-    KRecentFilesAction *openRecentAct;
 	KAccel *mainAccel;
 
     // Status bar labels
     QLabel *s_bar;
 
+    //parentWidget
+    QWidget *p; 
+
+    //BrowserView
+    bool isBrowserView;
+
 	void readOptions();
+
+protected:
+    // reimplemented from ReadWritePart
+    virtual bool openFile();    
+    virtual bool saveFile();
+
+signals:
+    void configToolBars();
 
 };
 
+//--------------------------------------------------------------------------
+
+class KGuitarBrowserExtension : public KParts::BrowserExtension
+{
+    Q_OBJECT
+    friend class KGuitarPart; // emits our signals
+public:
+    KGuitarBrowserExtension(KGuitarPart *parent);
+    virtual ~KGuitarBrowserExtension() {}
+
+public slots:
+    // Automatically detected by konqueror
+    void print();
+
+};
 
 #endif

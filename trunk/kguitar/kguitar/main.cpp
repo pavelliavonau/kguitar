@@ -1,15 +1,21 @@
+#include <qdir.h>
+
 #include <kapp.h>
 #include <kaboutdata.h>
 #include <kcmdlineargs.h>
 #include <klocale.h>
-#include <kmainwindow.h>
+#include <kurl.h>
 
+#include "kguitar_shell.h"
 #include "application.h"
 
 static KCmdLineOptions options[] = {
 	{ "+file", I18N_NOOP("File to open."), 0 },
 	{ 0, 0, 0 }
 };
+
+static const char *DESCRIPTION = I18N_NOOP("A stringed instrument tabulature editor");
+
 
 int main(int argc, char **argv)
 {
@@ -33,17 +39,16 @@ int main(int argc, char **argv)
 	KApplication a;
 
 	if (a.isRestored())
-		RESTORE(ApplicationWindow)
+		RESTORE(KGuitarShell)
 	else {
-		ApplicationWindow *kguitar = new ApplicationWindow;
+		KGuitarShell *shell = new KGuitarShell;
 		if (argc > 1) {
 			KCmdLineArgs *args = KCmdLineArgs::parsedArgs();
-			kguitar->loadFile(args->url(0));
+			KURL url(QDir::currentDirPath()+"/", args->arg(0));
+			shell->openURL(url);	
 			args->clear();
 		}
-// 		a.setMainWidget(kguitar);
-		kguitar->show();
-// 		a.connect(&a, SIGNAL(lastWindowClosed()), &a, SLOT(quit()));
+		shell->show();
 		return a.exec();
 	}
 }

@@ -40,9 +40,12 @@ private:
 class FileBrowser : public KDialog  {
    Q_OBJECT
 public: 
-   FileBrowser(ApplicationWindow *parent=0, const char *name=0);
+   FileBrowser(QWidget *parent=0, const char *name=0);
     ~FileBrowser();
-	TrackView* tv;
+
+    QLabel *tlabel;
+    QLabel *alabel;
+    QLabel *tslabel;
 
 public slots:
     void closeDlg();
@@ -65,14 +68,14 @@ protected:
     QLabel *titlelabel;
     QLabel *authorlabel;
     QLabel *translabel;
-    QLabel *tlabel;
-    QLabel *alabel;
-    QLabel *tslabel;
     QLabel *messagelabel;
 
 private: 
     QString getFullPath(QListViewItem* item);
-    ApplicationWindow *p;
+    QWidget *p;
+
+signals:
+    void loadFile(const KURL& url);
 
 };
 

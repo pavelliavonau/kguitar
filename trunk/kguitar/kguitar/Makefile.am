@@ -1,6 +1,6 @@
 # this 10 paths are KDE specific. Use them:
 # kde_htmldir       Where your docs should go to. (contains lang subdirs)
-# kde_appsdir       Where your application file (.kdelnk) should go to. 
+# kde_appsdir       Where your application file (.kdelnk) should go to.
 # kde_icondir       Where your icon should go to.
 # kde_sounddir      Where system sounds should go to.
 # kde_datadir       Where you install application data. (Use a subdir)
@@ -19,43 +19,51 @@ INCLUDES = $(all_includes)
 SUBDIRS = toolbar pics
 
 ####### This part is very kguitar specific
-# you can add here more. This one gets installed 
+# you can add here more. This one gets installed
 bin_PROGRAMS = 	kguitar
+lib_LTLIBRARIES = libkguitar.la
 
 # Which sources should be compiled for kguitar.
-kguitar_SOURCES	= application.cpp chord.cpp fingers.cpp fingerlist.cpp \
- main.cpp trackview.cpp setsong.cpp tabsong.cpp tabtrack.cpp settrack.cpp \
+libkguitar_la_SOURCES	= application.cpp chord.cpp fingers.cpp fingerlist.cpp \
+ trackview.cpp setsong.cpp tabsong.cpp tabtrack.cpp settrack.cpp \
  settabfret.cpp radiustuner.cpp notespinbox.cpp options.cpp chordlistitem.cpp \
- chordlist.cpp timesig.cpp strumming.cpp filebrowser.cpp\
+ chordlist.cpp timesig.cpp strumming.cpp filebrowser.cpp kguitar_shell.cpp\
  application.moc.cpp chord.moc.cpp fingers.moc.cpp fingerlist.moc.cpp \
  trackview.moc.cpp setsong.moc.cpp settrack.moc.cpp settabfret.moc.cpp \
  radiustuner.moc.cpp notespinbox.moc.cpp options.moc.cpp chordlist.moc.cpp \
- timesig.moc.cpp strumming.moc.cpp filebrowser.moc.cpp
+ timesig.moc.cpp strumming.moc.cpp filebrowser.moc.cpp kguitar_shell.moc.cpp
 
 # GREYFIX: todo automatic mocs
 # kguitar_METASOURCES = AUTO
 
-# the library search path. 
+# the library search path.
+kguitar_SOURCES = main.cpp
 kguitar_LDFLAGS = $(all_libraries) $(KDE_RPATH)
 
 # the libraries to link against. Be aware of the order. First the libraries,
 # that depend on the following ones.
-kguitar_LDADD   = $(LIB_KFILE)
+kguitar_LDADD   = $(LIB_KFILE) libkguitar.la
 
 # this option you can leave out. Just, if you use "make dist", you need it
 noinst_HEADERS = application.h chord.h fingers.h fingerlist.h trackview.h \
  setsong.h tabsong.h tabtrack.h settrack.h settabfret.h radiustuner.h \
  notespinbox.h options.h chordlistitem.h chordlist.h timesig.h strumming.h \
- filebrowser.h
+ filebrowser.h kguitar_shell.h
+
+libkguitar_la_LDFLAGS = $(all_libraries) -version-info 1:0:0 -module -no-undefined
+libkguitar_la_LIBADD = $(LIB_KFILE) -lkparts
 
 rcdir = $(kde_datadir)/kguitar
-rc_DATA = kguitarui.rc
+rc_DATA = kguitarui.rc kguitar_part.rc kguitar_konq.rc
 
 applnkdir = $(kde_appsdir)/Multimedia
 applnk_DATA = kguitar.desktop
 
 mimedir = $(kde_mimedir)/application
 mime_DATA = x-kguitar.desktop
+
+servicesdir = $(kde_servicesdir)
+services_DATA = kguitar_component.desktop
 
 messages:
 	$(XGETTEXT) -C -ki18n $(kguitar_SOURCES) -o ../po/kguitar.pot
@@ -142,3 +150,6 @@ strumming.moc.cpp: strumming.h
 
 filebrowser.moc.cpp: filebrowser.h
 	$(MOC) filebrowser.h -o filebrowser.moc.cpp
+
+kguitar_shell.moc.cpp: kguitar_shell.h
+	$(MOC) kguitar_shell.h -o kguitar_shell.moc.cpp
