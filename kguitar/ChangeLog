@@ -1,3 +1,56 @@
+2000-09-08  Mikhail Yakshin  <yakshin@online.ru>
+
+	* Release 0.2
+
+	* Second big milestone release. Lots of changes, a month of work.
+
+	* Total rewrite of internal track structures to use dynamic arrays
+	(QArrays) instead of lists. List stuff was really ugly and hard to
+	use (tabs really require direct access due to its nature). These
+	changes touched almost every piece of code, including saving /
+	loading schemes, tab displaying and more.
+	
+	* Tabulature editor: improved greatly.
+
+	* It understands now various time signatures and separation of
+	whole music piece in measures. Columns can have various durations,
+	including dotted durations (1.5x the duration, as in classic
+	notescores) and linked durations (to make possible weird durations
+	such as 5/16 or something like that).
+
+	* Automatical bar arranger that understands splitting notes of bar
+	margins (with linking) and simplifying the tab by joining similiar
+	columns into one. Note duration bars are linked in classic notes
+	manner.
+	
+	* Basic mouse navigation to those who find keyboard navigation
+	hard to use.
+
+	* Basic effect support, just to demonstrate the technology.
+	Current effects include natural and artificial harmonics and
+	legato. More effects should be added soon.
+
+	* Toolbar and statusbar made more functional. Statusbar now shows
+	the current bar number and toolbar pretends to have useful
+	buttons.
+
+	* Various note naming, american (CDEFGAB), european (CDEFGAH) and
+	jazz schemes (CDEFGABH), with various flats & sharps.
+
+	* I18n suport. This release has ru and fr program message i18n
+	files (po-files).
+
+	* Chord construction is improved too: chord list comes sorted now
+	(from the simpliest name to the most sophisticated), selecting a
+	chord name there makes all necessary selections, reduced
+	flickering. Many programming optimizations and clarifications
+	mostly invisible to the user.
+
+	* Tunings: added new tunings, fixed string thickness scale to be
+	more informative.
+
+	* Lots of bug fixes.
+
 2000-08-08  Mikhail Yakshin  <yakshin@glasnet.ru>
 
 	* Release 0.1

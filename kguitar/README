@@ -1,5 +1,5 @@
-				KGuitar
-			A KDE tabulature editor
+                               KGuitar
+                       A KDE tabulature editor
 
 (C) 2000 by GreyCat <yakshin@glasnet.ru>
 
@@ -41,8 +41,9 @@ It's a generic KDE application that you're familiar with. All the
 File/Edit/etc menus are here. The most interesting thing is what is
 below the menus :) It's a tab editor area.
 
-Right now the tab editor understands only keyboard operations. So,
-the keys are:
+Tab editor could be basically navigated by a mouse (just click on a
+column to move a cursor there), but most editing is done by keyboard
+in this release, so it won't hurt to learn these keys:
 
 Left, Right - move the cursor on previous/next column;
 
@@ -56,6 +57,9 @@ one-digited fret number just press the apropriate key. To enter
 consequentally - they'll add up to the 12 fret number. Note that
 you'll be unable to enter invalid fret numbers - for example 36th fret
 on the 24 fret guitar.
+
+X - makes the current string sound with dead note. This is marked with
+"X" mark in tab and sounds like a very short undetermined note.
 
 Delete - deletes the current fret number in cursor position.
 
@@ -72,15 +76,42 @@ optimize the fret fingerings without changing the sounding.
 the note length. Note lengths are shown as that familiar note-style
 lines. That is:
 
-       No note line			whole
-       Short note line			1/2
-       Long note line			1/4
-       Long line+1 horizontal bar	1/8
-       Long line+2 horizontal bars	1/16
-       Long line+3 horizontal bars	1/32
+       No note line                 whole
+       Short note line              1/2
+       Long note line               1/4
+       Long line+1 horizontal bar   1/8
+       Long line+2 horizontal bars  1/16
+       Long line+3 horizontal bars  1/32
+
+"." - add or remove dot that makes current column sound longer by one
+half of it's duration. I.e. dotted column duration is 1.5x non-dotted.
+
+L - make current column to be the continuation of previous column,
+maintaining the sound, thus making it longer by the duration of
+current column. Sounds complex, but that's really just links the
+column with previous one to make possible durations like 5/16 (1/4 as
+4/16 and 1/16 linked to it).
+
+A - reArrange bars, according to specified time signature. It splits
+the columns when needed and joins them where possible to simplify the
+notation (for example, 1/4 and 1/4 will be joined into single 1/2).
 
 That were the basic editing tools. That's enough to create pretty
 complex tabs.
+
+EFFECTS
+=======
+
+Tabulature can contain various guitar-specific (and not only guitar)
+effects. All these things have special symbols assigned to them. You
+can add effects via either pressing a hotkey or clicking on a toolbar
+item.
+
+Supported effects so far:
+
+H - Natural Harmonic
+R - Artifical Harmonic
+P - Legato (hammer on/pull off)
 
 CHORD CONSTRUCTION
 ==================
