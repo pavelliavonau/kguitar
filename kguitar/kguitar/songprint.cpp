@@ -24,6 +24,10 @@
 #include <qpainter.h>
 #include <qpaintdevicemetrics.h>
 
+using namespace std;
+
+#include <iostream>
+
 // SongPrint constructor
 
 SongPrint::SongPrint()
@@ -61,7 +65,7 @@ int SongPrint::barWidth(int bn, TabTrack *trk)
 		w += tsgfw;				// space for timesig
 	w += nt0fw;					// space before first note
 	w += ntlfw;					// space after last note
-	w += 1;						// the trailing vertical line
+	w += 1;						// LVIFIX: the trailing vertical line
 	return w;
 }
 
@@ -125,13 +129,14 @@ void SongPrint::drawBar(int bn, TabTrack *trk, int es)
 		// calculate vertical position:
 		// exactly halfway between top and bottom string
 		int y = ypos - ystep * (trk->string - 1) / 2;
-		// center the timesig at this height, use two pixels spacing
+		// center the timesig at this height, use spacing of 0.2 * char height
 		QString time;
 		time.setNum(trk->b[bn].time1);
-		y -= 1;
+		int brth = fm.boundingRect(time).height();
+		y -= (int) (0.1 * brth);
 		p->drawText(xpos + tsgpp, y, time);
 		time.setNum(trk->b[bn].time2);
-		y += fm.boundingRect(time).height() + 2;
+		y += (int) (1.2 * brth);
 		p->drawText(xpos + tsgpp, y, time);
 		p->setFont(fTBar1);
 		xpos += tsgfw;
@@ -154,15 +159,16 @@ void SongPrint::drawBar(int bn, TabTrack *trk, int es)
 		else
 			xdelta = xpos + ystep / 2;
 
+		p->setPen(pLnBl);
 		switch (curt->c[t].l) {
 		case 15:  // 1/32
-			p->drawLine(xpos, ypos + 2 * ystep - 4,
-						xdelta, ypos + 2 * ystep - 4);
+			p->drawLine(xpos,   (int) (ypos + 1.6 * ystep),
+						xdelta, (int) (ypos + 1.6 * ystep));
 		case 30:  // 1/16
-			p->drawLine(xpos, ypos + 2 * ystep - 2,
-						xdelta, ypos + 2 * ystep - 2);
+			p->drawLine(xpos,   (int) (ypos + 1.8 * ystep),
+						xdelta, (int) (ypos + 1.8 * ystep));
 		case 60:  // 1/8
-			p->drawLine(xpos, ypos + 2 * ystep,
+			p->drawLine(xpos,   ypos + 2 * ystep,
 						xdelta, ypos + 2 * ystep);
 		case 120: // 1/4 - a long vertical line, so we need to find the highest note
 			for (i = s;((i >= 0) && (curt->c[t].a[i] == -1)); i--);
@@ -197,16 +203,22 @@ void SongPrint::drawBar(int bn, TabTrack *trk, int es)
  				(curt->c[t + 1].flags & FLAG_TRIPLET) &&
 				(curt->c[t - 1].l == curt->c[t].l) &&
 				(curt->c[t + 1].l == curt->c[t].l)) {
-				extSpAftNote = (colWidth(t, trk) * es) / barExpWidthLeft;
-				p->drawLine(xpos + xdelta + extSpAftNote, ypos + 3 * ystep,
-							xpos + xdelta + extSpAftNote, ypos + 3 * ystep - 3);
-				p->drawLine(xpos + xdelta + extSpAftNote, ypos + 3 * ystep,
-							lastxpos, ypos + 3 * ystep);
-				p->drawLine(lastxpos, ypos + 3 * ystep,
-							lastxpos, ypos + 3 * ystep - 3);
 				p->setFont(fTBar2);
-				drawStrFccAt(xpos, -4, "3");
+				drawStrCntAt(xpos, -3, "3");
 				p->setFont(fTBar1);
+				extSpAftNote = (colWidth(t, trk) * es) / barExpWidthLeft;
+				p->drawLine(xpos + xdelta + extSpAftNote,
+							(int) (ypos + 2.3 * ystep),
+							xpos + xdelta + extSpAftNote,
+							(int) (ypos + 2.5 * ystep));
+				p->drawLine(xpos + xdelta + extSpAftNote,
+							(int) (ypos + 2.5 * ystep),
+							lastxpos,
+							(int) (ypos + 2.5 * ystep));
+				p->drawLine(lastxpos,
+							(int) (ypos + 2.3 * ystep),
+							lastxpos,
+							(int) (ypos + 2.5 * ystep));
  			} else {
 				if (!(((curt->c.size() >= t + 2) &&
 					   (curt->c[t + 1].flags & FLAG_TRIPLET) &&
@@ -219,7 +231,7 @@ void SongPrint::drawBar(int bn, TabTrack *trk, int es)
 					   (curt->c[t - 1].l == curt->c[t].l) &&
 					   (curt->c[t - 2].l == curt->c[t].l)))) {
 					p->setFont(fTBar2);
-					drawStrFccAt(xpos, -4, "3");
+					drawStrCntAt(xpos, -3, "3");
 					p->setFont(fTBar1);
 				}
 			}
@@ -233,19 +245,20 @@ void SongPrint::drawBar(int bn, TabTrack *trk, int es)
 
 		// Draw palm muting
 
-		/* LVIFIX: moved to "draw effects" ...
+		/* moved to "draw effects" ...
 		if (curt->c[t].flags & FLAG_PM) {
 			p->setFont(fTBar2);
 			QString pm = "PM";
-			drawStrFccAt(xpos, trk->string, pm);
+			drawStrCntAt(xpos, trk->string, pm);
 			p->setFont(fTBar1);
 		}
 		*/
 
 		// Draw the number column
+		int ew_2 = 0;
+		QString note = "";
 		for (int i = 0; i < trk->string; i++) {
 			if (trk->c[t].a[i] != -1) {
-				QString note;
 				if (curt->c[t].a[i] == DEAD_NOTE)
 					note = "X";
 				else
@@ -253,13 +266,18 @@ void SongPrint::drawBar(int bn, TabTrack *trk, int es)
 				// Draw dot
 				if (curt->c[t].flags & FLAG_DOT)
 					note += ".";
-				drawStrFccAt(xpos, i, note);
+				drawStrCntAt(xpos, i, note);
+				// cell width is needed later
+				ew_2 = eraWidth(note) / 2;
 				if (ringing[i]) {
-					// LVIFIX: replace 2 and 4 by (font-dependent) calculation
-					p->drawLine(xpos - 4, ypos - i * ystep,
-								xpos - 4 - 2, ypos - i * ystep - 2);
-					p->drawLine(xpos - 4, ypos - i * ystep,
-								xpos - 4 - 2, ypos - i * ystep + 2);
+					p->drawLine(xpos - ew_2,
+								ypos - i * ystep,
+								xpos - ew_2 - ystep / 3,
+								ypos - i * ystep - ystep / 3);
+					p->drawLine(xpos - ew_2,
+								ypos - i * ystep,
+								xpos - ew_2 - ystep / 3,
+								ypos - i * ystep + ystep / 3);
 					ringing[i] = FALSE;
 				}
 			}
@@ -271,19 +289,20 @@ void SongPrint::drawBar(int bn, TabTrack *trk, int es)
 			case EFFECT_HARMONIC:
 				{
 					QPointArray a(4);
+					// size of diamond
+					int sz_2 = ystep / 4;
 					// leftmost point of diamond
-					// LVIFIX: replace 4 by (font-dependent) calculation
-					int x = xpos + 4;
-					int y = ypos - i * ystep; // + ystep / 2;
+					int x = xpos + ew_2;
+					int y = ypos - i * ystep;
 					// initialize diamond shape
-					a.setPoint(0, x,   y  );
-					a.setPoint(1, x+2, y+2);
-					a.setPoint(2, x+4, y  );
-					a.setPoint(3, x+2, y-2);
+					a.setPoint(0, x,        y     );
+					a.setPoint(1, x+sz_2,   y+sz_2);
+					a.setPoint(2, x+2*sz_2, y     );
+					a.setPoint(3, x+sz_2,   y-sz_2);
 					// erase tab line
-					p->setPen(Qt::white);
-					p->drawLine(x, y, x+4, y);
-					p->setPen(Qt::black);
+					p->setPen(pLnWh);
+					p->drawLine(x, y, x+2*sz_2, y);
+					p->setPen(pLnBl);
 					// draw (empty) diamond
 					p->drawPolygon(a);
 				}
@@ -291,15 +310,16 @@ void SongPrint::drawBar(int bn, TabTrack *trk, int es)
 			case EFFECT_ARTHARM:
 				{
 					QPointArray a(4);
+					// size of diamond
+					int sz_2 = ystep / 4;
 					// leftmost point of diamond
-					// LVIFIX: replace 4 by (font-dependent) calculation
-					int x = xpos + 4;
-					int y = ypos - i * ystep; // + ystep / 2;
+					int x = xpos + ew_2;
+					int y = ypos - i * ystep;
 					// initialize diamond shape
-					a.setPoint(0, x,   y  );
-					a.setPoint(1, x+2, y+2);
-					a.setPoint(2, x+4, y  );
-					a.setPoint(3, x+2, y-2);
+					a.setPoint(0, x,        y     );
+					a.setPoint(1, x+sz_2,   y+sz_2);
+					a.setPoint(2, x+2*sz_2, y     );
+					a.setPoint(3, x+sz_2,   y-sz_2);
 					// draw filled diamond
 					QBrush blbr(Qt::black);
 					p->setBrush(blbr);
@@ -309,32 +329,32 @@ void SongPrint::drawBar(int bn, TabTrack *trk, int es)
 				break;
 			case EFFECT_LEGATO:
 				// draw arc to next note
-				// LVIFIX: replace 4 by (font-dependent) calculation
-				// the arc should (probably) be as wide as the line between
-				// this note and the next. see drawStrFccAt
+				// the arc should be as wide as the line between
+				// this note and the next. see drawStrCntAt.
 				// extra space between notes must also be added
 				if ((t < curt->c.size() - 1) && (curt->c[t + 1].a[i] >= 0)) {
 					extSpAftNote = (colWidth(t, trk) * es) / barExpWidthLeft;
-					p->drawArc(xpos + 4, ypos - i * ystep - ystep / 2,
-							   xdelta + extSpAftNote - 2 * 4, ystep / 2,
+					p->drawArc(xpos + ew_2, ypos - i * ystep - ystep / 2,
+							   xdelta + extSpAftNote - 2 * ew_2, ystep / 2,
 							   0, 180 * 16);
 				}
 				break;
 			case EFFECT_SLIDE:
-				// LVIFIX: replace 4 by (font-dependent) calculation
-				// the slide symbol should (probably) be as wide as the line
-				// between this note and the next. see drawStrFccAt
+				// the slide symbol should be as wide as the line
+				// between this note and the next. see drawStrCntAt.
 				// extra space between notes must also be added
 				if ((t < curt->c.size() - 1) && (curt->c[t + 1].a[i] >= 0)) {
 					extSpAftNote = (colWidth(t, trk) * es) / barExpWidthLeft;
 					if (curt->c[t + 1].a[i] > curt->c[t].a[i]) {
-						p->drawLine(xpos + 4, ypos - i * ystep + ystep / 2 - 2,
-									xpos + xdelta + extSpAftNote - 4,
-									ypos - i * ystep - ystep / 2 + 2);
+						p->drawLine(xpos + ew_2,
+									ypos - i * ystep + ystep / 3 - 2,
+									xpos + xdelta + extSpAftNote - ew_2,
+									ypos - i * ystep - ystep / 3 + 2);
 					} else {
-						p->drawLine(xpos + 4, ypos - i * ystep - ystep / 2 + 2,
-									xpos + xdelta + extSpAftNote - 4,
-									ypos - i * ystep + ystep / 2 - 2);
+						p->drawLine(xpos + ew_2,
+									ypos - i * ystep - ystep / 3 + 2,
+									xpos + xdelta + extSpAftNote - ew_2,
+									ypos - i * ystep + ystep / 3 - 2);
 					}
 				}
 				break;
@@ -346,11 +366,11 @@ void SongPrint::drawBar(int bn, TabTrack *trk, int es)
 			// draw palm muting as little cross behind note
 			if (curt->c[t].flags & FLAG_PM
 				&& trk->c[t].a[i] != -1) {
-				// LVIFIX: replace 4 by (font-dependent) calculation
-				int x = xpos + 4;
-				int y = ypos - i * ystep; // + ystep / 2;
-				p->drawLine(x, y-2, x+4, y+2);
-				p->drawLine(x, y+2, x+4, y-2);
+				int sz_2 = ystep / 4;
+				int x    = xpos + ew_2;
+				int y    = ypos - i * ystep;
+				p->drawLine(x, y - sz_2, x + sz_2, y + sz_2);
+				p->drawLine(x, y + sz_2, x + sz_2, y - sz_2);
 			}
 			
 		} // end for (int i = 0 ...
@@ -372,6 +392,7 @@ void SongPrint::drawBar(int bn, TabTrack *trk, int es)
 	// end bar with vertical line
 	p->drawLine(xpos, ypos,
 	            xpos, ypos - (trk->string - 1) * ystep);
+	// LVIFIX
 	xpos += 1;
 }
 
@@ -381,6 +402,7 @@ void SongPrint::drawBarLns(int w, TabTrack *trk)
 {
 	const int lstStr = trk->string - 1;
 	// vertical lines at xpos and xpos+w-1
+	p->setPen(pLnBl);
 	p->drawLine(xpos, ypos, xpos, ypos - lstStr * ystep);
 	p->drawLine(xpos + w - 1, ypos, xpos + w - 1, ypos - lstStr * ystep);
 	// horizontal lines from xpos to xpos+w-1
@@ -401,11 +423,11 @@ void SongPrint::drawKey(int l, TabTrack *trk)
 	if (l == 0) {
 		for (int i = 0; i < lstStr + 1; i++) {
 			if (trk->trackMode() == DrumTab) {
-				drawStrFccAt(tabpp + br8w / 2,
+				drawStrCntAt(tabpp + br8w / 2,
 							 i,
 							 drum_abbr[trk->tune[i]]);
 			} else {
-				drawStrFccAt(tabpp + br8w / 2,
+				drawStrCntAt(tabpp + br8w / 2,
 							 i,
 							 note_name(trk->tune[i] % 12));
 			}
@@ -413,15 +435,15 @@ void SongPrint::drawKey(int l, TabTrack *trk)
 	} else {
 		// calculate vertical position:
 		// exactly halfway between top and bottom string
-		// center "TAB" at this height, use two pixels spacing
+		// center "TAB" at this height, use spacing of 0.3 * char height
 		QFontMetrics fm  = p->fontMetrics();
 		int y = ypos - ystep * lstStr / 2;
-		int h8 = fm.boundingRect("8").height();
-		y -= h8 / 2 + 2;
+		int br8h = fm.boundingRect("8").height();
+		y -= (int) ((0.5 + 0.3) * br8h);
 		p->drawText(xpos + tabpp, y, "T");
-		y += h8 + 2;
+		y += (int) ((1.0 + 0.3) * br8h);
 		p->drawText(xpos + tabpp, y, "A");
-		y += h8 + 2;
+		y += (int) ((1.0 + 0.3) * br8h);
 		p->drawText(xpos + tabpp, y, "B");
 	}
 }
@@ -431,36 +453,52 @@ void SongPrint::drawKey(int l, TabTrack *trk)
 void SongPrint::drawPageHdr(int n, TabSong *song)
 {
 	// LVIFIX: replace magic numbers by font-dependent constants
-	// LVIFIX: add page number
 	p->setFont(fHdr1);
-	p->drawText(20, 30, song->title + " - " + song->author);
+	p->drawText(140, 210, song->title + " - " + song->author);
 	QString pgNr;
 	pgNr.setNum(n);
 	p->setFont(fHdr2);
-	p->drawText(pprw - 20, 30, pgNr);
+	p->drawText(pprw - 140, 210, pgNr);
 	p->setFont(fHdr3);
-	p->drawText(20, 50, "Transcribed by " + song->transcriber);
-	ypos = 80;					// LVIFIX: replace magic number
+	p->drawText(140, 350, "Transcribed by " + song->transcriber);
+	ypos = 560;					// LVIFIX: replace magic number
 }
 
-// draw string s with first character centered at x on string n
-// erase tab line at location of string
+// draw string s centered at x on string n
+// erase both tab and possible vertical line at location of string
 // uses ypos but ignores xpos
 // LVIFIX: use xpos too ?
 
-void SongPrint::drawStrFccAt(int x, int n, const QString s)
+// As most characters don't start at the basepoint, we need to center
+// the bounding rectangle, i.e. offset the character in the x direction
+// by (left + right) / 2.
+// Strictly speaking this needs to be done in the y dir too, but here
+// the error is very small.
+
+void SongPrint::drawStrCntAt(int x, int n, const QString s)
 {
-	QFontMetrics fm  = p->fontMetrics();
-	const int yOffs  = fm.boundingRect("8").height() / 2;
-	const int xOffsL = fm.boundingRect("8").width() / 2;
-	const int xOffsR = fm.boundingRect(s).width() - xOffsL;
-	p->setPen(Qt::white);
-	p->drawLine(x - xOffsL - 1, ypos - n * ystep,
-				x + xOffsR + 2, ypos - n * ystep);
+	QFontMetrics fm = p->fontMetrics();
+	const int yOffs = fm.boundingRect("8").height() / 2;
+	const QRect r   = fm.boundingRect(s);
+	int xoffs       = - (r.left() + r.right()) / 2;
+	p->setPen(pLnWh);
+	int ew_2 = eraWidth(s) / 2;
+	p->drawLine(x - ew_2, ypos - n * ystep,
+				x + ew_2, ypos - n * ystep);
 	p->drawLine(x, ypos - n * ystep - ystep / 2,
 				x, ypos - n * ystep + ystep / 2);
-	p->setPen(Qt::black);
-	p->drawText(x - xOffsL, ypos - n * ystep + yOffs, s);
+	p->setPen(pLnBl);
+	p->drawText(x + xoffs, ypos - n * ystep + yOffs, s);
+}
+
+// return width (of barline) to erase for string s
+
+int SongPrint::eraWidth(const QString s)
+{
+	QFontMetrics fm = p->fontMetrics();
+	const int brw8  = fm.boundingRect("8").width();
+	const int brws  = fm.boundingRect(s).width();
+	return (int) (brws + 0.4 * brw8);
 }
 
 // initialize fonts
@@ -479,10 +517,14 @@ void SongPrint::initFonts()
 
 void SongPrint::initMetrics(KPrinter *printer)
 {
+	// LVIFIX: remove debug cout
+	// cout << "SongPrint::initMetrics()" << endl;
 	// determine width/height of printer surface
 	QPaintDeviceMetrics pdm(printer);
 	pprh  = pdm.height();
 	pprw  = pdm.width();
+	// LVIFIX: remove debug cout
+	// cout << "pprh=" << pprh << " pprw=" << pprw << endl;
 	// determine font-dependent bar metrics
 	p->setFont(fTBar1);
 	QFontMetrics fm  = p->fontMetrics();
@@ -491,12 +533,24 @@ void SongPrint::initMetrics(KPrinter *printer)
 	ystep = fm.ascent() - 1;
 	// LVIFIX: tune these values
 	// note: font dependent
-	tabfw = 20;
-	tabpp =  5;
-	tsgfw = 20;
-	tsgpp = 10;
-	nt0fw =  8;
-	ntlfw =  2;
+	tabfw = 140;
+	tabpp =  35;
+	tsgfw = 140;
+	tsgpp =  70;
+	nt0fw =  56;
+	ntlfw =  14;
+}
+
+// initialize pens
+// LVIFIX: which penwidth ?
+// penwidth 2 is OK on my deskjet for printing quality = normal
+// penwidth 3 is OK on my deskjet for printing quality = presentation
+
+void SongPrint::initPens()
+{
+	const int lw = 2;
+	pLnBl = QPen(Qt::black, lw);
+	pLnWh = QPen(Qt::white, lw);
 }
 
 // print song song on printer printer
@@ -514,6 +568,10 @@ void SongPrint::printSong(KPrinter *printer, TabSong *song)
 	// initialize variables
 	initMetrics(printer);
 
+	// initialize pens
+	initPens();
+	p->setPen(pLnBl);
+
 	// print page header
 	int pgNr = 1;
 	drawPageHdr(pgNr, song);
@@ -530,9 +588,9 @@ void SongPrint::printSong(KPrinter *printer, TabSong *song)
 		{
 			p->setFont(fHdr2);
 			p->drawText(20, ypos, trk->name);
-			ypos += 20;
+			ypos += 140;			// LVIFIX: should be font-dependent
 		}
-		ypos += 40;
+		ypos += 280;				// LVIFIX: should be font-dependent
 
 		int l = 0;					// line nr in the current track
 		uint brsPr = 0;				// bars printed
@@ -552,7 +610,7 @@ void SongPrint::printSong(KPrinter *printer, TabSong *song)
 			// draw empty tab bar at yPos
 			xpos = 0;
 			drawBarLns(pprw - 1, trk);
-			xpos += 1;				// first vertical line
+			xpos += 1;				// LVIFIX: first vertical line
 			drawKey(l, trk);
 			xpos += tabfw;			// "TAB"
 
@@ -598,7 +656,14 @@ void SongPrint::printSong(KPrinter *printer, TabSong *song)
 				printer->newPage();
 				pgNr++;
 				drawPageHdr(pgNr, song);
-				ypos += 40;
+				// print the track header
+				if ((song->t).count() > 1)
+				{
+					p->setFont(fHdr2);
+					p->drawText(20, ypos, trk->name);
+					ypos += 140;			// LVIFIX: should be font-dependent
+				}
+				ypos += 280;				// LVIFIX: should be font-dependent
 			}
 
 		} // end while (brsPr ...

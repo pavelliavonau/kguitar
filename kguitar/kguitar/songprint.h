@@ -19,6 +19,7 @@
 #define SONGPRINT_H
 
 #include <qfont.h>
+#include <qpen.h>
 #include <qstring.h>
 
 class KPrinter;
@@ -37,9 +38,11 @@ public:
 	void drawBarLns(int w, TabTrack *trk);
 	void drawKey(int l, TabTrack *trk);
 	void drawPageHdr(int n, TabSong *song);
-	void drawStrFccAt(int x, int y, const QString s);
+	void drawStrCntAt(int x, int y, const QString s);
+	int eraWidth(const QString s);
 	void initFonts();
 	void initMetrics(KPrinter *printer);
+	void initPens();
 	void printSong(KPrinter *printer, TabSong *song);
 private:
 	// Almost all functions use a pointer to the same painter, instead of
@@ -72,6 +75,9 @@ private:
 	QFont fTBar1;				// used for notes on the tab bar
 	QFont fTBar2;				// used for notes on the tab bar
 	QFont fTSig;				// used for time signature
+	// Pens used
+	QPen pLnBl;				// used for black lines & text
+	QPen pLnWh;				// used for white lines
 	// The current write location
 	int xpos;
 	int ypos;
