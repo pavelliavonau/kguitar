@@ -10,6 +10,8 @@
 #include "trackdrag.h"
 #include "settings.h"
 
+#include "convertascii.h"
+
 #include "optionsexportascii.h"
 #include "optionsexportmusixtex.h"
 
@@ -205,8 +207,10 @@ bool KGuitarPart::openFile()
 
 	if (ext == "kg")
 		success = sv->song()->loadFromKg(m_file);
-	if (ext == "tab")
-		success = sv->song()->loadFromTab(m_file);
+	if (ext == "tab") {
+		ConvertAscii converter(sv->song());
+		success = converter.load(m_file);
+	}
 #ifdef WITH_TSE3
 	if (ext == "mid")
 		success = sv->song()->loadFromMid(m_file);
@@ -290,7 +294,8 @@ bool KGuitarPart::saveFile()
 	if (ext == "tab") {
 		Settings::config->setGroup("ASCII");
 		if (exportOptionsDialog(ext)) {
-			success = sv->song()->saveToTab(m_file);
+			ConvertAscii converter(sv->song());
+			success = converter.save(m_file);
 		} else {
 			return FALSE;
 		}
@@ -400,8 +405,8 @@ void KGuitarPart::fileSaveAs()
 // track. For drum track, lots of actions are unavailable.
 void KGuitarPart::updateToolbars(TabTrack *)
 {
-	switch (sv->tv->trk()->trackMode() == DrumTab) {
-	case DrumTab:
+	switch (sv->tv->trk()->trackMode()) {
+	case TabTrack::DrumTab:
 		insChordAct->setEnabled(FALSE);
 		natHarmAct->setEnabled(FALSE);
 		artHarmAct->setEnabled(FALSE);
