@@ -28,10 +28,10 @@ int main(int argc, char **argv)
 						"GreyCat@users.sourceforge.net");
 	aboutData.addAuthor("Alex Brand AKA alinx", 0, "alinx@users.sourceforge.net");
 	aboutData.addCredit("Stephan Borchert", 0, "sborchert@users.sourceforge.net");
-	aboutData.addCredit("Harri Haataja AKA realblades", 0, "realblades@users.sourceforge.net");
-	aboutData.addCredit("Matt Malone AKA Marlboro", 0, "Marlboro@users.sourceforge.net");
+	aboutData.addCredit("Juan Pablo Sousa Bravo AKA gotem", 0, "gotem@users.sourceforge.net");
 	aboutData.addCredit("Wilane Ousmane", 0, "wilane@users.sourceforge.net");
 	aboutData.addCredit("Richard G. Roberto", 0, "robertor@users.sourceforge.net");
+	aboutData.addCredit("Riccardo Vit AKA feac", 0, "feac@users.sourceforge.net");
     aboutData.addCredit(0, I18N_NOOP("Special Thanks to Ronald Gelten who\n"
                         "allowed us to make changes to tabdefs.tex"), 0);
 
