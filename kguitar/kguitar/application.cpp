@@ -6,6 +6,7 @@
 #include "setsong.h"
 #include "settrack.h"
 #include "settabfret.h"
+#include "options.h"
 
 #include <qpopupmenu.h>
 
@@ -24,11 +25,26 @@
 
 #include <qmultilinedit.h>
 #include <kintegerline.h>
+#include <qbuttongroup.h>
+#include <qradiobutton.h>
+
+// Global variables - real declarations
+
+int global_maj7;
+int global_flatplus;
 
 ApplicationWindow::ApplicationWindow(): KTMainWindow()
 {
     printer = new QPrinter;
     printer->setMinMax(1,10);
+
+    // READ CONFIGS
+    // GREYFIX to read reading
+
+    global_maj7=0;
+    global_flatplus=0;
+
+    // SET UP TOOLBAR
 
     toolBar()->insertButton(Icon("filenew.xpm"),1,SIGNAL(clicked()),this,SLOT(newDoc()),TRUE,i18n("New"));
     toolBar()->insertButton(Icon("fileopen.xpm"),1,SIGNAL(clicked()),this,SLOT(load()),TRUE,i18n("Open file"));
@@ -37,6 +53,8 @@ ApplicationWindow::ApplicationWindow(): KTMainWindow()
     toolBar()->insertSeparator();
     toolBar()->insertButton(Icon("chord.xpm"),1,SIGNAL(clicked()),this,SLOT(inschord()),TRUE,"Insert chord");
     
+    // SET UP MAIN MENU
+
     QPopupMenu *p = new QPopupMenu();
     p->insertItem(i18n("&New"), this, SLOT(newDoc()));
     p->insertItem(i18n("&Open..."), this, SLOT(load()));
@@ -46,6 +64,7 @@ ApplicationWindow::ApplicationWindow(): KTMainWindow()
     p->insertSeparator();
     p->insertItem(i18n("P&roperties..."), this, SLOT(songProperties()));
     p->insertItem(i18n("&Print..."), this, SLOT(print()));
+    p->insertItem(i18n("&Options..."), this, SLOT(options()));
     p->insertSeparator();
     p->insertItem(i18n("&Close"), this, SLOT(closeDoc()));
     p->insertItem(i18n("&Quit"), qApp, SLOT(quit()));
@@ -271,4 +290,22 @@ void ApplicationWindow::trackProperties()
     }
 
     delete st;
+}
+
+void ApplicationWindow::options()
+{
+    Options *op = new Options();
+
+    op->maj7gr->setButton(global_maj7);
+    op->flatgr->setButton(global_flatplus);
+
+    if (op->exec()) {
+	if (op->maj7[0]->isChecked())  global_maj7=0;
+	if (op->maj7[1]->isChecked())  global_maj7=1;
+	if (op->maj7[2]->isChecked())  global_maj7=2;
+	if (op->flat[0]->isChecked())  global_flatplus=0;
+	if (op->flat[1]->isChecked())  global_flatplus=1;
+    }
+
+    delete op;
 }
