@@ -130,7 +130,7 @@ libtse3found="yes"
 AC_NEW_ARG(tse3)
 AC_ARG_ENABLE(midisupport, [  --disable-midisupport      Disable MIDI Support if TSE3 is found],
       USE_MIDISUPPORT=$enableval, USE_MIDISUPPORT=yes)
-AC_ARG_WITH(alt-qtsmanip,[  --with-alt-qtsmanip        If you get conflicts with QTSManip])
+AC_ARG_WITH(alt-qtsmanip, [  --with-alt-qtsmanip        If you get conflicts with QTSManip])
 
 
 if test "X$USE_EXCEPTIONS" = "X"
@@ -149,23 +149,26 @@ fi
 #Search TeTeX
 #
 AC_PATH_PROG(TETEX, kpsetool, no)
+AC_ARG_WITH(kgtabs, [  --with-kgtabs              Install kgtabs.tex support for MusiXTeX])
 TETEXDIR=$datadir
 
-if test "$TETEX" = no
+if test "$with_kgtabs" = "yes"
 then
-	AC_MSG_WARN(*** No TeTeX found! kgtabs.tex will not be installed. ***)
-    AC_MSG_WARN(*** You can install it later with \"install-kgtabs.sh\" ***)
-else
-    AC_MSG_CHECKING(for TeTeX directory)
-    TEXMF="`kpsetool -v '$TEXMF' | sed 's/!//g'`"
-    AC_MSG_RESULT(found in $TEXMF)
-    INSTALLKGTABS="install-kgtabs"
-    UNINSTALLKGTABS="uninstall-kgtabs"
+	if test "$TETEX" = no
+	then
+		AC_MSG_WARN(*** No TeTeX found! kgtabs.tex will not be installed. ***)
+		AC_MSG_WARN(*** You can install it later with \"install-kgtabs.sh\" ***)
+	else
+		AC_MSG_CHECKING(for TeTeX directory)
+		TEXMF="`kpsetool -v '$TEXMF' | sed 's/!//g'`"
+		AC_MSG_RESULT(found in $TEXMF)
+		INSTALLKGTABS="install-kgtabs"
+		UNINSTALLKGTABS="uninstall-kgtabs"
+	fi
+
+	INSTALL_KGTABS="install-kgtabs"
+	UNINSTALL_KGTABS="uninstall-kgtabs"
 fi
-
-INSTALL_KGTABS="install-kgtabs"
-UNINSTALL_KGTABS="uninstall-kgtabs"
-
 
 #
 #Search TSE3
