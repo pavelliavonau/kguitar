@@ -48,7 +48,7 @@ void SetTabDrum::stringChanged(int n)
     reposTuners();
 }
 
-void SetTabDrum::resizeEvent(QResizeEvent *e)
+void SetTabDrum::resizeEvent(QResizeEvent *)
 {
     reposTuners();
 }
