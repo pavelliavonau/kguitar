@@ -153,15 +153,15 @@ void ChordSelector::detectChord()
 
 void ChordSelector::findChords()
 {
-    int i,j,k,min,max;
+    int i,j,k,cn,min,max;
     int app[MAX_STRINGS];
 
-    int maxfret=9;
+    int maxfret=9,notenum=3;
     bool finished=FALSE,ok;
 
     // CALCULATION OF REQUIRED NOTES FOR A CHORD FROM USER INPUT
 
-    int need[3]={0,4,7};
+    int need[3]={0,4,7},got[3];
 
     for (i=0;i<3;i++)
       need[i]=(need[i]+tonic->currentItem())%12;
@@ -175,33 +175,46 @@ void ChordSelector::findChords()
     // MAIN FINGERING CALCULATION LOOP
 
     do {
-      i=0;
-      do {
-	app[i]++;
-	if (app[i]<=maxfret)  break;
-	app[i]=0;i++;
-	if (i>5) {
-	  finished=TRUE;
-	  break;
-	}
-      } while (TRUE);
-      if (!finished) {
-	min=maxfret+1;max=0;
-	for (j=0;j<=5;j++) {
-	  ok=FALSE;
-	        if (app[j]!=0) {
-		  if (app[j]<min)  min = app[j];
-		  if (app[j]>max)  max = app[j];
+        i=0;
+        do {
+            app[i]++;
+            if (app[i]<=maxfret)  {
+                ok = FALSE;
+                cn = (app[i]+tune[i]) % 12;
+                for (k=0;k<notenum;k++) {
+                    if (cn==need[k]) { ok = TRUE; break; }
                 }
-                for (k=0;k<=2;k++) {
-		  if (((app[j]+tune[j]) % 12) == need[k])
-		    ok = TRUE;
+                if (ok) { break; }
+            } else {
+                app[i]=0;i++;
+                if (i>5) {
+                    finished=TRUE;
+                    break;
                 }
-                if (!ok)  break;
-	};
-	if ((ok) && (max-min<3))
-	  fnglist->addFingering(app,TRUE);
-      }
+            }
+        } while (TRUE);
+        if (!finished) {
+            min=maxfret+1;max=0;
+            for (k=0;k<notenum;k++) { got[k]=0; }
+            for (j=0;j<=5;j++) {
+                if (app[j]!=0) {
+                    if (app[j]<min)  min = app[j];
+                    if (app[j]>max)  max = app[j];
+                }
+                cn = (app[j]+tune[j]) % 12;
+                for (k=0;k<notenum;k++) {
+                    if (cn==need[k])  { got[k]++; break; }
+                }
+            };
+            ok=TRUE;
+            for (k=0;k<notenum;k++) {
+                if (got[k]==0) { ok = FALSE; break; }
+            };
+            if ((ok) && (max-min<3)) {
+	      fnglist->addFingering(app,TRUE);
+	      printf("%d%d%d%d%d%d\n",app[5],app[4],app[3],app[2],app[1],app[0]);
+            }
+        }
     } while (!finished);
 
     fnglist->repaint();
