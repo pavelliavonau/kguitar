@@ -65,7 +65,7 @@ SongView::SongView(KXMLGUIClient *_XMLGUIClient, KCommandHistory *_cmdHist,
 	ro = FALSE;
 
 	m_song = new TabSong(i18n("Unnamed"), 120);
-	m_song->t.append(new TabTrack(FretTab, i18n("Guitar"), 1, 0, 25, 6, 24));
+	m_song->t.append(new TabTrack(TabTrack::FretTab, i18n("Guitar"), 1, 0, 25, 6, 24));
 
 	split = new QSplitter(this);
 	split->setOrientation(QSplitter::Vertical);
@@ -131,7 +131,7 @@ void SongView::refreshView()
 bool SongView::trackNew()
 {
 	TabTrack* oldtr = tv->trk();
-	TabTrack* newtr = new TabTrack(FretTab, "", m_song->freeChannel(), 0, 25, 6, 24);
+	TabTrack* newtr = new TabTrack(TabTrack::FretTab, "", m_song->freeChannel(), 0, 25, 6, 24);
 
 	m_song->t.append(newtr);
 	tv->setCurrentTrack(newtr);
@@ -181,7 +181,7 @@ void SongView::trackDelete()
 // track's rhythm
 void SongView::trackBassLine()
 {
-	if (tv->trk()->trackMode() == DrumTab) {
+	if (tv->trk()->trackMode() == TabTrack::DrumTab) {
 		KMessageBox::sorry(this, i18n("Can't generate a bass line from drum track"));
 		return;
 	}
@@ -242,10 +242,10 @@ bool SongView::trackProperties()
 		newtrk->channel = st->channel->value();
 		newtrk->bank = st->bank->value();
 		newtrk->patch = st->patch->value();
-		newtrk->setTrackMode((TrackMode) st->mode->currentItem());
+		newtrk->setTrackMode((TabTrack::TrackMode) st->mode->currentItem());
 
 		// Fret tab
-		if (st->mode->currentItem() == FretTab) {
+		if (st->mode->currentItem() == TabTrack::FretTab) {
 			SetTabFret *fret = (SetTabFret *) st->modespec;
 			newtrk->string = fret->string();
 			newtrk->frets = fret->frets();
@@ -254,7 +254,7 @@ bool SongView::trackProperties()
 		}
 
 		// Drum tab
-		if (st->mode->currentItem() == DrumTab) {
+		if (st->mode->currentItem() == TabTrack::DrumTab) {
 			SetTabDrum *drum = (SetTabDrum *) st->modespec;
 			newtrk->string = drum->drums();
 			newtrk->frets = 0;
@@ -286,10 +286,10 @@ bool SongView::setTrackProperties()
 		tv->trk()->channel = st->channel->value();
 		tv->trk()->bank = st->bank->value();
 		tv->trk()->patch = st->patch->value();
-		tv->trk()->setTrackMode((TrackMode) st->mode->currentItem());
+		tv->trk()->setTrackMode((TabTrack::TrackMode) st->mode->currentItem());
 
 		// Fret tab
-		if (st->mode->currentItem() == FretTab) {
+		if (st->mode->currentItem() == TabTrack::FretTab) {
 			SetTabFret *fret = (SetTabFret *) st->modespec;
 			tv->trk()->string = fret->string();
 			tv->trk()->frets = fret->frets();
@@ -298,7 +298,7 @@ bool SongView::setTrackProperties()
 		}
 
 		// Drum tab
-		if (st->mode->currentItem() == DrumTab) {
+		if (st->mode->currentItem() == TabTrack::DrumTab) {
 			SetTabDrum *drum = (SetTabDrum *) st->modespec;
 			tv->trk()->string = drum->drums();
 			tv->trk()->frets = 0;
