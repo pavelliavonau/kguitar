@@ -11,13 +11,6 @@
    <Separator/>
    <Action name="open_browser" />
    <Separator/>
-   <Menu name="export" >
-    <text>Export</text>
-    <Action name="exp_midi" />
-    <Action name="exp_tab" />
-    <Action name="exp_textab" />
-   </Menu>
-   <Separator/>
    <Action name="song_properties" />
    <Action name="file_print" />
    <Separator/>

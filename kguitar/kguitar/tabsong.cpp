@@ -383,6 +383,8 @@ Q_UINT32 TabSong::readVarLen(QDataStream *s)
 
 bool TabSong::load_from_mid(QString fileName)
 {
+	return FALSE; // DISABLED
+
     QFile f(fileName);
 
     if (!f.open(IO_ReadOnly))
@@ -1131,6 +1133,8 @@ bool TabSong::save_to_tex_tab(QString fileName)
 
 bool TabSong::save_to_tex_notes(QString fileName)
 {
+	return FALSE; //ALINXFIX: disabled
+
 	QFile f(fileName);
     if (!f.open(IO_WriteOnly))
 		return FALSE;

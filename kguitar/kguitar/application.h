@@ -29,14 +29,10 @@ private slots:
     void fileNew();
     void fileOpen();
     void recentLoad(const KURL &_url);
+    void openFile(QString fn);
     void openBrowser();
     void fileSave();
     void fileSaveAs();
-	void fileImportMid();
-    void fileExportMid();
-    void fileExportTab();
-    void fileExportTexTab();
-	void fileExportTexNotes();
     void filePrint();
     void fileClose();
     void fileQuit();
@@ -74,7 +70,6 @@ private:
 
     KAction *newAct, *openAct, *saveAct, *saveAsAct, *printAct, *closeAct,
             *quitAct, *preferencesAct, *confTBAct, *browserAct, *sngPropAct,
-            *impMidAct, *expMidAct, *expTabAct, *expTexTabAct, *expTexNotesAct,
             *trkPropAct, *insChordAct, *len1Act, *len2Act, *len4Act, *len8Act, 
             *len16Act, *len32Act, *timeSigAct, *arcAct, *legatoAct, *natHarmAct, 
             *artHarmAct, *saveOptionAct;
