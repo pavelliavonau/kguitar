@@ -20,7 +20,7 @@ bool globalMelodyEditorAdvance[3];
 OptionsMelodyEditor::OptionsMelodyEditor(QWidget *parent, const char *name)
 	: OptionsPage(parent, name)
 {
-    QVBoxLayout *l = new QVBoxLayout(this, 0, -1, "main");
+	QVBoxLayout *l = new QVBoxLayout(this, 0, -1, "main");
 
 	QHGroupBox *designGroup = new QHGroupBox(i18n("Design"), this, "designbox");
 
@@ -41,9 +41,9 @@ OptionsMelodyEditor::OptionsMelodyEditor(QWidget *parent, const char *name)
 
 	woodGroup->setButton(globalMelodyEditorWood);
 
-    l->addWidget(designGroup);
+	l->addWidget(designGroup);
 
-	QGridLayout *gl = new QGridLayout(this, 3, 3);
+	QGridLayout *gl = new QGridLayout(this, 3, 3, 5, 11);
 
 	for (int i = 0; i < 3; i++) {
 		mouseAction[i] = new QComboBox(FALSE, this);

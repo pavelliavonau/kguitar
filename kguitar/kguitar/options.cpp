@@ -37,7 +37,7 @@ Options::Options(
     QFrame *optPage[OPTIONS_PAGES_NUM];
 
 	optPage[0] = addPage(i18n("Music Theory"), 0, DesktopIcon("lookandfeel", KIcon::SizeMedium));
-    optPage[1] = addPage(i18n("Melody Editor"), 0, DesktopIcon("melodyeditor", KIcon::SizeMedium));
+	optPage[1] = addPage(i18n("Melody Editor"), 0, DesktopIcon("melodyeditor", KIcon::SizeMedium));
 	optPage[2] = addPage(i18n("MusiXTeX Export"), 0, DesktopIcon("musixtex", KIcon::SizeMedium));
 #ifdef WITH_TSE3
 	optPage[3] = addPage(i18n("MIDI"), 0, DesktopIcon("kcmmidi", KIcon::SizeMedium));

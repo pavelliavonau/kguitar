@@ -11,13 +11,12 @@
 OptionsExportMusixtex::OptionsExportMusixtex(QWidget *parent, const char *name)
 	: OptionsPage(parent, name)
 {
-    texLyGroup = new QVButtonGroup(i18n("MusiXTeX Layout"), this);
+	texLyGroup = new QVButtonGroup(i18n("MusiXTeX Layout"), this);
 	showbarnumb = new QCheckBox(i18n("Show Bar Number"), texLyGroup);
 	showstr = new QCheckBox(i18n("Show Tuning"), texLyGroup);
 	showpagenumb = new QCheckBox(i18n("Show Page Number"), texLyGroup);
 
 	texExpGroup = new QVButtonGroup(i18n("Export as..."), this);
-	texExpGroup->setMinimumSize(175, 75);
 	expmode[0] = new QRadioButton(i18n("Tabulature"), texExpGroup);
 	expmode[1] = new QRadioButton(i18n("Notes"), texExpGroup);
 
@@ -42,8 +41,8 @@ OptionsExportMusixtex::OptionsExportMusixtex(QWidget *parent, const char *name)
 
 void OptionsExportMusixtex::defaultBtnClicked()
 {
-    texSizeGroup->setButton(2);
-    showbarnumb->setChecked(TRUE);
+	texSizeGroup->setButton(2);
+	showbarnumb->setChecked(TRUE);
 	showstr->setChecked(TRUE);
 	showpagenumb->setChecked(TRUE);
 	texExpGroup->setButton(0);
