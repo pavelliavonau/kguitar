@@ -6,6 +6,7 @@
 #include "strumming.h"
 
 #include <klocale.h>
+#include <kmessagebox.h>
 
 #include <qpushbutton.h>
 #include <qbuttongroup.h>
@@ -305,7 +306,14 @@ void ChordSelector::askStrum()
 void ChordSelector::playMidi()
 {
 //	dm->setDefaultDevice(1);
-	
+
+	if (dm->checkInit() == -1) {
+		KMessageBox::error(this, i18n("Can't open /dev/sequenzer !!\n"
+									  "Is there another application who\n"
+									  "are using /dev/sequenzer ?"));
+		return;
+	}
+
  	dm->tmrStart(1);
 
 	dm->chnPatchChange(0, parm->patch);
