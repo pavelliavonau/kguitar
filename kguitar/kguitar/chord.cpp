@@ -1,3 +1,5 @@
+#include "config.h"
+
 #include "chord.h"
 #include "fingers.h"
 #include "fingerlist.h"
@@ -8,6 +10,7 @@
 
 #include <klocale.h>
 #include <kmessagebox.h>
+#include <kdebug.h>
 
 #include <qpushbutton.h>
 #include <qbuttongroup.h>
@@ -18,8 +21,15 @@
 #include <qlabel.h>
 #include <qlayout.h>
 
-//## #include <libkmid/deviceman.h>
-//## #include <libkmid/player.h>
+#ifdef WITH_TSE3
+#include <tse3/Song.h>
+#include <tse3/PhraseEdit.h>
+#include <tse3/Part.h>
+#include <tse3/Track.h>
+#include <tse3/Metronome.h>
+#include <tse3/MidiScheduler.h>
+#include <tse3/Transport.h>
+#endif
 
 QString notes_us1[12] = {"C",  "C#", "D",  "D#", "E",  "F",
 						 "F#", "G",	 "G#", "A",	 "A#", "B"};
@@ -45,7 +55,7 @@ QString notes_jz3[12] = {"C",  "Db", "D",  "Eb", "E",  "F",
 QString note_name(int num)
 {
 	if ((num < 0) || (num > 11))
-		return "Unknown";
+		return i18n("Unknown");
 
 	switch (globalNoteNames) {
 	case 0: return notes_us1[num];
@@ -61,7 +71,7 @@ QString note_name(int num)
 	case 8: return notes_jz3[num];
 	}
 
-	return "Unknown";
+	return i18n("Unknown");
 }
 
 //					   3  5	 7	9  11 13
@@ -80,12 +90,32 @@ QString maj7name[] = {"7M", "maj7", "dom7"};
 QString flat[] = {"-", "b"};
 QString sharp[] = {"+", "#"};
 
-ChordSelector::ChordSelector(/*DeviceManager *_dm,*/ TabTrack *p, QWidget *parent = 0, //##
+ChordSelector::ChordSelector(TabTrack *p, QWidget *parent = 0, const char *name = 0):
+	QDialog(parent, name, TRUE)
+{
+	initChordSelector(p);
+}
+
+#ifdef WITH_TSE3
+ChordSelector::ChordSelector(TSE3::MidiScheduler *_scheduler, TabTrack *p, QWidget *parent = 0,
 							 const char *name = 0): QDialog(parent, name, TRUE)
+{
+	kdDebug() << k_funcinfo << endl;
+
+	initChordSelector(p);
+	scheduler = _scheduler;
+
+	if (scheduler) {
+		play->setEnabled(TRUE);
+		kdDebug() << "   Found MidiScheduler" << endl;
+	} else kdDebug() << "   No MidiScheduler found" << endl;
+}
+#endif
+
+void ChordSelector::initChordSelector(TabTrack *p)
 {
 	parm = p;
 	strum_scheme = 0;
-//##	dm = _dm;
 
 	chname = new QLineEdit(this);
 	chname->setMinimumHeight(20);
@@ -218,12 +248,10 @@ ChordSelector::ChordSelector(/*DeviceManager *_dm,*/ TabTrack *p, QWidget *paren
 	strumbut->setMinimumSize(75, 30);
 	connect(strumbut, SIGNAL(clicked()), SLOT(askStrum()));
 
-	QPushButton *play;
-
 	play = new QPushButton(i18n("&Play"), this);
 	play->setMinimumSize(75, 30);
 	connect(play, SIGNAL(clicked()), SLOT(playMidi()));
-    play->setEnabled(globalHaveMidi);
+    play->setEnabled(FALSE);
 
 	// LAYOUT MANAGEMENT
 
@@ -307,35 +335,59 @@ void ChordSelector::askStrum()
 
 void ChordSelector::playMidi()
 {
-//	dm->setDefaultDevice(1);
-//##>
-// 	if (dm->checkInit() == -1) {
-// 		KMessageBox::error(this, i18n("Can't open /dev/sequencer !!\n"
-// 									  "Probably there is another program using it."));
-// 		return;
-// 	}
+#ifdef WITH_TSE3
+	if (!scheduler)
+		return;
 
-//  	dm->tmrStart(1);
+	TSE3::PhraseEdit phraseEdit;
+	TSE3::Clock time = 0;
+	int duration = TSE3::Clock::PPQN;
 
-// 	dm->chnPatchChange(0, parm->patch);
+	phraseEdit.insert(TSE3::MidiEvent(TSE3::MidiCommand(TSE3::MidiCommand_ProgramChange, 0,
+														0 /*port*/, parm->patch), 0)); //ALINXFIX: port is an option
 
-// 	for (int i = 0; i < parm->string; i++)
-// 		if (fng->app(i) != -1) {
-// 			if (i > 0)
-// 				dm->wait(i*70);
-// 			dm->noteOn(0, fng->app(i) + parm->tune[i], 127);
-// 		}
+	int note;
 
-//  	dm->wait(1000);
+	// play every note
+	for (int i = 0; i < parm->string; i++)
+		if (fng->app(i) != -1) {
+			note = fng->app(i) + parm->tune[i];
 
-// 	for (int i = 0; i < parm->string; i++)
-// 		if (fng->app(i) != -1)
-// 			dm->noteOff(0, fng->app(i) + parm->tune[i], 127);
+			phraseEdit.insert(TSE3::MidiEvent(TSE3::MidiCommand(TSE3::MidiCommand_NoteOn, 0, 0/*port*/,
+																note, 96), time, 96, time + duration));
+			time += duration;
+		}
 
-// 	dm->sync();
+	// play chord
+	for (int i = 0; i < parm->string; i++)
+		if (fng->app(i) != -1) {
+			note = fng->app(i) + parm->tune[i];
 
-//  	dm->tmrStop();
-//##<
+			phraseEdit.insert(TSE3::MidiEvent(TSE3::MidiCommand(TSE3::MidiCommand_NoteOn, 0, 0/*port*/,
+																note, 96), time, 96, time + duration * 3));
+		}
+
+
+	time += duration;
+	phraseEdit.insert(TSE3::MidiEvent(TSE3::MidiCommand(TSE3::MidiCommand_NoteOn, 0, 0/*port*/,
+														0, 0), time, 0, time + duration));
+
+
+	TSE3::Song    m_song(1);
+	TSE3::Phrase *phrase = phraseEdit.createPhrase(m_song.phraseList());
+	TSE3::Part   *part   = new TSE3::Part(0, phraseEdit.lastClock());
+	part->setPhrase(phrase);
+	m_song[0]->insert(part);
+
+	TSE3::Metronome metronome;
+	TSE3::Transport transport(&metronome, scheduler);
+
+    // Play and wait for the end
+	transport.play(&m_song, 0);
+	while (transport.status() != TSE3::Transport::Resting)
+		transport.poll();
+
+#endif
 }
 
 // Try to detect some chord forms from a given applicature.
