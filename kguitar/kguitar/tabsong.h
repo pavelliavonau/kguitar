@@ -32,6 +32,8 @@ public:
     bool save_to_tab(QString fileName);
 private:
     void writeCentered(QTextStream *s, QString l);
+    Q_UINT16 dot2len(int len, bool dot);
+    void len2dot(int *len, bool *dot);
 };
 
 #endif
