@@ -40,6 +40,7 @@ Strumming::Strumming(int default_scheme, QWidget *parent=0, const char *name=0)
 	comment = new QLabel(this);
 	comment->setFrameStyle(QFrame::Box | QFrame::Sunken);
 	comment->setAlignment(Qt::WordBreak);
+	comment->setMinimumSize(150, 85);
 	updateComment(0);
 	l->addWidget(comment);
 
