@@ -29,7 +29,7 @@ libkguitar_la_SOURCES = application.cpp songview.cpp chord.cpp \
  tabtrack.cpp tabcolumn.cpp settrack.cpp settabmidibase.ui settabmidi.cpp \
  settabfret.cpp settabdrum.cpp radiustuner.cpp notespinbox.cpp \
  options.cpp chordlistitem.cpp chordlist.cpp timesig.cpp strumming.cpp \
- filebrowser.cpp midilist.cpp tracklist.cpp trackpane.cpp trackdrag.cpp \
+ filebrowser.cpp tracklist.cpp trackpane.cpp trackdrag.cpp \
  trackviewcommands.cpp songviewcommands.cpp kguitar_shell.cpp songprint.cpp \
  musicxml.cpp
 
@@ -47,7 +47,7 @@ kguitar_LDADD = $(LIB_KFILE) libkguitar.la
 noinst_HEADERS = application.h songview.h chord.h fingers.h fingerlist.h \
  trackview.h setsong.h tabsong.h tabtrack.h tabcolumn.h settabmidi.h settrack.h \
  settabfret.h settabdrum.h radiustuner.h notespinbox.h options.h chordlistitem.h \
- chordlist.h timesig.h strumming.h filebrowser.h midilist.h tracklist.h \
+ chordlist.h timesig.h strumming.h filebrowser.h tracklist.h \
  trackpane.h trackdrag.h trackviewcommands.h songviewcommands.h \
  kguitar_shell.h songprint.h musicxml.h
 
