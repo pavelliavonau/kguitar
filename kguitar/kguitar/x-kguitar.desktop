@@ -5,4 +5,4 @@ Comment=KGuitar tabulature
 Comment[de]=KGuitar Tabulatur
 DefaultApp=kguitar
 Icon=kguitar_tab
-Patterns=*.kg;*.KG;
+Patterns=*.kg;
