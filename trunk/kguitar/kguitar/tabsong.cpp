@@ -7,8 +7,6 @@
 #include <qfile.h>
 #include <qdatastream.h>
 
-#include <kdebug.h>
-
 //GREYFIX
 #include <iostream.h>
 
@@ -20,34 +18,6 @@ TabSong::TabSong(QString _title, int _tempo)
 }
 
 // Helper functions for duration conversion
-
-// Dot + undotted length -> full length
-Q_UINT16 dot2len(int len, bool dot)
-{
-	return (Q_UINT16) (dot ? len + len / 2 : len);
-}
-
-// Normal durations
-int nordur[6] = {480, 240, 120, 60, 30, 15};
-// Dotted durations
-int dotdur[6] = {720, 360, 180, 90, 45, 23};
-
-// Full length -> dot + undotted length
-void len2dot(int l, int *len, bool *dot)
-{
-	for (uint i = 0; i < 6; i++) {
-		if (nordur[i] == l) {
-			*len = l;
-			*dot = FALSE;
-			return;
-		}
-		if (dotdur[i] == l) {
-			*len = l * 2 / 3;
-			*dot = TRUE;
-			return;
-		}
-	}
-}
 
 // Find the minimal free channel, for example, to use for new track
 int TabSong::freeChannel()
@@ -217,8 +187,6 @@ bool TabSong::load_from_kg(QString fileName)
 		t.current()->b[0].time1 = 4;
 		t.current()->b[0].time2 = 4;
 
-		bool dot;
-		int dur;
 		kdDebug() << "reading events" << endl;;
 		do {
 			s >> event;
@@ -241,9 +209,8 @@ bool TabSong::load_from_kg(QString fileName)
 					t.current()->c[x-1].e[k] = 0;
 				}
 				s >> i16;
-				len2dot(i16, &dur, &dot);
-				t.current()->c[x-1].l = dur;
-				t.current()->c[x-1].flags = (dot ? FLAG_DOT : 0);
+				t.current()->c[x-1].flags = 0;
+				t.current()->c[x-1].setFullDuration(i16);
 				break;
 			case 'E':                   // Effects of prev column
 				if (x == 0) {			// Ignore if there were no tab cols
@@ -268,9 +235,8 @@ bool TabSong::load_from_kg(QString fileName)
 				for (int k = 0; k < string; k++)
 					t.current()->c[x-1].a[k] = -1;
 				s >> i16;
-				len2dot(i16, &dur, &dot);
-				t.current()->c[x-1].l = dur;
-				t.current()->c[x-1].flags = (dot ? FLAG_ARC | FLAG_DOT : FLAG_ARC);
+				t.current()->c[x-1].flags = FLAG_ARC;
+				t.current()->c[x-1].setFullDuration(i16);
 				break;
 			case 'S':                   // New time signature
 				s >> cn; t.current()->b[bar-1].time1 = cn;
@@ -315,7 +281,7 @@ bool TabSong::save_to_kg(QString fileName)
 	QDataStream s(&f);
 
 	// HEADER SIGNATURE
-	s.writeRawBytes("KG\0",3);
+	s.writeRawBytes("KG\0", 3);
 
 	// VERSION SIGNATURE
 	s << (Q_UINT8) 2;
@@ -365,12 +331,19 @@ bool TabSong::save_to_kg(QString fileName)
 			if ((bar < trk->b.size()) && (trk->b[bar].start == x)) {
 				s << (Q_UINT8) 'B';     // New bar event
 				s << (Q_UINT8) 0;
+				if ((trk->b[bar].time1 != trk->b[bar - 1].time1) ||
+					(trk->b[bar].time2 != trk->b[bar - 1].time2)) {
+					s << (Q_UINT8) 'S'; // New signature
+					s << (Q_UINT8) 2;
+					s << (Q_UINT8) trk->b[bar].time1;
+					s << (Q_UINT8) trk->b[bar].time2;
+				}
 			}
 
 			if (trk->c[x].flags & FLAG_ARC) {
 				s << (Q_UINT8) 'L';		// Continue of previous event
 				s << (Q_UINT8) 2;		// Size of event
-				s << dot2len(trk->c[x].l, trk->c[x].flags & FLAG_DOT); // Duration
+				s << trk->c[x].fullDuration(); // Duration
 			} else {
 				s << (Q_UINT8) 'T';		// Tab column events
 				s << (Q_UINT8) tcsize;	// Size of event
@@ -380,17 +353,17 @@ bool TabSong::save_to_kg(QString fileName)
 					if (trk->c[x].e[i])
 						needfx = TRUE;
 				}
-				s << dot2len(trk->c[x].l, trk->c[x].flags & FLAG_DOT); // Duration
+				s << trk->c[x].fullDuration(); // Duration
 				if (needfx) {
 					s << (Q_UINT8) 'E'; // Effect event
 					s << (Q_UINT8) trk->string; // Size of event
 					for (int i = 0; i < trk->string; i++)
 						s << (Q_UINT8) trk->c[x].e[i];
 				}
-				if (trk->c[x].flags) {
+				if (trk->c[x].effectFlags()) {
 					s << (Q_UINT8) 'F'; // Flag event
 					s << (Q_UINT8) 1;   // Size of event
-					s << (Q_UINT8) trk->c[x].flags;
+					s << (Q_UINT8) trk->c[x].effectFlags();
 				}
 			}
 		}
@@ -498,6 +471,7 @@ bool TabSong::load_from_gtp(QString fileName)
 
 	s.readRawBytes(c, 10);                     // 10 unknown bytes
 
+// GREYFIX
 #define kdDebug()  cout
 
 	//	for (
@@ -872,30 +846,6 @@ bool TabSong::save_to_mid(QString fileName)
 			lastevent = e->type;
 			laststamp = e->timestamp;
 		}
-
-/*			if (trk->c[x].flags & FLAG_ARC) {
-				s << (Q_UINT8) 'L';		// Continue of previous event
-				s << (Q_UINT8) 2;		// Size of event
-				s << dot2len(trk->c[x].l, trk->c[x].flags & FLAG_DOT); // Duration
-			} else {
-				s << (Q_UINT8) 'T';		// Tab column events
-				s << (Q_UINT8) tcsize;	// Size of event
-				needfx = FALSE;
-				for (int i=0;i<trk->string;i++) {
-					s << (Q_INT8) trk->c[x].a[i];
-					if (trk->c[x].e[i])
-						needfx = TRUE;
-				}
-				s << dot2len(trk->c[x].l, trk->c[x].flags & FLAG_DOT); // Duration
-				if (needfx) {
-					s << (Q_UINT8) 'E'; // Effect event
-					s << (Q_UINT8) trk->string; // Size of event
-					for (int i=0;i<trk->string;i++)
-						s << (Q_UINT8) trk->c[x].e[i];
-				}
-				}
-	    }
-*/
 
 		s << (Q_UINT8) 0;               // End of track marker
 		s << (Q_UINT8) MIDI_META;
