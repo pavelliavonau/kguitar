@@ -63,7 +63,7 @@ ApplicationWindow::ApplicationWindow(): KTMainWindow()
     p->insertItem(i18n("S&ave as..."), this, SLOT(saveAs()));
 
     QPopupMenu *exp = new QPopupMenu();
-    exp->insertItem(i18n("&MIDI file..."), this, SLOT(exportMID()));
+//    exp->insertItem(i18n("&MIDI file..."), this, SLOT(exportMID()));
     exp->insertItem(i18n("ASCII &tab..."), this, SLOT(exportTAB()));
     p->insertItem(i18n("&Export"), exp);
 
@@ -137,6 +137,7 @@ void ApplicationWindow::load()
 //	    tv->sng()->t.first()->x=0;
 	    tv->sng()->t.first()->y=0;
 	    tv->sng()->filename=fn;
+	    tv->updateRows();
 	}
     }
 }
