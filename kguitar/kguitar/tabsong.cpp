@@ -1,5 +1,5 @@
 #include "tabsong.h"
-#include "application.h"
+#include "globaloptions.h"
 
 #include "musicxml.h"
 
@@ -645,7 +645,7 @@ bool TabSong::loadFromGtp(QString fileName)
     return TRUE;
 }
 
-bool TabSong::saveToGtp(QString fileName)
+bool TabSong::saveToGtp(QString)
 {
     // Saving to Guitar Pro format here
     return FALSE;
@@ -1124,7 +1124,7 @@ WHEREAMI("fin bar");
 	return TRUE;
 }
 
-bool TabSong::saveToGp3(QString fileName)
+bool TabSong::saveToGp3(QString)
 {
     // Saving to Guitar Pro 3 format here
     // From Sly: "In your dreams"
@@ -1330,7 +1330,7 @@ void TabSong::writeCentered(QTextStream *s, QString l)
     (*s) << l << '\n';
 }
 
-bool TabSong::loadFromTab(QString fileName)
+bool TabSong::loadFromTab(QString)
 {
     return FALSE;
 }
