@@ -187,19 +187,19 @@ FIND_PACKAGE(libtse3, tse3, tse3/TSE3.h, $with_tse3_libraries, $with_tse3_includ
 if test "X$lib_libtse3" = "X" -o "X$inc_libtse3" = "X"
 	then
         echo ""
-		echo "   *************************************************"
-		echo "   *                TSE3 not found!                *"
+	echo "   *************************************************"
+	echo "   *                TSE3 not found!                *"
         echo "   *                                               *"
         echo "   *   You will not have MIDI Support in KGuitar!  *" 
         echo "   *                                               *"
         echo "   * Download TSE3 at: http://tse3.sourceforge.net *"
         echo "   *               ------------------              *"
-		echo "   *  If you have installed libtse3 in an unusual  *"
+	echo "   *  If you have installed libtse3 in an unusual  *"
         echo "   *   directory use \"--with-libtse3-include=\"     *"
-		echo "   *          and/or \"--with-libtse3-libs=\"        *"
-		echo "   *************************************************"
-		echo ""
-		libtse3found="no"
+	echo "   *          and/or \"--with-libtse3-libs=\"        *"
+	echo "   *************************************************"
+	echo ""
+	libtse3found="no"
     else
         libtse3found="yes"
 	fi
@@ -234,7 +234,8 @@ fi
 
 if test "$libtse3found" = "yes"
 then
-    AC_DEFINE(WITH_TSE3, 1, [Define if libtse3 present])
+    AC_DEFINE(WITH_TSE3, 1, [Define if libtse3 is foundcv])
+    AC_DEFINE(HAVE_MIDI, 1, [Define if MIDI support is required (via libtse3)])
     TSE3INCLUDE="-I$inc_libtse3"
     TSE3LIBS="-L$lib_libtse3"
     LIBTSE3="-ltse3"
