@@ -53,6 +53,7 @@ private slots:
 	void saveOptions();
 	void slotConfigToolBars();
 	void configKeys();
+	void updateForNewTrack();
 
 	void setUSsharp() { globalNoteNames = 0; updateMenu(); };
 	void setUSflats() { globalNoteNames = 1; updateMenu(); };
@@ -84,8 +85,8 @@ private:
 		*palmMuteAct, *saveOptionAct, *confKeyAct, *arrTrkAct,
 		*midiPlayTrackAct, *midiStopPlayAct;
     KToggleAction *showMainTBAct, *showEditTBAct, *usSharpAct, *usFlatAct,
-                  *usMixAct, *euSharpAct, *euFlatAct, *euMixAct, *jazzSharpAct,
-                  *jazzFlatAct, *jazzMixAct;
+		*usMixAct, *euSharpAct, *euFlatAct, *euMixAct, *jazzSharpAct,
+		*jazzFlatAct, *jazzMixAct;
 	KAccel *mainAccel;
 
     // Status bar labels

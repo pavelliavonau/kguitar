@@ -275,6 +275,10 @@ KGuitarPart::KGuitarPart(bool bBrowserView, QWidget *parentWidget,
 	mainAccel->insertItem(i18n("Key 0"), "key_0", "0");
 	mainAccel->connectItem("key_0", sv->tv, SLOT(key0()));
 
+	// SET UP RESPONSES FOR VARIOUS TRACK CHANGES
+
+	connect(sv->tv, SIGNAL(newTrackSelected()), SLOT(updateForNewTrack()));
+
 	m_extension = new KGuitarBrowserExtension(this);
 
 	if (bBrowserView) {
@@ -323,6 +327,23 @@ bool KGuitarPart::jazzWarning()
 										  "anyone reading the music who did not have a knowledge\n"
 										  "of jazz note naming.\n\n"
 										  "Are you sure you want to use jazz notes?")) == KMessageBox::Yes;
+}
+
+// Updates possibility of actions, depending on freshly selected
+// track. For drum track, lots of actions are unavailable.
+void KGuitarPart::updateForNewTrack()
+{
+	switch (sv->tv->trk()->trackMode() == DrumTab) {
+	case DrumTab:
+		insChordAct->setEnabled(FALSE);
+		natHarmAct->setEnabled(FALSE);
+		artHarmAct->setEnabled(FALSE);
+		break;
+	default:
+		insChordAct->setEnabled(TRUE);
+		natHarmAct->setEnabled(TRUE);
+		artHarmAct->setEnabled(TRUE);
+	}
 }
 
 void KGuitarPart::fileNew()
