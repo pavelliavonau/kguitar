@@ -21,11 +21,10 @@ class TrackList: public QListView {
 
 public:
 	TrackList(TabSong *s, KXMLGUIClient *_XMLGUIClient, QWidget *parent = 0, const char *name = 0);
-	~TrackList();
 	void updateList();
 
 signals:
-	void trackChanged(TabTrack *);
+	void trackSelected(TabTrack *);
 
 protected:
     virtual void contentsMousePressEvent(QMouseEvent *e);
