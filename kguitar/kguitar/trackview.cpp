@@ -76,8 +76,6 @@ TrackView::TrackView(TabSong *s, KXMLGUIClient *_XMLGUIClient, KCommandHistory *
 	setFrameStyle(Panel | Sunken);
 	setBackgroundMode(PaletteBase);
 
-	setNumCols(1);
-
 	setFocusPolicy(QWidget::StrongFocus);
 
 	xmlGUIClient = _XMLGUIClient;
@@ -85,6 +83,8 @@ TrackView::TrackView(TabSong *s, KXMLGUIClient *_XMLGUIClient, KCommandHistory *
 
 	song = s;
 	setCurrentTrack(s->t.first());
+
+	barsPerRow = 1;
 
 	normalFont = new QFont(KGlobalSettings::generalFont());
 	if (normalFont->pointSize() == -1) {
@@ -112,7 +112,6 @@ TrackView::TrackView(TabSong *s, KXMLGUIClient *_XMLGUIClient, KCommandHistory *
 	fetaNrFont = 0;
 	
 	lastnumber = -1;
-	zoomLevel = 10;
 
 #ifdef WITH_TSE3
 	scheduler = _scheduler;
@@ -125,6 +124,7 @@ TrackView::TrackView(TabSong *s, KXMLGUIClient *_XMLGUIClient, KCommandHistory *
 	const int lw = 1;
 	trp->pLnBl = QPen(Qt::black, lw);
 	trp->pLnWh = QPen(Qt::white, lw);
+	trp->zoomLevel = 10;
 
 	updateRows();		// depends on trp's font metrics
 }
@@ -142,6 +142,21 @@ void TrackView::initFonts(QFont *f4, QFont *f5)
 	fetaFont   = f4;
 	fetaNrFont = f5;
 	trp->initFonts(normalFont, smallCaptionFont, timeSigFont, fetaFont, fetaNrFont);
+}
+
+int TrackView::rowBar(int bar)
+{
+	return bar / barsPerRow;
+}
+
+int TrackView::colBar(int bar)
+{
+	return bar - bar / barsPerRow * barsPerRow;
+}
+
+int TrackView::barByRowCol(int row, int col)
+{
+	return row * barsPerRow + col;
 }
 
 void TrackView::selectTrack(TabTrack *trk)
@@ -169,11 +184,10 @@ void TrackView::setCurrentTrack(TabTrack *trk)
 	emit trackChanged(trk);
 }
 
-// Set new horizontal zoom level and update display accordingly
 void TrackView::setZoomLevel(int newZoomLevel)
 {
 	if (newZoomLevel > 0) {
-		zoomLevel = newZoomLevel;
+		trp->zoomLevel = newZoomLevel;
 		updateRows();
 		repaintContents();
 	}
@@ -181,12 +195,12 @@ void TrackView::setZoomLevel(int newZoomLevel)
 
 void TrackView::zoomIn()
 {
-	setZoomLevel(zoomLevel - 1);
+	setZoomLevel(trp->zoomLevel - 1);
 }
 
 void TrackView::zoomOut()
 {
-	setZoomLevel(zoomLevel + 1);
+	setZoomLevel(trp->zoomLevel + 1);
 }
 
 // Set zoom level dialog
@@ -197,6 +211,14 @@ void TrackView::zoomLevelDialog()
 
 void TrackView::updateRows()
 {
+	int cw = trp->barWidth(0, curt);
+	if (cw < 10)
+		cw = 10;
+
+	barsPerRow = (width() - 2 - QStyle::PM_ScrollBarExtent) / cw;
+	if (barsPerRow < 1)
+		barsPerRow = 1;
+
 	int ch = (int) ((TOPSPTB + curt->string + BOTSPTB) * trp->ysteptb);
 #ifdef USE_BOTH_OLD_AND_NEW
 	// note: cannot make row height dependent on viewscore without making too many
@@ -210,23 +232,19 @@ void TrackView::updateRows()
 		ch += (int) (ADDSPST * trp->ystepst);
 	}
 #endif
-	setNumRows(curt->b.size());
-	setMinimumHeight(ch);
+
+	setNumCols(barsPerRow);
+	setNumRows(rowBar(curt->b.size() - 1) + 1);
+	setCellWidth(cw);
 	setCellHeight(ch);
-//	cout << "TrackView::updateRows()"
-//	<< " ch=" << ch
-//	<< " nr=" << curt->b.size()
-//	<< endl;
+	setMinimumHeight(ch);
+
+	ensureCurrentVisible();
 }
 
-void TrackView::repaintCellNumber(int n)
+void TrackView::repaintCurrentBar()
 {
-	repaintCell(n, 0);
-}
-
-void TrackView::repaintCurrentCell()
-{
-	repaintCellNumber(curt->xb);
+	repaintCell(rowBar(curt->xb), colBar(curt->xb));
 	emit paneChanged();
 }
 
@@ -243,22 +261,13 @@ void TrackView::repaintCurrentColumn()
 
 // 	repaint(selxcoord, cellHeight() * curt->xb - contentsY(), HORCELL + 1, cellHeight());
 
-	repaintCell(curt->xb, 0);
+	repaintCurrentBar();
 // 	emit paneChanged();
 }
 
-// Checks is current bar is fully visible, and, if it's not, tries to
-// do minimal scrolling to ensure the full visibility
 void TrackView::ensureCurrentVisible()
 {
-/*	int ch = cellHeight();
-
-	if ((curt->xb + 1) * ch > yOffset() + height())
-		setYOffset((curt->xb + 1) * ch - height());
-	else if (curt->xb * ch < yOffset())
-		setYOffset(curt->xb * ch);
-*/ //GREYFIX
-	ensureCellVisible(curt->xb, 0);
+	ensureCellVisible(rowBar(curt->xb), colBar(curt->xb));
 }
 
 // Process a mouse press of fret "fret" in current column on string
@@ -450,7 +459,7 @@ int TrackView::horizDelta(uint n)
 // 	if (res < HORCELL)
 // 		res = HORCELL;
 #else
-	int res = trp->colWidth(n, curt);	// LVIFIX: zoomLevel
+	int res = trp->colWidth(n, curt);
 #endif
 	return res;
 }
@@ -465,16 +474,15 @@ void TrackView::drawLetRing(QPainter *p, int x, int y)
 }
 #endif
 
-void TrackView::paintCell(QPainter *p, int row, int /*col*/)
+void TrackView::paintCell(QPainter *p, int r, int c)
 {
-//	cout << "TrackView::paintCell(row=" << row << ")" << endl;
-
-	uint bn = row;                      // Drawing only this bar
+	// Drawing only this bar
+	uint bn = barByRowCol(r, c);
 
 	int selx2coord = -1;
 	selxcoord = -1;
 	
-	if (row >= int(curt->b.size())) {
+	if (bn >= curt->b.size()) {
 		kdDebug() << "Drawing the bar out of limits!" << endl;
 		return;
 	}
@@ -504,12 +512,12 @@ void TrackView::paintCell(QPainter *p, int row, int /*col*/)
 	              + (int) ((TOPSPTB + curt->string) * trp->ysteptb);
 #endif
 	trp->drawBarLns(width(), curt);
-//	trp->drawKey(row, curt);	// LVIFIX: make (some more) room between key and time sig
+//	trp->drawKey(bn, curt);	// LVIFIX: make (some more) room between key and time sig
 	bool doDraw = true;
 	bool fbol = true;
-	bool flop = (row == 0);
-	(void) trp->drawKKsigTsig(row, curt, doDraw, fbol, flop);
-	trp->drawBar(row, curt, 0, selxcoord, selx2coord);
+	bool flop = (bn == 0);
+	(void) trp->drawKKsigTsig(bn, curt, doDraw, fbol, flop);
+	trp->drawBar(bn, curt, 0, selxcoord, selx2coord);
 
 	// connect tabbar and staff with vertical line at end of bar
 	if (viewscore && fetaFont) {
@@ -895,7 +903,7 @@ void TrackView::paintCell(QPainter *p, int row, int /*col*/)
 void TrackView::resizeEvent(QResizeEvent *e)
 {
 	QGridView::resizeEvent(e); // GREYFIX ? Is it C++-correct?
-	setCellWidth(width() - 2 - QStyle::PM_ScrollBarExtent);
+	updateRows();
 }
 
 bool TrackView::moveFinger(int from, int dir)
@@ -1041,14 +1049,14 @@ void TrackView::moveLeft()
 	if (curt->x > 0) {
 		if (curt->b[curt->xb].start == curt->x) {
 			curt->x--;
-			repaintCurrentCell();
+			repaintCurrentBar();
 			curt->xb--;
 			ensureCurrentVisible();
 			emit barChanged();
 		} else {
 			curt->x--;
 		}
-		repaintCurrentCell();
+		repaintCurrentBar();
 		emit columnChanged();
 	}
 	lastnumber = -1;
@@ -1065,7 +1073,7 @@ void TrackView::moveRight()
 		else {
 			if (curt->b[curt->xb + 1].start == curt->x + 1) {
 				curt->x++;
-				repaintCurrentCell();
+				repaintCurrentBar();
 				curt->xb++;
 				ensureCurrentVisible();
 				emit barChanged();
@@ -1073,7 +1081,7 @@ void TrackView::moveRight()
 				curt->x++;
 			}
 		}
-		repaintCurrentCell();
+		repaintCurrentBar();
 		emit columnChanged();
 	}
 	lastnumber = -1;
@@ -1104,14 +1112,14 @@ void TrackView::moveRightBar()
 void TrackView::moveHome()
 {
 	curt->x = curt->b[curt->xb].start;
-	repaintCurrentCell();
+	repaintCurrentBar();
 	emit columnChanged();
 }
 
 void TrackView::moveEnd()
 {
 	curt->x = curt->lastColumn(curt->xb);
-	repaintCurrentCell();
+	repaintCurrentBar();
 	emit columnChanged();
 }
 
@@ -1140,7 +1148,7 @@ void TrackView::selectLeft()
 	if (!curt->sel) {
 		curt->sel = TRUE;
 		curt->xsel = curt->x;
-		repaintCurrentCell();
+		repaintCurrentBar();
 	} else {
 		moveLeft();
 	}
@@ -1151,7 +1159,7 @@ void TrackView::selectRight()
 	if (!curt->sel) {
 		curt->sel = TRUE;
 		curt->xsel = curt->x;
-		repaintCurrentCell();
+		repaintCurrentBar();
 	} else {
 		moveRight();
 	}
@@ -1162,7 +1170,7 @@ void TrackView::moveUp()
 	if (curt->y+1 < curt->string) {
 		curt->y++;
 		if (curt->sel)
-			repaintCurrentCell();
+			repaintCurrentBar();
 		else
 			repaintCurrentColumn();
 	}
@@ -1181,7 +1189,7 @@ void TrackView::moveDown()
 	if (curt->y > 0) {
 		curt->y--;
 		if (curt->sel)
-			repaintCurrentCell();
+			repaintCurrentBar();
 		else
 			repaintCurrentColumn();
 	}
@@ -1326,21 +1334,22 @@ void TrackView::mousePressEvent(QMouseEvent *e)
 		bool found = FALSE;
 		QPoint clickpt;
 
-		uint tabrow = rowAt(contentsY() + e->pos().y());
+		uint bn = barByRowCol(rowAt(contentsY() + e->pos().y()),
+		                      columnAt(contentsX() + e->pos().x()));
 
 		// Clicks on non-existing rows are not allowed
-		if (tabrow >= curt->b.size())
+		if (bn >= curt->b.size())
 			return;
 
 		clickpt.setX(contentsX() + e->pos().x());
 		clickpt.setY(contentsY() + e->pos().y());
 
-		int xpos = trp->getFirstColOffs(tabrow, curt);
+		int xpos = trp->getFirstColOffs(bn, curt);
 		int xdelta = 0;
 		int lastxpos = 0;
 
-		for (uint j=curt->b[tabrow].start;
-			 j < (tabrow < curt->b.size()-1 ? curt->b[tabrow+1].start : curt->c.size());
+		for (uint j=curt->b[bn].start;
+			 j < (bn < curt->b.size()-1 ? curt->b[bn+1].start : curt->c.size());
 			 j++) {
 
 			// Length of interval to next column - adjusted if dotted
@@ -1354,11 +1363,11 @@ void TrackView::mousePressEvent(QMouseEvent *e)
 				curt->x = j;
 				// We won't calculate xb from x as in updateXB(), but
 				// would just use what we know.
-				curt->xb = tabrow;
+				curt->xb = bn;
 
 				const int vertline = trp->ysteptb;
 				const int vertspace = trp->ypostb; // LVIFIX: better name, this is not the vertical space but the lowest tab line's y coord
-				curt->y = - ((int) (clickpt.y() - vertline / 2 - tabrow * cellHeight()) - vertspace) / vertline;
+				curt->y = - ((int) (clickpt.y() - vertline / 2 - bn * cellHeight()) - vertspace) / vertline;
 
 				if (curt->y<0)
 					curt->y = 0;
@@ -1389,7 +1398,7 @@ void TrackView::setX(int x)
 		int oldxb = curt->xb;
 		curt->updateXB();
 		if (oldxb == curt->xb) {
-			repaintCurrentCell();
+			repaintCurrentBar();
 		} else {
 			repaintContents();
 			ensureCurrentVisible();

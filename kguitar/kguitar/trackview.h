@@ -40,7 +40,7 @@ public:
 	void updateRows();
 	void arrangeBars();
 
-	void repaintCurrentCell();
+	void repaintCurrentBar();
 	void repaintCurrentColumn();
 	
 	void initFonts(QFont *f4, QFont *f5);
@@ -154,6 +154,10 @@ public slots:
 
 	void selectTrack(TabTrack *);
 	void selectBar(uint);
+	/**
+	 * Checks is current bar is fully visible, and, if it's not, tries
+	 * to do minimal scrolling to ensure the full visibility.
+	 */
 	void ensureCurrentVisible();
 
 	void setPlaybackCursor(bool);
@@ -187,8 +191,6 @@ signals:
 	void songChanged();
 
 protected:
-	void repaintCellNumber(int n);
-
 	virtual void paintCell(QPainter *, int row, int col);
 	virtual void resizeEvent(QResizeEvent *e);
 	virtual void mousePressEvent(QMouseEvent *e);
@@ -209,7 +211,23 @@ private:
 	void moveCtrlHome();
 	void moveCtrlEnd();
 
+	/**
+	 * Set new horizontal zoom level and update display accordingly
+	 */
 	void setZoomLevel(int);
+
+	/**
+	 * @return row index of cell in the display that matches designated bar
+	 */
+	int rowBar(int bar);
+	/**
+	 * @return column index of cell in the display that matches designated bar
+	 */
+	int colBar(int bar);
+	/**
+	 * @return bar number by (row, col) cell indexes
+	 */
+	int barByRowCol(int row, int col);
 
 	TabSong *song;
 	TabTrack *curt;
@@ -227,6 +245,8 @@ private:
 
 	void drawLetRing(QPainter *p, int x, int y);
 
+	int barsPerRow;
+
 	QFont *normalFont;
 	QFont *timeSigFont;
 	QFont *smallCaptionFont;
@@ -235,8 +255,6 @@ private:
 
 	char lastnumber;
 	int selxcoord;
-
-	int zoomLevel;
 
 	bool viewscore;
 };
