@@ -11,6 +11,7 @@ public:
     Fingering(int strings, QWidget *parent = 0, const char *name = 0);
 
     void setFinger(int string, int fret);
+    void setFingering(const int a[MAX_STRINGS]);
 
     int  numstrings() { return numstr; }
     int  app(int x) { return appl[x]; }
@@ -23,7 +24,6 @@ signals:
     void chordChange();
 
 protected:
-    //    virtual void paintEvent( QPaintEvent * );
     virtual void drawContents(QPainter *);
     virtual void mouseMoveEvent(QMouseEvent *);
     virtual void mousePressEvent(QMouseEvent *);
