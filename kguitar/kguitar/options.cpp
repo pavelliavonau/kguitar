@@ -42,6 +42,38 @@ Options::Options(QWidget *parent=0, const char *name=0): QTabDialog(parent,name,
 
     addTab(cd,i18n("&Chords"));
 
+
+    ///////////////////////////////////////////////////////////////////
+    // MusiXTeX Settings Tab  - alinx
+    ///////////////////////////////////////////////////////////////////
+
+    QWidget *tex = new QWidget(this);
+
+    texlygr = new QButtonGroup(i18n("MusiXTeX Layout"),tex);
+    texlygr->setGeometry(10,10,175,130);
+    showbarnumb = new QCheckBox(i18n("Show Barnumber"),texlygr);
+    showbarnumb->setGeometry(10,35,150,20);
+    showstr = new QCheckBox(i18n("Show Tuning"),texlygr);
+    showstr->setGeometry(10,60,150,20);
+    showpagenumb = new QCheckBox(i18n("Show Pagenumber"),texlygr);
+    showpagenumb->setGeometry(10,85,150,20);
+
+    texsizegr = new QButtonGroup(i18n("Tab Size"),tex);
+    texsizegr->setGeometry(200,10,175,130);
+    tabsize[0] = new QRadioButton(i18n("smallest"),texsizegr);
+    tabsize[1] = new QRadioButton(i18n("small"),texsizegr);
+    tabsize[2] = new QRadioButton(i18n("normal"),texsizegr);
+    tabsize[3] = new QRadioButton(i18n("big"),texsizegr);
+
+    QVBoxLayout *texvb1 = new QVBoxLayout(texsizegr,15,10);
+    texvb1->addSpacing(5); // Cosmetic space
+    for (int i=0;i<4;i++)
+	    texvb1->addWidget(tabsize[i]);
+    texvb1->activate();
+
+    addTab(tex, i18n("MusiXTeX Export"));
+
+
     //////////////////////////////////////////////////////////////////
     // SOME OTHER SETTINGS TAB
     //////////////////////////////////////////////////////////////////
