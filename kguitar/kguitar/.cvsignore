@@ -2,4 +2,9 @@ Makefile
 Makefile.in
 kguitar
 .deps
+.libs
+libkguitar.la
+libkguitar.la.closure
 *.moc.cpp
+*.lo
+*.moc.lo
