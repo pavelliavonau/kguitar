@@ -644,9 +644,9 @@ void TrackView::moveLeft()
 
 void TrackView::moveRight()
 {
-	if (curt->x + 1 == curt->c.size())
+	if (curt->x + 1 == curt->c.size()) {
 		cmdHist->addCommand(new AddColumnCommand(this, curt));
-	else {
+	} else {
 		if (curt->b.size() == curt->xb + 1)
 			curt->x++;
 		else {

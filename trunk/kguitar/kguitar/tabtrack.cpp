@@ -85,6 +85,23 @@ bool TabTrack::barStatus(int n)
 	return res;
 }
 
+// Returns a cumulative duration of all columns that belong to current
+// bar, determined with track parameters
+Q_UINT16 TabTrack::currentBarDuration()
+{
+	Q_UINT16 dur = 0;
+	for (int i = b[xb].start; i <= lastColumn(xb); i++)
+		dur += c[i].fullDuration();
+	return dur;
+}
+
+// Calculates and returns maximum current bar duration, based on time
+// signature
+Q_UINT16 TabTrack::maxCurrentBarDuration()
+{
+	return 4 * 120 * b[xb].time1 / b[xb].time2;
+}
+
 // Inserts n columns at current cursor position
 void TabTrack::insertColumn(int n)
 {
@@ -92,8 +109,10 @@ void TabTrack::insertColumn(int n)
 	for (int i = c.size() - n; i > x; i--)
 		c[i] = c[i - n];
 	for (int i = 0; i < n; i++)
-		for (int j = 0; j < MAX_STRINGS; j++)
+		for (int j = 0; j < MAX_STRINGS; j++) {
 			 c[x + i].a[j] = -1;
+			 c[x + i].e[i] = 0;
+		}
 }
 
 // Removes n columns starting with current cursor position
