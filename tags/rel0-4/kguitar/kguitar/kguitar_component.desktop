@@ -1,0 +1,13 @@
+[Desktop Entry]
+Name=Embedded KGuitar Tab-Viewer
+Name[de]=KGuitar Tab-Betrachter
+
+X-KDE-Library=libkguitar
+Icon=kguitar
+
+# Keep in sync with kguitar.desktop
+MimeType=application/x-kguitar
+
+ServiceTypes=KParts/ReadOnlyPart,KParts/ReadWritePart,Browser/View
+Type=Service
+InitialPreference=8
