@@ -31,8 +31,8 @@ Options::Options(QWidget *parent=0, const char *name=0): QTabDialog(parent,name,
 
     flatgr = new QButtonGroup(i18n("Alterations"),cd);
     flatgr->setGeometry(170,10,150,110);
-    flat[0] = new QRadioButton("-/+ symbols",flatgr);
-    flat[1] = new QRadioButton("b/# symbols",flatgr);
+    flat[0] = new QRadioButton(i18n("-/+ symbols"),flatgr);
+    flat[1] = new QRadioButton(i18n("b/# symbols"),flatgr);
 
     QVBoxLayout *vb2 = new QVBoxLayout(flatgr,15,10);
     vb2->addSpacing(5); // Cosmetic space
@@ -58,5 +58,5 @@ Options::Options(QWidget *parent=0, const char *name=0): QTabDialog(parent,name,
     setCancelButton(i18n("Cancel"));
 
     resize(400,300);
-    setCaption(i18n("Options"));
+    setCaption(i18n("General options"));
 }
