@@ -3,9 +3,12 @@
 
 #include <qtableview.h>
 
+#include "midilist.h"
+
 class TabSong;
 class TabTrack;
 class DeviceManager;
+
 
 class TrackView: public QTableView
 {
@@ -64,12 +67,17 @@ public slots:
     void key8();
     void key9();
     void key0();
+    void playTrack();
+    void stopPlayTrack();
+
+private slots:
+    void playMidi(MidiList &ml);
 
 signals:
 	void statusBarChanged();
 
 protected:
-	virtual void paintCell(QPainter *, int row, int col);    
+	virtual void paintCell(QPainter *, int row, int col);
 	virtual void resizeEvent(QResizeEvent *e);
 	virtual void mousePressEvent(QMouseEvent *e);
 
@@ -78,12 +86,16 @@ private:
     void setLength(int l);
 	int horizDelta(uint n);
     void insertTab(int num);
-	
+
     TabSong *song;
     TabTrack *curt;
 	DeviceManager *midi;
 
     uchar lastnumber;
+
+    // MIDI stuff
+    MidiList midiList;
+    bool midiInUse, midiStopPlay;
 };
 
 #endif

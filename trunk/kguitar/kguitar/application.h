@@ -28,7 +28,7 @@ public:
     KGuitarFactory();
     virtual ~KGuitarFactory();
 
-    virtual KParts::Part *createPart( QWidget *parentWidget, const char *widgetName, 
+    virtual KParts::Part *createPart( QWidget *parentWidget, const char *widgetName,
             QObject *parent, const char *name, const char *classname, const QStringList &args );
 
     static KInstance *instance();
@@ -42,7 +42,7 @@ class KGuitarPart: public KParts::ReadWritePart
 {
     Q_OBJECT
 public:
-    KGuitarPart(bool bBrowserView, QWidget *parentWidget, const char *widgetName, 
+    KGuitarPart(bool bBrowserView, QWidget *parentWidget, const char *widgetName,
                 QObject *parent, const char *name);
     virtual ~KGuitarPart();
     TrackView *tv;
@@ -84,11 +84,12 @@ private:
     QPrinter *printer;
 
     KAction *newAct, *preferencesAct, *confTBAct, *browserAct, *sngPropAct,
-            *trkPropAct, *insChordAct, *len1Act, *len2Act, *len4Act, *len8Act, 
-            *len16Act, *len32Act, *timeSigAct, *arcAct, *legatoAct, *natHarmAct, 
-            *artHarmAct, *saveOptionAct, *confKeyAct, *arrTrkAct;
-    KToggleAction *showMainTBAct, *showEditTBAct, *usSharpAct, *usFlatAct, 
-                  *usMixAct, *euSharpAct, *euFlatAct, *euMixAct, *jazzSharpAct, 
+            *trkPropAct, *insChordAct, *len1Act, *len2Act, *len4Act, *len8Act,
+            *len16Act, *len32Act, *timeSigAct, *arcAct, *legatoAct, *natHarmAct,
+            *artHarmAct, *saveOptionAct, *confKeyAct, *arrTrkAct, *midiPlayTrackAct,
+            *midiStopPlayAct;
+    KToggleAction *showMainTBAct, *showEditTBAct, *usSharpAct, *usFlatAct,
+                  *usMixAct, *euSharpAct, *euFlatAct, *euMixAct, *jazzSharpAct,
                   *jazzFlatAct, *jazzMixAct;
 	KAccel *mainAccel;
 
@@ -96,7 +97,7 @@ private:
     QLabel *s_bar;
 
     //parentWidget
-    QWidget *p; 
+    QWidget *p;
 
     //BrowserView
     bool isBrowserView;
@@ -105,7 +106,7 @@ private:
 
 protected:
     // reimplemented from ReadWritePart
-    virtual bool openFile();    
+    virtual bool openFile();
     virtual bool saveFile();
 
 signals:

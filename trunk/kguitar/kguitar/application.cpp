@@ -198,6 +198,14 @@ KGuitarPart::KGuitarPart(bool bBrowserView, QWidget *parentWidget,
 	jazzMixAct = new KToggleAction(i18n("Jazz, mixed"), 0, this,
 								   SLOT(setJZmixed()), actionCollection(), "jazz_mix");
 
+    // SET UP MIDI-PLAY
+    midiPlayTrackAct = new KAction(i18n("&Play Track"), "1rightarrow",
+                                   KAccel::stringToKey("Ctrl+P"), tv, SLOT(playTrack()),
+                                   actionCollection(), "midi_playtrack");
+    midiStopPlayAct = new KAction(i18n("&Stop"), "player_stop",
+                                  KAccel::stringToKey("Ctrl+Shift+P"), tv, SLOT(stopPlayTrack()),
+                                  actionCollection(), "midi_stopplay");
+
 	// SET UP ACCEL...
 	mainAccel = new KAccel(tv);
 
