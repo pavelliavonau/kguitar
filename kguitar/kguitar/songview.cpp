@@ -47,7 +47,8 @@ SongView::SongView(KXMLGUIClient *_XMLGUIClient, QWidget *parent = 0, const char
 
 	connect(tl, SIGNAL(newTrackSelected(TabTrack *)), tv, SLOT(selectTrack(TabTrack *)));
 	connect(tp, SIGNAL(newTrackSelected(TabTrack *)), tv, SLOT(selectTrack(TabTrack *)));
-	connect(tp, SIGNAL(newBarSelected(int)), tv, SLOT(selectBar(int)));
+	connect(tp, SIGNAL(newBarSelected(uint)), tv, SLOT(selectBar(uint)));
+	connect(tv, SIGNAL(paneChanged()), tp, SLOT(update()));
 
 	QBoxLayout *l = new QVBoxLayout(this);
 	l->addWidget(split);
@@ -144,12 +145,12 @@ void SongView::trackBassLine()
 			cs.detectChord();
             havenote = ((ChordListItem *) cs.chords->item(0));
 
-            if (havenote) {
-                note = ((ChordListItem *) cs.chords->item(0))->tonic();
-                kdDebug() << "Column " << i << ", detected tonic " << note_name(note) << endl;
-            }
-            else
-                kdDebug() << "Column " << i << ", EMPTY " << endl;
+			if (havenote) {
+				note = ((ChordListItem *) cs.chords->item(0))->tonic();
+				kdDebug() << "Column " << i << ", detected tonic " << note_name(note) << endl;
+			} else {
+				kdDebug() << "Column " << i << ", EMPTY " << endl;
+			}
 
 			for (uint k = 0; k < newtrk->string; k++) {
 				newtrk->c[i].a[k] = -1;
@@ -157,7 +158,7 @@ void SongView::trackBassLine()
 			}
 
 			newtrk->c[i].l = origtrk->c[i].l;
-			newtrk->c[i].flags = 0;
+			newtrk->c[i].flags = origtrk->c[i].flags;
 
 			// GREYFIX: make a better way of choosing a fret. This way
 			// it can, for example, be over max frets number.
@@ -212,6 +213,7 @@ bool SongView::trackProperties()
 	return res;
 }
 
+// Dialog to set song's properties
 void SongView::songProperties()
 {
 	SetSong *ss = new SetSong();
