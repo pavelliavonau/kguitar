@@ -133,7 +133,7 @@ bool TabSong::load_from_kg(QString fileName)
 	printf("Going to read %d track(s)...\n",cnt);
 	
 	Q_UINT16 i16;
-	Q_UINT8 channel,patch,string,frets,tm,event,elength;
+	Q_UINT8 channel, patch, string, frets, tm, event, elength;
 	Q_INT8 cn;
 	QString tn;
 
@@ -525,7 +525,17 @@ bool TabSong::save_to_mid(QString fileName)
 	s << (Q_UINT8) 0x58;
 	s << (Q_UINT8) 4;
 	s << (Q_UINT8) t.first()->b[0].time1;
-	s << (Q_UINT8) /*trk->b[0].time2*/ 2; // GREYFIX
+	// Time signature denominator
+	Q_UINT8 denom  = 1;
+	switch (t.first()->b[0].time2) {
+	case 1:	 denom = 0; break;
+	case 2:	 denom = 1; break;
+	case 4:	 denom = 2; break;
+	case 8:	 denom = 3; break;
+	case 16: denom = 4; break;
+	case 32: denom = 5; break;
+	}
+	s << denom;
 	s << (Q_UINT8) 24;
 	s << (Q_UINT8) 8;
 
@@ -547,31 +557,36 @@ bool TabSong::save_to_mid(QString fileName)
 	s << (Q_UINT32) (curpos - sizepos - 4);
 	f.at(curpos);
 
-	printf("curpos = %d, sizepos = %d, size of track = %d\n", curpos, sizepos, curpos - sizepos - 4);
-
     // TRACK DATA
 
 	MidiList ml;                        // Sorted list of events
 	long timer;                         // Timing
 
     QListIterator<TabTrack> it(t);
-    for (; it.current(); ++it) {          // For every track
+	for (; it.current(); ++it) {		  // For every track
 		TabTrack *trk = it.current();
 
-		s.writeRawBytes("MTrk", 4);     // Track header
-		sizepos = f.at();               // Remember where to write track size
-		s << (Q_UINT32) 0;              // Store 0 as size temporarily
+		s.writeRawBytes("MTrk", 4);		// Track header
+		sizepos = f.at();				// Remember where to write track size
+		s << (Q_UINT32) 0;				// Store 0 as size temporarily
 
- 		s << (Q_UINT8) 0;               // Track name
- 		s << (Q_UINT8) MIDI_META;
- 		s << (Q_UINT8) META_SEQUENCE_NAME;
- 		writeVarLen(&s, trk->name.length());
+		s << (Q_UINT8) 0;				// Track name
+		s << (Q_UINT8) MIDI_META;
+		s << (Q_UINT8) META_SEQUENCE_NAME;
+		writeVarLen(&s, trk->name.length());
 		s.writeRawBytes(trk->name, trk->name.length());
 		
 		// TRACK EVENTS
 
-		// Patch select
-		s << (Q_UINT8) 0;
+		// Bank & patch select
+		s << (Q_UINT8) 0;				// No delta time
+		s << (Q_UINT8) (MIDI_CONTROL_CHANGE | (trk->channel - 1));
+		s << (Q_UINT8) 0;				// Controller 0 - high bank byte
+		s << (Q_UINT8) (trk->bank >> 8);
+		s << (Q_UINT8) 1;				// Slight delay
+		s << (Q_UINT8) 32;				// Controller 32 - low bank byte
+		s << (Q_UINT8) (trk->bank & 0xff);
+		s << (Q_UINT8) 1;				// Slight delay
 		s << (Q_UINT8) (MIDI_PROGRAM_CHANGE | (trk->channel - 1));
 		s << (Q_UINT8) trk->patch;
 		
