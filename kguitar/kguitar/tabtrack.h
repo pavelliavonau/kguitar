@@ -7,6 +7,10 @@
 #include <qstring.h>
 #include <qrect.h>
 
+#ifdef WITH_TSE3
+#include <tse3/PhraseEdit.h>
+#endif
+
 typedef enum {
 	FretTab,
 	DrumTab
@@ -58,6 +62,10 @@ public:
 	void arrangeBars();
 	void addFX(char fx);
 	void updateXB();
+
+#ifdef WITH_TSE3
+	TSE3::PhraseEdit *midiTrack();
+#endif
 
 private:
 	void addNewColumn(TabColumn dat, int len, bool *arc);

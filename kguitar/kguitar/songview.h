@@ -2,7 +2,6 @@
 #define SONGVIEW_H
 
 #include "config.h"
-#include "midilist.h"
 
 #include <qwidget.h>
 
@@ -17,6 +16,7 @@ class KXMLGUIClient;
 class KCommandHistory;
 class KPrinter;
 class SongPrint;
+class TabTrack;
 
 #ifdef WITH_TSE3
 #include <tse3/MidiScheduler.h>
@@ -53,9 +53,6 @@ public slots:
 	void slotPaste();
 	void slotSelectAll();
 
-private slots:
-	void playMidi(MidiList &ml);
-
 private:
 	TabTrack *highlightedTabs();
 	void insertTabs(TabTrack* trk);
@@ -67,7 +64,6 @@ private:
 	SongPrint *sp;
 
 	// MIDI stuff
-	MidiList midiList;
 	bool midiInUse, midiStopPlay;
 
 #ifdef WITH_TSE3

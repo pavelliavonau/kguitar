@@ -1,11 +1,15 @@
 #ifndef TABSONG_H
 #define TABSONG_H
 
+#include "global.h"
+
 #include <qlist.h>
 #include <qstring.h>
 #include <qtextstream.h>
 
-#include "global.h"
+#ifdef WITH_TSE3
+#include <tse3/Song.h>
+#endif
 
 #include "tabtrack.h"
 
@@ -24,12 +28,17 @@ public:
 	int freeChannel();
 	uint maxLen();
 	void arrangeBars();
+#ifdef WITH_TSE3
+	TSE3::Song *midiSong();
+#endif
+
 	bool load_from_kg(QString fileName);		// Native format - kg
 	bool save_to_kg(QString fileName);
 	bool load_from_gtp(QString fileName);		// Guitar Pro format
 	bool save_to_gtp(QString fileName);
 	bool load_from_mid(QString fileName);		// MIDI files
 	bool save_to_mid(QString fileName);
+	bool save_to_tse3(QString fileName);        // TSE3MDL files
 	bool load_from_tab(QString fileName);		// ASCII tabulatures
 	bool save_to_tab(QString fileName);
 	bool save_to_tex_tab(QString fileName);		// MusiXTeX/kgtabs.tex tabulatures

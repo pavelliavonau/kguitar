@@ -1,4 +1,5 @@
 #include "tabtrack.h"
+#include "globaloptions.h"
 
 TabTrack::TabTrack(TrackMode _tm, QString _name, int _channel,
 				   int _bank, uchar _patch, char _string, char _frets)
@@ -253,3 +254,68 @@ void TabTrack::arrangeBars()
 	// Find the bar the cursor is in
 	updateXB();
 }
+
+#ifdef WITH_TSE3
+// Generate a single midi data list for TSE3 from all current track
+// tabulature.
+TSE3::PhraseEdit *TabTrack::midiTrack()
+{
+	TSE3::PhraseEdit *midi = new TSE3::PhraseEdit();
+
+	// Initial setup, patches, midi volumes, choruses, etc.
+	midi->insert(TSE3::MidiEvent(TSE3::MidiCommand(TSE3::MidiCommand_ProgramChange,
+												   channel - 1, globalMidiPort, patch), 0));
+
+	long timer = 0;
+	int midilen = 0, duration;
+	uchar pitch;
+
+	for (uint x = 0; x < c.size(); x++) {
+		// Calculate real duration (including all the linked beats)
+		midilen = c[x].fullDuration();
+		while ((x + 1 < c.size()) && (c[x + 1].flags & FLAG_ARC)) {
+			x++;
+			midilen += c[x].fullDuration();
+		}
+
+		// Note on/off events
+		for (int i = 0; i < string; i++) {
+			if (c[x].a[i] == -1)  continue;
+
+			if (c[x].a[i] == DEAD_NOTE) {
+				pitch = tune[i];
+				duration = 5;
+			} else {
+				pitch = c[x].a[i] + tune[i];
+				duration = midilen;
+			}
+
+			if (c[x].flags & FLAG_PM)
+				duration = duration / 2;
+
+			if (c[x].e[i] == EFFECT_ARTHARM)
+				pitch += 12;
+			if (c[x].e[i] == EFFECT_HARMONIC) {
+				switch (c[x].a[i]) {
+				case 3:  pitch += 28; break;
+				case 4:  pitch += 24; break;
+				case 5:  pitch += 19; break;
+				case 7:  pitch += 12; break;
+				case 9:  pitch += 19; break;
+				case 12: pitch += 0;  break;
+				case 16: pitch += 12; break;    // same as 9th fret
+				case 19: pitch += 0;  break;	// same as 7th fret
+				case 24: pitch += 0;  break;    // same as 5th fret
+				}
+			}
+
+			midi->insert(TSE3::MidiEvent(TSE3::MidiCommand(TSE3::MidiCommand_NoteOn, channel - 1,
+			                                               globalMidiPort, pitch, 0x60),
+			                             timer, 0x60, timer + duration));
+//			cout << "Inserted note pitch " << (int) pitch << ", start " << timer << ", duration " << duration << "\n";
+		}
+		timer += midilen;
+	}
+	return midi;
+}
+#endif
