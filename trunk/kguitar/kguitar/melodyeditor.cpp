@@ -1,10 +1,10 @@
-#include "config.h"
 #include "melodyeditor.h"
 #include "fretboard.h"
 #include "trackview.h"
 #include "tabtrack.h"
 #include "options.h"
 #include "optionsmelodyeditor.h"
+#include "settings.h"
 
 #include <qcombobox.h>
 #include <qpushbutton.h>
@@ -25,7 +25,7 @@ MelodyEditor::MelodyEditor(TrackView *_tv, QWidget *parent, const char *name)
 
 	tonic = new QComboBox(FALSE, this);
 	for (int i = 0; i < 12; i++)
-		tonic->insertItem(note_name(i));
+		tonic->insertItem(Settings::noteName(i));
 
 	mode = new QComboBox(FALSE, this);
 	mode->insertItem(i18n("<no mode>"));
@@ -86,13 +86,14 @@ void MelodyEditor::optionsDialog()
 	                     KDialogBase::Help|KDialogBase::Default|KDialogBase::Ok|
 	                     KDialogBase::Apply|KDialogBase::Cancel, KDialogBase::Ok);
     QVBox *box = opDialog.makeVBoxMainWidget();
-	OptionsMelodyEditor op((QFrame *) box);
+	OptionsMelodyEditor op(Settings::config, (QFrame *) box);
 	connect(&opDialog, SIGNAL(defaultClicked()), &op, SLOT(defaultBtnClicked()));
 	connect(&opDialog, SIGNAL(okClicked()), &op, SLOT(applyBtnClicked()));
 	connect(&opDialog, SIGNAL(applyClicked()), &op, SLOT(applyBtnClicked()));
 	opDialog.exec();
 	drawBackground();
 }
+
 // Special event filter that translates all keypresses to main widget,
 // i.e. TrackView
 // bool MelodyEditor::eventFilter(QObject *o, QEvent *e)

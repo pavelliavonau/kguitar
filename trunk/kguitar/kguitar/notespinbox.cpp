@@ -1,4 +1,5 @@
 #include "notespinbox.h"
+#include "settings.h"
 
 #include <qvalidator.h>
 
@@ -52,7 +53,7 @@ QString NoteSpinBox::mapValueToText(int v)
 	QString tmp;
 
 	tmp.setNum(v / 12);
-	tmp = note_name(v % 12) + tmp;
+	tmp = Settings::noteName(v % 12) + tmp;
 
 	return tmp;
 }
@@ -74,7 +75,7 @@ int NoteSpinBox::mapTextToValue(bool *ok)
 	int cn = -1;
 
 	for (int i = 0; i < 12; i++)
-		if (nn == note_name(i))
+		if (nn == Settings::noteName(i))
 			cn = i;
 
 	nn = t.right(1);

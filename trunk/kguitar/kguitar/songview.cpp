@@ -3,6 +3,7 @@
 #include "songview.h"
 #include "songviewcommands.h"
 #include "global.h"
+#include "settings.h"
 #include "trackview.h"
 #include "tracklist.h"
 #include "trackpane.h"
@@ -201,7 +202,7 @@ void SongView::trackBassLine()
 
 			if ((ChordListItem *) cs.chords->item(0)) {
 				note = ((ChordListItem *) cs.chords->item(0))->tonic();
-				kdDebug() << "Column " << i << ", detected tonic " << note_name(note) << endl;
+				kdDebug() << "Column " << i << ", detected tonic " << Settings::noteName(note) << endl;
 			} else {
 				note = -1;
 				kdDebug() << "Column " << i << ", EMPTY " << endl;

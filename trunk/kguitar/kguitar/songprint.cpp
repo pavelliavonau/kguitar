@@ -53,24 +53,19 @@
 
 // LVIFIX: print "8va" below G-clef (when applicable (always, right now))
 
-#include <qstring.h>			// required for globaloptions.h :-(
-#include "globaloptions.h"
-
 #include "accidentals.h"
 #include "songprint.h"
 #include "tabsong.h"
 #include "tabtrack.h"
 #include "trackprint.h"
+#include "settings.h"
 
 #include <kprinter.h>
 #include <qmemarray.h>
 #include <qpainter.h>
 #include <qpaintdevicemetrics.h>
 #include <qprinter.h>
-
-using namespace std;
-
-#include <iostream>
+#include <kglobal.h>
 
 static const QString notes[7] = {"C", "D", "E", "F", "G", "A", "B"};
 
@@ -207,7 +202,7 @@ void SongPrint::initFonts()
 	fFetaFnd = true;
 	fn = "TeX feta19";
 	if (!initExactFont(fn, 18, fFeta)) {
-		cout << "KGuitar: could not find font '" << fn << "'" << endl;
+		kdDebug() << "KGuitar: could not find font '" << fn << "'" << endl;
 		fFetaFnd = false;
 	}
 	fn = "TeX feta-nummer10";
@@ -277,8 +272,8 @@ void SongPrint::initPens()
 
 void SongPrint::initPrStyle()
 {
-	// check wat was configured
-	switch (globalPrSty) {
+	// check what was configured
+	switch (Settings::printingStyle()) {
 	case 0:
 		// (full) tab only
 		stNts = false;
@@ -359,7 +354,7 @@ void SongPrint::printSong(KPrinter *printer, TabSong *song)
 	// ypostb now is where either the empty space above the staff,
 	// the top barline of the first tab bar, or the top of the track name
 	// should be
-	
+
 	uint trkPr = 0;				// tracks printed
 
 	// loop while tracks left in the song
@@ -490,7 +485,7 @@ void SongPrint::printSong(KPrinter *printer, TabSong *song)
 					bn++;
 				}
 			}
-		
+
 			brsPr += nBarsOnLine;
 
 			// move to top of next line
@@ -542,6 +537,6 @@ void SongPrint::printSong(KPrinter *printer, TabSong *song)
 		trkPr++;
 
 	} // end while (trkPr ...
-			
+
 	p->end();			// send job to printer
 }
