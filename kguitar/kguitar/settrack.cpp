@@ -106,9 +106,9 @@ SetTrack::SetTrack(TabTrack *trk, QWidget *parent, const char *name)
 
 void SetTrack::selectTrackMode(int sel)
 {
-	switch ((TrackMode) sel) {
-	case FretTab: selectFret(); break;
-	case DrumTab: selectDrum(); break;
+	switch ((TabTrack::TrackMode) sel) {
+	case TabTrack::FretTab: selectFret(); break;
+	case TabTrack::DrumTab: selectDrum(); break;
 	}
 }
 

@@ -49,7 +49,7 @@ private:
 	uchar oldtune[MAX_STRINGS];
 	uchar newtune[MAX_STRINGS];
 	QString oldname, newname;
-	TrackMode oldtm, newtm;
+	TabTrack::TrackMode oldtm, newtm;
 	TabTrack *trk;
 	TrackView *tv;
 	TrackList *tl;
