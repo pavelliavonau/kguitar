@@ -21,6 +21,7 @@ private slots:
     void newDoc();
     void load();
     void save();
+    void saveAs();
     void print();
     void closeDoc();
     void inschord();
