@@ -20,22 +20,22 @@ QString notes_us1[12] = {"C",  "C#", "D",  "D#", "E",  "F",
 						 "F#", "G",	 "G#", "A",	 "A#", "B"};
 QString notes_us2[12] = {"C",  "Db", "D",  "Eb", "E",  "F",
 						 "Gb", "G",	 "Ab", "A",	 "Bb", "B"};
-QString notes_us3[12] = {"C",  "C#", "D",  "D#", "E",  "F",
-						 "F#", "G",	 "G#", "A",	 "A#", "B"};
+QString notes_us3[12] = {"C",  "Db", "D",  "Eb", "E",  "F",
+						 "F#", "G",	 "G#", "A",	 "Bb", "B"};
 
 QString notes_eu1[12] = {"C",  "C#", "D",  "D#", "E",  "F",
 						 "F#", "G",	 "G#", "A",	 "A#", "H"};
 QString notes_eu2[12] = {"C",  "Db", "D",  "Eb", "E",  "F",
 						 "Gb", "G",	 "Ab", "A",	 "Hb", "H"};
 QString notes_eu3[12] = {"C",  "Db", "D",  "Eb", "E",  "F",
-						 "Gb", "G",	 "Ab", "A",	 "Hb", "H"};
+						 "F#", "G",	 "G#", "A",	 "Hb", "H"};
 
 QString notes_jz1[12] = {"C",  "C#", "D",  "D#", "E",  "F",
 						 "F#", "G",	 "G#", "A",	 "B" , "H"};
 QString notes_jz2[12] = {"C",  "Db", "D",  "Eb", "E",  "F",
 						 "Gb", "G",	 "Ab", "A",	 "B" , "H"};
 QString notes_jz3[12] = {"C",  "Db", "D",  "Eb", "E",  "F",
-						 "Gb", "G",	 "Ab", "A",	 "B" , "H"};
+						 "F#", "G",	 "G#", "A",	 "B" , "H"};
 
 // Note names
 QString note_name(int num)
