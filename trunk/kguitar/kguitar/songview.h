@@ -3,6 +3,8 @@
 
 #include <qwidget.h>
 
+#include <kcommand.h>
+
 #include "midilist.h"
 
 class TrackView;
@@ -12,11 +14,13 @@ class DeviceManager;
 class TabSong;
 class QSplitter;
 class KXMLGUIClient;
+class KCommandHistory;
 
 class SongView: public QWidget {
 	Q_OBJECT
 public:
-	SongView(KXMLGUIClient *_XMLGUIClient, QWidget *parent = 0, const char *name = 0);
+	SongView(KXMLGUIClient *_XMLGUIClient, KCommandHistory* _cmdHist,
+			 QWidget *parent = 0, const char *name = 0);
 	~SongView();
 	void refreshView();
 
@@ -51,6 +55,7 @@ private:
 	QSplitter *split, *splitv;
 	DeviceManager *midi;
 	TabSong *song;
+	KCommandHistory *m_cmdHist;
 
 	// MIDI stuff
 	MidiList midiList;

@@ -9,6 +9,7 @@ class KGuitarPart;
 class KToggleAction;
 class KAction;
 class KActionCollection;
+class KCommandHistory;
 class FileBrowser;
 
 class KGuitarShell : public KParts::MainWindow {
@@ -46,6 +47,7 @@ private:
 	KAction *browserAct, *pasteAct;
     KRecentFilesAction *openRecentAct;
     KToggleAction *showMainTBAct, *showEditTBAct, *showStatusbarAct;
+	KCommandHistory *cmdHistory;
 };
 
 #endif

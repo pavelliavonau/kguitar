@@ -10,6 +10,7 @@
 #include <kedittoolbar.h>
 #include <kaccel.h>
 #include <kdebug.h>
+#include <kcommand.h>
 
 #include <qfileinfo.h>
 #include <qclipboard.h>
@@ -23,6 +24,9 @@
 
 KGuitarShell::KGuitarShell()
 {
+	// Undo / Redo
+	cmdHistory = new KCommandHistory(actionCollection());
+
     // We already link to libkguitar !
 #if 0
     // Try to find libkguitar
@@ -38,7 +42,7 @@ KGuitarShell::KGuitarShell()
 		return;
 	}
 #else
-	m_kgpart = new KGuitarPart(FALSE, this, "kguitarpart", this, "kguitarpart");
+	m_kgpart = new KGuitarPart(FALSE, cmdHistory, this, "kguitarpart", this, "kguitarpart");
 #endif  // if 0
 
 

@@ -82,7 +82,7 @@ KParts::Part *KGuitarFactory::createPart(QWidget *parentWidget, const char *widg
 									 const QStringList &)
 {
 	bool bBrowserView = (strcmp(className, "Browser/View") == 0);
-	KParts::Part *obj = new KGuitarPart(bBrowserView, parentWidget, widgetName,
+	KParts::Part *obj = new KGuitarPart(bBrowserView, 0, parentWidget, widgetName,
 										parent, name);
 	emit objectCreated(obj);
 	return obj;
@@ -97,22 +97,28 @@ KInstance *KGuitarFactory::instance()
 
 //------------------------------------------------------------------------
 
-KGuitarPart::KGuitarPart(bool bBrowserView, QWidget *parentWidget,
+KGuitarPart::KGuitarPart(bool bBrowserView, KCommandHistory *_cmdHist, QWidget *parentWidget,
 						 const char *, QObject *parent, const char *name)
 	: KParts::ReadWritePart(parent, name)
 {
 // 	printer = new QPrinter;
 // 	printer->setMinMax(1,10);
 
-	kdDebug() << "KGuitarPart::KGuitarPart()" << endl;
+	kdDebug() << "KGuitarPart::KGuitarPart() " << endl;
 
 	p = parentWidget;
 	isBrowserView = bBrowserView;
 
+	if (!_cmdHist) {
+		// We have no global KCommandHistory e.g. Part is called by Konqueror
+		// so we create one
+		_cmdHist = new KCommandHistory();
+	}
+
 	setInstance(KGuitarFactory::instance());
 
 	// MAIN WIDGET
-	sv = new SongView(this, parentWidget);
+	sv = new SongView(this, _cmdHist, parentWidget);
 	setWidget(sv);
 	sv->setFocus();
 

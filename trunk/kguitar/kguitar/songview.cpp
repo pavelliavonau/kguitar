@@ -23,6 +23,7 @@
 #include <kxmlguiclient.h>
 #include <knuminput.h>
 #include <kmessagebox.h>
+#include <kcommand.h>
 
 #include <qclipboard.h>
 #include <qsplitter.h>
@@ -46,8 +47,8 @@
 #include <signal.h>   // kill is declared on signal.h on bsd, not sys/signal.h
 #include <sys/signal.h>
 
-SongView::SongView(KXMLGUIClient *_XMLGUIClient, QWidget *parent = 0, const char *name = 0)
-    : QWidget(parent, name)
+SongView::SongView(KXMLGUIClient *_XMLGUIClient,  KCommandHistory* _cmdHist,
+				   QWidget *parent = 0, const char *name = 0): QWidget(parent, name)
 {
 	//MIDI INIT STUFF
 	QString fmPatch, fmPatchDir;
@@ -91,7 +92,7 @@ SongView::SongView(KXMLGUIClient *_XMLGUIClient, QWidget *parent = 0, const char
 	split = new QSplitter(this);
 	split->setOrientation(QSplitter::Vertical);
 
-	tv = new TrackView(song, _XMLGUIClient, midi, split);
+	tv = new TrackView(song, _XMLGUIClient, _cmdHist, midi, split);
 	splitv = new QSplitter(split);
  	splitv->setOrientation(QSplitter::Horizontal);
 
@@ -106,6 +107,8 @@ SongView::SongView(KXMLGUIClient *_XMLGUIClient, QWidget *parent = 0, const char
 
 	QBoxLayout *l = new QVBoxLayout(this);
 	l->addWidget(split);
+
+	m_cmdHist = _cmdHist;
 }
 
 SongView::~SongView()
@@ -335,7 +338,7 @@ void SongView::playSong()
 	QListIterator<TabTrack> it(song->t);
 	for (; it.current(); ++it) {
 		TabTrack *trk = it.current();
-		MidiData::getMidiList(trk, midiList);//##
+		MidiData::getMidiList(trk, midiList);
 	}
 
 	playMidi(midiList);
@@ -444,7 +447,7 @@ void SongView::playMidi(MidiList &ml, bool playSong = TRUE)
 			QListIterator<TabTrack> it(song->t);
 			for (; it.current(); ++it) {
 				TabTrack *trk = it.current();
-				c_midi->chnPatchChange(trk->channel, trk->patch);//##
+				c_midi->chnPatchChange(trk->channel, trk->patch);
 			}
 		} else c_midi->chnPatchChange(tv->trk()->channel, tv->trk()->patch);
 
@@ -602,10 +605,6 @@ void SongView::insertTabs(TabTrack* trk)
 		kdDebug() << "   trk == NULL" << endl;
 	else kdDebug() << "   trk with data" << endl;
 
-	kdDebug() << "      x: " << trk->x << endl;
-	kdDebug() << "   xsel: " << trk->xsel << endl;
-	kdDebug() << "    sel: " << trk->sel << endl;
-
 	uint pdelta, pstart, pend;
 
 	if (trk->x <= trk->xsel) {
@@ -617,10 +616,6 @@ void SongView::insertTabs(TabTrack* trk)
 	}
 
 	pdelta = pend - pstart + 1;
-
-	kdDebug() << "   pdelta: " << pdelta << endl;
-	kdDebug() << " c.size(): " << trk->c.size() << endl;
-
 
 	//ALINXFIX: Make it more flexible.
 	QString msg(i18n("There are some problems:\n\n"));
