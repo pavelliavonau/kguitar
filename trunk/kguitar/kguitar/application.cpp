@@ -1,11 +1,15 @@
 #include "application.h"
 #include "chord.h"
 
-#include <qpixmap.h>
-#include <ktoolbar.h>
-#include <kbutton.h>
 #include <qpopupmenu.h>
-#include <qmenubar.h>
+
+#include <kapp.h>
+#include <kmenubar.h>
+#include <ktoolbar.h>
+#include <kiconloader.h>
+#include <klocale.h>
+
+#include <qpixmap.h>
 #include <qkeycode.h>
 #include <qmultilinedit.h>
 #include <qfile.h>
@@ -13,68 +17,58 @@
 #include <qstatusbar.h>
 #include <qmessagebox.h>
 #include <qprinter.h>
-#include <kapp.h>
-#include <qaccel.h>
+#include <kaccel.h>
 #include <qtextstream.h>
 #include <qpainter.h>
 #include <qpaintdevicemetrics.h>
 #include <qwhatsthis.h>
 
-#include "filesave.xpm"
-#include "fileopen.xpm"
-#include "fileprint.xpm"
-#include "chord.xpm"
 
 ApplicationWindow::ApplicationWindow(): KTMainWindow()
 {
     printer = new QPrinter;
     printer->setMinMax( 1, 10 );
-    QPixmap openIcon, saveIcon, printIcon, chordIcon;
 
-    openIcon = QPixmap(fileopen);
-    saveIcon = QPixmap(filesave);
-    printIcon = QPixmap(fileprint);
-    chordIcon = QPixmap(chord_xpm);
-
-    toolBar()->insertButton(openIcon,1,SIGNAL(clicked()),this,SLOT(load()),TRUE,"Open file");
-    toolBar()->insertButton(saveIcon,1,SIGNAL(clicked()),this,SLOT(save()),TRUE,"Save file");
-    toolBar()->insertButton(printIcon,1,SIGNAL(clicked()),this,SLOT(print()),TRUE,"Print tabulature");
+    toolBar()->insertButton(Icon("filenew.xpm"),1,SIGNAL(clicked()),this,SLOT(newDoc()),TRUE,i18n("New"));
+    toolBar()->insertButton(Icon("fileopen.xpm"),1,SIGNAL(clicked()),this,SLOT(load()),TRUE,i18n("Open file"));
+    toolBar()->insertButton(Icon("filefloppy.xpm"),1,SIGNAL(clicked()),this,SLOT(save()),TRUE,i18n("Save file"));
+    toolBar()->insertButton(Icon("fileprint.xpm"),1,SIGNAL(clicked()),this,SLOT(print()),TRUE,i18n("Print"));
     toolBar()->insertSeparator();
-    toolBar()->insertButton(chordIcon,1,SIGNAL(clicked()),this,SLOT(inschord()),TRUE,"Insert chord");
+    toolBar()->insertButton(Icon("chord.xpm"),1,SIGNAL(clicked()),this,SLOT(inschord()),TRUE,"Insert chord");
     
-    QPopupMenu * file = new QPopupMenu();
-    menuBar()->insertItem(i18n("&File"), file);
+    QPopupMenu *p = new QPopupMenu();
+    p->insertItem(i18n("&New"), this, SLOT(newDoc()));
+    p->insertItem(i18n("&Open..."), this, SLOT(load()));
+    p->insertItem(i18n("&Save..."), this, SLOT(save()));
+    p->insertSeparator();
+    p->insertItem(i18n("&Print"), this, SLOT(print()));
+    p->insertSeparator();
+    p->insertItem(i18n("&Close"), this, SLOT(closeDoc()));
+    p->insertItem(i18n("&Quit"), qApp, SLOT(quit()));
+    menuBar()->insertItem(i18n("&File"), p);
 
-    file->insertItem(i18n("&New"), this, SLOT(newDoc()), CTRL+Key_N );
-    file->insertItem(openIcon,i18n("&Open"), this, SLOT(load()), CTRL+Key_O );
-    file->insertItem(saveIcon, "Save", this, SLOT(save()), CTRL+Key_S );
-    file->insertSeparator();
-    file->insertItem(printIcon, "Print", this, SLOT(print()), CTRL+Key_P );
-    file->insertSeparator();
-    file->insertItem("Close", this, SLOT(closeDoc()), CTRL+Key_W );
-    file->insertItem("Quit", qApp, SLOT(quit()), CTRL+Key_Q );
+    p = new QPopupMenu();
+    p->insertItem(i18n("&Chord"),this,SLOT(inschord()));
+    menuBar()->insertItem(i18n("&Insert"),p);
 
-    insertMenu = new QPopupMenu();
-    menuBar()->insertItem("&Insert",insertMenu);
+//     controls = new QPopupMenu();
+//     menuBar()->insertItem( "&Controls", controls );
 
-    insertMenu->insertItem(chordIcon,"&Chord",this,SLOT(inschord()));
+//     mb = controls->insertItem( "Menu bar", this, SLOT(toggleMenuBar()), CTRL+Key_M);
+//     // Now an accelerator for when the menubar is invisible!
+//     //QAccel* a = new QAccel(this);
+//     //    a->connectItem( a->insertItem( CTRL+Key_M ), this, SLOT(toggleMenuBar()) );
 
-    controls = new QPopupMenu();
-    menuBar()->insertItem( "&Controls", controls );
+//     tb = controls->insertItem( "Tool bar", this, SLOT(toggleToolBar()), CTRL+Key_T);
+//     sb = controls->insertItem( "Status bar", this, SLOT(toggleStatusBar()), CTRL+Key_B);
+//     controls->setCheckable( TRUE );
+//     controls->setItemChecked( mb, TRUE );
+//     controls->setItemChecked( tb, TRUE );v
+//     controls->setItemChecked( sb, TRUE );
 
-    mb = controls->insertItem( "Menu bar", this, SLOT(toggleMenuBar()), CTRL+Key_M);
-    // Now an accelerator for when the menubar is invisible!
-    //QAccel* a = new QAccel(this);
-    //    a->connectItem( a->insertItem( CTRL+Key_M ), this, SLOT(toggleMenuBar()) );
-
-    tb = controls->insertItem( "Tool bar", this, SLOT(toggleToolBar()), CTRL+Key_T);
-    sb = controls->insertItem( "Status bar", this, SLOT(toggleStatusBar()), CTRL+Key_B);
-    controls->setCheckable( TRUE );
-    controls->setItemChecked( mb, TRUE );
-    controls->setItemChecked( tb, TRUE );
-    controls->setItemChecked( sb, TRUE );
-
-//     menuBar()->insertItem("&Help",getHelpMenu(FALSE,"Something"));
+//     p = getHelpMenu(i18n("KGuitar " VERSION "\n\n"
+// 			 "(C) 2000 Mikhail Yakshin AKA GreyCat\n"));
+//     menuBar()->insertItem(i18n("&Help"), p);
 
 //     e = new QMultiLineEdit( this, "editor" );
 //     e->setFocus();
