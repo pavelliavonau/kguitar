@@ -1,8 +1,5 @@
 #include "chordlist.h"
 
-// GREYFIX
-#include <stdio.h>
-
 ChordList::ChordList(QWidget *parent=0, const char *name=0):
     QListBox(parent, name)
 {
