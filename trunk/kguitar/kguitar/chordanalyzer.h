@@ -1,7 +1,7 @@
 #ifndef CHORDANALYZER_H
 #define CHORDANALYZER_H
 
-#include <global.h>
+#include "global.h"
 
 class ChordAnalyzer {
 public:
