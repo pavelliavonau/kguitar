@@ -135,6 +135,7 @@ msgstr ""
 "vous faîtes. L'utilisation des noms jazz sans but\n"
 "précis embrouillerait l'utilisateur et peut conduire\n"
 "à une fausse interprétation musicale.\n"
+"\n"
 "Êtes vous sûrs de vouloir les utiliser?"
 
 #: chord.cpp:157
