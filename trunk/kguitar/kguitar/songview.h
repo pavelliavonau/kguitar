@@ -58,7 +58,7 @@ public slots:
 	void slotPaste();
 	void slotSelectAll();
 
-	void playbackNextColumn(int track, int advance);
+	void playbackColumn(int track, int advance);
 
 private:
 	TabTrack *highlightedTabs();
