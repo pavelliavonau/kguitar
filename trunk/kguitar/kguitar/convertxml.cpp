@@ -7,10 +7,6 @@
 #include <qtextstream.h>
 #include <qvaluelist.h>
 
-// GREYFIX
-#include <iostream>
-using namespace std;
-
 ConvertXml::ConvertXml(TabSong *song): ConvertBase(song), QXmlDefaultHandler()
 {
 }
@@ -292,15 +288,15 @@ void ConvertXml::write(QTextStream& os)
 	os << endl;
 	os << "<score-partwise>\n";
 	os << "\t<work>\n";
-	os << "\t\t<work-title>" << song->title << "</work-title>\n";
+	os << "\t\t<work-title>" << song->info["TITLE"] << "</work-title>\n";
 	os << "\t</work>\n";
 
 // identification
 	os << "\n";
 	os << "\t<identification>\n";
-	os << "\t\t<creator type=\"composer\">" << song->author << "</creator>\n";
+	os << "\t\t<creator type=\"composer\">" << song->info["ARTIST"] << "</creator>\n";
 	os << "\t\t<encoding>\n";
-	os << "\t\t\t<encoder>" << song->transcriber << "</encoder>\n";
+	os << "\t\t\t<encoder>" << song->info["TRANSCRIBER"] << "</encoder>\n";
 	os << "\t\t\t<software>KGuitar</software>\n";
 	os << "\t\t</encoding>\n";
 	os << "\t</identification>\n";
@@ -882,10 +878,10 @@ bool ConvertXml::startDocument()
 	// init tabsong
 	song->tempo = 120;			// default start tempo
 	song->t.clear();				// no tracks read yet: clear track list
-	song->title = "";				// default title
-	song->author = "";			// default author
-	song->transcriber = "";		// default transcriber
-	song->comments = "";			// default comments
+	song->info["TITLE"] = "";				// default title
+	song->info["ARTIST"] = "";			// default author
+	song->info["TRANSCRIBER"] = "";		// default transcriber
+	song->info["COMMENTS"] = "";			// default comments
 // 	song->filename = "";			// is set in KGuitarPart::slotOpenFile()
 	// init global variables: clear part list
 	partIds.clear();
@@ -1066,10 +1062,10 @@ bool ConvertXml::endElement( const QString&, const QString&,
 	} else if (qName == "fret") {
 	    stFrt = stCha;
 	} else if (qName == "identification") {
-		song->title       = stTtl;
-		song->author      = stCrt;
-		song->transcriber = stEnc;
-		song->comments    = "";
+		song->info["TITLE"]       = stTtl;
+		song->info["ARTIST"]      = stCrt;
+		song->info["TRANSCRIBER"] = stEnc;
+		song->info["COMMENTS"]    = "";
 	} else if (qName == "measure") {
 		// forward to end of track in case of incomplete last voice
 		int td = trk->trackDuration();
@@ -1377,7 +1373,7 @@ void ConvertXml::reportAll(const QString& lvl, const QString& err)
 	fullErr += ": ";
 	fullErr += err;
 	fullErr += "\n";
-	cerr << fullErr;
+	kdDebug() << fullErr;
 }
 
 

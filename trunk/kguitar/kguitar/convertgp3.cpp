@@ -103,18 +103,18 @@ bool ConvertGp3::load(QString fileName)
 
 	//First the header: general infos
 	DUMMIES( 31 );
-	GET_STR(title);		song->title = QString::fromLocal8Bit(str);
+	GET_STR(title);		song->info["TITLE"] = QString::fromLocal8Bit(str);
 	GET_STR(subtitle);
-	GET_STR(artist);	song->author = QString::fromLocal8Bit(str);
+	GET_STR(artist);	song->info["ARTIST"] = QString::fromLocal8Bit(str);
 	GET_STR(album);
 	GET_STR(author);
 	GET_STR(copyright);
-	GET_STR(tabled_by);	song->transcriber = QString::fromLocal8Bit(str);
+	GET_STR(tabled_by);	song->info["TRANSCRIBER"] = QString::fromLocal8Bit(str);
 	GET_STR(instruction);
 	char variente = *buf==1;	//FIXME What's the real meaning of this byte?
 	if (variente)
 		DUMMIES( 4 );
-	GET_STR(notice);	song->comments = QString::fromLocal8Bit(str);
+	GET_STR(notice);	song->info["COMMENTS"] = QString::fromLocal8Bit(str);
 	if (variente)
 		DUMMIES( 1 );
 	song->tempo = *buf;

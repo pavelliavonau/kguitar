@@ -50,10 +50,10 @@ bool ConvertAscii::load(QString)
 
 void ConvertAscii::writeHeader()
 {
-	writeCentered(song->title);
+	writeCentered(song->info["TITLE"]);
 	(*stream) << endl;
-	writeCentered("Author: " + song->author);
-	writeCentered("Transcribed by: " + song->transcriber);
+	writeCentered("Author: " + song->info["ARTIST"]);
+	writeCentered("Transcribed by: " + song->info["TRANSCRIBER"]);
 	// GREYFIX - comments?
 	(*stream) << "Tempo: " << song->tempo << endl << endl;
 }
