@@ -85,10 +85,11 @@ SongView::SongView(KXMLGUIClient *_XMLGUIClient, KCommandHistory *_cmdHist,
 
 	me = new MelodyEditor(tv, split);
 
-	connect(tl, SIGNAL(trackChanged(TabTrack *)), tv, SLOT(selectTrack(TabTrack *)));
-	connect(tp, SIGNAL(trackChanged(TabTrack *)), tv, SLOT(selectTrack(TabTrack *)));
-	connect(tp, SIGNAL(newBarSelected(uint)), tv, SLOT(selectBar(uint)));
+	connect(tl, SIGNAL(trackSelected(TabTrack *)), tv, SLOT(selectTrack(TabTrack *)));
+	connect(tp, SIGNAL(trackSelected(TabTrack *)), tv, SLOT(selectTrack(TabTrack *)));
+	connect(tp, SIGNAL(barSelected(uint)), tv, SLOT(selectBar(uint)));
 	connect(tv, SIGNAL(paneChanged()), tp, SLOT(update()));
+	connect(tv, SIGNAL(columnChanged()), tp, SLOT(update()));
 
 	// let higher-level widgets know that we have a changed song if it
 	// was changed in TrackView
