@@ -1,274 +1,207 @@
-<!DOCTYPE UI><UI>
+<!DOCTYPE UI><UI version="3.1" stdsetdef="1">
 <class>SetTabMidiBase</class>
-<widget>
-    <class>QWidget</class>
-    <property stdset="1">
-        <name>name</name>
+<widget class="QWidget">
+    <property name="name">
         <cstring>SetTabMidiBase</cstring>
     </property>
-    <property stdset="1">
-        <name>geometry</name>
+    <property name="geometry">
         <rect>
             <x>0</x>
             <y>0</y>
-            <width>360</width>
-            <height>233</height>
+            <width>352</width>
+            <height>163</height>
         </rect>
     </property>
-    <property stdset="1">
-        <name>caption</name>
+    <property name="caption">
         <string>SetTabMidi</string>
     </property>
     <grid>
-        <property stdset="1">
-            <name>margin</name>
+        <property name="name">
+            <cstring>unnamed</cstring>
+        </property>
+        <property name="margin">
             <number>11</number>
         </property>
-        <property stdset="1">
-            <name>spacing</name>
+        <property name="spacing">
             <number>6</number>
         </property>
-        <widget row="4"  column="0" >
-            <class>QLabel</class>
-            <property stdset="1">
-                <name>name</name>
+        <widget class="QLabel" row="4" column="0">
+            <property name="name">
                 <cstring>TextLabel5</cstring>
             </property>
-            <property stdset="1">
-                <name>text</name>
+            <property name="text">
                 <string>Transpose:</string>
             </property>
         </widget>
-        <widget row="3"  column="0" >
-            <class>QLabel</class>
-            <property stdset="1">
-                <name>name</name>
+        <widget class="QLabel" row="3" column="0">
+            <property name="name">
                 <cstring>TextLabel4</cstring>
             </property>
-            <property stdset="1">
-                <name>text</name>
+            <property name="text">
                 <string>Chorus:</string>
             </property>
         </widget>
-        <widget row="4"  column="2" >
-            <class>QLCDNumber</class>
-            <property stdset="1">
-                <name>name</name>
+        <widget class="QLCDNumber" row="4" column="2">
+            <property name="name">
                 <cstring>LCDTranspose</cstring>
             </property>
-            <property stdset="1">
-                <name>numDigits</name>
+            <property name="numDigits">
                 <number>3</number>
             </property>
         </widget>
-        <widget row="0"  column="1" >
-            <class>QSlider</class>
-            <property stdset="1">
-                <name>name</name>
+        <widget class="QSlider" row="0" column="1">
+            <property name="name">
                 <cstring>SliderVolume</cstring>
             </property>
-            <property stdset="1">
-                <name>maxValue</name>
+            <property name="maxValue">
                 <number>127</number>
             </property>
-            <property stdset="1">
-                <name>pageStep</name>
+            <property name="pageStep">
                 <number>5</number>
             </property>
-            <property stdset="1">
-                <name>orientation</name>
+            <property name="orientation">
                 <enum>Horizontal</enum>
             </property>
-            <property stdset="1">
-                <name>tickmarks</name>
+            <property name="tickmarks">
                 <enum>Left</enum>
             </property>
         </widget>
-        <widget row="0"  column="0" >
-            <class>QLabel</class>
-            <property stdset="1">
-                <name>name</name>
+        <widget class="QLabel" row="0" column="0">
+            <property name="name">
                 <cstring>TextLabel1</cstring>
             </property>
-            <property stdset="1">
-                <name>text</name>
+            <property name="text">
                 <string>Volume:</string>
             </property>
         </widget>
-        <widget row="4"  column="1" >
-            <class>QSlider</class>
-            <property stdset="1">
-                <name>name</name>
+        <widget class="QSlider" row="4" column="1">
+            <property name="name">
                 <cstring>SliderTranspose</cstring>
             </property>
-            <property stdset="1">
-                <name>minimumSize</name>
+            <property name="minimumSize">
                 <size>
                     <width>85</width>
                     <height>0</height>
                 </size>
             </property>
-            <property stdset="1">
-                <name>minValue</name>
+            <property name="minValue">
                 <number>-12</number>
             </property>
-            <property stdset="1">
-                <name>maxValue</name>
+            <property name="maxValue">
                 <number>12</number>
             </property>
-            <property stdset="1">
-                <name>pageStep</name>
+            <property name="pageStep">
                 <number>1</number>
             </property>
-            <property stdset="1">
-                <name>orientation</name>
+            <property name="orientation">
                 <enum>Horizontal</enum>
             </property>
-            <property stdset="1">
-                <name>tickmarks</name>
+            <property name="tickmarks">
                 <enum>Left</enum>
             </property>
         </widget>
-        <widget row="2"  column="2" >
-            <class>QLCDNumber</class>
-            <property stdset="1">
-                <name>name</name>
+        <widget class="QLCDNumber" row="2" column="2">
+            <property name="name">
                 <cstring>LCDReverb</cstring>
             </property>
-            <property stdset="1">
-                <name>numDigits</name>
+            <property name="numDigits">
                 <number>3</number>
             </property>
         </widget>
-        <widget row="1"  column="0" >
-            <class>QLabel</class>
-            <property stdset="1">
-                <name>name</name>
+        <widget class="QLabel" row="1" column="0">
+            <property name="name">
                 <cstring>TextLabel2</cstring>
             </property>
-            <property stdset="1">
-                <name>text</name>
+            <property name="text">
                 <string>Pan:</string>
             </property>
         </widget>
-        <widget row="2"  column="1" >
-            <class>QSlider</class>
-            <property stdset="1">
-                <name>name</name>
+        <widget class="QSlider" row="2" column="1">
+            <property name="name">
                 <cstring>SliderReverb</cstring>
             </property>
-            <property stdset="1">
-                <name>maxValue</name>
+            <property name="maxValue">
                 <number>127</number>
             </property>
-            <property stdset="1">
-                <name>pageStep</name>
+            <property name="pageStep">
                 <number>5</number>
             </property>
-            <property stdset="1">
-                <name>orientation</name>
+            <property name="orientation">
                 <enum>Horizontal</enum>
             </property>
-            <property stdset="1">
-                <name>tickmarks</name>
+            <property name="tickmarks">
                 <enum>Left</enum>
             </property>
         </widget>
-        <widget row="3"  column="1" >
-            <class>QSlider</class>
-            <property stdset="1">
-                <name>name</name>
+        <widget class="QSlider" row="3" column="1">
+            <property name="name">
                 <cstring>SliderChorus</cstring>
             </property>
-            <property stdset="1">
-                <name>maxValue</name>
+            <property name="maxValue">
                 <number>127</number>
             </property>
-            <property stdset="1">
-                <name>pageStep</name>
+            <property name="pageStep">
                 <number>5</number>
             </property>
-            <property stdset="1">
-                <name>orientation</name>
+            <property name="orientation">
                 <enum>Horizontal</enum>
             </property>
-            <property stdset="1">
-                <name>tickmarks</name>
+            <property name="tickmarks">
                 <enum>Left</enum>
             </property>
         </widget>
-        <widget row="2"  column="0" >
-            <class>QLabel</class>
-            <property stdset="1">
-                <name>name</name>
+        <widget class="QLabel" row="2" column="0">
+            <property name="name">
                 <cstring>TextLabel3</cstring>
             </property>
-            <property stdset="1">
-                <name>text</name>
+            <property name="text">
                 <string>Reverb:</string>
             </property>
         </widget>
-        <widget row="3"  column="2" >
-            <class>QLCDNumber</class>
-            <property stdset="1">
-                <name>name</name>
+        <widget class="QLCDNumber" row="3" column="2">
+            <property name="name">
                 <cstring>LCDChorus</cstring>
             </property>
-            <property stdset="1">
-                <name>numDigits</name>
+            <property name="numDigits">
                 <number>3</number>
             </property>
         </widget>
-        <widget row="0"  column="2" >
-            <class>QLCDNumber</class>
-            <property stdset="1">
-                <name>name</name>
+        <widget class="QLCDNumber" row="0" column="2">
+            <property name="name">
                 <cstring>LCDVolume</cstring>
             </property>
-            <property stdset="1">
-                <name>numDigits</name>
+            <property name="numDigits">
                 <number>3</number>
             </property>
         </widget>
-        <widget row="1"  column="2" >
-            <class>QLCDNumber</class>
-            <property stdset="1">
-                <name>name</name>
+        <widget class="QLCDNumber" row="1" column="2">
+            <property name="name">
                 <cstring>LCDPan</cstring>
             </property>
-            <property stdset="1">
-                <name>numDigits</name>
+            <property name="numDigits">
                 <number>3</number>
             </property>
         </widget>
-        <widget row="1"  column="1" >
-            <class>QSlider</class>
-            <property stdset="1">
-                <name>name</name>
+        <widget class="QSlider" row="1" column="1">
+            <property name="name">
                 <cstring>SliderPan</cstring>
             </property>
-            <property stdset="1">
-                <name>minValue</name>
+            <property name="minValue">
                 <number>-64</number>
             </property>
-            <property stdset="1">
-                <name>maxValue</name>
+            <property name="maxValue">
                 <number>64</number>
             </property>
-            <property stdset="1">
-                <name>pageStep</name>
+            <property name="pageStep">
                 <number>4</number>
             </property>
-            <property stdset="1">
-                <name>value</name>
+            <property name="value">
                 <number>0</number>
             </property>
-            <property stdset="1">
-                <name>orientation</name>
+            <property name="orientation">
                 <enum>Horizontal</enum>
             </property>
-            <property stdset="1">
-                <name>tickmarks</name>
+            <property name="tickmarks">
                 <enum>Left</enum>
             </property>
         </widget>
@@ -306,4 +239,5 @@
         <slot>display(int)</slot>
     </connection>
 </connections>
+<layoutdefaults spacing="6" margin="11"/>
 </UI>
