@@ -29,6 +29,7 @@ QString note_name(int num)
         case 10: return "A#";break;
         case 11: return "B"; break;
     }
+    return "Unknown";
 }
 
 ChordSelector::ChordSelector(QWidget *parent=0, const char *name=0)
@@ -164,11 +165,10 @@ void ChordSelector::detectChord()
 
 void ChordSelector::findChords()
 {
-    int i,j,k,cn,min,max;
-    int app[MAX_STRINGS],appb[MAX_STRINGS];
+    int i,j,k,min,max;
+    int app[MAX_STRINGS];
 
     int maxfret=24,notenum=3,numstr=6; // GREYFIX!!
-    bool finished=FALSE,ok;
 
     int fb[MAX_STRINGS][maxfret];  // array with an either -1 or number of note from a chord
 
@@ -179,7 +179,7 @@ void ChordSelector::findChords()
     for (i=0;i<notenum;i++)
       need[i]=(need[i]+tonic->currentItem())%12;
 
-    int span=3; // maximal fingerspan
+    int span=4; // maximal fingerspan
 
     if (complexer[1]->isChecked())
       span=4;
@@ -231,8 +231,10 @@ void ChordSelector::findChords()
 	  }
 	}
 
-	if ((k==notenum) && (max-min<span))
+	if ((k==notenum) && (max-min<span)) {
+	     
 	  fnglist->addFingering(app,TRUE);
+	}
 
 	i=0;
       } else {
