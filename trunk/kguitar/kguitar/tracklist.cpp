@@ -15,10 +15,10 @@ TrackList::TrackList(TabSong *s, KXMLGUIClient *_XMLGUIClient, QWidget *parent =
 	QListView(parent, name)
 {
 	song = s;
-    m_XMLGUIClient = _XMLGUIClient;
-	
+	m_XMLGUIClient = _XMLGUIClient;
+
 	setFocusPolicy(QWidget::StrongFocus);
-    setAllColumnsShowFocus(TRUE);
+	setAllColumnsShowFocus(TRUE);
 
 	addColumn("N");
 	addColumn(i18n("Title"));
@@ -57,22 +57,22 @@ void TrackList::updateList()
 
 void TrackList::contentsMousePressEvent(QMouseEvent *e)
 {
-    QListView::contentsMousePressEvent(e);
+	QListView::contentsMousePressEvent(e);
 
-    if (e->button() == RightButton) {
-        QWidget *tmpWidget = 0;
-        tmpWidget = m_XMLGUIClient->factory()->container("tracklistpopup", m_XMLGUIClient);
+	if (e->button() == RightButton) {
+		QWidget *tmpWidget = 0;
+		tmpWidget = m_XMLGUIClient->factory()->container("tracklistpopup", m_XMLGUIClient);
 
-        if (!tmpWidget || !tmpWidget->inherits("KPopupMenu")) {
-            kdDebug() << "TrackList::contentsMousePressEvent => wrong container widget" << endl;
-            return;
-        }
+		if (!tmpWidget || !tmpWidget->inherits("KPopupMenu")) {
+			kdDebug() << "TrackList::contentsMousePressEvent => wrong container widget" << endl;
+			return;
+		}
 
-        KPopupMenu *menu(static_cast<KPopupMenu*>(tmpWidget));
-        menu->popup(QCursor::pos());
-    }
+		KPopupMenu *menu(static_cast<KPopupMenu*>(tmpWidget));
+		menu->popup(QCursor::pos());
+	}
 
-    setSelected(currentItem(), TRUE);
+	setSelected(currentItem(), TRUE);
 }
 
 void TrackList::selectNewTrack(QListViewItem *item)

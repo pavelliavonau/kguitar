@@ -176,7 +176,7 @@ void TrackView::ensureCurrentVisible()
 	if ((curt->xb + 1) * ch > yOffset() + height())
 		setYOffset((curt->xb + 1) * ch - height());
 	else if (curt->xb * ch < yOffset())
-		setYOffset(curt->xb * ch);		
+		setYOffset(curt->xb * ch);
 }
 
 void TrackView::setFinger(int num, int fret)
@@ -322,7 +322,7 @@ void TrackView::paintCell(QPainter *p, int row, int col)
 						ABBRLENGTH, VERTLINE + 1);
 			p->drawText(xpos, VERTSPACE + (s - i) * VERTLINE - VERTLINE / 2,
 						ABBRLENGTH, VERTLINE, AlignCenter, drum_abbr[curt->tune[i]]);
-		}		
+		}
 		xpos += ABBRLENGTH + 10; lastxpos += ABBRLENGTH + 10;
 		p->setPen(SolidLine);
 	}
@@ -447,12 +447,12 @@ void TrackView::paintCell(QPainter *p, int row, int col)
 			if (curt->x > curt->lastColumn(bn))
 				p->drawRect(selx2coord, 0, cellWidth(), cellHeight());
 			else
-				p->drawRect(0, 0, selx2coord + VERTLINE + 1, cellHeight());		
+				p->drawRect(0, 0, selx2coord + VERTLINE + 1, cellHeight());
 		} else if ((selxcoord != -1) && (selx2coord == -1)) {
 			if (curt->xsel > curt->lastColumn(bn))
 				p->drawRect(selxcoord, 0, cellWidth(), cellHeight());
 			else
-				p->drawRect(0, 0, selxcoord + VERTLINE + 1, cellHeight());		
+				p->drawRect(0, 0, selxcoord + VERTLINE + 1, cellHeight());
 		} else { // both are -1
 			int x1 = KMIN(curt->x, curt->xsel);
 			int x2 = KMAX(curt->x, curt->xsel);
@@ -784,76 +784,76 @@ void TrackView::mousePressEvent(QMouseEvent *e)
 {
 	lastnumber = -1;
 
-    // RightButton pressed
-    if (e->button() == RightButton) {
-        QWidget *tmpWidget = 0;
-        tmpWidget = m_XMLGUIClient->factory()->container("trackviewpopup", m_XMLGUIClient);
+	// RightButton pressed
+	if (e->button() == RightButton) {
+		QWidget *tmpWidget = 0;
+		tmpWidget = m_XMLGUIClient->factory()->container("trackviewpopup", m_XMLGUIClient);
 
-        if (!tmpWidget || !tmpWidget->inherits("KPopupMenu")) {
-            kdDebug() << "TrackView::mousePressEvent => wrong container widget" << endl;
-            return;
-        }
+		if (!tmpWidget || !tmpWidget->inherits("KPopupMenu")) {
+			kdDebug() << "TrackView::mousePressEvent => wrong container widget" << endl;
+			return;
+		}
 
-        KPopupMenu *menu(static_cast<KPopupMenu*>(tmpWidget));
-        menu->popup(QCursor::pos());
-    }
+		KPopupMenu *menu(static_cast<KPopupMenu*>(tmpWidget));
+		menu->popup(QCursor::pos());
+	}
 
-    // LeftButton pressed
-    if (e->button() == LeftButton) {
-        bool found = FALSE;
-        QPoint clickpt;
+	// LeftButton pressed
+	if (e->button() == LeftButton) {
+		bool found = FALSE;
+		QPoint clickpt;
 
-        uint tabrow = findRow(e->pos().y());
+		uint tabrow = findRow(e->pos().y());
 
-        // Clicks on non-existing rows are not allowed
-        if (tabrow >= curt->b.size())
-            return;
+		// Clicks on non-existing rows are not allowed
+		if (tabrow >= curt->b.size())
+			return;
 
-        clickpt.setX(xOffset() + e->pos().x());
-        clickpt.setY(yOffset() + e->pos().y());
+		clickpt.setX(xOffset() + e->pos().x());
+		clickpt.setY(yOffset() + e->pos().y());
 
-        int xpos=40, xdelta, lastxpos = 20;
+		int xpos=40, xdelta, lastxpos = 20;
 
-        for (uint j=curt->b[tabrow].start;
-             j < (tabrow < curt->b.size()-1 ? curt->b[tabrow+1].start : curt->c.size());
-             j++) {
+		for (uint j=curt->b[tabrow].start;
+			 j < (tabrow < curt->b.size()-1 ? curt->b[tabrow+1].start : curt->c.size());
+			 j++) {
 
-            // Length of interval to next column - adjusted if dotted
+			// Length of interval to next column - adjusted if dotted
 
-            xdelta = horizDelta(j);
+			xdelta = horizDelta(j);
 
-            // Current column X area is half of the previous duration and
-            // half of current duration
+			// Current column X area is half of the previous duration and
+			// half of current duration
 
-            if ((clickpt.x() >= (lastxpos + xpos) / 2) &&
-                (clickpt.x() <= xpos + xdelta / 2)) {
-                curt->x = j;
-                // We won't calculate xb from x as in updateXB(), but
-                // would just use what we know.
-                curt->xb = tabrow;
+			if ((clickpt.x() >= (lastxpos + xpos) / 2) &&
+				(clickpt.x() <= xpos + xdelta / 2)) {
+				curt->x = j;
+				// We won't calculate xb from x as in updateXB(), but
+				// would just use what we know.
+				curt->xb = tabrow;
 
-                curt->y = curt->string - 1 -
-                          ((int) (clickpt.y() - tabrow * cellHeight()) - VERTSPACE) / VERTLINE;
+				curt->y = curt->string - 1 -
+						  ((int) (clickpt.y() - tabrow * cellHeight()) - VERTSPACE) / VERTLINE;
 
-                if (curt->y<0)
-                    curt->y = 0;
-                if (curt->y>=curt->string)
-                    curt->y = curt->string-1;
+				if (curt->y<0)
+					curt->y = 0;
+				if (curt->y>=curt->string)
+					curt->y = curt->string-1;
 
 				curt->sel = FALSE;
 
-                emit statusBarChanged();
-                found = TRUE;
-                break;
-            }
+				emit statusBarChanged();
+				found = TRUE;
+				break;
+			}
 
-            lastxpos = xpos;
-            xpos += xdelta;
-        }
+			lastxpos = xpos;
+			xpos += xdelta;
+		}
 
-        if (found)
-            repaint();
-    }
+		if (found)
+			repaint();
+	}
 }
 
 void TrackView::playTrack()
