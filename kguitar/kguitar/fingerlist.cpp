@@ -25,7 +25,7 @@ void FingerList::clear()
   num=0;
 }
 
-void FingerList::addFingering(const int a[MAX_STRINGS])
+void FingerList::addFingering(const int a[MAX_STRINGS], bool update=TRUE)
 {
   for (int i=0;i<MAX_STRINGS;i++)
     appl[num][i]=a[i];
