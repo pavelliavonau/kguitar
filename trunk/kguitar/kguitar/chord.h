@@ -21,7 +21,7 @@ public slots:
     void findChords(); 
 private:
     QLineEdit *chname; 
-    QListBox *tonic,*step3; 
+    QListBox *tonic,*step3,*stephigh;
     QListBox *chords;
     QButtonGroup *complexity;
     QRadioButton *complexer[3];
