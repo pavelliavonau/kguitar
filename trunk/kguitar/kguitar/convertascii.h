@@ -1,5 +1,5 @@
-#ifndef CONVERT_ASCII_H
-#define CONVERT_ASCII_H
+#ifndef CONVERTASCII_H
+#define CONVERTASCII_H
 
 #include "global.h"
 #include "convertbase.h"
@@ -18,7 +18,7 @@ public:
 	/**
 	 * Prepares converter to work, reads all the options, etc.
 	 */
-	ConvertAscii(TabSong *song_);
+	ConvertAscii(TabSong *);
 
 	/**
 	 * Called to save current data from TabSong into ASCII tabulature
