@@ -27,6 +27,7 @@
 #include "accidentals.h"
 
 class KPrinter;
+class QPaintDevice;
 class QPainter;
 class TabSong;
 class TabTrack;
@@ -47,7 +48,7 @@ private:
 	void drawXpos();
 	int eraWidth(const QString s);
 	void initFonts();
-	void initMetrics(KPrinter *printer);
+	void initMetrics(QPaintDevice *printer);
 	void initPens();
 	void initPrStyle();
 	// Almost all functions use a pointer to the same painter, instead of

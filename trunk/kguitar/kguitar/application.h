@@ -76,6 +76,7 @@ private:
 	KGuitarBrowserExtension *m_extension;
 
 	// LVIFIX: do we need a printer variable, e.g. to remember settings ?
+	// It would then have to be passed down to SongPrint via SongView.
 	// KPrinter *printer;
 
 	KAction *newAct, *preferencesAct, *confTBAct, *browserAct, *sngPropAct,

@@ -66,6 +66,7 @@
 #include <qmemarray.h>
 #include <qpainter.h>
 #include <qpaintdevicemetrics.h>
+#include <qprinter.h>
 
 using namespace std;
 
@@ -94,6 +95,7 @@ SongPrint::~SongPrint()
 }
 
 // draw header of song song, page n
+// note: initializes ypostb
 
 void SongPrint::drawPageHdr(int n, TabSong *song)
 {
@@ -219,7 +221,7 @@ void SongPrint::initFonts()
 
 // initialize paper format and font dependent metrics
 
-void SongPrint::initMetrics(KPrinter *printer)
+void SongPrint::initMetrics(QPaintDevice *printer)
 {
 	// determine width/height of printer surface
 	QPaintDeviceMetrics pdm(printer);
@@ -307,14 +309,26 @@ void SongPrint::initPrStyle()
 	}
 }
 
-// print song song on printer printer
+// print TabSong song on KPrinter printer
 
 void SongPrint::printSong(KPrinter *printer, TabSong *song)
 {
 //	cout << "SongPrint::printSong(" << printer << ", " << song << ")" << endl;
 
+// LVIFIX: sometimes KGuitar crashes when print preview pops up.
+// check if using QPrinter instead fixes the crashes,
+// which would suggest that KPrinter is the cause.
+
+// choose either KPrinter
+	KPrinter * prntr = printer;
+// or choose QPrinter
+//	QPrinter * prntr = new QPrinter(QPrinter::HighResolution);
+//	if (!prntr->setup())
+//		return;
+// end of choice
+
 	// start painting on printer
-	if (!p->begin(printer))
+	if (!p->begin(prntr))
 		return;
 
 	// initialize fonts, must be done before initMetrics
@@ -322,7 +336,7 @@ void SongPrint::printSong(KPrinter *printer, TabSong *song)
 	initFonts();
 
 	// initialize metrics
-	initMetrics(printer);
+	initMetrics(prntr);
 
 	// initialize pens
 	initPens();
@@ -509,7 +523,7 @@ void SongPrint::printSong(KPrinter *printer, TabSong *song)
 
 			// move to next page if necessary
 			if (ypostb + yreq > pprh) {
-				printer->newPage();
+				prntr->newPage();
 				pgNr++;
 				drawPageHdr(pgNr, song);
 				// print the track header
