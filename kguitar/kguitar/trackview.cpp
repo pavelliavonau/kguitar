@@ -212,10 +212,24 @@ void TrackView::paintCell(QPainter *p, int row, int col)
 	    }
 	    
 	    // Draw effects
-
-	    if (curt->c[t].e[i]==EFFECT_HARMONIC)
+	    switch (curt->c[t].e[i]) {
+	    case EFFECT_HARMONIC:
 		p->drawText(xpos+VERTLINE+2,VERTSPACE+(s-i)*VERTLINE-VERTLINE/2,
 			    VERTLINE,VERTLINE,AlignCenter,"H");
+		break;
+	    case EFFECT_ARTHARM:
+		p->drawText(xpos+VERTLINE+2,VERTSPACE+(s-i)*VERTLINE-VERTLINE/2,
+			    VERTLINE*2,VERTLINE,AlignCenter,"AH");
+		break;
+	    case EFFECT_LEGATO:
+		p->setPen(SolidLine);
+		p->drawArc(xpos+VERTLINE,VERTSPACE+(s-i)*VERTLINE-VERTLINE/2,
+			   xdelta-VERTLINE, 10, 0, 180*16);
+		p->drawText(xpos+VERTLINE+2,VERTSPACE+(s-i)*VERTLINE-VERTLINE/2,
+			    VERTLINE*2,VERTLINE,AlignCenter,"PO");
+		p->setPen(NoPen);
+		break;
+	    }
 	}
 
 	p->setPen(SolidLine);
@@ -399,8 +413,13 @@ void TrackView::keyPressEvent(QKeyEvent *e)
 	curt->c[curt->x].a[curt->y]=DEAD_NOTE;
 	break;
     case Key_H:
-	if (curt->c[curt->x].a[curt->y]>=0)
-	    curt->c[curt->x].e[curt->y] = EFFECT_HARMONIC;
+	curt->addFX(EFFECT_HARMONIC);
+	break;
+    case Key_R:
+	curt->addFX(EFFECT_ARTHARM);
+	break;
+    case Key_P:
+	curt->addFX(EFFECT_LEGATO);
 	break;
     case Key_Delete:
 	if (e->state()==ControlButton) {
