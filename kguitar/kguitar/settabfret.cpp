@@ -8,51 +8,37 @@
 #include <qcombobox.h>
 #include <qspinbox.h>
 #include <qlabel.h>
-#include <qlayout.h>
 
 SetTabFret::SetTabFret(QWidget *parent=0, const char *name=0):
     QGroupBox(i18n("Fret tabulature"),parent,name)
 {
-    l = new QVBoxLayout(this,10);
-    l->addSpacing(10);
-
     // Controls
 
-    QGridLayout *g = new QGridLayout(2,2,10);
-    l->addLayout(g);
-
     lib = new QComboBox(FALSE,this);
-    QLabel *lib_l = new QLabel(i18n("Tuning:"),this);
     connect(lib,SIGNAL(highlighted(int)),SLOT(setLibTuning(int)));
 
     for (int i=0;lib_tuning[i].strings;i++)
 	lib->insertItem(lib_tuning[i].name);
 
+    QLabel *lib_l = new QLabel(i18n("Tuning:"),this);
+    lib_l->setGeometry(10,20,50,20);
+
     st = new QSpinBox(1,MAX_STRINGS,1,this);
-    QLabel *st_l = new QLabel(i18n("Strings:"),this);
-    st_l->setGeometry(5,30,50,20);
-    st->setGeometry(60,30,40,20);
     connect(st,SIGNAL(valueChanged(int)),SLOT(stringChanged(int)));
 
-    g->addWidget(lib_l,0,0);
-    g->addWidget(lib,0,1);
-    g->addWidget(st_l,1,0);
-    g->addWidget(st,1,1);
-    g->addRowSpacing(0,20);
-    g->addRowSpacing(1,20);
+    QLabel *st_l = new QLabel(i18n("Strings:"),this);
+    st_l->setGeometry(10,50,50,20);
+
+    fr = new QSpinBox(1,MAX_FRETS,1,this);
+
+    QLabel *fr_l = new QLabel(i18n("Frets:"),this);
+    fr_l->setGeometry(140,50,50,20);
 
     // Tuners
 
-    QHBoxLayout *rt = new QHBoxLayout();
-    l->addLayout(rt,1);
-
-    for (int i=0;i<MAX_STRINGS;i++) {
+    for (int i=0;i<MAX_STRINGS;i++)
 	tuner[i] = new RadiusTuner(this);
-	rt->addWidget(tuner[i]);
-    }
-    oldst=12; // GREYFIX!
-
-    l->activate();
+    oldst=MAX_STRINGS;
 }
 
 void SetTabFret::setLibTuning(int n)
@@ -76,5 +62,22 @@ void SetTabFret::stringChanged(int n)
     }
     oldst=n;
 
-    l->activate();
+    // GREYFIX: Maximum operation. Unportable?
+    setMinimumSize(330 >? 20+RADTUNER_W*n,90+RADTUNER_H);
+    resize(width(),height());
+}
+
+void SetTabFret::resizeEvent(QResizeEvent *e)
+{
+    lib->setGeometry(80,20,width()-110,20);
+    st->setGeometry(80,50,40,20);
+    fr->setGeometry(190,50,40,20);
+
+    int s = st->value();                // Current number of tuners
+
+    int tw = (width()-20)/s;            // Width of one tuner
+    int th = height()-90;               // Height of one tuner
+
+    for (int i=0;i<s;i++)
+	tuner[i]->setGeometry(10+i*tw,80,tw,th);
 }

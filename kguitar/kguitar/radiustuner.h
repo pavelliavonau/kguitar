@@ -6,6 +6,9 @@
 
 #include <qspinbox.h>
 
+#define RADTUNER_W   45
+#define RADTUNER_H   50
+
 class RadiusTuner: public QWidget
 {
     Q_OBJECT

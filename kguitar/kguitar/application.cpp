@@ -5,6 +5,7 @@
 #include "track.h"
 #include "setsong.h"
 #include "settrack.h"
+#include "settabfret.h"
 
 #include <qpopupmenu.h>
 
@@ -83,8 +84,6 @@ ApplicationWindow::ApplicationWindow(): KTMainWindow()
     tv = new TrackView(this);
     setView(tv);
     tv->setFocus();
-
-    cs = new ChordSelector();
 
     statusBar()->message( "Ready", 2000 );
 }
@@ -214,9 +213,10 @@ void ApplicationWindow::toggleStatusBar()
 
 void ApplicationWindow::inschord()
 {
-    if (cs->exec()) {
-	for (int i=0;i<tv->trk()->string();i++)
-	    tv->setFinger(i,cs->app(i));
+    ChordSelector cs(tv->trk());
+    if (cs.exec()) {
+	for (int i=0;i<tv->trk()->string;i++)
+	    tv->setFinger(i,cs.app(i));
     }
 }
 
@@ -246,10 +246,20 @@ void ApplicationWindow::trackProperties()
     st->bank->setValue(tv->trk()->bank);
     st->patch->setValue(tv->trk()->patch);
 
+    st->fret->setString(tv->trk()->string);
+    st->fret->setFrets(tv->trk()->frets);
+    for (int i=0;i<tv->trk()->string;i++)
+	st->fret->setTune(i,tv->trk()->tune[i]);
+
     if (st->exec()) {
 	tv->trk()->name = st->title->text();
 	tv->trk()->bank = st->bank->value();
 	tv->trk()->patch = st->patch->value();
+
+	tv->trk()->string = st->fret->string();
+	tv->trk()->frets = st->fret->frets();
+	for (int i=0;i<tv->trk()->string;i++)
+	    tv->trk()->tune[i] = st->fret->tune(i);
     }
 
     delete st;

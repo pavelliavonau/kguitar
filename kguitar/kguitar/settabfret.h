@@ -4,11 +4,10 @@
 #include <qgroupbox.h>
 #include "global.h"
 
-class QSpinBox;
+#include <qspinbox.h>
+#include <radiustuner.h>
+
 class QComboBox;
-class RadiusTuner;
-class QVBoxLayout;
-class QHBoxLayout;
 
 class SetTabFret: public QGroupBox
 {
@@ -16,14 +15,22 @@ class SetTabFret: public QGroupBox
 public:
     SetTabFret(QWidget *parent=0, const char *name=0);
 
+    void setString(int n) { st->setValue(n); };
+    void setFrets(int n) { fr->setValue(n); };
+    void setTune(uchar x, uchar n) { tuner[x]->setValue(n); };
+    int string() { return st->value(); };
+    int frets() { return fr->value(); };
+    uchar tune(uchar x) { return tuner[x]->value(); };
+
 public slots:
     void setLibTuning(int n);
     void stringChanged(int n);
 
 private:
+    virtual void resizeEvent(QResizeEvent *e);
+
     QComboBox *lib;
-    QSpinBox *st;
-    QVBoxLayout *l;
+    QSpinBox *st,*fr;
     RadiusTuner *tuner[MAX_STRINGS];
     int oldst;
 };
