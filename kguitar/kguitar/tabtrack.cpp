@@ -73,7 +73,7 @@ bool TabTrack::barStatus(uint n)
 
 	for (int i = b[n].start; i <= lastColumn(n); i++) {
 		for (int k = 0; k < string; k++) {
-			if (c[b[n].start].a[k] != -1) {
+			if (c[i].a[k] != -1) {
 				res = TRUE;
 				break;
 			}
@@ -104,18 +104,23 @@ void TabTrack::insertStrum(int sch, int *chord)
 			c[x].a[i] = chord[i];
 	} else { // Normal strum pattern scheme
 		int mask, r;
+		bool inv;
 		for (int j = 0; lib_strum[sch].len[j]; j++) {
 			if (x + j + 1 > c.size())
 				c.resize(c.size() + 1);
 			c[x + j].flags = 0;
-			c[x + j].l = lib_strum[sch].len[j];
+			inv = lib_strum[sch].len[j] < 0;
+			c[x + j].l = inv ? -lib_strum[sch].len[j] : lib_strum[sch].len[j];
 
 			mask = lib_strum[sch].mask[j];
 
 			if (mask > 0) { // Treble notation
 				r = 0; // "Real" string counter
 				for (int i = string - 1; i >= 0; i--) {
-					c[x + j].a[i] = (mask & (1 << r)) ? chord[i] : -1;
+					if (inv)
+						c[x + j].a[i] = (mask & (1 << r)) ? -1 : chord[i];
+					else
+						c[x + j].a[i] = (mask & (1 << r)) ? chord[i] : -1;						
 					c[x + j].e[i] = 0;
 					if (chord[i] != -1)
 						r++;
@@ -124,7 +129,10 @@ void TabTrack::insertStrum(int sch, int *chord)
 				mask = -mask;
 				r = 0; // "Real" string counter
 				for (int i = 0; i < string; i++) {
-					c[x + j].a[i] = (mask & (1 << r)) ? chord[i] : -1;
+					if (inv)
+						c[x + j].a[i] = (mask & (1 << r)) ? -1 : chord[i];
+					else
+						c[x + j].a[i] = (mask & (1 << r)) ? chord[i] : -1;						
 					c[x + j].e[i] = 0;
 					if (chord[i] != -1)
 						r++;
