@@ -29,7 +29,7 @@ public:
 	uint maxLen();
 	void arrangeBars();
 #ifdef WITH_TSE3
-	TSE3::Song *midiSong();
+	TSE3::Song *midiSong(bool tracking = FALSE);
 #endif
 
 	bool load_from_kg(QString fileName);		// Native format - kg

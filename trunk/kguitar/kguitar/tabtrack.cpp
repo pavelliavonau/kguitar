@@ -1,6 +1,7 @@
 #include "accidentals.h"
 #include "globaloptions.h"
 #include "tabtrack.h"
+#include "playbacktracker.h"
 
 // using namespace std;
 
@@ -327,7 +328,7 @@ int TabTrack::lastColumn(int n)
 // Returns bar status - what to show in track pane
 bool TabTrack::barStatus(int n)
 {
-	if (n >= b.size())
+	if (n < 0 || n >= b.size())
 		return FALSE;
 
 	bool res = FALSE;
@@ -793,7 +794,7 @@ void TabTrack::arrangeBars()
 #ifdef WITH_TSE3
 // Generate a single midi data list for TSE3 from all current track
 // tabulature.
-TSE3::PhraseEdit *TabTrack::midiTrack()
+TSE3::PhraseEdit *TabTrack::midiTrack(bool tracking, int tracknum)
 {
 	TSE3::PhraseEdit *midi = new TSE3::PhraseEdit();
 
@@ -810,6 +811,8 @@ TSE3::PhraseEdit *TabTrack::midiTrack()
 	uchar pitch;				// note pitch
 	const int velocity = 0x60;	// note velocity
 
+	cursortimer = -1;
+
 	for (uint x = 0; x < c.size(); x++) {
 
 		// Calculate real duration (including all the linked beats)
@@ -825,6 +828,9 @@ TSE3::PhraseEdit *TabTrack::midiTrack()
 			xl++;
 			midilen += c[xl].fullDuration();
 		}
+
+		if (x == this->x || (cursortimer == -1 && x > this->x))
+			cursortimer = timer;
 
 		// Note on/off events
 		for (int i = 0; i < string; i++) {
@@ -865,22 +871,38 @@ TSE3::PhraseEdit *TabTrack::midiTrack()
 			}
 
 			midi->insert(
-				TSE3::MidiEvent(TSE3::MidiCommand(
-										TSE3::MidiCommand_NoteOn,
-										channel - 1, globalMidiPort,
-										pitch, velocity),
-								timer, velocity, timer + duration)
-						 );
+				TSE3::MidiEvent(TSE3::MidiCommand(TSE3::MidiCommand_NoteOn,
+				                                  channel - 1, globalMidiPort,
+				                                  pitch, velocity),
+				                timer, velocity, timer + duration));
+
 //			cout << "Inserted note pitch " << (int) pitch
 //				 << ", start " << timer << ", duration " << duration << "\n";
 				 
 		} // for (int i = 0; i < string ...
+
+		if (tracking && x > 0) {
+			midi->insert(
+				TSE3::MidiEvent(TSE3::MidiCommand(KGUITAR_MIDI_COMMAND,
+												  channel - 1, KGUITAR_MIDI_PORT,
+												  xl - x + 1, 0), timer)
+				);
+		}
 
 		timer += midilen;
 		x = xl;					// step over linked notes
 
 	} // for (uint x = 0; x < c.size() ...
 
+	if (tracking) {
+		// GREYFIX: Workaround for TSE3 bug (?) - last event not playing
+		midi->insert(
+			TSE3::MidiEvent(TSE3::MidiCommand(TSE3::MidiCommand_NoteOff,
+											  0, globalMidiPort,
+											  0, 0), timer)
+			);
+	}
+	
 	return midi;
 }
 #endif

@@ -1817,22 +1817,24 @@ bool TabSong::save_to_tex_notes(QString fileName)
 #ifdef WITH_TSE3
 // Assembles the whole TSE song from various tracks, generated with
 // corresponding midiTrack() calls.
-TSE3::Song *TabSong::midiSong()
+TSE3::Song *TabSong::midiSong(bool tracking)
 {
 	TSE3::Song *song = new TSE3::Song(0);
 
+	int tn = 0;
 	QListIterator<TabTrack> it(t);
 	for (; it.current(); ++it) {
-		TSE3::Track *trk = new TSE3::Track();
-		TSE3::PhraseEdit *trackData = it.current()->midiTrack();
+		TSE3::PhraseEdit *trackData = it.current()->midiTrack(tracking, tn);
 		TSE3::Phrase *phrase = trackData->createPhrase(song->phraseList());
-		TSE3::Part *part = new TSE3::Part(0, trackData->lastClock());
+		TSE3::Part *part = new TSE3::Part(0, trackData->lastClock()); // GREYFIX: this may be why last event got clipped?
 		part->setPhrase(phrase);
+		TSE3::Track *trk = new TSE3::Track();
 		trk->insert(part);
 		song->insert(trk);
 		delete trackData;
+		tn++;
 	}
-
+	
 	return song;
 }
 #endif
