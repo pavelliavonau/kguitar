@@ -7,6 +7,7 @@
 #include "tabsong.h"
 #include "strumming.h"
 #include "globaloptions.h"
+#include "chordanalyzer.h"
 
 #include <klocale.h>
 #include <kmessagebox.h>
@@ -91,15 +92,15 @@ QString maj7name[] = {"7M", "maj7", "dom7"};
 QString flat[] = {"-", "b"};
 QString sharp[] = {"+", "#"};
 
-ChordSelector::ChordSelector(TabTrack *p, QWidget *parent, const char *name):
-	QDialog(parent, name, TRUE)
+ChordSelector::ChordSelector(TabTrack *p, QWidget *parent, const char *name)
+	: QDialog(parent, name, TRUE)
 {
 	initChordSelector(p);
 }
 
 #ifdef WITH_TSE3
 ChordSelector::ChordSelector(TSE3::MidiScheduler *_scheduler, TabTrack *p, QWidget *parent,
-							 const char *name): QDialog(parent, name, TRUE)
+                             const char *name): QDialog(parent, name, TRUE)
 {
 	kdDebug() << k_funcinfo << endl;
 
@@ -120,7 +121,15 @@ void ChordSelector::initChordSelector(TabTrack *p)
 	parm = p;
 	strum_scheme = 0;
 
-	chname = new QLineEdit(this);
+	// CHORD NAMING ANALYZER
+
+	chordName = new QLineEdit(this);
+
+	QPushButton *chordNameAnalyze, *chordNameQuickInsert;
+	chordNameAnalyze = new QPushButton(i18n("&Analyze"), this);
+	connect(chordNameAnalyze, SIGNAL(clicked()), SLOT(analyzeChordName()));
+	chordNameQuickInsert = new QPushButton(i18n("&Quick Insert"), this);
+	connect(chordNameQuickInsert, SIGNAL(clicked()), SLOT(quickInsert()));
 
 	// CHORD SELECTOR FOR FINDER WIDGETS
 
@@ -130,7 +139,7 @@ void ChordSelector::initChordSelector(TabTrack *p)
 //     tonic->setHScrollBarMode(QScrollView::AlwaysOff);
 //     tonic->setVScrollBarMode(QScrollView::AlwaysOff);
 // 	tonic->setRowMode(12);
-    tonic->setMinimumHeight(tonic->itemHeight() * 12 + 3);
+	tonic->setMinimumHeight(tonic->itemHeight() * 12 + 4);
 // 	tonic->setMinimumWidth(tonic->maxItemWidth());
 	connect(tonic, SIGNAL(highlighted(int)), SLOT(findChords()));
 
@@ -184,17 +193,18 @@ void ChordSelector::initChordSelector(TabTrack *p)
 
         st[i] = new QComboBox(FALSE, this);
         if (i > 0)
-            st[i]->insertItem("x");
+        	st[i]->insertItem("x");
         if ((i == 2) || (i >= 4)) {
-            st[i]->insertItem(flat[globalFlatPlus]);
-            st[i]->insertItem("0");
-            st[i]->insertItem(sharp[globalFlatPlus]);
+		st[i]->insertItem(flat[globalFlatPlus]);
+		st[i]->insertItem("0");
+		st[i]->insertItem(sharp[globalFlatPlus]);
         }
         if (i > 0)  {
-            connect(st[i], SIGNAL(activated(int)), SLOT(findSelection()));
-            connect(st[i], SIGNAL(activated(int)), SLOT(findChords()));
+		connect(st[i], SIGNAL(activated(int)), SLOT(findSelection()));
+		connect(st[i], SIGNAL(activated(int)), SLOT(findChords()));
         } else {
-            st[i]->setEnabled(FALSE);
+		st[i]->insertItem("0");
+		st[i]->setEnabled(FALSE);
         }
 	}
 
@@ -267,7 +277,7 @@ void ChordSelector::initChordSelector(TabTrack *p)
 
 	// Chord editing layout
 	QBoxLayout *lchedit = new QHBoxLayout();
-	lchord->addWidget(chname);
+    lchord->addWidget(chordName);
 	lchord->addLayout(lchedit);
 	lchord->addWidget(fnglist, 1);
 
@@ -314,6 +324,8 @@ void ChordSelector::initChordSelector(TabTrack *p)
 	// Strumming and buttons stuff layout
 	QBoxLayout *lstrum = new QVBoxLayout();
 	l->addLayout(lstrum);
+    lstrum->addWidget(chordNameAnalyze);
+    lstrum->addWidget(chordNameQuickInsert);
 	lstrum->addStretch(1);
 	lstrum->addWidget(play);
 	lstrum->addWidget(strumbut);
@@ -567,40 +579,26 @@ void ChordSelector::findSelection()
 		stephigh->clearSelection();
 }
 
-void ChordSelector::findChords()
+// Calculate absolute notes from tonic + step user input
+bool ChordSelector::calculateNotesFromSteps(int *need, int &notenum)
 {
-	int i, j, k = 0, min, max, bass = 0, muted = 0;
-	int app[MAX_STRINGS];				// raw fingering itself
-	int ind[MAX_STRINGS];				// indexes in hfret array
-
-	//				    1  5  7   9  11 13
+	//                  1  5  7   9  11 13
 	int toneshift[6] = {0, 7, 10, 2, 5, 9};
-
-	int fb[MAX_STRINGS][MAX_FRETS];	// array with an either -1 or number of note from a chord
-
-	int hfret[MAX_STRINGS][MAX_FRETS];// numbers of frets to hold on every string
-	int hnote[MAX_STRINGS][MAX_FRETS];// numbers of notes in a chord that make ^^
-
-	bool needrecalc;					// needs recalculate max/min
-
-	// CALCULATION OF REQUIRED NOTES FOR A CHORD FROM USER STEP INPUT
-
-	int need[7], got[7];
 
 	int t = tonic->currentItem();
 
-	if (t == -1)						// no calculations without tonic
-		return;
+	if (t == -1)                        // no calculations without tonic
+		return FALSE;
 
-	int notenum = 1;
+	notenum = 1;
 	need[0] = t;
 	cnote[0]->setText(note_name(t));
 
 	switch (st[1]->currentItem()) {
-	case 1: need[1] = (t + 2) % 12; notenum++; break;	  // 2
-	case 2: need[1] = (t + 3) % 12; notenum++; break;	  // 3-
-	case 3: need[1] = (t + 4) % 12; notenum++; break;	  // 3+
-	case 4: need[1] = (t + 5) % 12; notenum++; break;	  // 4
+	case 1: need[1] = (t + 2) % 12; notenum++; break; // 2
+	case 2: need[1] = (t + 3) % 12; notenum++; break; // 3-
+	case 3: need[1] = (t + 4) % 12; notenum++; break; // 3+
+	case 4: need[1] = (t + 5) % 12; notenum++; break; // 4
 	}
 
 	if (st[1]->currentItem()!=0) {
@@ -609,8 +607,8 @@ void ChordSelector::findChords()
 		cnote[1]->clear();
 	}
 
-	for (i = 1; i < 6; i++) {
-		j = st[i + 1]->currentItem();
+	for (int i = 1; i < 6; i++) {
+		int j = st[i + 1]->currentItem();
 		if (j) {
 			need[notenum] = (t + toneshift[i] + (j - 2)) % 12;
 			cnote[i + 1]->setText(note_name(need[notenum]));
@@ -619,6 +617,32 @@ void ChordSelector::findChords()
 			cnote[i + 1]->clear();
 		}
 	}
+
+    return TRUE;
+}
+
+// Most complex and longest method that does the real calculation of
+// chords. Translates steps settings input to the list of chords and
+// adds them to displayer.
+void ChordSelector::findChords()
+{
+	int i, j, k = 0, min, max, bass = 0, muted = 0;
+	int app[MAX_STRINGS];				// raw fingering itself
+	int ind[MAX_STRINGS];				// indexes in hfret array
+
+	int fb[MAX_STRINGS][MAX_FRETS];	// array with an either -1 or number of note from a chord
+
+	int hfret[MAX_STRINGS][MAX_FRETS];// numbers of frets to hold on every string
+	int hnote[MAX_STRINGS][MAX_FRETS];// numbers of notes in a chord that make ^^
+
+	bool needrecalc;                    // needs recalculate max/min
+
+	// CALCULATION OF REQUIRED NOTES FOR A CHORD FROM USER STEP INPUT
+	int need[7], got[7];
+	int notenum;
+
+	if (!calculateNotesFromSteps(need, notenum))
+		return;
 
 	// BEGIN THE CHORD FILLING SESSION
 	fnglist->beginSession();
@@ -635,7 +659,7 @@ void ChordSelector::findChords()
 
 	// CHECKING THE INVERSION NUMBER RANGE
 
-	if (inv->currentItem()>=notenum)
+	if (inv->currentItem() >= notenum)
 		inv->setCurrentItem(0);
 
 	int span = 3; // maximal fingerspan
@@ -650,11 +674,11 @@ void ChordSelector::findChords()
 	for (i = 0; i < parm->string; i++) {
 		for (j = 0; j <= parm->frets; j++)
 			fb[i][j] = -1;
-		for (k=0;k<notenum;k++) {
-			j=(need[k]-parm->tune[i]%12+12)%12;
-			while (j<=parm->frets) {
-				fb[i][j]=k;
-				j+=12;
+		for (k = 0; k < notenum; k++) {
+			j = (need[k] - parm->tune[i] % 12 + 12) % 12;
+			while (j <= parm->frets) {
+				fb[i][j] = k;
+				j += 12;
 			}
 		}
 	}
@@ -753,4 +777,30 @@ void ChordSelector::findChords()
 	} while (TRUE);
 
 	fnglist->endSession();
+}
+
+// Try to decipher text-written chord name and set steps accordingly
+void ChordSelector::analyzeChordName()
+{
+	ChordAnalyzer ca(chordName->text());
+	if (ca.analyze()) {
+		tonic->setCurrentItem(ca.tonic);
+		for (int i = 0; i < 6; i++)
+			st[i + 1]->setCurrentItem(ca.step[i]);
+		findSelection();
+		findChords();
+	} else {
+		KMessageBox::error(this, ca.msg, i18n("Unable to understand chord name"));
+	}
+}
+
+// Analyze chord by text-written name, automatically select best one
+// and insert it into track
+void ChordSelector::quickInsert()
+{
+	analyzeChordName();
+	if (fnglist->count() > 0)  {
+		fnglist->selectFirst();
+		accept();
+	}
 }
