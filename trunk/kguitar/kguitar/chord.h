@@ -52,6 +52,8 @@ private:
     FingerList *fnglist;
 
 	int strum_scheme;
+protected: 
+    virtual void resizeEvent(QResizeEvent *e);
 };
 
 #endif
