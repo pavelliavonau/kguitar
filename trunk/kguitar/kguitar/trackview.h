@@ -39,6 +39,10 @@ public slots:
     void setLength16() { setLength(30); };
     void setLength32() { setLength(15); };
     void timeSig();
+    void linkPrev();
+
+signals:
+    void statusBarChanged();
 
 protected:
     virtual void paintCell(QPainter *, int row, int col);    
