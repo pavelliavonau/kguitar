@@ -31,7 +31,7 @@ SetTrack::SetTrack(QWidget *parent = 0, const char *name = 0)
     QLabel *channel_l = new QLabel(bank, i18n("&Channel:"), gen);
     QLabel *bank_l = new QLabel(bank, i18n("&Bank:"), gen);
     QLabel *patch_l = new QLabel(patch, i18n("&Patch:"), gen);
-    QLabel *mode_l = new QLabel(patch, i18n("&Mode:"), gen);
+    QLabel *mode_l = new QLabel(mode, i18n("&Mode:"), gen);
 
     g->addWidget(title_l, 0, 0);
     g->addWidget(title, 0, 1);
@@ -44,7 +44,7 @@ SetTrack::SetTrack(QWidget *parent = 0, const char *name = 0)
     g->addWidget(mode_l, 4, 0);
     g->addWidget(mode, 4, 1);
 
-    for (int i = 0; i < 4; i++)
+	for (int i = 0; i < 4; i++)
 		g->addRowSpacing(i, 20);
 
     g->addColSpacing(0, 80);
@@ -60,8 +60,6 @@ SetTrack::SetTrack(QWidget *parent = 0, const char *name = 0)
 
     fret = new SetTabFret(this);
 	addTab(fret, i18n("&Mode-specific"));
-
-
 
 	setOkButton(i18n("OK"));
 	setCancelButton(i18n("Cancel"));

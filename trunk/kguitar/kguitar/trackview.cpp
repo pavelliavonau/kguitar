@@ -67,7 +67,7 @@ void TrackView::updateRows()
 	setNumRows(curt->b.size());
 }
 
-void TrackView::setFinger(int num,int fret)
+void TrackView::setFinger(int num, int fret)
 {
 	curt->c[curt->x].a[num] = fret;
 }
@@ -321,9 +321,8 @@ bool TrackView::moveFinger(int from, int dir)
 	curt->c[curt->x].a[to] = n;
 
     // ...also for the effect parameter
-	uchar fx = curt->c[curt->x].e[from];
+	curt->c[curt->x].e[to] = curt->c[curt->x].e[from];
 	curt->c[curt->x].e[from] = 0;
-	curt->c[curt->x].e[to] = fx;
 
 	curt->y = to;
 	return TRUE;
@@ -565,9 +564,8 @@ void TrackView::arrangeBars()
 	song->arrangeBars();
 	emit statusBarChanged();
 	updateRows();
-
-
 }
+
 void TrackView::mousePressEvent(QMouseEvent *e)
 {
 	bool found = FALSE;
