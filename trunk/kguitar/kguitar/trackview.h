@@ -12,6 +12,7 @@
 
 class TabSong;
 class TabTrack;
+class Fretboard;
 class QListViewItem;
 class KXMLGUIClient;
 class KCommandHistory;
@@ -29,7 +30,7 @@ public:
 	~TrackView();
 
 	TabTrack* trk() { return curt; }
-	void setCurt(TabTrack *);
+	void setCurrentTrack(TabTrack *);
 
 	void setFinger(int num, int fret);
 	int finger(int num);
@@ -59,6 +60,10 @@ public slots:
 	void rhythmer();
 	void keyLeft();
 	void keyRight();
+	void keyHome();
+	void keyEnd();
+	void keyCtrlHome();
+	void keyCtrlEnd();
 	void moveUp();
 	void moveDown();
 	void transposeUp();
@@ -87,6 +92,10 @@ public slots:
 	void key9() { insertTab(9); }
 	void key0() { insertTab(0); }
 
+	void zoomIn();
+	void zoomOut();
+	void zoomLevelDialog();
+
 	void selectTrack(TabTrack *);
 	void selectBar(uint);
 	void ensureCurrentVisible();
@@ -111,9 +120,16 @@ private:
 
 	void moveLeft();
 	void moveRight();
+	void moveHome();
+	void moveEnd();
+	void moveCtrlHome();
+	void moveCtrlEnd();
+
+	void setZoomLevel(int);
 
 	TabSong *song;
 	TabTrack *curt;
+	Fretboard *fretboard;
 
 #ifdef WITH_TSE3
 	TSE3::MidiScheduler *scheduler;
@@ -129,6 +145,8 @@ private:
 
 	char lastnumber;
 	int selxcoord;
+
+	int zoomLevel;
 };
 
 #endif

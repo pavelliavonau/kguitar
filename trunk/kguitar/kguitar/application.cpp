@@ -135,6 +135,15 @@ KGuitarPart::KGuitarPart(bool bBrowserView, KCommandHistory *_cmdHist, QWidget *
 	sngPropAct = new KAction(i18n("P&roperties..."), 0, sv, SLOT(songProperties()),
 	                         actionCollection(), "song_properties");
 
+	// VIEW ACTIONS
+	zoomInAct = new KAction(i18n("Zoom in"), "zoom_in", KAccel::stringToKey("Ctrl+="),
+	                        sv->tv, SLOT(zoomIn()), actionCollection(), "zoom_in");
+	zoomOutAct = new KAction(i18n("Zoom out"), "zoom_out", KAccel::stringToKey("Ctrl+-"),
+	                         sv->tv, SLOT(zoomOut()), actionCollection(), "zoom_out");
+	zoomLevelAct = new KAction(i18n("Zoom to..."), 0, sv->tv, SLOT(zoomLevelDialog()),
+	                         actionCollection(), "zoom_level");
+
+	// TRACK ACTIONS
 	trkNewAct = new KAction(i18n("&New..."), 0, sv, SLOT(trackNew()),
 	                        actionCollection(), "track_new");
 	trkDeleteAct = new KAction(i18n("&Delete"), 0, sv, SLOT(trackDelete()),
@@ -237,6 +246,19 @@ KGuitarPart::KGuitarPart(bool bBrowserView, KCommandHistory *_cmdHist, QWidget *
 	mainAccel->connectItem("key_left", sv->tv, SLOT(keyLeft()));
 	mainAccel->insertItem(i18n("Move cursor right"), "key_right", "Right");
 	mainAccel->connectItem("key_right", sv->tv, SLOT(keyRight()));
+	mainAccel->insertItem(i18n("Move cursor to the beginning of bar"), "key_home", "Home");
+	mainAccel->connectItem("key_home", sv->tv, SLOT(keyHome()));
+	mainAccel->insertItem(i18n("Move cursor to the end of bar"), "key_end", "End");
+	mainAccel->connectItem("key_end", sv->tv, SLOT(keyEnd()));
+	mainAccel->insertItem(i18n("Move cursor to the beginning of track"), "key_CtrlHome", "Ctrl+Home");
+	mainAccel->connectItem("key_CtrlHome", sv->tv, SLOT(keyCtrlHome()));
+	mainAccel->insertItem(i18n("Move cursor to the end of track"), "key_CtrlEnd", "Ctrl+End");
+	mainAccel->connectItem("key_CtrlEnd", sv->tv, SLOT(keyCtrlEnd()));
+	mainAccel->insertItem(i18n("Move and select left"), "key_ShiftLeft", "Shift+Left");
+	mainAccel->connectItem("key_ShiftLeft", sv->tv, SLOT(selectLeft()));
+	mainAccel->insertItem(i18n("Move and select right"), "key_ShiftRight", "Shift+Right");
+	mainAccel->connectItem("key_ShiftRight", sv->tv, SLOT(selectRight()));
+
 	mainAccel->insertItem(i18n("Move cursor up"), "key_up", "Up");
 	mainAccel->connectItem("key_up", sv->tv, SLOT(moveUp()));
 	mainAccel->insertItem(i18n("Move cursor down"), "key_down", "Down");
@@ -245,10 +267,6 @@ KGuitarPart::KGuitarPart(bool bBrowserView, KCommandHistory *_cmdHist, QWidget *
 	mainAccel->connectItem("key_CtrlUp", sv->tv, SLOT(transposeUp()));
 	mainAccel->insertItem(i18n("Transpose down"), "key_CtrlDown", "Ctrl+Down");
 	mainAccel->connectItem("key_CtrlDown", sv->tv, SLOT(transposeDown()));
-	mainAccel->insertItem(i18n("Move and select left"), "key_ShiftLeft", "Shift+Left");
-	mainAccel->connectItem("key_ShiftLeft", sv->tv, SLOT(selectLeft()));
-	mainAccel->insertItem(i18n("Move and select right"), "key_ShiftRight", "Shift+Right");
-	mainAccel->connectItem("key_ShiftRight", sv->tv, SLOT(selectRight()));
 
     // ...FOR OTHER KEYS
 	mainAccel->insertItem(i18n("Dead note"), "key_x", "X");

@@ -8,6 +8,7 @@
 #include "keysig.h"
 #include "timesig.h"
 #include "songview.h"
+#include "fretboard.h"
 
 #include <kglobalsettings.h>
 #include <kglobal.h>
@@ -35,7 +36,6 @@
 #define HORDUR                          4
 #define HORCELL                         14
 #define TIMESIGSIZE                     14
-#define HORSCALE                        10
 #define ABBRLENGTH                      25
 
 #define BOTTOMDUR   VERTSPACE+VERTLINE*(s+1)
@@ -60,7 +60,10 @@ TrackView::TrackView(TabSong *s, KXMLGUIClient *_XMLGUIClient, KCommandHistory *
 	cmdHist = _cmdHist;
 
 	song = s;
-	setCurt(s->t.first());
+	setCurrentTrack(s->t.first());
+
+	fretboard = new Fretboard(curt);
+	fretboard->show();
 
 	updateRows();
 
@@ -80,6 +83,7 @@ TrackView::TrackView(TabSong *s, KXMLGUIClient *_XMLGUIClient, KCommandHistory *
   	timeSigFont->setBold(TRUE);
 
 	lastnumber = -1;
+	zoomLevel = 10;
 
 #ifdef WITH_TSE3
 	scheduler = _scheduler;
@@ -94,7 +98,7 @@ TrackView::~TrackView()
 
 void TrackView::selectTrack(TabTrack *trk)
 {
-	setCurt(trk);
+	setCurrentTrack(trk);
 	updateRows();
 	repaintContents();
 }
@@ -110,10 +114,35 @@ void TrackView::selectBar(uint n)
 	lastnumber = -1;
 }
 
-void TrackView::setCurt(TabTrack *trk)
+void TrackView::setCurrentTrack(TabTrack *trk)
 {
 	curt = trk;
 	emit newTrackSelected();
+}
+
+// Set new horizontal zoom level and update display accordingly
+void TrackView::setZoomLevel(int newZoomLevel)
+{
+	if (newZoomLevel > 0) {
+		zoomLevel = newZoomLevel;
+		repaintContents();
+	}	
+}
+
+void TrackView::zoomIn()
+{
+	setZoomLevel(zoomLevel - 1);
+}
+
+void TrackView::zoomOut()
+{
+	setZoomLevel(zoomLevel + 1);
+}
+
+// Set zoom level dialog
+void TrackView::zoomLevelDialog()
+{
+	// GREYFIX
 }
 
 void TrackView::updateRows()
@@ -270,9 +299,9 @@ void TrackView::rhythmer()
 // Determine horizontal offset between two columns - n and n+1
 int TrackView::horizDelta(uint n)
 {
-	int res = curt->c[n].fullDuration() / HORSCALE * HORCELL;
-	if (res < HORCELL)
-		res = HORCELL;
+	int res = curt->c[n].fullDuration() * HORCELL / zoomLevel;
+// 	if (res < HORCELL)
+// 		res = HORCELL;
 	return res;
 }
 
@@ -466,7 +495,7 @@ void TrackView::paintCell(QPainter *p, int row, int col)
 
 		if (curt->c[t].flags & FLAG_ARC)
 			p->drawArc(lastxpos + HORCELL / 2, BOTTOMDUR + 9,
-					   xpos-lastxpos, 10, 0, -180 * 16);
+					   xpos - lastxpos, 10, 0, -180 * 16);
 
 		// Draw palm muting
 
@@ -698,6 +727,7 @@ void TrackView::timeSig()
 	lastnumber = -1;
 }
 
+// Move cursor left one column, breaking selection
 void TrackView::keyLeft()
 {
 	if (curt->sel) {
@@ -708,6 +738,7 @@ void TrackView::keyLeft()
 	}
 }
 
+// Move cursor right one column, breaking selection
 void TrackView::keyRight()
 {
 	if (curt->sel) {
@@ -715,6 +746,50 @@ void TrackView::keyRight()
 		repaintContents();
 	} else {
 		moveRight();
+	}
+}
+
+// Move cursor to the beginning of bar, breaking selection
+void TrackView::keyHome()
+{
+	if (curt->sel) {
+		curt->sel = FALSE;
+		repaintContents();
+	} else {
+		moveHome();
+	}
+}
+
+// Move cursor to the ending of bar, breaking selection
+void TrackView::keyEnd()
+{
+	if (curt->sel) {
+		curt->sel = FALSE;
+		repaintContents();
+	} else {
+		moveEnd();
+	}
+}
+
+// Move cursor to the very beginning of the song, breaking selection
+void TrackView::keyCtrlHome()
+{
+	if (curt->sel) {
+		curt->sel = FALSE;
+		repaintContents();
+	} else {
+		moveCtrlHome();
+	}
+}
+
+// Move cursor to the very end of the song, breaking selection
+void TrackView::keyCtrlEnd()
+{
+	if (curt->sel) {
+		curt->sel = FALSE;
+		repaintContents();
+	} else {
+		moveCtrlEnd();
 	}
 }
 
@@ -756,6 +831,36 @@ void TrackView::moveRight()
 		repaintCurrentCell();
 	}
 	lastnumber = -1;
+}
+
+void TrackView::moveHome()
+{
+	curt->x = curt->b[curt->xb].start;
+	repaintCurrentCell();
+}
+
+void TrackView::moveEnd()
+{
+	curt->x = curt->lastColumn(curt->xb);
+	repaintCurrentCell();
+}
+
+void TrackView::moveCtrlHome()
+{
+	curt->x = 0;
+	curt->xb = 0;
+	ensureCurrentVisible();
+	repaintContents();
+	emit statusBarChanged();
+}
+
+void TrackView::moveCtrlEnd()
+{
+	curt->x = curt->c.size() - 1;
+	curt->xb = curt->b.size() - 1;
+	ensureCurrentVisible();
+	repaintContents();
+	emit statusBarChanged();
 }
 
 void TrackView::selectLeft()

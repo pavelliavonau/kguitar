@@ -1,78 +1,87 @@
-<!DOCTYPE kpartgui><kpartgui name="kguitar_part" version="1">
+<!DOCTYPE kpartgui>
+<kpartgui name="kguitar_part" version="1">
 <MenuBar>
- <Menu name="file"><text>&amp;File</text>
-   <Action name="song_properties" />
- </Menu>
-  <Menu noMerge="1" name="track" >
-   <text>&amp;Track</text>
-   <Action name="key_sig" />
-   <Action name="time_sig" />
-   <Action name="arrange_trk" />
-   <Separator/>
-   <Action name="track_new" />
-   <Action name="track_delete" />
-   <Action name="track_bassline" />
-   <Separator/>
-   <Action name="track_properties" />
-  </Menu>
-  <Menu noMerge="1" name="note" >
-   <text>&amp;Note</text>
-   <Menu name="insert" >
-    <text>&amp;Insert</text>
-    <Action name="insert_chord" />
-    <Action name="rhythmer" />
-   </Menu>
-   <Menu name="duration" >
-    <text>&amp;Duration</text>
-    <Action name="set_len1" />
-    <Action name="set_len2" />
-    <Action name="set_len4" />
-    <Action name="set_len8" />
-    <Action name="set_len16" />
-    <Action name="set_len32" />
-   </Menu>
-   <Menu name="effects" >
-    <text>&amp;Effects</text>
-    <Action name="fx_legato" />
-    <Action name="fx_slide" />
-    <Action name="fx_nat_harm" />
-    <Action name="fx_art_harm" />
-    <Action name="fx_let_ring" />
-    <Separator/>
-    <Action name="fx_palmmute" />
-   </Menu>
-  </Menu>
-  <Menu noMerge="1" name="play" >
-   <text>&amp;Play</text>
-    <Action name="midi_playtrack" />
-    <Action name="midi_playsong" />
-    <Action name="midi_stopplay" />
-  </Menu>
-  <Menu noMerge="1" name="settings" >
-   <text>&amp;Settings</text>
-   <Separator/>
-   <Menu name="notenames" >
-    <text>Note Names</text>
-    <Action name="us_sharp" />
-    <Action name="us_flat" />
-    <Action name="us_mix" />
-    <Separator/>
-    <Action name="eu_sharp" />
-    <Action name="eu_flat" />
-    <Action name="eu_mix" />
-    <Separator/>
-    <Action name="jazz_sharp" />
-    <Action name="jazz_flat" />
-    <Action name="jazz_mix" />
-   </Menu>
-   <Action name="save_options" />
-   <Separator/>
-   <Action name="config_keys" />
-   <Action name="config_toolbars" />
-   <Action name="pref_options" />
-  </Menu>
- </MenuBar>
- <Menu name="tracklistpopup">
+	<Menu name="file">
+		<text>&amp;File</text>
+		<Action name="song_properties" />
+	</Menu>
+	<Menu name="view">
+		<text>&amp;View</text>
+		<Action name="zoom_in" />
+		<Action name="zoom_out" />
+		<Action name="zoom_level" />
+	</Menu>
+	<Menu noMerge="1" name="track">
+		<text>&amp;Track</text>
+		<Action name="key_sig" />
+		<Action name="time_sig" />
+		<Action name="arrange_trk" />
+		<Separator/>
+		<Action name="track_new" />
+		<Action name="track_delete" />
+		<Action name="track_bassline" />
+		<Separator/>
+		<Action name="track_properties" />
+	</Menu>
+	<Menu noMerge="1" name="note" >
+		<text>&amp;Note</text>
+		<Menu name="insert" >
+			<text>&amp;Insert</text>
+			<Action name="insert_chord" />
+			<Action name="rhythmer" />
+		</Menu>
+		<Menu name="duration" >
+		    <text>&amp;Duration</text>
+		    <Action name="set_len1" />
+		    <Action name="set_len2" />
+		    <Action name="set_len4" />
+			<Action name="set_len8" />
+		    <Action name="set_len16" />
+		    <Action name="set_len32" />
+		</Menu>
+		<Menu name="effects" >
+		    <text>&amp;Effects</text>
+		    <Action name="fx_legato" />
+		    <Action name="fx_slide" />
+		    <Action name="fx_nat_harm" />
+		    <Action name="fx_art_harm" />
+		    <Action name="fx_let_ring" />
+		    <Separator/>
+		    <Action name="fx_palmmute" />
+		</Menu>
+	</Menu>
+	<Menu noMerge="1" name="play" >
+		<text>&amp;Play</text>
+    	<Action name="midi_playtrack" />
+	    <Action name="midi_playsong" />
+	    <Action name="midi_stopplay" />
+	</Menu>
+	<Menu noMerge="1" name="settings" >
+		<text>&amp;Settings</text>
+		<Separator/>
+		<Menu name="notenames" >
+			<text>Note Names</text>
+			<Action name="us_sharp" />
+			<Action name="us_flat" />
+			<Action name="us_mix" />
+			<Separator/>
+			<Action name="eu_sharp" />
+			<Action name="eu_flat" />
+			<Action name="eu_mix" />
+			<Separator/>
+			<Action name="jazz_sharp" />
+			<Action name="jazz_flat" />
+			<Action name="jazz_mix" />
+		</Menu>
+		<Action name="save_options" />
+		<Separator/>
+		<Action name="config_keys" />
+		<Action name="config_toolbars" />
+		<Action name="pref_options" />
+	</Menu>
+</MenuBar>
+
+<Menu name="tracklistpopup">
    <Title>Track List</Title>
    <Action name="track_new" />
    <Action name="track_delete" />
@@ -108,4 +117,3 @@
   <Action name="fx_palmmute" />
  </ToolBar>
 </kpartgui>
-

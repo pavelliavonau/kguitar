@@ -84,7 +84,8 @@ private:
 		*len1Act, *len2Act, *len4Act, *len8Act, *len16Act, *len32Act,
 		*keySigAct, *timeSigAct, *arcAct, *legatoAct, *natHarmAct, *artHarmAct,
 		*palmMuteAct, *slideAct, *letRingAct, *saveOptionAct, *confKeyAct,
-		*arrTrkAct, *midiPlaySongAct, *midiStopPlayAct, *rhythmerAct;
+		*arrTrkAct, *midiPlaySongAct, *midiStopPlayAct, *rhythmerAct,
+		*zoomInAct, *zoomOutAct, *zoomLevelAct;
     KToggleAction *showMainTBAct, *showEditTBAct, *usSharpAct, *usFlatAct,
 		*usMixAct, *euSharpAct, *euFlatAct, *euMixAct, *jazzSharpAct,
 		*jazzFlatAct, *jazzMixAct;
