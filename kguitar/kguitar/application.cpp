@@ -88,9 +88,9 @@ ApplicationWindow::ApplicationWindow(): KMainWindow()
 	preferencesAct = KStdAction::preferences(this, SLOT(options()), 
 											 actionCollection(), "pref_options");
 	confTBAct = KStdAction::configureToolbars(this, SLOT(configToolBars()), 
-											  actionCollection(), "config_Toolbars");
+											  actionCollection(), "config_toolbars");
 	confKeyAct = KStdAction::keyBindings(this, SLOT(configKeys()),
-										 actionCollection(), "config_Keys");
+										 actionCollection(), "config_keys");
 
 	// SET UP ACTIONS
 	browserAct = new KAction(i18n("Browser..."),  KAccel::stringToKey("Shift+B"), this, 
@@ -100,7 +100,7 @@ ApplicationWindow::ApplicationWindow(): KMainWindow()
 
 	trkPropAct = new KAction(i18n("&Properties..."), 0, this, SLOT(trackProperties()),
 							 actionCollection(), "track_properties");
-	insChordAct = new KAction(i18n("&Chord..."), "chord.xpm",  KAccel::stringToKey("Shift+C"), 
+	insChordAct = new KAction(i18n("&Chord..."), "chord",  KAccel::stringToKey("Shift+C"), 
 							  this, SLOT(insertChord()), actionCollection(), "insert_chord");
 
 	showMainTBAct = new KToggleAction(i18n("Main Toolbar"), 0, this, 
@@ -114,33 +114,33 @@ ApplicationWindow::ApplicationWindow(): KMainWindow()
 							SLOT(arrangeTracks()), actionCollection(), "arrange_trk");
 
 	// SET UP DURATION
-	len1Act = new KAction(i18n("Whole"), "note1.xpm", KAccel::stringToKey("Ctrl+1"),
+	len1Act = new KAction(i18n("Whole"), "note1", KAccel::stringToKey("Ctrl+1"),
 						  tv, SLOT(setLength1()), actionCollection(), "set_len1");
-	len2Act = new KAction(i18n("1/2"), "note2.xpm", KAccel::stringToKey("Ctrl+2"), 
+	len2Act = new KAction(i18n("1/2"), "note2", KAccel::stringToKey("Ctrl+2"), 
 						  tv, SLOT(setLength2()), actionCollection(), "set_len2");
-	len4Act = new KAction(i18n("1/4"), "note4.xpm", KAccel::stringToKey("Ctrl+3"), 
+	len4Act = new KAction(i18n("1/4"), "note4", KAccel::stringToKey("Ctrl+3"), 
 						  tv, SLOT(setLength4()), actionCollection(), "set_len4");
-	len8Act = new KAction(i18n("1/8"), "note8.xpm", KAccel::stringToKey("Ctrl+4"), 
+	len8Act = new KAction(i18n("1/8"), "note8", KAccel::stringToKey("Ctrl+4"), 
 						  tv, SLOT(setLength8()), actionCollection(), "set_len8");
-	len16Act = new KAction(i18n("1/16"), "note16.xpm", KAccel::stringToKey("Ctrl+5"), 
+	len16Act = new KAction(i18n("1/16"), "note16", KAccel::stringToKey("Ctrl+5"), 
 						   tv, SLOT(setLength16()), actionCollection(), "set_len16");
-	len32Act = new KAction(i18n("1/32"), "note32.xpm", KAccel::stringToKey("Ctrl+6"), 
+	len32Act = new KAction(i18n("1/32"), "note32", KAccel::stringToKey("Ctrl+6"), 
 						   tv, SLOT(setLength32()), actionCollection(), "set_len32");
 
 	// SET UP EFFECTS
-	timeSigAct = new KAction(i18n("Time signature"), "timesig.xpm",
+	timeSigAct = new KAction(i18n("Time signature"), "timesig",
 							 KAccel::stringToKey("Shift+T"), tv, SLOT(timeSig()),
 							 actionCollection(), "time_sig");
-	arcAct = new KAction(i18n("Link with previous column"), "arc.xpm", 
+	arcAct = new KAction(i18n("Link with previous column"), "arc", 
 						 KAccel::stringToKey("L"), tv, SLOT(linkPrev()), 
 						 actionCollection(), "link_prev");
-	legatoAct = new KAction(i18n("Legato (hammer on/pull off)"), "fx-legato.xpm", 
+	legatoAct = new KAction(i18n("Legato (hammer on/pull off)"), "fx_legato", 
 							KAccel::stringToKey("P"), tv, SLOT(addLegato()), 
 							actionCollection(), "fx_legato");
-	natHarmAct = new KAction(i18n("Natural harmonic"), "fx-harmonic.xpm", 
+	natHarmAct = new KAction(i18n("Natural harmonic"), "fx_harmonic", 
 							 KAccel::stringToKey("H"), tv, SLOT(addHarmonic()), 
 							 actionCollection(), "fx_nat_harm");
-	artHarmAct = new KAction(i18n("Artificial harmonic"), "fx-harmonic.xpm", 
+	artHarmAct = new KAction(i18n("Artificial harmonic"), "fx_harmonic", 
 							 KAccel::stringToKey("R"), tv, SLOT(addArtHarm()),
 							 actionCollection(), "fx_art_harm");
 
@@ -190,7 +190,7 @@ ApplicationWindow::ApplicationWindow(): KMainWindow()
 	mainAccel->connectItem("key_CtrlDel", tv, SLOT(keyCtrlDelete()));
 	mainAccel->insertItem(i18n("Insert"), "key_ins", "Insert");
 	mainAccel->connectItem("key_ins", tv, SLOT(keyInsert()));
-	mainAccel->insertItem(i18n("Insert palm muting"), "key_m", "M");
+	mainAccel->insertItem(i18n("Palm muting"), "key_m", "M");
 	mainAccel->connectItem("key_m", tv, SLOT(keyM()));
 	mainAccel->insertItem(i18n("Doted note"), "key_period", "Period");
 	mainAccel->connectItem("key_period", tv, SLOT(keyPeriod()));
@@ -387,7 +387,6 @@ void ApplicationWindow::loadFile(KURL _url)
 {
 	QString fn = _url.path();
 	openFile(fn);
-
 }
 
 void ApplicationWindow::recentLoad(const KURL& _url)
@@ -710,7 +709,6 @@ void ApplicationWindow::readOptions()
 
 	toolBar("mainToolBar")->applySettings(config, "MainToolBar");
 	toolBar("editToolBar")->applySettings(config, "EditToolBar");
-
 
 	config->setGroup("ALSA");
 	globalAlsaClient = config->readNumEntry("client", 64);
