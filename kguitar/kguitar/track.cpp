@@ -36,11 +36,12 @@ bool TabSong::load_from_kg(const char* fileName)
     Q_UINT8 thetune[MAX_STRINGS];
     int ccnt;
     Q_UINT16 i16;
-    Q_UINT8 patch,string;
+    Q_UINT8 patch,string,tm;
     Q_INT8 cn;
 
     for (int i=0;i<cnt;i++) {
-	s >> i16;                       // Track properties (bank)
+	s >> tm;                        // Track properties (Track mode)
+	s >> i16;                       // Bank
 	s >> patch;
 	s >> string;
 
@@ -49,7 +50,7 @@ bool TabSong::load_from_kg(const char* fileName)
 
 	printf("Read a track of %d strings, bank=%d, patch=%d...\n",string,i16,patch);
 
-	t.append(new TabTrack(i16,patch,string));
+	t.append(new TabTrack((TrackMode) tm,i16,patch,string));
 
 	printf("Appended a track...\n");
 
@@ -107,7 +108,8 @@ bool TabSong::save_to_kg(const char* fileName)
     for (;it.current();++it) {          // For every track
 	TabTrack *trk = it.current();
 
-	s << (Q_UINT16) trk->bank();    // Track properties
+	s << (Q_UINT8) trk->trackmode();// Track properties
+	s << (Q_UINT16) trk->bank();    
 	s << (Q_UINT8) trk->patch();
 	s << (Q_UINT8) trk->string();
 	for (int i=0;i<trk->string();i++)

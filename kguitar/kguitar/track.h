@@ -7,6 +7,11 @@
 #include <qlist.h>
 #include <qstring.h>
 
+typedef enum {
+    GuitarTab,
+    DrumTab
+} TrackMode;
+
 // Durations as in MIDI:
 // 480 = whole    = 1
 // 240 = half     = 2
@@ -28,12 +33,14 @@ public:
 class TabTrack
 {
 public:
-    TabTrack(int bank, uchar patch, uchar str) { mbank=bank;mpatch=patch;_string=str;c.setAutoDelete(TRUE); };
+    TabTrack(TrackMode _tm, int bank, uchar patch, uchar str) { tm=_tm;mbank=bank;mpatch=patch;_string=str;c.setAutoDelete(TRUE); };
     QList<TabColumn> c;                 // Tab columns
 
     void setTuning(const uchar t[MAX_STRINGS]) { for (int i=0;i<_string;i++)  _tune[i]=t[i]; };
     int string() { return _string; }
     int tune(int x) { return _tune[x]; }
+
+    TrackMode trackmode() { return tm; }
 
     int bank() { return mbank; }
     int patch() { return mpatch; }
@@ -43,6 +50,7 @@ public:
     int x;                              // Current tab col
     int y;                              // Current tab row
 private:
+    TrackMode tm;                       // Track mode
     int mbank;                          // MIDI bank
     uchar mpatch;                       // MIDI patch
     uchar _string;                      // Number of strings
@@ -59,6 +67,8 @@ public:
     QString author;                     // Author of the tune
     QString transcriber;                // Who made the tab
     QString comments;                   // Comments
+
+    QString filename;                   // File name to save under
 
     bool load_from_kg(const char* fileName);
     bool save_to_kg(const char* fileName);
