@@ -4,24 +4,53 @@
 
 #include <qpainter.h>
 #include <qsizepolicy.h>
+#include <qpixmap.h>
+#include <qimage.h>
+
+#include <kstandarddirs.h>
 
 #define STRING_HEIGHT    24
 #define FRET_DIVISOR     1.05946
 #define ZERO_FRET_WIDTH  24
-#define INLAY_RADIUS     5
+#define INLAY_RADIUS     7
+#define FINGER_RADIUS    8
+
+#define INLAY_FILL_COLOR qRgb(205, 214, 221)
+#define FRET_COLOR_1     qRgb(144, 151, 166)
+#define FRET_COLOR_2     qRgb( 77,  84,  99)
+#define STRING_COLOR_1   qRgb(230, 230, 230)
+#define STRING_COLOR_2   qRgb(166, 166, 166)
+
+#define FINGER_COLOR     qRgb( 44,  77, 240)
 
 // Inlay marks array
 
-// ============  0  1  2  3  4  5  6  7  8  9 10 11 12
-bool marks[] = { 0, 0, 0, 1, 0, 1, 0, 1, 0, 1, 0, 0, 2,
-// ============ 13 14 15 16 17 18 19 20 21 22 23 24
-                 0, 0, 1, 0, 1, 0, 1, 0, 1, 0, 0, 2 };
+// ===========  0  1  2  3  4  5  6  7  8  9 10 11 12
+int marks[] = { 0, 0, 0, 1, 0, 1, 0, 1, 0, 1, 0, 0, 2,
+// =========== 13 14 15 16 17 18 19 20 21 22 23 24
+                0, 0, 1, 0, 1, 0, 1, 0, 1, 0, 0, 2 };
+
+
 
 Fretboard::Fretboard(TabTrack *_trk, QWidget *parent, const char *name)
 	: QWidget(parent, name)
 {
 	resize(600, 128);
 	setTrack(_trk);
+
+	back = new QPixmap(width(), height());
+	wood = new QPixmap(locate("data", "kguitar/pics/rosewood.jpg"));
+	fret = new QImage(locate("data", "kguitar/pics/fret.png"));
+	zeroFret = new QImage(locate("data", "kguitar/pics/zerofret.png"));
+	drawBackground();
+
+	setFocusPolicy(WheelFocus); // the strongest focus gainer
+}
+
+Fretboard::~Fretboard()
+{
+	delete back;
+	delete wood;
 }
 
 QSizePolicy Fretboard::sizePolicy()
@@ -40,36 +69,30 @@ void Fretboard::paintEvent(QPaintEvent *e)
 {
 	QPainter p;
 	p.begin(this);
-
-	p.setBrush(qRgb(205, 214, 221));
-
-	// Draw frets
-	for (int i = 0; i <= trk->frets; i++) {
-		p.drawLine((int) fr[i], 0, (int) fr[i], height());
-		// Draw inlay marks, if applicable
-		if (marks[i] == 1) {
-			p.drawEllipse((int) ((fr[i - 1] + fr[i]) / 2) - INLAY_RADIUS,
-						  height() / 2 - INLAY_RADIUS,
-						  INLAY_RADIUS * 2, INLAY_RADIUS * 2);
-		} else if (marks[i] == 2) {
-			p.drawEllipse((int) ((fr[i - 1] + fr[i]) / 2) - INLAY_RADIUS,
-						  height() / 3 - INLAY_RADIUS,
-						  INLAY_RADIUS * 2, INLAY_RADIUS * 2);
-			p.drawEllipse((int) ((fr[i - 1] + fr[i]) / 2) - INLAY_RADIUS,
-						  height() * 2 / 3 - INLAY_RADIUS,
-						  INLAY_RADIUS * 2, INLAY_RADIUS * 2);
+	p.setBrush(FINGER_COLOR);
+	int y = height() - STRING_HEIGHT / 2 - FINGER_RADIUS;
+	for (int i = 0; i < trk->string; i++) {
+		char a = trk->c[trk->x].a[i];
+		if ((a >= 0) && (a <= trk->frets)) {
+			int x = (a == 0) ? (int) fr[0] / 2 : (int) (fr[a] + fr[a - 1]) / 2;
+			p.drawEllipse(x - FINGER_RADIUS, y, FINGER_RADIUS * 2, FINGER_RADIUS * 2);
 		}
+		y -= STRING_HEIGHT;
 	}
-
-	// Draw strings
-	for (int i = 0; i < trk->string; i++)
-		p.drawLine(0, i * STRING_HEIGHT + STRING_HEIGHT / 2,
-		           width(), i * STRING_HEIGHT + STRING_HEIGHT / 2);
-
 	p.end();
 }
 
 void Fretboard::mousePressEvent(QMouseEvent *e)
+{
+	handleMouse(e);
+}
+
+void Fretboard::mouseMoveEvent(QMouseEvent *e)
+{
+	handleMouse(e);
+}
+
+void Fretboard::handleMouse(QMouseEvent *e)
 {
 	int y = trk->string - (e->y() / STRING_HEIGHT) - 1;
 	int x = 0;
@@ -81,13 +104,18 @@ void Fretboard::mousePressEvent(QMouseEvent *e)
 			}
 		}
 	}
-	
-	emit buttonClicked(y, x, e->button());
+	emit buttonPress(y, x, e->button());
+}
+
+void Fretboard::mouseReleaseEvent(QMouseEvent *e)
+{
+	emit buttonRelease(e->button());
 }
 
 void Fretboard::resizeEvent(QResizeEvent *e)
 {
 	recalculateSizes();
+	drawBackground();
 }
 
 // Funky fret physical sizes calculation
@@ -106,4 +134,56 @@ void Fretboard::recalculateSizes()
 	l = ((double) width()) / ((double) (width() - l));
 	for (int i = 0; i <= trk->frets; i++)
 		fr[i] *= l;
+}
+
+// Draw background according to new widget sizes
+void Fretboard::drawBackground()
+{
+	QPainter p;
+	back->resize(width(), height());
+	p.begin(back);
+	p.drawTiledPixmap(0, 0, width(), height(), *wood);
+
+	QImage scaledFret = fret->scale(fret->width(), height());
+	p.drawImage(0, 0, zeroFret->scale(ZERO_FRET_WIDTH, height()));
+
+	p.setBrush(INLAY_FILL_COLOR);
+
+	// Draw frets
+	for (int i = 1; i <= trk->frets; i++) {
+// 		p.setPen(FRET_COLOR_1);
+// 		p.drawLine((int) fr[i], 0, (int) fr[i], height());
+// 		p.setPen(FRET_COLOR_2);
+// 		p.drawLine((int) fr[i] - 1, 0, (int) fr[i] - 1, height());
+// 		p.drawLine((int) fr[i] + 1, 0, (int) fr[i] + 1, height());
+		// Draw frets
+		p.drawImage((int) fr[i] - 1, 0, scaledFret);
+		// Draw inlay marks, if applicable
+		if (marks[i] == 1) {
+			p.drawEllipse((int) ((fr[i - 1] + fr[i]) / 2) - INLAY_RADIUS,
+			              height() / 2 - INLAY_RADIUS,
+			              INLAY_RADIUS * 2, INLAY_RADIUS * 2);
+		} else if (marks[i] == 2) {
+			p.drawEllipse((int) ((fr[i - 1] + fr[i]) / 2) - INLAY_RADIUS,
+			              height() / 3 - INLAY_RADIUS,
+			              INLAY_RADIUS * 2, INLAY_RADIUS * 2);
+			p.drawEllipse((int) ((fr[i - 1] + fr[i]) / 2) - INLAY_RADIUS,
+			              height() * 2 / 3 - INLAY_RADIUS,
+			              INLAY_RADIUS * 2, INLAY_RADIUS * 2);
+		}
+	}
+
+	// Draw strings
+	for (int i = 0; i < trk->string; i++) {
+		int y = i * STRING_HEIGHT + STRING_HEIGHT / 2;
+		p.setPen(STRING_COLOR_1);
+		p.drawLine(0, y, width(), y);
+		p.setPen(STRING_COLOR_2);
+		p.drawLine(0, y - 1, width(), y - 1);
+		p.drawLine(0, y + 1, width(), y + 1);
+	}
+
+	p.end();
+
+	setPaletteBackgroundPixmap(*back);
 }
