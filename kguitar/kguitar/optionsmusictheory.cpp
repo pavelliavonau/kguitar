@@ -79,10 +79,10 @@ void OptionsMusicTheory::applyBtnClicked()
 bool OptionsMusicTheory::jazzWarning()
 {
 	return KMessageBox::warningYesNo(this,
-									 i18n("Jazz note names are very special and should be\n"
-										  "used only if really know what you do. Usage of jazz\n"
-										  "note names without a purpose would confuse or mislead\n"
-										  "anyone reading the music who did not have a knowledge\n"
+									 i18n("Jazz note names are very special and should be "
+										  "used only if really know what you do. Usage of jazz "
+										  "note names without a purpose would confuse or mislead "
+										  "anyone reading the music who did not have a knowledge "
 										  "of jazz note naming.\n\n"
 										  "Are you sure you want to use jazz notes?")) == KMessageBox::Yes;
 }
