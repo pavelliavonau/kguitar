@@ -121,6 +121,61 @@ static int mxmlNoteType2Kg(const QString& mxmlNoteType)
 	}
 }
 
+// given pitch, allocate string/fret
+// might also come in handy in the MIDI load function
+// in:  pitch, tabtrack, current column
+// out: result (TRUE=OK), (mxml)string, fret
+
+// simple version:
+// will only allocate notes on the highest possible string
+// no conflict solving capabilities
+// example: an A will always be allocated on the A string
+// if a B is also needed, this will fail
+// possible solutions would include:
+// put B on 7th fret on E string
+// put A on 5th fret on E string, B on 2nd fret on A string
+
+// strange things will happen if strings are tuned in reverse order
+
+static bool allocStrFrt(int pitch, TabTrack * trk, int col,
+                        unsigned int& str, unsigned int& frt)
+{
+	// remove some boundary conditions
+	// if no strings at all, we're out of luck
+	if (trk->string == 0) {
+		return FALSE;
+	}
+	// if pitch is lower than lowest string, we're out of luck
+	if (pitch < trk->tune[0]) {
+		return FALSE;
+	}
+
+	int kgStr;
+	if (trk->string == 1) {
+		// must be on the one-and-only string
+		kgStr = 0;
+	} else {
+		// assume on highest string
+		kgStr = (trk->string)-1;
+		// but search for lower string to use
+		// note that # strings >= 2
+		for (int i = 0; i < (trk->string)-1; i++) {
+			if ((trk->tune[i] <= pitch) && (pitch < trk->tune[i+1])) {
+				kgStr = i;
+			}
+		}
+	}
+
+	// check string not in use
+	if (trk->c[col].a[kgStr] >= 0) {
+		return FALSE;
+	}
+
+	str = mxmlStr2Kg(kgStr, trk->string);
+	frt = pitch - trk->tune[kgStr];
+	return TRUE;
+}
+
 // MusicXMLParser constructor
 
 MusicXMLParser::MusicXMLParser(TabSong * tsp)
@@ -225,6 +280,8 @@ bool MusicXMLParser::endElement( const QString&, const QString&,
 {
 	if (qName == "actual-notes") {
 	    stAno = stCha;
+	} else if (qName == "alter") {
+	    stAlt = stCha;
 	} else if (qName == "attributes") {
 		// update this bar's attributes
 		if (trk) {
@@ -260,6 +317,8 @@ bool MusicXMLParser::endElement( const QString&, const QString&,
 	    stNno = stCha;
 	} else if (qName == "note") {
 	    return addNote();
+	} else if (qName == "octave") {
+	    stOct = stCha;
 	} else if (qName == "part") {
 	    trk = NULL;
 	} else if (qName == "part-name") {
@@ -285,6 +344,8 @@ bool MusicXMLParser::endElement( const QString&, const QString&,
 			trk->tune[mxmlStr2Kg(stPtl.toInt(), trk->string)]
 				= accSt.sao2Pitch(stPts, 0 /* LVIFIX */, stPto.toInt());
 		}
+	} else if (qName == "step") {
+	    stStp = stCha;
 	} else if (qName == "string") {
 	    stStr = stCha;
 	} else if (qName == "tuning-step") {
@@ -310,6 +371,7 @@ bool MusicXMLParser::characters(const QString& ch)
 }
 
 // add a note to the current track
+// LVIFIX: remove debug cout statements
 
 bool MusicXMLParser::addNote()
 {
@@ -318,51 +380,81 @@ bool MusicXMLParser::addNote()
 	bool ok2;
 	bool ok3;
 	bool ok4;
+	bool ok5;
+	bool ok6;
 	unsigned int frt = stFrt.toUInt(&ok1);
 	unsigned int str = stStr.toUInt(&ok2);
 	unsigned int ano = stAno.toUInt(&ok3);
 	unsigned int nno = stNno.toUInt(&ok4);
+	         int alt = stAlt.toInt( &ok5);
+	unsigned int oct = stOct.toUInt(&ok6);
 	int len = mxmlNoteType2Kg(stTyp);
+
 	// sanity checks
-	// LVIFIX: check valid range for frt and str
-	if (trk == NULL)
-	   return TRUE;			// LVIFIX: how to report error ?
-	if (len == 0)
-	   return TRUE;			// LVIFIX: how to report error ?
-	if (!stRst && (!ok1 || !ok2))
-	   return TRUE;			// LVIFIX: how to report error ?
+	if ((trk == NULL) || (len == 0)) {
+		initStNote();
+		return TRUE;		// LVIFIX: how to report error ?
+	}
+
 	// all ok, append note
 	// append note to current track
-	if (stCho && (x > 0)) {
-	    // chord with previous note (cannot be first note of track):
-		// add to current column
-	    if (!stRst) {
-		    trk->c[x-1].a[mxmlStr2Kg(stStr.toInt(), trk->string)]
-			  = stFrt.toInt();
-		}
-		// LVIFIX: as KGuitar does not support notes of different length
-		// in a chord, length is set to the length of the shortest note
-		if (len < trk->c[x-1].l) {
-	      trk->c[x-1].l = len;
-	      trk->c[x-1].flags = (stDts ? FLAG_DOT : 0);
-		}
-	} else {
-		// single note or first note of chord: add a new column
+	if (!stCho || (x == 0)) {
+		// single note or first note of track: add a new column
 		x++;
 		trk->c.resize(x);
+		// initialize it
 		for (int k = 0; k < trk->string; k++) {
 			trk->c[x-1].a[k] = -1;
 			trk->c[x-1].e[k] = 0;
 		}
-		if (!stRst) {
-			trk->c[x-1].a[mxmlStr2Kg(str, trk->string)] = frt;
-		}
 	    trk->c[x-1].l = len;
-	    trk->c[x-1].flags = (stDts ? FLAG_DOT : 0);
+		trk->c[x-1].flags = 0;
+	} else {
+		// LVIFIX: as KGuitar does not support notes of different length
+		// in a chord, length is set to the length of the shortest note
+		if (len < trk->c[x-1].l) {
+	      trk->c[x-1].l = len;
+		}
+	}
+	// handle dot (LVIFIX: more than one not supported by KGuitar)
+    if (stDts) {
+	    trk->c[x-1].flags |= FLAG_DOT;
 	}
 	// handle triplets
 	if (ok3 && ok4 && (ano == 3) && (nno == 2)) {
 		trk->c[x-1].flags |= FLAG_TRIPLET;
+	}
+	// if not rest: fill in fret (if rest: frets stay -1)
+	// placed here on purpose:
+	// in case of failure, fret stays -1 which is a safe value
+	if (!stRst) {
+		if (!ok1 || !ok2) {
+			// no valid frt/str: try if stp/alt/oct can be used instead
+			// note: alt may be missing
+			// cout << "no valid str/frt,";
+			if ((stStp == "") || !ok6) {
+				// cout << "no valid stp/alt/oct,";
+				initStNote();
+				return TRUE;	// LVIFIX: how to report error ?
+			} else {
+				// cout << " stp=" << stStp;
+				// cout << " alt=" << alt << "(" << ok5 << ")";
+				// cout << " oct=" << oct << "(" << ok6 << ")";
+				Accidentals acc;
+				int pitch = acc.sao2Pitch(stStp, alt, oct);
+				// cout << " pitch=" << pitch;
+				if (!allocStrFrt(pitch, trk, x-1, str, frt)) {
+					cout << "MusicXMLParser::addNote() ";
+					cout << "string/fret allocation failed, ";
+					cout << "column=" << x << endl;
+				}
+				// cout << " alloc: str=" << str;
+				// cout << " frt=" << frt;
+			}
+			// cout << endl;
+		}
+		// LVIFIX: check valid range for frt and str
+		trk->c[x-1].a[mxmlStr2Kg(str, trk->string)] = frt;
 	}
     // re-init note specific variables
 	initStNote();
@@ -400,12 +492,15 @@ bool MusicXMLParser::addTrack()
 
 void MusicXMLParser::initStNote()
 {
+	stAlt = "";
 	stAno = "";
 	stCho = FALSE;
 	stDts = 0;
 	stFrt = "";
 	stNno = "";
+	stOct = "";
 	stRst = FALSE;
+	stStp = "";
 	stStr = "";
 	stTyp = "";
 }

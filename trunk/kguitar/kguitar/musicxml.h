@@ -64,12 +64,15 @@ private:
 	QString stBts;				// beats
 	QString stBtt;				// beat-type
 	// note -- initialized in initStNote()
+	QString stAlt;				// alter
 	QString	stAno;				// actual notes
 	bool    stCho;				// chord with previous note
 	int     stDts;				// dots (count)
 	QString stFrt;				// fret
 	QString	stNno;				// normal notes
+	QString stOct;				// octave
 	bool    stRst;				// rest
+	QString stStp;				// step
 	QString stStr;				// string
 	QString stTyp;				// type
 	// part (== track) -- initialized in initStScorePart()
