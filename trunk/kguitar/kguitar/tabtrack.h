@@ -55,7 +55,7 @@ public:
     uchar frets;                        // Number of frets
     uchar tune[MAX_STRINGS];            // Tuning, if appicable
 
-    TrackMode trackmode() { return tm; }
+    TrackMode trackMode() { return tm; }
     void setTrackMode(TrackMode t) { tm = t; }
 
     uchar channel;                      // MIDI channel
