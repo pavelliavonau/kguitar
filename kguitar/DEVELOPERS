@@ -23,9 +23,12 @@ Releasing a new version
 
 Remember, the tags look like "rel0-1".
 
-* Update version numbers everywhere (Don't forget 'configure.in.in')
+* Update version numbers everywhere:
+	configure.in.in
+	VERSION
+	kguitar.spec	
 * Commit everything to CVS repository
-* Tag everything in CVS with tag "rel<version>-<number>"
+* Tag everything in CVS: "cvs tag -R rel{version}-{number} ."
 * Do "cvs log -r<lastrelease>:<currentrelease> >cvslog"
 * Make a ChangeLog release entry, based on result cvslog file.
 * Export everything from CVS, add the new ChangeLog
