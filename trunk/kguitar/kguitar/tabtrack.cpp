@@ -98,7 +98,7 @@ void TabTrack::insertColumn(int n)
 // Removes n columns starting with current cursor position
 void TabTrack::removeColumn(int n)
 {
-	for (int i=x;i<c.size()-n;i++)
+	for (int i = x; i < c.size() - n; i++)
 		c[i]=c[i+n];
 
 	// Remove empty bars
@@ -106,6 +106,12 @@ void TabTrack::removeColumn(int n)
 		b.resize(b.size()-1);
 
 	c.resize(c.size()-n);
+
+	if (x >= c.size())
+		x = c.size() - 1;
+
+	if (xb >= b.size())
+		xb = b.size() - 1;
 }
 
 // Toggles effect FX on current cursor position

@@ -8,7 +8,8 @@
 #include "strumlib.h"
 
 #include <klocale.h>
-#include <kdebug.h>
+
+#include <stdio.h>
 
 extern strummer lib_strum[];
 
@@ -490,9 +491,6 @@ void DeleteColumnCommand::execute()
 
 		trk->removeColumn(p_delta);
 
-		if (trk->x == trk->c.size())
-			trk->x--;
-
 		trk->sel = FALSE;
 		trk->xsel = 0;
 
@@ -504,7 +502,6 @@ void DeleteColumnCommand::execute()
 	//delete all notes of the first column
 	if (p_all) {
 		trk->x = 0;
-		trk->y = 0;
 		for (uint i = 0; i < MAX_STRINGS; i++) {
 			trk->c[trk->x].a[i] = -1;
 			trk->c[trk->x].e[i] = 0;
