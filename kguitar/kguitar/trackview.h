@@ -18,7 +18,7 @@ public:
     ~TrackView();
 
     TabTrack* trk() { return curt; }
-    void setCurt(TabTrack*);
+    void setCurt(TabTrack *);
 
 	DeviceManager* devMan() { return midi; }
 
@@ -66,9 +66,11 @@ public slots:
     void key8() { insertTab(8); }
     void key9() { insertTab(9); }
     void key0() { insertTab(0); }
-	void selectTrack(QListViewItem *);
     void playTrack();
     void stopPlayTrack();
+
+	void selectTrack(TabTrack *);
+	void selectBar(int);
 
 private slots:
     void playMidi(MidiList &ml);

@@ -45,7 +45,9 @@ SongView::SongView(KXMLGUIClient *_XMLGUIClient, QWidget *parent = 0, const char
     tl->setSelected(tl->firstChild(), TRUE);
 	tp = new TrackPane(song, tl->header()->height(), tl->firstChild()->height(), splitv);
 
-	connect(tl, SIGNAL(selectionChanged(QListViewItem*)), tv, SLOT(selectTrack(QListViewItem*)));
+	connect(tl, SIGNAL(newTrackSelected(TabTrack *)), tv, SLOT(selectTrack(TabTrack *)));
+	connect(tp, SIGNAL(newTrackSelected(TabTrack *)), tv, SLOT(selectTrack(TabTrack *)));
+	connect(tp, SIGNAL(newBarSelected(int)), tv, SLOT(selectBar(int)));
 
 	QBoxLayout *l = new QVBoxLayout(this);
 	l->addWidget(split);

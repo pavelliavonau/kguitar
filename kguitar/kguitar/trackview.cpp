@@ -21,7 +21,6 @@
 #include <qpainter.h>
 #include <qpen.h>
 #include <qkeycode.h>
-#include <qlistview.h>
 
 #include <qspinbox.h>
 #include <qcombobox.h>
@@ -113,6 +112,22 @@ TrackView::~TrackView()
 
 	kdDebug() << "Deleting devicemanager" << endl;
 	//	delete midi;
+}
+
+void TrackView::selectTrack(TabTrack *trk)
+{
+	setCurt(trk);
+	update();
+}
+
+
+void TrackView::selectBar(int n)
+{
+	if (n < curt->b.size()) {
+		curt->x = curt->b[n].start;
+		curt->updateXB();
+		emit statusBarChanged();
+	}
 }
 
 void TrackView::setCurt(TabTrack *trk)
@@ -212,12 +227,8 @@ void TrackView::paintCell(QPainter *p, int row, int col)
 {
 	uint bn = row;						// Drawing only this bar
 
-	int last;
-	if (curt->b.size() == bn + 1)       // Current bar is the last one
-		last = curt->c.size() - 1;      // Draw till the last note
-	else							    // Else draw till the end of this bar
-		last = curt->b[bn+1].start - 1;
-	if (last == -1)  last = 0;          // gotemfix: avoid overflow
+	//	int last = curt->lastColumn(bn);
+
 	QString tmp;
 
 	uint s = curt->string - 1;
@@ -266,7 +277,7 @@ void TrackView::paintCell(QPainter *p, int row, int col)
 		p->setPen(SolidLine);
 	}
 
-	for (uint t = curt->b[bn].start; t <= last; t++) {
+	for (uint t = curt->b[bn].start; t <= curt->lastColumn(bn); t++) {
 		// Drawing duration marks
 
 		// Draw connection with previous, if applicable
@@ -692,20 +703,6 @@ void TrackView::mousePressEvent(QMouseEvent *e)
         if (found)
             repaint();
     }
-}
-
-void TrackView::selectTrack(QListViewItem *item)
-{
-    if (!item)
-        return;
-
-	int num = item->text(0).toInt();
-
-	QListIterator<TabTrack> it(song->t);
-	for (int n = 1; n != num; ++it) { n++; };
-	setCurt(it.current());
-	updateRows();
-	repaint();
 }
 
 void TrackView::playTrack()
