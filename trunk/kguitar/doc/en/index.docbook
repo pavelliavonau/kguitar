@@ -1,7 +1,7 @@
 <?xml version="1.0" ?>
 <!DOCTYPE book PUBLIC "-//KDE//DTD DocBook XML V4.1-Based Variant V1.0//EN" "dtd/kdex.dtd" [
   <!ENTITY kguitar '<application>KGuitar</application>'>
-  <!ENTITY kapp "&kguitar;"><!-- replace kguitar here -->
+  <!ENTITY kapp "&kguitar;">
   <!ENTITY % addindex "IGNORE">
   <!ENTITY % English "INCLUDE"><!-- change language only here -->
   
@@ -123,17 +123,176 @@ Pro's or TablEdit;</para></listitem>
 including rhythm and lead construction tools;</para></listitem>
 
 <listitem><para>Highly customizable to suit a lot of possible
-instruments (not only 6-stringed guitars, and even not only guitars),
+instruments (not only 6-string guitars, and even not only guitars),
 including drum tracks, lyrics and other MIDI events.</para></listitem>
 
 </itemizedlist>
- 
+
 <para>
 You may always report bugs to &kguitar; developers, using either
 SourceForge.net bug tracking services, complaining in one of &kguitar;
 maillists on SourceForge, or just directly mailing one of the
 developers.
 </para>
+
+<sect1 id="what-kguitar-is">
+<title>What &kguitar; is</title>
+
+<para>
+As any sufficiently complex thing, &kguitar; is not for everyone. It
+wasn't designed to meet up everyone's tastes - there are already few
+examples of &quot;one-size-fits-all&quot; in commercial software
+world - and, in fact, the result is really ugly.
+</para>
+
+<para>
+&kguitar; is still in development, and every developing process should
+have it's ultimate mission. &kguitar;'s <emphasis>mission
+statement</emphasis> is the following.
+</para>
+
+<para>
+&kguitar; is a MIDI-enabled music editor that makes it possible to
+write down a whole multi-track song to get an approximate (may be
+pretty close) play in terms of MIDI. Basically, &kguitar; tries to
+help the following process, familiar to most of modern musicians:
+</para>
+
+<itemizedlist>
+
+<listitem><para>Music pieces are <emphasis>composed by a
+composer</emphasis>. This process involves creative construction of
+melodies / harmonies / rhythms, and writing it down quickly and
+correctly.</para></listitem>
+
+<listitem><para>Pre-composed music pieces are sometimes
+<emphasis>transcribed</emphasis> by ear or some other means by a
+<emphasis>transcriber</emphasis>. This process involves continuous
+writing down guesses, re-playing what you've just guessed and
+comparing with original sound.</para></listitem>
+
+<listitem><para>Basic harmonies and rhythms need to be
+<emphasis>arranged</emphasis> (or re-arranged), giving them a complex,
+full and interesting texture, unique sounding that will please an ear
+of final listener. Approximate arrangements are done in MIDI. This
+usually involves lots of song structure, texture and layering editing
+and an ability to hear every change instantly helps a big deal to
+estimate a final result.</para></listitem>
+
+<listitem><para>Approximate MIDI rendering of the song is helpful for
+<emphasis>rehearsals</emphasis> of live-performing artists. &kguitar;
+may be help rehearsing without gathering all the band: one musician
+may jam live against a full backup rendering without his
+track.</para></listitem>
+
+</itemizedlist>
+
+<para>
+After that, &kguitar;'s role diminishes. There are several more steps
+in sound production, where &kguitar; can't really help directly, but
+all these steps can use songs done in &kguitar; as a source:
+</para>
+
+<itemizedlist>
+
+<listitem><para>Approximate arrangement in MIDI is <emphasis>played
+and recorded</emphasis> (or re-recorded) as live audio tracks by a
+<emphasis>performing musicians</emphasis>. &kguitar; can't help here
+directly, but it is able to export nicely rendered MIDI version of a
+song.</para></listitem>
+
+<listitem><para>Recored audio is <emphasis>mixed down and
+mastered</emphasis> by various <emphasis>sound
+engineers</emphasis>. Later, these songs / music may be played live by
+a live band, this process also involes lots of sound engineering and
+audio processing / mixing magic. &kguitar; can't help you
+here.</para></listitem>
+
+<listitem><para>Written down form of music is going through a
+professional typesetting system to publish note scores / orchestral
+scores / various other sheet music. &kguitar; can help you here a bit:
+it involves approximate printing (your mileage may vary a lot - it may
+be okay for your personal needs, but these printouts are certainly no
+match for a high-quality hand-tuned music engravements). Also,
+&kguitar; is going to be able to export data into some popular
+professional music engravement system formats, such as MusiXTeX or
+LilyPond.</para></listitem>
+
+</itemizedlist>
+
+<para>
+So, basically, you can think of &kguitar; as of RAD IDE (Rapid
+Application Development suite for Intergrated Development
+Environment), but for music, not for computer programs. It allows you
+to quickly plan, write down tunes and make acceptable prototypes, that
+can be greatly improved later in sound production process.
+</para>
+
+</sect1>
+
+<sect1 id="what-kguitar-isnt">
+<title>What &kguitar; isn't</title>
+
+<para>Let me illustrate a few cases when using &kguitar; is
+suboptimal. It's by no means an excessive list, but it should give you
+some ideas when solving your tasks with some other tools would yield
+you better results.</para>
+
+<itemizedlist>
+
+<listitem><para>&kguitar; is not a <emphasis>music typesetting
+system</emphasis>, and, particularly, isn't a guitar tabulature
+typesetting system. Sure, &kguitar; is able to produce print-outs,
+able to save tunes in various typesetting system formats, but
+&kguitar; shouldn't be viewed as a standalone professional music
+typesttting system. Professional typesetting is complex and tedious
+manual task, which involves lots of manual hinting to reach best
+looks, placement of various helper symbols on the tabulature, etc,
+etc. This is why professional scores are done in specialized systems,
+such as <ulink
+url="http://freshmeat.net/projects/noteedit/">NoteEdit</ulink>. In
+guitar tabulature world, there <ulink
+url="http://www.solutionm.com/gnometab/gnometab.html">GnomeTab</ulink>
+that produces heavily annonated printed tabulatures.</para></listitem>
+
+<listitem><para>&kguitar; is not a <emphasis>MIDI
+sequencer</emphasis>. &kguitar; is able to convert its tabulatures
+into form of MIDI events stream, but generally, you don't have much
+direct access to modify it. You can't manually fiddle some of SysEx
+control events for your great MIDI sampler, you can't directly and
+independently of tabulature change settings of most controllers, you
+even can't directly use "pitch wheel". Most importantly, MIDI event
+stream consists of various MIDI events which can have very irregular
+timing - it isn't the case for &kguitar;. &kguitar; is closer to
+infamous tracker software in terms of representation of score data:
+there are fixed pattern array where various notes can be placed in,
+deviations from this time grid are possible, but should be done with
+<link linkend="tab-effects">tabulature effects</link>. If you require
+a full-blown MIDI sequencer for your work, try using <ulink
+url="http://www.rosegardenmusic.com/">RoseGarden</ulink> or <ulink
+url="http://muse.serverkommune.de/">MusE</ulink>.</para></listitem>
+
+<listitem><para>&kguitar; is not a <emphasis>hard disc audio recording
+system</emphasis>. &kguitar; does not support audio tracks, editing,
+mixing, looping, mastering, pitch-shifting, applying any effects to
+audio in real-time or destructively and probably would never be. Audio
+recording, editing and mastering is a whole another land, where you
+should use some audio-processing tools, such as <ulink
+url="http://jackit.sourceforge.net">Jack audio server</ulink>, <ulink
+url="http://www.eca.cx/">EcaSound multitrack audio processing
+tool</ulink>, already mentioned <ulink
+url="http://www.rosegardenmusic.com/">RoseGarden</ulink> and <ulink
+url="http://muse.serverkommune.de/">MusE</ulink> with their
+audio-related capabilities. Also, due to the fact that &kguitar; does
+not process audio, it doesn't bundle any fancy feature like guitar
+tuners or stuff like that. You can have decent guitar tuners for free
+as separate applications, there is no need to include them in
+&kguitar;.</para></listitem>
+
+</itemizedlist>
+
+</sect1>
+ 
 </chapter>
 
 <chapter id="using-kguitar">
@@ -294,7 +453,7 @@ musical figures</link>.
 </sect1>
 
 <sect1 id="bars-beats-time-signature">
-<title>Bars, beats and time signature</title>
+<title>Bars, beats, time and key signature</title>
 
 <para>
 Most often, music fits some sort of rhythmic mode. Thus, for
@@ -329,6 +488,22 @@ signature for current bar only or to set it from current bar to the
 end of song. If you want to reset the time signature for the whole
 song, remember to go to the very first bar and use this command with
 &quot;to the end&quot; checkbox enabled.
+</para>
+
+<para>
+Another essential property of a bar is a key signature that determines
+number of signs of alteration (sharps or flats) that act in this
+bar. &kguitar; lets you set key signature using
+<menuchoice>
+<shortcut>
+<keycombo><keycap>Shift</keycap><keycap>k</keycap></keycombo>
+</shortcut>
+<guimenu>Track</guimenu>
+<guimenuitem>Key Signature</guimenuitem>
+</menuchoice>.
+
+This is a very simple dialog where you can select one of key
+signatures from 7 sharps to 7 flats.
 </para>
 
 </sect1>
@@ -575,7 +750,7 @@ sounding. Transcribing technique used is just the same.
 It was mentioned above that "let ring" options is toggleable for every
 fret number in the track. That's more than it. You can turn "let ring"
 on for empty space (i.e. nothing played) to produce some sort of
-anti-"leg ring". Such empty space with anti-"let ring" will stop
+anti-"let ring". Such empty space with anti-"let ring" will stop
 previously ringing string.
 </para>
 
@@ -739,6 +914,36 @@ lots of unsaved information, a load of your hard work will be just
 lost without any traces. Use <link
 linkend="format-xml">MusicXML</link> for tabulature distribution, if
 at all possible.
+</para>
+
+</sect1>
+
+<sect1 id="format-guitar-pro">
+<title>Guitar Pro 4 format</title>
+
+<para>
+Guitar Pro is a popular commercial guitar tabulature editor for
+Windows and, sadly, it's proprietary format is widely used on the
+Internet tabulature sharing resources, such as <ulink
+url="http://www.mysongbook.com/">MySongBook</ulink>. There was a pity
+to ignore such a huge source of tabulatures and &kguitar; has an
+import support for Guitar Pro format.
+</para>
+
+<para>
+Guitar Pro has at least 3 major formats: GTP (version 2), GP3 (version
+3) and GP4 (version 4). &kguitar; officially supports only GP4
+(version 4) format. All older formats can be easily converted to GP4
+with Guitar Pro itself, and. currently, we have no plans to support
+older format revisions in &kguitar;.
+</para>
+
+<para>
+As Guitar Pro is a closed format and it's specs are available only
+through trial-and-error determining process, bugs and glitches in
+Guitar Pro import code are imminent. If you'll encounter a file that
+latest version of Guitar Pro loads correctly and &kguitar; does not -
+you're welcome to contact &kguitar; development team and report it.
 </para>
 
 </sect1>
@@ -931,17 +1136,74 @@ following in the base directory of the &kguitar; distribution:
 </screen>
 </para>
 
-<para>Since &kguitar; uses autoconf and automake you should have not
-trouble compiling it. Should you run into problems please report them
-to &kguitar; team.</para>
+<para>
+Since &kguitar; uses autoconf and automake you should have not trouble
+compiling it. Should you run into problems please report them to
+&kguitar; team.
+</para>
 
 </sect1>
 
 <sect1 id="configuration">
 <title>Configuration</title>
 
-<para>Don't forget to tell your system to start the <filename>dtd</filename>
-dicer-toaster daemon first, or KApp won't work !</para>
+<para>
+Advanced printing and track displaying features, such as note scores
+in classical notation, require special Feta fonts to be installed. If
+you had &kguitar; from some sort of pre-built package, chances are
+you've already got this font in your system, but if you're building
+from source, you'll need following instructions.
+</para>
+
+<para>
+&kguitar; uses 2 Feta fonts: Lilypond's Feta font and Feta nummer
+font. Type1 versions of them are available in <ulink
+url="http://ftp.cs.uu.nl/pub/GNU/LilyPond">Lilypond packages</ulink>.
+</para>
+
+<para>
+Prepare at least files "feta20.pfa" and "feta-nummer10.pfa" from
+Lilypond distribution. This assumes that these files are available in
+the current directory:
+</para>
+
+<screen width="40">
+<prompt>%</prompt> <userinput>cp *.pfa /usr/X11R6/lib/X11/fonts/local</userinput>
+<prompt>%</prompt> <userinput>cd /usr/X11R6/lib/X11/fonts/local</userinput>
+<prompt>%</prompt> <userinput>ls -x *.pfa | make-font-dir.py > fonts.scale</userinput>
+<prompt>%</prompt> <userinput>mkfontdir</userinput>
+</screen>
+
+<para>
+These steps copy the font files and create two files "fonts.dir" and
+"fonts.scale" with lines, describing these fonts.
+</para>
+
+<para>
+Note: make-font-dir can be found in lilypond-1.6.5.tar.gz.
+</para>
+
+<para>
+Next, you'll have to update your configuration files:
+</para>
+
+<itemizedlist>
+
+<listitem><para>Add a line "/usr/X11R6/lib/X11/fonts/local" to the
+catalogue section in /etc/X11/fs/config</para></listitem>
+
+<listitem><para>Add a line
+"&lt;dir&gt;/usr/X11R6/lib/X11/fonts/local&lt;/dir&gt;" to the font
+directory list in /etc/fonts/fonts.conf</para></listitem>
+
+</itemizedlist>
+
+<para>
+After the first step, the Feta fonts become available to X11
+applications and can be viewed in "xfontsel". After the second step,
+the font will also be found by KDE/Qt applications, such as
+KCharSelect or KWord.
+</para>
 
 </sect1>
 
