@@ -17,6 +17,7 @@ public:
     ChordSelector(QWidget *parent=0, const char *name=0);
 public slots:
     void detectChord();
+    void findChords(); 
 private:
     QLineEdit *chname; 
     QListBox *tonic,*step3; 
