@@ -1,5 +1,6 @@
 #include "application.h"
 #include "chord.h"
+#include "global.h"
 
 #include <qpopupmenu.h>
 
@@ -39,9 +40,10 @@ ApplicationWindow::ApplicationWindow(): KTMainWindow()
     QPopupMenu *p = new QPopupMenu();
     p->insertItem(i18n("&New"), this, SLOT(newDoc()));
     p->insertItem(i18n("&Open..."), this, SLOT(load()));
-    p->insertItem(i18n("&Save..."), this, SLOT(save()));
+    p->insertItem(i18n("&Save"), this, SLOT(save()));
+    p->insertItem(i18n("S&ave as..."));
     p->insertSeparator();
-    p->insertItem(i18n("&Print"), this, SLOT(print()));
+    p->insertItem(i18n("&Print..."), this, SLOT(print()));
     p->insertSeparator();
     p->insertItem(i18n("&Close"), this, SLOT(closeDoc()));
     p->insertItem(i18n("&Quit"), qApp, SLOT(quit()));
@@ -66,9 +68,11 @@ ApplicationWindow::ApplicationWindow(): KTMainWindow()
 //     controls->setItemChecked( tb, TRUE );v
 //     controls->setItemChecked( sb, TRUE );
 
-//     p = getHelpMenu(i18n("KGuitar " VERSION "\n\n"
-// 			 "(C) 2000 Mikhail Yakshin AKA GreyCat\n"));
-//     menuBar()->insertItem(i18n("&Help"), p);
+    p = KApplication::getKApplication()->getHelpMenu(0,i18n("KGuitar " VERSION "\n\n"
+							    "A stringed instrument tabulature editor\n"
+							    "(C) 2000 Mikhail Yakshin AKA GreyCat\n"));
+    menuBar()->insertSeparator();
+    menuBar()->insertItem(i18n("&Help"), p);
 
 //     e = new QMultiLineEdit( this, "editor" );
 //     e->setFocus();
@@ -104,7 +108,6 @@ void ApplicationWindow::load()
 	statusBar()->message( "Loading aborted", 2000 );
 }
 
-
 void ApplicationWindow::load( const char *fileName )
 {
     QFile f( fileName );
@@ -132,7 +135,6 @@ void ApplicationWindow::load( const char *fileName )
 void ApplicationWindow::save()
 {
     statusBar()->message( "File->Save is not implemented" );
-    QMessageBox::message( "Note", "Left as an exercise for the user." );
 }
 
 void ApplicationWindow::print()
