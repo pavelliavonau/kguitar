@@ -1,4 +1,35 @@
-2001-09-22  Alexander Brand  <alinx@users.sourceforge.net>
+2001-12-10 Mikhail Yakshin <greycat@users.sourceforge.net>
+
+	* Release 0.4
+
+	* Major change in whole application song handling ideology, now
+	it's much straighter. MIDI output reworked to follow new model.
+
+	* Implemented multitracking support -- with all the necessary
+	things list separate track listing panel, inserting/removing
+	unlimited amount of tracks, separate track navigation panel, etc,
+	etc.
+
+	* Implemented basically functional drum track mode.
+
+	* Added special feature for automatic bass line generation from
+	rhythm track.
+	
+	* Added editing options: cut, copy & paste, undo/redo. Selections
+	are possible with Shift + arrow keys.
+
+	* New strumming pattern rule --- much more flexible now, allowing
+	chords or parts of chords rhythms.
+	
+	* Much more accurate and less flicker-prone tabulature redrawing
+	code --- now repaints only things that are needed to be
+	repainted. Many more convenience options, like fast navigation via
+	track navigation panel and ensuring that cursor is always visible.
+
+	* Lots of various bugfixes, especially with chord constructor and
+	track integrity.
+
+2001-09-22 Alexander Brand  <alinx@users.sourceforge.net>
 
 	* Release 0.3-pre
 
