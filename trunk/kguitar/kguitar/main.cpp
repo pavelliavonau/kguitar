@@ -15,10 +15,17 @@ int main(int argc, char **argv)
 {
 	KAboutData aboutData("kguitar", I18N_NOOP("KGuitar"),
 						 VERSION, DESCRIPTION, KAboutData::License_GPL,
-						 "(C) 2000 by KGuitar Development Team");
+						 "http://kguitar.sourceforge.net\n\n(C) 2000 by KGuitar Development Team");
 	
-	aboutData.addAuthor("Mikhail Yakshin AKA GreyCat", 0, "GreyCat@users.sourceforge.net");
-	
+	aboutData.addAuthor("Mikhail Yakshin AKA GreyCat", I18N_NOOP("Maintainer"),
+						"GreyCat@users.sourceforge.net");
+	aboutData.addAuthor("Stephan Borchert", 0, "sborchert@users.sourceforge.net");
+	aboutData.addAuthor("Alex Brand AKA alinx", 0, "alinx@users.soureforge.net");
+	aboutData.addAuthor("Harri Haataja AKA realblades", 0, "realblades@users.sourceforge.net");
+	aboutData.addAuthor("Matt Malone AKA Marlboro", 0, "Marlboro@users.sourceforge.net");
+	aboutData.addAuthor("Wilane Ousmane", 0, "wilane@users.sourceforge.net");
+	aboutData.addAuthor("Richard G. Roberto", 0, "robertor@users.sourceforge.net");
+
 	KCmdLineArgs::init(argc, argv, &aboutData);
 	KCmdLineArgs::addCmdLineOptions(options);
 	

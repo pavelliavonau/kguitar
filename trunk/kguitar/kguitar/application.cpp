@@ -185,11 +185,7 @@ ApplicationWindow::ApplicationWindow(): KMainWindow()
 
 	menuBar()->insertItem(i18n("&Settings"), p);
 
-	QString aboutmess = "KGuitar " VERSION "\n\n";
-	aboutmess += DESCRIPTION;
-	aboutmess += "\n(C) 2000 by KGuitar development team\n";
-
-	p = helpMenu(aboutmess);
+	p = helpMenu();
 	
 	menuBar()->insertSeparator();
 	menuBar()->insertItem(i18n("&Help"), p);
