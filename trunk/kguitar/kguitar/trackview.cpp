@@ -25,6 +25,7 @@
 #include <qcombobox.h>
 #include <qcheckbox.h>
 
+#include <stdlib.h>		// required for declaration of abs()
 
 #define VERTSPACE 30
 #define VERTLINE 10
