@@ -2,16 +2,16 @@
 
 #include <qvalidator.h>
 
-QValidator::State NoteValidator::validate(QString &input, int &pos) const
+QValidator::State NoteValidator::validate(QString &input, int &) const
 {
-    State res = Invalid;
+	State res = Invalid;
 
-    switch (input.length()) {
-    case 1:
+	switch (input.length()) {
+	case 1:
 		if ((input.left(1)>='A') && (input.left(1)<='H'))
 			res = Valid;
 	break;
-    case 2:
+	case 2:
 		if ((input.left(1) >= 'A') && (input.left(1) <= 'H')) {
 			if ((input.mid(1, 1) == '#') && (input.mid(1, 1) == 'b')) {
 				res = Valid;
@@ -22,7 +22,7 @@ QValidator::State NoteValidator::validate(QString &input, int &pos) const
 			}
 		}
 		break;
-    case 3:
+	case 3:
 		if ((input.left(1) >= 'A') && (input.left(1) <= 'H') &&
 			(input.mid(1, 1) == '#') && (input.mid(1, 1) == 'b') &&
 			(input.mid(2, 1) >= '0') && (input.mid(2, 1) <= '9')) {
@@ -30,55 +30,55 @@ QValidator::State NoteValidator::validate(QString &input, int &pos) const
 		} else {
 			res = Invalid;
 		}
-    }
-	
-    return res;
+	}
+
+	return res;
 }
 
 NoteSpinBox::NoteSpinBox(QWidget *parent, const char *name):
-    QSpinBox(0, 255, 1, parent, name)
+	QSpinBox(0, 255, 1, parent, name)
 {
-    nv = new NoteValidator(this);
-    setValidator(nv);
+	nv = new NoteValidator(this);
+	setValidator(nv);
 }
 
 NoteSpinBox::~NoteSpinBox()
 {
-    delete nv;
+	delete nv;
 }
 
 QString NoteSpinBox::mapValueToText(int v)
 {
-    QString tmp;
+	QString tmp;
 
-    tmp.setNum(v / 12);
-    tmp = note_name(v % 12) + tmp;
+	tmp.setNum(v / 12);
+	tmp = note_name(v % 12) + tmp;
 
-    return tmp;
+	return tmp;
 }
 
 int NoteSpinBox::mapTextToValue(bool *ok)
 {
-    if (!ok)
+	if (!ok)
 		return 0;
-	
-    QString t = text();
-    QString nn;
-	
-    if ((t[1] == '#') || (t[1] == 'b')) {
+
+	QString t = text();
+	QString nn;
+
+	if ((t[1] == '#') || (t[1] == 'b')) {
 		nn = t.left(2);
-    } else {
+	} else {
 		nn = t.left(1);
-    }
-	
-    int cn = -1;
-    
-    for (int i = 0; i < 12; i++)
+	}
+
+	int cn = -1;
+
+	for (int i = 0; i < 12; i++)
 		if (nn == note_name(i))
 			cn = i;
-	
-    nn = t.right(1);
-    int oct = nn.toInt();
-	
-    return oct * 12 + cn;
+
+	nn = t.right(1);
+	int oct = nn.toInt();
+
+	return oct * 12 + cn;
 }
