@@ -15,7 +15,7 @@
 int defaultByString[MAX_STRINGS] =
 	{ 0,
 	  0,
-	  0, 
+	  0,
 	  11,    // 4 string bass guitar
 	  13,    // 5 string bass guitar
 	  1,     // 6 string guitar
@@ -35,7 +35,7 @@ SetTabFret::SetTabFret(QWidget *parent=0, const char *name=0)
     connect(lib, SIGNAL(highlighted(int)), SLOT(setLibTuning(int)));
 
     for (int i = 0; lib_tuning[i].strings; i++)
-		lib->insertItem(lib_tuning[i].name);
+		lib->insertItem(i18n(lib_tuning[i].name));
 
     QLabel *lib_l = new QLabel(i18n("Tuning:"), this);
     lib_l->setGeometry(10, 20, 80, 20);
@@ -78,7 +78,7 @@ void SetTabFret::stringChanged(int n)
 {
     if (oldst == n)
 		return;
-	
+
 	if (defaultByString[n - 1] != 0)
 		for (int i = 0; i < n; i++)
 			tuner[i]->setValue(lib_tuning[defaultByString[n - 1]].shift[i]);
@@ -114,7 +114,7 @@ void SetTabFret::tuneChanged()
 			break;
 		}
     }
-	
+
     lib->setCurrentItem(found);
 }
 
