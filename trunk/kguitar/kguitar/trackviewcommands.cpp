@@ -693,8 +693,21 @@ InsertStrumCommand::InsertStrumCommand(TrackView *_tv, TabTrack *&_trk, int _sch
 	sel   = trk->sel;
 	sch   = _sch;
 
-	for (int i = 0; i < trk->string; i++)
+	c.resize(1);
+
+	for (int i = 0; i < MAX_STRINGS; i++) {
+		c[0].a[i] = -1;
+		c[0].e[i] = 0;
+	}
+
+	c[0].l     = trk->c[x].l;
+	c[0].flags = trk->c[x].flags;
+
+	for (int i = 0; i < trk->string; i++) {
 		chord[i]  = _chord[i];
+		c[0].a[i] = trk->c[x].a[i];
+		c[0].e[i] = trk->c[x].e[i];
+	}
 
 	if (sch == 0)
 		setName(i18n("Insert Chord"));
