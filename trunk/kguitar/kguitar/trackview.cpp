@@ -119,6 +119,16 @@ void TrackView::addLegato()
 
 #define BOTTOMDUR	VERTSPACE+VERTLINE*(s+1)
 
+// Determine horizontal offset between two columns - n and n+1
+int TrackView::horizDelta(uint n)
+{
+	int res = (curt->c[n].flags & FLAG_DOT ?
+			   curt->c[n].l*3/2 : curt->c[n].l) / HORSCALE * HORCELL;
+	if (res < HORCELL)
+		res = HORCELL;
+	return res;
+}	
+
 void TrackView::paintCell(QPainter *p, int row, int col)
 {
 	uint bn = row;						// Drawing only this bar
@@ -210,10 +220,7 @@ void TrackView::paintCell(QPainter *p, int row, int col)
 		
 		// Length of interval to next column - adjusted if dotted
 		
-		xdelta = (curt->c[t].flags & FLAG_DOT ?
-				  curt->c[t].l*3/2 : curt->c[t].l) / HORSCALE * HORCELL;
-		if (xdelta<HORCELL)
-			xdelta = HORCELL;
+		xdelta = horizDelta(t);
 		
 		// Draw the number column
 		
@@ -297,7 +304,7 @@ bool TrackView::moveFinger(int from, int dir)
 	int to = from;
 	
 	do {
-		to+=dir;
+		to += dir;
 		if ((to<0) || (to>=curt->string))
 			return FALSE;
 		n=n0+curt->tune[from]-curt->tune[to];
@@ -305,10 +312,10 @@ bool TrackView::moveFinger(int from, int dir)
 			return FALSE;
 	} while (curt->c[curt->x].a[to]!=-1);
 	
-	curt->c[curt->x].a[from]=-1;
-	curt->c[curt->x].a[to]=n;
+	curt->c[curt->x].a[from] = -1;
+	curt->c[curt->x].a[to] = n;
 	
-	curt->y=to;
+	curt->y = to;
 	return TRUE;
 }
 
@@ -491,3 +498,81 @@ void TrackView::keyPressEvent(QKeyEvent *e)
 	update();
 	e->accept();
 }
+
+void TrackView::mousePressEvent(QMouseEvent *e)
+{
+	bool found = FALSE;
+	QPoint clickpt;
+
+	uint tabrow = findRow(e->pos().y());
+
+	// Clicks on non-existing rows are not allowed
+	if (tabrow >= curt->b.size())
+		return;
+	
+	clickpt.setX(xOffset() + e->pos().x());
+	clickpt.setY(yOffset() + e->pos().y());
+
+	int xpos=40, xdelta, lastxpos = 20;
+
+	for (uint j=curt->b[tabrow].start;
+	     j < (tabrow < curt->b.size()-1 ? curt->b[tabrow+1].start : curt->c.size());
+	     j++) {
+
+		// Length of interval to next column - adjusted if dotted
+		
+		xdelta = horizDelta(j);
+		
+		// Current column X area is half of the previous duration and
+		// half of current duration
+
+		if ((clickpt.x() >= (lastxpos + xpos) / 2) &&
+			(clickpt.x() <= xpos + xdelta / 2)) {
+			curt->x = j;
+			// We won't calculate xb from x as in updateXB(), but
+			// would just use what we know.
+			curt->xb = tabrow;
+
+			curt->y = curt->string - 1 -
+				((int) (clickpt.y() - tabrow * cellHeight()) - VERTSPACE) / VERTLINE;
+
+			if (curt->y<0)
+				curt->y = 0;
+			if (curt->y>=curt->string)
+				curt->y = curt->string-1;
+
+			emit statusBarChanged();
+			found = TRUE;
+			break;
+		}
+
+		lastxpos = xpos;
+		xpos += xdelta;
+	}
+	
+// 	if (curt->c[tabrow].clickrect.contains(clickpt)) {
+// 		found = TRUE;
+// 		curt->x = j;
+// 		recttop = curt->c[tabrow].clickrect.top();
+// 		for (uint i=0;i<curt->string;i++) {
+// 			if ((clickpt.y() >= (recttop+(curt->string - 1 - i)*VERTLINE-VERTLINE/2)) &&
+// 				(clickpt.y() < (recttop + (curt->string - i)*VERTLINE - VERTLINE/2 + 1))) {
+// 				curt->y = i;
+// 			}
+// 		}
+// 		break;
+// 	}
+
+
+	if (found) {
+		repaint();
+		
+		if (e->button() == RightButton)
+//			popup->exec(QCursor::pos())
+			;
+		else if (e->button() == LeftButton) {
+			
+		}
+	}
+}
+ 

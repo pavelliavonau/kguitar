@@ -43,10 +43,12 @@ protected:
     virtual void paintCell(QPainter *, int row, int col);    
     virtual void resizeEvent(QResizeEvent *e);
     virtual void keyPressEvent(QKeyEvent *e);
+	virtual void mousePressEvent(QMouseEvent *e);
 
 private:
     bool moveFinger(int from, int to);
     void setLength(int l);
+	int horizDelta(uint n);
 
     TabSong *song;
     TabTrack *curt;
