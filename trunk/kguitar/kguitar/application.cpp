@@ -24,6 +24,7 @@
 #include <knuminput.h>
 #include <kedittoolbar.h>
 #include <kurl.h>
+#include <kkeydialog.h>
 
 #include <qpixmap.h>
 #include <qkeycode.h>
@@ -70,7 +71,6 @@ ApplicationWindow::ApplicationWindow(): KMainWindow()
 	tv->setFocus();
 
 	// SET UP STANDART ACTIONS
-
 	newAct = KStdAction::openNew(this, SLOT(fileNew()), 
 								 actionCollection(), "file_new");
 	openAct = KStdAction::open(this, SLOT(fileOpen()), 
@@ -89,52 +89,62 @@ ApplicationWindow::ApplicationWindow(): KMainWindow()
 											 actionCollection(), "pref_options");
 	confTBAct = KStdAction::configureToolbars(this, SLOT(configToolBars()), 
 											  actionCollection(), "config_Toolbars");
+	confKeyAct = KStdAction::keyBindings(this, SLOT(configKeys()),
+										 actionCollection(), "config_Keys");
 
 	// SET UP ACTIONS
-	browserAct = new KAction(i18n("Browser..."), 0, this, SLOT(openBrowser()),
-							 actionCollection(), "open_browser");
+	browserAct = new KAction(i18n("Browser..."),  KAccel::stringToKey("Shift+B"), this, 
+							 SLOT(openBrowser()), actionCollection(), "open_browser");
 	sngPropAct = new KAction(i18n("P&roperties..."), 0, this, SLOT(songProperties()),
 							 actionCollection(), "song_properties");
 
 	trkPropAct = new KAction(i18n("&Properties..."), 0, this, SLOT(trackProperties()),
 							 actionCollection(), "track_properties");
-	insChordAct = new KAction(i18n("&Chord..."), "chord.xpm", 0, this, SLOT(insertChord()),
-							  actionCollection(), "insert_chord");
+	insChordAct = new KAction(i18n("&Chord..."), "chord.xpm",  KAccel::stringToKey("Shift+C"), 
+							  this, SLOT(insertChord()), actionCollection(), "insert_chord");
 
 	showMainTBAct = new KToggleAction(i18n("Main Toolbar"), 0, this, 
 									  SLOT(setMainTB()), actionCollection(), "tog_mainTB");
 	showEditTBAct = new KToggleAction(i18n("Edit Toolbar"), 0, this,
 									  SLOT(setEditTB()), actionCollection(), "tog_editTB");
 	saveOptionAct = new KAction(i18n("&Save Options"), 0, this, 
-								SLOT(saveOptions()), actionCollection(), "save_Options");
+								SLOT(saveOptions()), actionCollection(), "save_options");
 
-	//SET UP DURATION
-	len1Act = new KAction(i18n("Whole"), "note1.xpm", 0, tv, SLOT(setLength1()),
-						  actionCollection(), "set_len1");
-	len2Act = new KAction(i18n("1/2"), "note2.xpm", 0, tv, SLOT(setLength2()),
-						  actionCollection(), "set_len2");
-	len4Act = new KAction(i18n("1/4"), "note4.xpm", 0, tv, SLOT(setLength4()),
-						  actionCollection(), "set_len4");
-	len8Act = new KAction(i18n("1/8"), "note8.xpm", 0, tv, SLOT(setLength8()),
-						  actionCollection(), "set_len8");
-	len16Act = new KAction(i18n("1/16"), "note16.xpm", 0, tv, SLOT(setLength16()),
-						   actionCollection(), "set_len16");
-	len32Act = new KAction(i18n("1/32"), "note32.xpm", 0, tv, SLOT(setLength32()),
-						   actionCollection(), "set_len32");
+	arrTrkAct = new KAction(i18n("&Arrange Track"), KAccel::stringToKey("Shift+A"), tv,
+							SLOT(arrangeTracks()), actionCollection(), "arrange_trk");
+
+	// SET UP DURATION
+	len1Act = new KAction(i18n("Whole"), "note1.xpm", KAccel::stringToKey("Ctrl+1"),
+						  tv, SLOT(setLength1()), actionCollection(), "set_len1");
+	len2Act = new KAction(i18n("1/2"), "note2.xpm", KAccel::stringToKey("Ctrl+2"), 
+						  tv, SLOT(setLength2()), actionCollection(), "set_len2");
+	len4Act = new KAction(i18n("1/4"), "note4.xpm", KAccel::stringToKey("Ctrl+3"), 
+						  tv, SLOT(setLength4()), actionCollection(), "set_len4");
+	len8Act = new KAction(i18n("1/8"), "note8.xpm", KAccel::stringToKey("Ctrl+4"), 
+						  tv, SLOT(setLength8()), actionCollection(), "set_len8");
+	len16Act = new KAction(i18n("1/16"), "note16.xpm", KAccel::stringToKey("Ctrl+5"), 
+						   tv, SLOT(setLength16()), actionCollection(), "set_len16");
+	len32Act = new KAction(i18n("1/32"), "note32.xpm", KAccel::stringToKey("Ctrl+6"), 
+						   tv, SLOT(setLength32()), actionCollection(), "set_len32");
 
 	// SET UP EFFECTS
-	timeSigAct = new KAction(i18n("Time signature"), "timesig.xpm", 0, tv, 
-							 SLOT(timeSig()), actionCollection(), "time_sig");
-	arcAct = new KAction(i18n("Link with previous column"), "arc.xpm", 0, tv,
-						 SLOT(linkPrev()), actionCollection(), "link_prev");
-	legatoAct = new KAction(i18n("Legato (hammer on/pull off)"), "fx-legato.xpm", 0, tv, 
-							SLOT(addLegato()), actionCollection(), "fx_legato");
-	natHarmAct = new KAction(i18n("Natural harmonic"), "fx-harmonic.xpm", 0, tv, 
-							 SLOT(addHarmonic()), actionCollection(), "fx_nat_harm");
-	artHarmAct = new KAction(i18n("Artificial harmonic"), "fx-harmonic.xpm", 0, tv, 
-							 SLOT(addArtHarm()), actionCollection(), "fx_art_harm");
+	timeSigAct = new KAction(i18n("Time signature"), "timesig.xpm",
+							 KAccel::stringToKey("Shift+T"), tv, SLOT(timeSig()),
+							 actionCollection(), "time_sig");
+	arcAct = new KAction(i18n("Link with previous column"), "arc.xpm", 
+						 KAccel::stringToKey("L"), tv, SLOT(linkPrev()), 
+						 actionCollection(), "link_prev");
+	legatoAct = new KAction(i18n("Legato (hammer on/pull off)"), "fx-legato.xpm", 
+							KAccel::stringToKey("P"), tv, SLOT(addLegato()), 
+							actionCollection(), "fx_legato");
+	natHarmAct = new KAction(i18n("Natural harmonic"), "fx-harmonic.xpm", 
+							 KAccel::stringToKey("H"), tv, SLOT(addHarmonic()), 
+							 actionCollection(), "fx_nat_harm");
+	artHarmAct = new KAction(i18n("Artificial harmonic"), "fx-harmonic.xpm", 
+							 KAccel::stringToKey("R"), tv, SLOT(addArtHarm()),
+							 actionCollection(), "fx_art_harm");
 
-	//SET UP 'Note Names'
+	// SET UP 'Note Names'
 	usSharpAct = new KToggleAction(i18n("American, sharps"), 0, this, 
 								   SLOT(setUSsharp()), actionCollection(), "us_sharp");
 	usFlatAct = new KToggleAction(i18n("American, flats"), 0, this, 
@@ -154,6 +164,63 @@ ApplicationWindow::ApplicationWindow(): KMainWindow()
 	jazzMixAct = new KToggleAction(i18n("Jazz, mixed"), 0, this, 
 								   SLOT(setJZmixed()), actionCollection(), "jazz_mix");
 
+	// SET UP ACCEL...
+	mainAccel = new KAccel(this);
+
+	// ...FOR CURSOR
+	mainAccel->insertItem(i18n("Move cursor right"), "key_right", "Right");
+	mainAccel->connectItem("key_right", tv, SLOT(keyRight()));
+	mainAccel->insertItem(i18n("Move cursor left"), "key_left", "Left");
+	mainAccel->connectItem("key_left", tv, SLOT(keyLeft()));
+	mainAccel->insertItem(i18n("Move cursor up"), "key_up", "Up");
+	mainAccel->connectItem("key_up", tv, SLOT(keyUp()));
+	mainAccel->insertItem(i18n("Move cursor up"), "key_CtrlUp", "Ctrl+Up");
+	mainAccel->connectItem("key_CtrlUp", tv, SLOT(keyCtrlUp()));
+	mainAccel->insertItem(i18n("Move cursor down"), "key_down", "Down");
+	mainAccel->connectItem("key_down", tv, SLOT(keyDown()));
+	mainAccel->insertItem(i18n("Move cursor down"), "key_CtrlDown", "Ctrl+Down");
+	mainAccel->connectItem("key_CtrlDown", tv, SLOT(keyCtrlDown()));
+
+    // ...FOR OTHER KEYS
+	mainAccel->insertItem(i18n("Dead note"), "key_x", "X");
+	mainAccel->connectItem("key_x", tv, SLOT(deadNote()));
+	mainAccel->insertItem(i18n("Delete"), "key_del", "Delete");
+	mainAccel->connectItem("key_del", tv, SLOT(keyDelete()));
+	mainAccel->insertItem(i18n("Ctrl+Delete"), "key_CtrlDel", "Ctrl+Delete");
+	mainAccel->connectItem("key_CtrlDel", tv, SLOT(keyCtrlDelete()));
+	mainAccel->insertItem(i18n("Insert"), "key_ins", "Insert");
+	mainAccel->connectItem("key_ins", tv, SLOT(keyInsert()));
+	mainAccel->insertItem(i18n("Insert palm muting"), "key_m", "M");
+	mainAccel->connectItem("key_m", tv, SLOT(keyM()));
+	mainAccel->insertItem(i18n("Doted note"), "key_period", "Period");
+	mainAccel->connectItem("key_period", tv, SLOT(keyPeriod()));
+	mainAccel->insertItem(i18n("Key plus"), "key_plus", "Plus");
+	mainAccel->connectItem("key_plus", tv, SLOT(keyPlus()));
+	mainAccel->insertItem(i18n("Key minus"), "key_minus", "Minus");
+	mainAccel->connectItem("key_minus", tv, SLOT(keyMinus()));
+
+    // ...FOR KEY '0' - '9'
+	mainAccel->insertItem(i18n("Key 1"), "key_1", "1");
+	mainAccel->connectItem("key_1", tv, SLOT(key1()));
+	mainAccel->insertItem(i18n("Key 2"), "key_2", "2");
+	mainAccel->connectItem("key_2", tv, SLOT(key2()));
+	mainAccel->insertItem(i18n("Key 3"), "key_3", "3");
+	mainAccel->connectItem("key_3", tv, SLOT(key3()));
+	mainAccel->insertItem(i18n("Key 4"), "key_4", "4");
+	mainAccel->connectItem("key_4", tv, SLOT(key4()));
+	mainAccel->insertItem(i18n("Key 5"), "key_5", "5");
+	mainAccel->connectItem("key_5", tv, SLOT(key5()));
+	mainAccel->insertItem(i18n("Key 6"), "key_6", "6");
+	mainAccel->connectItem("key_6", tv, SLOT(key6()));
+	mainAccel->insertItem(i18n("Key 7"), "key_7", "7");
+	mainAccel->connectItem("key_7", tv, SLOT(key7()));
+	mainAccel->insertItem(i18n("Key 8"), "key_8", "8");
+	mainAccel->connectItem("key_8", tv, SLOT(key8()));
+	mainAccel->insertItem(i18n("Key 9"), "key_9", "9");
+	mainAccel->connectItem("key_9", tv, SLOT(key9()));
+	mainAccel->insertItem(i18n("Key 0"), "key_0", "0");
+	mainAccel->connectItem("key_0", tv, SLOT(key0()));
+
 	// SET UP GUI
 	createGUI("kguitarui.rc");
 
@@ -167,7 +234,7 @@ ApplicationWindow::ApplicationWindow(): KMainWindow()
 
 	setCaption(i18n("Unnamed"));
 
-	//Used for translation
+	// Used for translation
 	toolBar("mainToolBar")->setText(i18n("Main Toolbar"));
 	toolBar("editToolBar")->setText(i18n("Edit Toolbar"));
 
@@ -603,6 +670,11 @@ void ApplicationWindow::configToolBars()
 
 	if (dlg.exec())
 		createGUI("kguitarui.rc");
+}
+
+void ApplicationWindow::configKeys()
+{
+	KKeyDialog::configureKeys(actionCollection(), "kguitarui.rc"); 
 }
 
 void ApplicationWindow::readOptions()
