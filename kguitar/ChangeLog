@@ -1,3 +1,37 @@
+2002-07-13 Mikhail Yakshin <greycat@users.sourceforge.net>
+
+	* Release 0.4.1
+
+	* Fixed lots of TSE3 issues. Now KGuitar requires TSE3 0.2.x
+	(0.2.3 or later recommended) to work and its MIDI capabilties are
+	solely based on TSE3. All the stuff that works with MIDI (MIDI
+	export, MIDI song playback, chord player, etc) were unified under
+	the control of single TSE3 library and nothing else. Should work
+	with most if not all available Unix MIDI interfaces: both older
+	and newer ALSA, OSS, aRts, etc.
+
+	* Added configuration options for TSE3 playing and exporting of
+	TSE3MDL file format. MIDI export is rewritten using TSE3
+	functions - now it should be more flexible.
+
+	* Basic MusicXML support. MusicXML is leading interchange format
+	for exchanging musical data between various applications. For more
+	info, see www.recordare.com.
+
+	* Native tabulature printing with Qt/KDE interfaces with effect
+	support, multi-track & multi-page printing.
+
+	* New tabulature effects and features: slide, triplets, let ring.
+
+	* Added basic and pretty faulty, but somewhat working for simple
+	files Guitar Pro 2 import support. Any assistance with hacking on
+	more features of this format is welcome.
+
+	* Slight sorting of chords in chord constructor: better chords are
+	on top.
+	
+	* Lots of bug fixes, more ideological tweaking.
+
 2001-12-10 Mikhail Yakshin <greycat@users.sourceforge.net>
 
 	* Release 0.4
