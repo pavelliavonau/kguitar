@@ -12,11 +12,13 @@
 #include <kdebug.h>
 
 #include <qfileinfo.h>
+#include <qclipboard.h>
 
 #include "kguitar_shell.h"
 #include "application.h"
 #include "filebrowser.h"
 #include "trackview.h"
+#include "trackdrag.h"
 #include "tabsong.h"
 
 KGuitarShell::KGuitarShell()
@@ -41,25 +43,25 @@ KGuitarShell::KGuitarShell()
 
 
   //File
-	KStdAction::open (this, SLOT(slotFileOpen()), actionCollection(), "file_open");
-	KStdAction::save(this, SLOT(slotFileSave()), actionCollection(), "file_save");
-	KStdAction::saveAs(this, SLOT(slotFileSaveAs()), actionCollection(), "file_saveAs");
+	(void) KStdAction::open (this, SLOT(slotFileOpen()), actionCollection(), "file_open");
+	(void) KStdAction::save(this, SLOT(slotFileSave()), actionCollection(), "file_save");
+	(void) KStdAction::saveAs(this, SLOT(slotFileSaveAs()), actionCollection(), "file_saveAs");
 
 	openRecentAct = KStdAction::openRecent(this, SLOT(openURL(const KURL&)), actionCollection(),
 									"file_openRecent");
 
-	KStdAction::print(m_kgpart, SLOT(filePrint()), actionCollection(), "file_print");
-	KStdAction::quit(this, SLOT(slotQuit()), actionCollection(), "file_quit");
+	(void) KStdAction::print(m_kgpart, SLOT(filePrint()), actionCollection(), "file_print");
+	(void) KStdAction::quit(this, SLOT(slotQuit()), actionCollection(), "file_quit");
 
 	browserAct = new KAction(i18n("Browser..."), KAccel::stringToKey("Shift+B"), this,
 							 SLOT(openBrowser()), actionCollection(), "open_browser");
 
 
 	// Cut-n-Paste
-	KStdAction::cut(m_kgpart->sv, SLOT(slotCut()), actionCollection(), "edit_cut");
-	KStdAction::copy(m_kgpart->sv, SLOT(slotCopy()), actionCollection(), "edit_copy");
-	KStdAction::paste(m_kgpart->sv, SLOT(slotPaste()), actionCollection(), "edit_paste");
-	KStdAction::selectAll(m_kgpart->sv, SLOT(slotSelectAll()), actionCollection(), "edit_selectAll");
+	(void) KStdAction::cut(m_kgpart->sv, SLOT(slotCut()), actionCollection(), "edit_cut");
+	(void) KStdAction::copy(m_kgpart->sv, SLOT(slotCopy()), actionCollection(), "edit_copy");
+	pasteAct = KStdAction::paste(m_kgpart->sv, SLOT(slotPaste()), actionCollection(), "edit_paste");
+	(void) KStdAction::selectAll(m_kgpart->sv, SLOT(slotSelectAll()), actionCollection(), "edit_selectAll");
 
 	showMainTBAct = KStdAction::showToolbar(this, SLOT(slotToggleMainTB()),
 											actionCollection(), "tog_mainTB");
@@ -75,6 +77,7 @@ KGuitarShell::KGuitarShell()
 
 	connect(m_kgpart, SIGNAL(configToolBars()), SLOT(slotConfigTB()));
 	connect(m_kgpart, SIGNAL(setWindowCaption(const QString&)), SLOT(slotSetCaption(const QString&)));
+	connect(QApplication::clipboard(), SIGNAL(dataChanged()), SLOT(slotClipboardDataChanged()));
 
 	setXMLFile("kguitarui.rc");
 
@@ -85,6 +88,7 @@ KGuitarShell::KGuitarShell()
 	createGUI(m_kgpart);
 
 	readSettings();
+	slotClipboardDataChanged();
 
 	openRecentAct->setMaxItems(5);
 
@@ -305,3 +309,9 @@ void KGuitarShell::writeSettings()
 
 	config->sync();
 }
+
+void KGuitarShell::slotClipboardDataChanged()
+{
+	pasteAct->setEnabled(TrackDrag::canDecode(QApplication::clipboard()->data()));
+}
+
