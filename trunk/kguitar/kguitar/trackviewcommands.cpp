@@ -181,13 +181,13 @@ AddFXCommand::AddFXCommand(TrackView *_tv, TabTrack *&_trk, char _fx):
 	sel = trk->sel;
 	fx = _fx;
 
-	QString cmd(i18n("Add effect %1"));
+	QString cmd(i18n("Add %1 effect"));
 	QString p_fx;
 
 	switch (fx) {
 	case EFFECT_HARMONIC: p_fx = i18n("nat. harmonic");
 		break;
-	case EFFECT_ARTHARM: p_fx = i18n("nrt. harmonic");
+	case EFFECT_ARTHARM: p_fx = i18n("art. harmonic");
 		break;
 	case EFFECT_LEGATO: p_fx = i18n("legato");
 		break;
@@ -200,7 +200,6 @@ AddFXCommand::AddFXCommand(TrackView *_tv, TabTrack *&_trk, char _fx):
 
 AddFXCommand::~AddFXCommand()
 {
-
 }
 
 void AddFXCommand::execute()
