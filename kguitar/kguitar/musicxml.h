@@ -18,8 +18,12 @@
  * See the file COPYING for more information.
  ***************************************************************************/
 
+#ifndef MUSICXML_H
+#define MUSICXML_H
+
 #include <qvector.h>
 #include <qxml.h>
+#include "accidentals.h"
 
 class QString;
 class TabSong;
@@ -47,6 +51,7 @@ private:
 	QVector<QString> partIds;	// part (track) id's
 	int x;						// current column
 	int bar;					// current bar
+	Accidentals accSt;			// accidental state
 
 	// state variables for parsing
 	// general -- initialized in startDocument()
@@ -83,9 +88,13 @@ public:
 	MusicXMLWriter(TabSong *);
 	void write(QTextStream&);
 private:
+	void writeAccid(QTextStream&, int, QString);
 	void writeCol(QTextStream&, TabTrack *, int);
 	void writePitch(QTextStream&, int, QString, QString);
 	void writeStaffDetails(QTextStream&, TabTrack *);
 	void writeTime(QTextStream&, int, int);
+	Accidentals accSt;			// accidental state
 	TabSong * ts;				// pointer to calling tabsong
 };
+
+#endif
