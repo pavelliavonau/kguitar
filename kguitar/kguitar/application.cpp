@@ -251,7 +251,6 @@ KGuitarPart::KGuitarPart(bool bBrowserView, KCommandHistory *_cmdHist, QWidget *
 	mainAccel->insertItem(i18n("Move and select right"), "key_ShiftRight", "Shift+Right");
 	mainAccel->connectItem("key_ShiftRight", sv->tv, SLOT(selectRight()));
 
-
     // ...FOR OTHER KEYS
 	mainAccel->insertItem(i18n("Dead note"), "key_x", "X");
 	mainAccel->connectItem("key_x", sv->tv, SLOT(deadNote()));
@@ -261,12 +260,12 @@ KGuitarPart::KGuitarPart(bool bBrowserView, KCommandHistory *_cmdHist, QWidget *
 	mainAccel->connectItem("key_CtrlDel", sv->tv, SLOT(deleteColumn()));
 	mainAccel->insertItem(i18n("Insert column"), "key_ins", "Insert");
 	mainAccel->connectItem("key_ins", sv->tv, SLOT(insertColumn()));
-// 	mainAccel->insertItem(i18n("Palm muting"), "key_m", "M");
-// 	mainAccel->connectItem("key_m", sv->tv, SLOT(palmMute()));
 	mainAccel->insertItem(i18n("Dotted note"), "key_period", "Period");
-	mainAccel->connectItem("key_period", sv->tv, SLOT(keyPeriod()));
-	mainAccel->insertItem(i18n("More duration"), "key_plus", "Plus");
-	mainAccel->connectItem("key_plus", sv->tv, SLOT(keyPlus()));
+	mainAccel->connectItem("key_period", sv->tv, SLOT(dotNote()));
+	mainAccel->insertItem(i18n("Triplet note"), "key_t", "T");
+	mainAccel->connectItem("key_t", sv->tv, SLOT(tripletNote()));
+	mainAccel->insertItem(i18n("More duration"), "key_equal", "Plus");
+	mainAccel->connectItem("key_equal", sv->tv, SLOT(keyPlus()));
 	mainAccel->insertItem(i18n("Less duration"), "key_minus", "Minus");
 	mainAccel->connectItem("key_minus", sv->tv, SLOT(keyMinus()));
 
