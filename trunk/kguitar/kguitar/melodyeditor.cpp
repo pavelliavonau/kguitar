@@ -77,7 +77,7 @@ void MelodyEditor::drawBackground()
 
 void MelodyEditor::optionsDialog()
 {
-	KDialogBase opDialog(0, 0, TRUE, i18n("Melody Editor"),
+	KDialogBase opDialog(0, 0, TRUE, i18n("Melody Constructor"),
 	                     KDialogBase::Help|KDialogBase::Default|KDialogBase::Ok|
 	                     KDialogBase::Apply|KDialogBase::Cancel, KDialogBase::Ok);
     QVBox *box = opDialog.makeVBoxMainWidget();
