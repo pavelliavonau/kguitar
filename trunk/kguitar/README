@@ -179,6 +179,7 @@ The third component - a set of macros, required to typeset
 tabulatures, is supplied with KGuitar. You have to install it manually
 for now, so just copy file "kguitar/kgtabs.tex" to the MusiXTeX
 directory (it's something like /usr/share/texmf/tex/generic/musixtex).
+After this run as root the program: 'texhash'. 
 
 Okay, when you have everything installed and ready to go, do the
 following:
