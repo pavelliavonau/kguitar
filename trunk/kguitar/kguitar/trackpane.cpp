@@ -6,8 +6,8 @@
 #include <qdrawutil.h>
 #include <qstyle.h>
 
-TrackPane::TrackPane(TabSong *s, int hh, int rh, QWidget *parent, const char *name):
-	QGridView(parent, name)
+TrackPane::TrackPane(TabSong *s, int hh, int cs, QWidget *parent, const char *name)
+	: QScrollView(parent, name)
 {
 	song = s;
 
@@ -17,10 +17,8 @@ TrackPane::TrackPane(TabSong *s, int hh, int rh, QWidget *parent, const char *na
 
 	//	setFocusPolicy(QWidget::StrongFocus);
 
-	rowh = rh;
-	headh = hh;
-
-	setCellWidth(rh);
+	cellSide = cs;
+	headerHeight = hh;
 
 	updateList();
 
@@ -29,36 +27,35 @@ TrackPane::TrackPane(TabSong *s, int hh, int rh, QWidget *parent, const char *na
 
 void TrackPane::updateList()
 {
-	setNumRows(song->t.count() + 1); // plus 1 header row
-	setNumCols(song->maxLen());
+	resizeContents(song->maxLen() * cellSide, song->t.count() * cellSide + headerHeight);
 	update();
 }
 
-TrackPane::~TrackPane()
+// Draws that pretty squares for track pane.
+void TrackPane::drawContents(QPainter *p, int clipx, int clipy, int clipw, int cliph)
 {
-}
+	int x1 = clipx / cellSide - 1;
+	int x2 = (clipx + clipw) / cellSide + 1;
 
-int TrackPane::cellHeight(int n)
-{
-	if (n == 0)
-		return headh;
-	else
-		return rowh;
-}
+	int py = headerHeight;
 
-// Draws that pretty squares for track pane. Row 0 corresponds to
-// header, all other rows are for track squares.
-void TrackPane::paintCell(QPainter *p, int row, int col)
-{
-	if ((row != 0) && (song->t.at(row - 1)->barStatus(col)))
-		style().drawPrimitive(QStyle::PE_ButtonBevel, p, QRect(0, 0, cellWidth(), cellWidth()), colorGroup());
+	for (TabTrack *trk = song->t.first(); trk; trk = song->t.next()) {
+		int px = x1 * cellSide;
+		for (int i = x1; i <= x2; i++) {
+			if (trk->barStatus(i))
+				style().drawPrimitive(QStyle::PE_ButtonBevel, p,
+				                      QRect(px, py, cellSide, cellSide), colorGroup());
+			px += cellSide;
+		}
+		py += cellSide;
+	}
 }
 
 void TrackPane::mousePressEvent(QMouseEvent *e)
 {
 	if (e->button() == LeftButton) {
-		int barnum = columnAt(e->pos().x());
-		int tracknum = rowAt(e->pos().y()) - 1;
+		int barnum = e->pos().x() / cellSide;
+		int tracknum = (e->pos().y() - headerHeight) / cellSide;
 
 		if (tracknum >= song->t.count())
 			return;
