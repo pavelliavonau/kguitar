@@ -151,6 +151,7 @@ bool TabSong::load_from_kg(QString fileName)
 		}
 		s >> i16;
 		t.current()->c[x-1].l = i16;
+		t.current()->c[x-1].flags = 0;
 		break;
 	    case 'S':
 		s >> cn; t.current()->b[bar-1].time1 = cn;
