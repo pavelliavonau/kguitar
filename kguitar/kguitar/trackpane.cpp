@@ -55,7 +55,7 @@ void TrackPane::mousePressEvent(QMouseEvent *e)
 {
 	if (e->button() == LeftButton) {
 		int barnum = e->pos().x() / cellSide;
-		int tracknum = (e->pos().y() - headerHeight) / cellSide;
+		uint tracknum = (e->pos().y() - headerHeight) / cellSide;
 
 		if (tracknum >= song->t.count())
 			return;
