@@ -440,7 +440,7 @@ void TrackView::rhythmer()
 }
 
 // Determine horizontal offset between two columns - n and n+1
-// LVIFIX: replace body by call to trackprint::colwidth()
+
 int TrackView::horizDelta(uint n)
 {
 #ifdef USE_BOTH_OLD_AND_NEW
@@ -506,6 +506,11 @@ void TrackView::paintCell(QPainter *p, int row, int /*col*/)
 	              + (int) ((TOPSPTB + curt->string) * trp->ysteptb);
 #endif
 	trp->drawBarLns(width(), curt);
+//	trp->drawKey(row, curt);	// LVIFIX: make (some more) room between key and time sig
+	bool doDraw = true;
+	bool fbol = true;
+	bool flop = (row == 0);
+	(void) trp->drawKKsigTsig(row, curt, doDraw, fbol, flop);
 	trp->drawBar(row, curt, 0, selxcoord, selx2coord);
 
 	// connect tabbar and staff with vertical line at end of bar
@@ -929,8 +934,10 @@ void TrackView::keySig()
 	if (sks->exec()) {
 		int newsig = sks->sig->currentItem();
 		curt->b[0].keysig = (short) (7 - newsig);
+		// LVIFIX: undo info
 	}
 
+	updateRows();
 	lastnumber = -1;
 }
 
@@ -1303,7 +1310,7 @@ void TrackView::mousePressEvent(QMouseEvent *e)
 		clickpt.setX(contentsX() + e->pos().x());
 		clickpt.setY(contentsY() + e->pos().y());
 
-		int xpos = (int) (6 * trp->br8w + 0.9 * trp->wNote + 2);	// LVIFIX: this should be supplied by trackprint
+		int xpos = trp->getFirstColOffs(tabrow, curt);
 		int xdelta = 0;
 		int lastxpos = 0;
 

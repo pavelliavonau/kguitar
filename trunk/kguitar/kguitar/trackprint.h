@@ -29,9 +29,9 @@ public:
 	int colWidth(int cl, TabTrack *trk);
 	void drawBar(int bn, TabTrack *trk, int es, int& sx, int& sx2);
 	void drawBarLns(int w, TabTrack *trk);
-	void drawKey(int l, TabTrack *trk);
-	void drawKeySig(TabTrack *trk);
+	int drawKKsigTsig(int bn, TabTrack *trk, bool doDraw, bool fbol, bool flop);
 	void drawStLns(int w);
+	int getFirstColOffs(int bn, TabTrack *trk, bool fbol = true);
 	void initFonts(QFont *f1, QFont *f2, QFont *f3, QFont *f4, QFont *f5);
 	void initMetrics();
 	void initPens();
@@ -59,11 +59,14 @@ public:
 private:
 	void drawBeam(int x1, int x2, int y, char tp, char dir);
 	void drawBeams(int bn, char dir, TabTrack *trk);
+	void drawKey(TabTrack *trk, bool flop);
+	int drawKeySig(TabTrack *trk, bool doDraw);
 	void drawLetRing(int x, int y);
 	void drawNtHdCntAt(int x, int y, int t, Accidentals::Accid a);
 	void drawNtStmCntAt(int x, int yl, int yh, int t, char dir);
 	void drawRstCntAt(int x, int y, int t);
 	void drawStrCntAt(int x, int y, const QString s);
+	int drawTimeSig(int bn, TabTrack *trk, bool doDraw);
 	int eraWidth(const QString s);
 	bool findHiLo(int cl, int v, TabTrack *trk, int & hi, int & lo);
 	int line(const QString step, int oct);
