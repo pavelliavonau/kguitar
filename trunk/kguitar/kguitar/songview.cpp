@@ -17,18 +17,16 @@
 #include <kdebug.h>
 #include <kxmlgui.h>
 #include <kxmlguiclient.h>
+#include <knuminput.h>
+#include <kmessagebox.h>
 
 #include <qsplitter.h>
 #include <qlayout.h>
 #include <qlineedit.h>
 #include <qcombobox.h>
-#include <knuminput.h>
-#include <klocale.h>
 #include <qmultilinedit.h>
-#include <kmessagebox.h>
 #include <qheader.h>
 
-#include <kdebug.h>
 
 SongView::SongView(KXMLGUIClient *_XMLGUIClient, QWidget *parent = 0, const char *name = 0)
     : QWidget(parent, name)
@@ -44,6 +42,7 @@ SongView::SongView(KXMLGUIClient *_XMLGUIClient, QWidget *parent = 0, const char
  	splitv->setOrientation(QSplitter::Horizontal);
 
 	tl = new TrackList(song, _XMLGUIClient, splitv);
+    tl->setSelected(tl->firstChild(), TRUE);
 	tp = new TrackPane(song, tl->header()->height(), tl->firstChild()->height(), splitv);
 
 	connect(tl, SIGNAL(selectionChanged(QListViewItem*)), tv, SLOT(selectTrack(QListViewItem*)));
@@ -66,6 +65,7 @@ void SongView::refreshView()
 	tv->updateRows();
 	tv->repaint();
 	tl->updateList();
+    tl->setSelected(tl->firstChild(), TRUE);
 	tp->updateList();
 }
 
@@ -87,7 +87,7 @@ bool SongView::trackNew()
 		song->t.removeLast();
 		return FALSE;
 	}
-	
+
 	return TRUE;
 }
 
@@ -132,34 +132,41 @@ void SongView::trackBassLine()
 		ChordSelector cs(tv->devMan(), origtrk);
 
 		int note;
+        bool havenote;
 
 		for (uint i = 0; i < origtrk->c.size(); i++) {
 			for (uint k = 0; k < origtrk->string; k++) {
 				cs.setApp(k, origtrk->c[i].a[k]);
 			}
-			cs.detectChord();
-			note = ((ChordListItem *) cs.chords->item(0))->tonic();
 
-			kdDebug() << "Column " << i << ", detected tonic " << note_name(note) << endl;
+			cs.detectChord();
+            havenote = ((ChordListItem *) cs.chords->item(0));
+
+            if (havenote) {
+                note = ((ChordListItem *) cs.chords->item(0))->tonic();
+                kdDebug() << "Column " << i << ", detected tonic " << note_name(note) << endl;
+            }
+            else
+                kdDebug() << "Column " << i << ", EMPTY " << endl;
 
 			for (uint k = 0; k < newtrk->string; k++) {
 				newtrk->c[i].a[k] = -1;
 				newtrk->c[i].e[k] = 0;
 			}
-			
+
 			newtrk->c[i].l = origtrk->c[i].l;
 			newtrk->c[i].flags = 0;
 
 			// GREYFIX: make a better way of choosing a fret. This way
 			// it can, for example, be over max frets number.
-
-			newtrk->c[i].a[0] = note - newtrk->tune[0] % 12;
-			if (newtrk->c[i].a[0] < 0)  newtrk->c[i].a[0] += 12;
+            if (havenote) {
+                newtrk->c[i].a[0] = note - newtrk->tune[0] % 12;
+                if (newtrk->c[i].a[0] < 0)  newtrk->c[i].a[0] += 12;
+            }
 		}
 	};
 
-	tv->updateRows();
-	tv->update();
+    tv->arrangeTracks();
 }
 
 // Sets current track's properties
