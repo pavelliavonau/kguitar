@@ -55,13 +55,17 @@ ChordSelector::ChordSelector(QWidget *parent=0, const char *name=0)
     step3->insertItem("sus2");
     step3->insertItem("sus4");
     step3->setGeometry(70,40,80,70);
+    connect(step3,SIGNAL(highlighted(int)),SLOT(findChords()));
 
     stephigh = new QListBox(this);
     stephigh->insertItem("");
     stephigh->insertItem("7");
     stephigh->insertItem("7M");
     stephigh->insertItem("6");
+    stephigh->insertItem("aug");
+    stephigh->insertItem("dim");
     stephigh->setGeometry(160,40,60,200);
+    connect(stephigh,SIGNAL(highlighted(int)),SLOT(findChords()));
 
     complexity = new QButtonGroup(this);
     complexity->setGeometry(70,150,80,70);
@@ -72,6 +76,7 @@ ChordSelector::ChordSelector(QWidget *parent=0, const char *name=0)
     complexer[2] = new QRadioButton("All",complexity);
     complexer[2]->setGeometry(5,45,70,20);
     complexity->setButton(0);
+    connect(complexity,SIGNAL(clicked(int)),SLOT(findChords()));
 
     // CHORD ANALYZER
 
@@ -192,17 +197,25 @@ void ChordSelector::findChords()
 
     int need[6],got[6];
 
+    notenum=3;
     need[0]=0;
 
     switch (step3->currentItem()) {
-    case 0: need[1]=4;break;          // Major, C
-    case 1: need[1]=3;break;          // Minor, Cm
-    case 2: need[1]=2;break;          // Sus2,  Csus2
-    case 3: need[1]=5;break;	      // Sus4,  Csus4
+    case 0: need[1]=4;break;              // Major, C
+    case 1: need[1]=3;break;              // Minor, Cm
+    case 2: need[1]=2;break;              // Sus2,  Csus2
+    case 3: need[1]=5;break;	          // Sus4,  Csus4
     }
 
     need[2]=7;
-    notenum=3;
+
+    switch (stephigh->currentItem()) {
+    case 1: need[3]=10;notenum=4;break;                      // 7,   C7
+    case 2: need[3]=11;notenum=4;break;                      // 7M,  C7M
+    case 3: need[3]=9; notenum=4;break;                      // 6,   C6
+    case 4: need[2]=8;           break;                      // aug, Caug
+    case 5: need[1]=3;need[2]=6;need[3]=9;notenum=4;break;   // dim, Cdim
+    }
 
     for (i=0;i<notenum;i++)
 	 need[i]=(need[i]+tonic->currentItem())%12;
