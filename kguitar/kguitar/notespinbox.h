@@ -1,8 +1,8 @@
 #ifndef NOTESPINBOX_H
 #define NOTESPINBOX_H
 
-#include <qwidget.h>
 #include "global.h"
+#include <qwidget.h>
 
 #include <qvalidator.h>
 #include <qspinbox.h>
