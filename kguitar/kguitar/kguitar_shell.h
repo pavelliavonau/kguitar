@@ -29,6 +29,7 @@ protected slots:
     void slotToggleMainTB();
     void slotToggleEditTB();
     void slotShowStatusBar();
+	void slotShowMelodyEditor();
     void slotSetCaption(const QString& caption);
     void slotQuit();
     void slotConfigTB();
@@ -46,7 +47,7 @@ private:
     FileBrowser *fb;
 	KAction *browserAct, *pasteAct;
     KRecentFilesAction *openRecentAct;
-    KToggleAction *showMainTBAct, *showEditTBAct, *showStatusbarAct;
+    KToggleAction *showMainTBAct, *showEditTBAct, *showStatusbarAct, *showMelodyEditorAct;
 	KCommandHistory *cmdHistory;
 };
 
