@@ -1,8 +1,8 @@
                                KGuitar
-					   A KDE tabulature editor
+                       A KDE tabulature editor
 
-			(C) 2000, 2001 by KGuitar development team
-	 Current maintainer - GreyCat <GreyCat@users.sourceforge.net>
+                 (C) 2001 by KGuitar development team
+     Current maintainer - GreyCat <GreyCat@users.sourceforge.net>
 
 KGuitar is basically a guitar tabulature editor for K Desktop
 Environment. It's much more than just a tab editor. It's features are:
@@ -203,18 +203,18 @@ following:
 
 2) Do
 
-	tex your-file.tex
+    tex your-file.tex
 
    (replacing "your-file" with the real name of your file, of
    course). You'll get a .dvi file.
 
 3) You can preview a .dvi file before printing, do
 
-	xdvi your-file.tex
+    xdvi your-file.tex
 
    or
 
-	kdvi your-file.tex
+    kdvi your-file.tex
 
    depending of what sort of dvi parser you have installed with
    TeX. Preview would look ugly, anyway, because some postscript
@@ -222,12 +222,12 @@ following:
 
 4) Print the .dvi file with something like
 
-	dvips your-file.tex
+    dvips your-file.tex
 
    if you have a postscript printer (or postscript filters installed),
    or something like
 
-	dvilj your-file.tex
+    dvilj your-file.tex
 
    if you want to use your printer's native driver (and have it
    installed too)
