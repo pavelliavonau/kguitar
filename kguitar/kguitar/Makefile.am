@@ -28,7 +28,8 @@ libkguitar_la_SOURCES = application.cpp chord.cpp fingers.cpp fingerlist.cpp \
  trackview.cpp setsong.cpp tabsong.cpp tabtrack.cpp settrack.cpp \
  settabfret.cpp settabdrum.cpp radiustuner.cpp notespinbox.cpp \
  options.cpp chordlistitem.cpp chordlist.cpp timesig.cpp strumming.cpp \
- filebrowser.cpp midilist.cpp songview.cpp tracklist.cpp kguitar_shell.cpp
+ filebrowser.cpp midilist.cpp songview.cpp tracklist.cpp trackpane.cpp \
+ kguitar_shell.cpp
 
 METASOURCES = AUTO
 
