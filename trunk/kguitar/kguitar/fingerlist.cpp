@@ -16,8 +16,7 @@ FingerList::FingerList(TabTrack *p, QWidget *parent,const char *name):
     setFrameStyle(Panel | Sunken);
     setBackgroundMode(PaletteBase);
     setFocusPolicy(StrongFocus);
-    num=0;
-    curSel=-1;
+    num=0;curSel=-1;oldCol=0;oldRow=0;
 
     setCellWidth(ICONCHORD);
     setCellHeight(ICONCHORD);
@@ -27,8 +26,9 @@ FingerList::FingerList(TabTrack *p, QWidget *parent,const char *name):
 
 void FingerList::clear()
 {
-    num=0;
-    curSel=-1;
+    appl.resize(0);
+    num=0;curSel=-1;
+    oldCol=0;oldRow=0;
 }
 
 void FingerList::switchAuto(bool update)
@@ -38,9 +38,13 @@ void FingerList::switchAuto(bool update)
 
 void FingerList::addFingering(const int a[MAX_STRINGS], bool update)
 {
+    appl.resize((num+1)*MAX_STRINGS);
+
     for (int i=0;i<MAX_STRINGS;i++)
-	appl[num][i]=a[i];
-    num++; 
+	appl[num].f[i] = a[i];
+
+    num++;
+
     // num is overral number of chord fingerings. If it's 0 - then there are no
     // fingerings. In the appl array, indexes should be ranged from 0 to (num-1)
     setNumRows((num-1)/perRow+1);
@@ -64,8 +68,10 @@ void FingerList::mousePressEvent(QMouseEvent *e)
     
     if ((n>=0) && (n<num)) {
 	curSel = row*perRow+col;
-	repaint();    
-	emit chordSelected(appl[curSel]);
+	repaint(oldCol*ICONCHORD,oldRow*ICONCHORD-yOffset(),ICONCHORD,ICONCHORD);
+	repaint(col*ICONCHORD,row*ICONCHORD-yOffset(),ICONCHORD,ICONCHORD);
+	oldCol = col; oldRow = row;
+	emit chordSelected(appl[curSel].f);
     }
 }
 
@@ -86,17 +92,16 @@ void FingerList::paintCell(QPainter *p, int row, int col)
 
 	    p->setBrush(back);
 	    p->setPen(NoPen);
-	    p->drawRect(0,0,ICONCHORD,ICONCHORD);
+	    p->drawRect(0,0,ICONCHORD-1,ICONCHORD-1);
 
 	    if (hasFocus()) {
 		p->setBrush(NoBrush);
 		p->setPen(fore);
 		// GREYFIX - assumes only 2 styles
-		if (KApplication::getKApplication()->applicationStyle==WindowsStyle) {
-		    p->drawWinFocusRect(0,0,ICONCHORD,ICONCHORD);
-		} else {
-		    p->drawRect(1,1,ICONCHORD-2,ICONCHORD-2);
-		}
+		if (KApplication::getKApplication()->applicationStyle==WindowsStyle)
+		    p->drawWinFocusRect(0,0,ICONCHORD-1,ICONCHORD-1);
+		else
+		    p->drawRect(1,1,ICONCHORD-3,ICONCHORD-3);
 	    }
 	}
 
@@ -115,9 +120,9 @@ void FingerList::paintCell(QPainter *p, int row, int col)
 	bool noff=TRUE;
 	
 	for (int i=0;i<parm->string;i++) {
-	    if ((appl[n][i]<firstFret) && (appl[n][i]>0))
-		firstFret=appl[n][i];
-	    if (appl[n][i]>5)
+	    if ((appl[n].f[i]<firstFret) && (appl[n].f[i]>0))
+		firstFret=appl[n].f[i];
+	    if (appl[n].f[i]>5)
 		noff=FALSE;
 	}
 	
@@ -136,20 +141,20 @@ void FingerList::paintCell(QPainter *p, int row, int col)
 	    p->drawLine(i*SCALE+BORDER+SCALE/2+FRETTEXT,BORDER+SCALE+2*SPACER,
 			i*SCALE+BORDER+SCALE/2+FRETTEXT,
 			BORDER+SCALE+2*SPACER+NUMFRETS*SCALE);
-	    if (appl[n][i]==-1) {
+	    if (appl[n].f[i]==-1) {
 		p->drawLine(i*SCALE+BORDER+CIRCBORD+FRETTEXT,BORDER+CIRCBORD,
 			    i*SCALE+BORDER+SCALE-CIRCBORD+FRETTEXT,
 			    BORDER+SCALE-CIRCBORD);
 		p->drawLine(i*SCALE+BORDER+SCALE-CIRCBORD+FRETTEXT,BORDER+CIRCBORD,
 			    i*SCALE+BORDER+CIRCBORD+FRETTEXT,BORDER+SCALE-CIRCBORD);
-	    } else if (appl[n][i]==0) {
+	    } else if (appl[n].f[i]==0) {
 		p->setBrush(back);
 		p->drawEllipse(i*SCALE+BORDER+CIRCBORD+FRETTEXT,BORDER+CIRCBORD,
 			       CIRCLE,CIRCLE);
 	    } else {
 		p->setBrush(fore);
 		p->drawEllipse(i*SCALE+BORDER+CIRCBORD+FRETTEXT,
-			       BORDER+SCALE+2*SPACER+(appl[n][i]-firstFret)*SCALE+
+			       BORDER+SCALE+2*SPACER+(appl[n].f[i]-firstFret)*SCALE+
 			       CIRCBORD,CIRCLE,CIRCLE);
 	    }
 	}
@@ -160,19 +165,19 @@ void FingerList::paintCell(QPainter *p, int row, int col)
 	
 	for (int i=0;i<NUMFRETS;i++) {
 	    barre=0;
-	    while ((appl[n][parm->string-barre-1]>=(i+firstFret)) ||
-		   (appl[n][parm->string-barre-1]==-1)) {
+	    while ((appl[n].f[parm->string-barre-1]>=(i+firstFret)) ||
+		   (appl[n].f[parm->string-barre-1]==-1)) {
 		barre++;
 		if (barre>parm->string-1)
 		    break;
 	    }
 	    
-	    while ((appl[n][parm->string-barre]!=(i+firstFret)) && (barre>1))
+	    while ((appl[n].f[parm->string-barre]!=(i+firstFret)) && (barre>1))
 		barre--;
 	    
 	    eff=0;
 	    for (int j=parm->string-barre;j<parm->string;j++) {
-		if (appl[n][j]!=-1)
+		if (appl[n].f[j]!=-1)
 		    eff++;
 	    }
 	    
