@@ -37,7 +37,9 @@ public:
 	void drawBar(int bn, TabTrack *trk, int es);
 	void drawBarLns(int w, TabTrack *trk);
 	void drawKey(int l, TabTrack *trk);
+	void drawPageHdr(int n, TabSong *song);
 	void drawStrFccAt(int x, int y, const QString s);
+	void initFonts();
 	void initMetrics(KPrinter *printer);
 	void printSong(KPrinter *printer, TabSong *song);
 private:
@@ -65,7 +67,12 @@ private:
 	int nt0fw;
 	int ntlfw;
 	// Fonts used
-	QFont fTBar;				// used for notes on the tab bar
+	QFont fHdr1;				// used for headers
+	QFont fHdr2;				// used for headers
+	QFont fHdr3;				// used for headers
+	QFont fTBar1;				// used for notes on the tab bar
+	QFont fTBar2;				// used for notes on the tab bar
+	QFont fTSig;				// used for time signature
 	// The current write location
 	int xpos;
 	int ypos;

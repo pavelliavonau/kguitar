@@ -100,7 +100,6 @@ int SongPrint::colWidth(int cl, TabTrack *trk)
 void SongPrint::drawBar(int bn, TabTrack *trk, int es)
 {
 	TabTrack *curt = trk;	// LVIFIX
-	QFont fTBar2 = QFont("Helvetica", 7, QFont::Normal); // LVIFIX class var ?
 
 	int lastxpos = 0;		// fix compiler warning
 	int extSpAftNote;
@@ -115,7 +114,6 @@ void SongPrint::drawBar(int bn, TabTrack *trk, int es)
 
 	// print timesig if necessary
 	if (trk->showBarSig(bn)) {
-		QFont fTSig = QFont("Helvetica", 12, QFont::Bold);
 		p->setFont(fTSig);
 		QFontMetrics fm  = p->fontMetrics();
 		// calculate vertical position:
@@ -129,7 +127,7 @@ void SongPrint::drawBar(int bn, TabTrack *trk, int es)
 		time.setNum(trk->b[bn].time2);
 		y += fm.boundingRect(time).height() + 2;
 		p->drawText(xpos + tsgpp, y, time);
-		p->setFont(fTBar);
+		p->setFont(fTBar1);
 		xpos += tsgfw;
 	}
 
@@ -202,7 +200,7 @@ void SongPrint::drawBar(int bn, TabTrack *trk, int es)
 							lastxpos, ypos + 3 * ystep - 3);
 				p->setFont(fTBar2);
 				drawStrFccAt(xpos, -4, "3");
-				p->setFont(fTBar);
+				p->setFont(fTBar1);
  			} else {
 				if (!(((curt->c.size() >= t + 2) &&
 					   (curt->c[t + 1].flags & FLAG_TRIPLET) &&
@@ -216,7 +214,7 @@ void SongPrint::drawBar(int bn, TabTrack *trk, int es)
 					   (curt->c[t - 2].l == curt->c[t].l)))) {
 					p->setFont(fTBar2);
 					drawStrFccAt(xpos, -4, "3");
-					p->setFont(fTBar);
+					p->setFont(fTBar1);
 				}
 			}
 		}
@@ -233,7 +231,7 @@ void SongPrint::drawBar(int bn, TabTrack *trk, int es)
 			p->setFont(fTBar2);
 			QString pm = "PM";
 			drawStrFccAt(xpos, trk->string, pm);
-			p->setFont(fTBar);
+			p->setFont(fTBar1);
 		}
 
 		// Draw the number column
@@ -266,13 +264,13 @@ void SongPrint::drawBar(int bn, TabTrack *trk, int es)
 				// LVIFIX: replace 6 by (font-dependent) calculation
 				p->setFont(fTBar2);
 				drawStrFccAt(xpos + 6, i, " H");
-				p->setFont(fTBar);
+				p->setFont(fTBar1);
 				break;
 			case EFFECT_ARTHARM:
 				// LVIFIX: replace 6 by (font-dependent) calculation
 				p->setFont(fTBar2);
 				drawStrFccAt(xpos + 6, i, " AH");
-				p->setFont(fTBar);
+				p->setFont(fTBar1);
 				break;
 			case EFFECT_LEGATO:
 				// draw arc to next note
@@ -292,7 +290,7 @@ void SongPrint::drawBar(int bn, TabTrack *trk, int es)
 					} else if (curt->c[t + 1].a[i] < curt->c[t].a[i]) {
 						drawStrFccAt(xpos + xdelta / 2, trk->string, "PO");
 					}
-					p->setFont(fTBar);
+					p->setFont(fTBar1);
 				}
 				break;
 			case EFFECT_SLIDE:
@@ -314,7 +312,7 @@ void SongPrint::drawBar(int bn, TabTrack *trk, int es)
 					p->setFont(fTBar2);
 					// LVIFIX: draw SL centered over line
 					drawStrFccAt(xpos + xdelta / 2, trk->string, "SL");
-					p->setFont(fTBar);
+					p->setFont(fTBar1);
 				}
 				break;
 			case EFFECT_LETRING:
@@ -361,16 +359,23 @@ void SongPrint::drawBarLns(int w, TabTrack *trk)
 // draw key at xpos,ypos for all strings of track trk
 // at the first line (l == 0), string names are printed
 // at all other lines the text "TAB"
+// note: print drum names instead in case of drumtrack
 
 void SongPrint::drawKey(int l, TabTrack *trk)
 {
-	p->setFont(fTBar);
+	p->setFont(fTBar1);
 	const int lstStr = trk->string - 1;
 	if (l == 0) {
 		for (int i = 0; i < lstStr + 1; i++) {
-			drawStrFccAt(tabpp + br8w / 2,
-						 i,
-						 note_name(trk->tune[i] % 12));
+			if (trk->trackMode() == DrumTab) {
+				drawStrFccAt(tabpp + br8w / 2,
+							 i,
+							 drum_abbr[trk->tune[i]]);
+			} else {
+				drawStrFccAt(tabpp + br8w / 2,
+							 i,
+							 note_name(trk->tune[i] % 12));
+			}
 		}
 	} else {
 		// calculate vertical position:
@@ -386,6 +391,23 @@ void SongPrint::drawKey(int l, TabTrack *trk)
 		y += h8 + 2;
 		p->drawText(xpos + tabpp, y, "B");
 	}
+}
+
+// draw header of song song, page n
+
+void SongPrint::drawPageHdr(int n, TabSong *song)
+{
+	// LVIFIX: replace magic numbers by font-dependent constants
+	// LVIFIX: add page number
+	p->setFont(fHdr1);
+	p->drawText(20, 30, song->title + " - " + song->author);
+	QString pgNr;
+	pgNr.setNum(n);
+	p->setFont(fHdr2);
+	p->drawText(pprw - 20, 30, pgNr);
+	p->setFont(fHdr3);
+	p->drawText(20, 50, "Transcribed by " + song->transcriber);
+	ypos = 80;					// LVIFIX: replace magic number
 }
 
 // draw string s with first character centered at x on string n
@@ -408,6 +430,18 @@ void SongPrint::drawStrFccAt(int x, int n, const QString s)
 	p->drawText(x - xOffsL, ypos - n * ystep + yOffs, s);
 }
 
+// initialize fonts
+
+void SongPrint::initFonts()
+{
+	fHdr1  = QFont("Helvetica", 12, QFont::Bold);
+	fHdr2  = QFont("Helvetica", 10, QFont::Normal);
+	fHdr3  = QFont("Helvetica",  8, QFont::Normal);
+	fTBar1 = QFont("Helvetica",  8, QFont::Bold);
+	fTBar2 = QFont("Helvetica",  7, QFont::Normal);
+	fTSig  = QFont("Helvetica", 12, QFont::Bold);
+}
+
 // initialize paper format and font dependent metrics
 
 void SongPrint::initMetrics(KPrinter *printer)
@@ -417,8 +451,7 @@ void SongPrint::initMetrics(KPrinter *printer)
 	pprh  = pdm.height();
 	pprw  = pdm.width();
 	// determine font-dependent bar metrics
-	fTBar = QFont("Helvetica", 8, QFont::Bold);
-	p->setFont(fTBar);
+	p->setFont(fTBar1);
 	QFontMetrics fm  = p->fontMetrics();
 	br8h = fm.boundingRect("8").height();
 	br8w = fm.boundingRect("8").width();
@@ -441,86 +474,106 @@ void SongPrint::printSong(KPrinter *printer, TabSong *song)
 	if (!p->begin(printer))
 		return;
 
+	// initialize fonts, must be done before initMetrics
+	// (metrics depend on fonts)
+	initFonts();
+
 	// initialize variables
 	initMetrics(printer);
 
 	// print page header
-	// LVIFIX: move to separate function to enable multi-page operation
-	// LVIFIX: replace magic numbers by font-dependent constants
-	QFont fHdr1 = QFont("Helvetica", 12, QFont::Bold);
-	p->setFont(fHdr1);
-	p->drawText(20, 30, song->title + " - " + song->author);
-	QFont fHdr2 = QFont("Helvetica", 8, QFont::Normal);
-	p->setFont(fHdr2);
-	p->drawText(20, 50, "Transcribed by " + song->transcriber);
-	ypos = 120;					// LVIFIX: replace magic number
-
-	//
-	int l = 0;					// current line nr
-	uint brsPr = 0;				// bars printed
-	int bn = 0;					// current bar nr
-
-	// only the first track is printed
-	TabTrack *trk = (song->t).first();
-
-	// precalculate bar widths
-	QArray<int> bew(trk->b.size());
-	QArray<int> bw(trk->b.size());
-	for (uint bn = 0; bn < trk->b.size(); bn++) {
-		bew[bn] = barExpWidth(bn, trk);
-		bw[bn]  = barWidth(bn, trk);
-	}
+	int pgNr = 1;
+	drawPageHdr(pgNr, song);
+	
+	uint trkPr = 0;				// tracks printed
 
 	// loop while bars left in the track
-	while (brsPr < trk->b.size()) {
+	while (trkPr < (song->t).count()) {
 
-		// draw empty tab bar at yPos
-		xpos = 0;
-		drawBarLns(pprw - 1, trk);
-		xpos += 1;				// first vertical line
-		drawKey(l, trk);
-		xpos += tabfw;			// "TAB"
+		TabTrack *trk = (song->t).at(trkPr);
 
-		// determine # bars fitting on this line
-		// must be at least 1 (very long bar will be truncated)
-		uint nBarsOnLine = 1;
-		int totWidth = bw[bn];
-		// while bars left and next bar also fits
-		while (bn + nBarsOnLine < trk->b.size()
-			   && totWidth + bw[bn + nBarsOnLine] < pprw - xpos) {
-			totWidth += bw[bn + nBarsOnLine];
-			nBarsOnLine++;
+		// print the track header
+		if ((song->t).count() > 1)
+		{
+			p->setFont(fHdr2);
+			p->drawText(20, ypos, trk->name);
+			ypos += 20;
+		}
+		ypos += 40;
+
+		int l = 0;					// line nr in the current track
+		uint brsPr = 0;				// bars printed
+		int bn = 0;					// current bar nr
+
+		// precalculate bar widths
+		QArray<int> bew(trk->b.size());
+		QArray<int> bw(trk->b.size());
+		for (uint bn = 0; bn < trk->b.size(); bn++) {
+			bew[bn] = barExpWidth(bn, trk);
+			bw[bn]  = barWidth(bn, trk);
 		}
 
-		// print without extra space on last line,
-		// with extra space on all others
-		if (bn + nBarsOnLine >= trk->b.size()) {
-			// last line, no extra space
-			for (uint i = 0; i < nBarsOnLine; i++) {
-				drawBar(bn, trk, 0);
-				bn++;
+		// loop while bars left in the track
+		while (brsPr < trk->b.size()) {
+
+			// draw empty tab bar at yPos
+			xpos = 0;
+			drawBarLns(pprw - 1, trk);
+			xpos += 1;				// first vertical line
+			drawKey(l, trk);
+			xpos += tabfw;			// "TAB"
+
+			// determine # bars fitting on this line
+			// must be at least 1 (very long bar will be truncated)
+			uint nBarsOnLine = 1;
+			int totWidth = bw[bn];
+			// while bars left and next bar also fits
+			while (bn + nBarsOnLine < trk->b.size()
+				   && totWidth + bw[bn + nBarsOnLine] < pprw - xpos) {
+				totWidth += bw[bn + nBarsOnLine];
+				nBarsOnLine++;
 			}
-		} else {
-			// not the last line, add extra space
-			// calculate extra space left to distribute divided by bars left,
-			// to prevent accumulation of round-off errors
-			int extSpLeft = pprw - xpos - totWidth - 1;
-			for (uint i = 0; i < nBarsOnLine; i++) {
-				int extSpInBar = extSpLeft / (nBarsOnLine - i);
-				drawBar(bn, trk, extSpInBar);
-				extSpLeft -= extSpInBar;
-				bn++;
+
+			// print without extra space on last line,
+			// with extra space on all others
+			if (bn + nBarsOnLine >= trk->b.size()) {
+				// last line, no extra space
+				for (uint i = 0; i < nBarsOnLine; i++) {
+					drawBar(bn, trk, 0);
+					bn++;
+				}
+			} else {
+				// not the last line, add extra space
+				// calculate extra space left to distribute divided by bars left,
+				// to prevent accumulation of round-off errors
+				int extSpLeft = pprw - xpos - totWidth - 1;
+				for (uint i = 0; i < nBarsOnLine; i++) {
+					int extSpInBar = extSpLeft / (nBarsOnLine - i);
+					drawBar(bn, trk, extSpInBar);
+					extSpLeft -= extSpInBar;
+					bn++;
+				}
 			}
-		}
 		
-		brsPr += nBarsOnLine;
+			brsPr += nBarsOnLine;
 
-		// move to next line
-		l++;
-		ypos += 10 * ystep;				// LVIFIX: replace magic number
-		// LVIFIX: move to next page if necessary
+			// move to next line
+			l++;
+			ypos += 10 * ystep;				// LVIFIX: replace magic number
+			// move to next page if necessary
+			if (ypos + 4 * ystep > pprh) {
+				printer->newPage();
+				pgNr++;
+				drawPageHdr(pgNr, song);
+				ypos += 40;
+			}
 
-	} // end while (brsPr ...
+		} // end while (brsPr ...
+
+		// move to the next track
+		trkPr++;
+
+	} // end while (trkPr ...
 			
 	p->end();			// send job to printer
 }
