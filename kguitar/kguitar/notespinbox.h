@@ -11,8 +11,9 @@ class NoteValidator: public QValidator
 {
     Q_OBJECT
 public:
-    NoteValidator(QWidget *parent, const char *name=0);
-    virtual State validate(QString &input, int &pos);
+    NoteValidator(QWidget *parent, const char *name = 0):
+		QValidator(parent, name) {};
+    virtual State validate(QString &input, int &pos) const;
 };
 
 class NoteSpinBox: public QSpinBox

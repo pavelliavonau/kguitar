@@ -2,7 +2,7 @@
 # kde_htmldir       Where your docs should go to. (contains lang subdirs)
 # kde_appsdir       Where your application file (.kdelnk) should go to. 
 # kde_icondir       Where your icon should go to.
-# kde_minidir       Where your mini icon should go to.
+# kde_sounddir      Where system sounds should go to.
 # kde_datadir       Where you install application data. (Use a subdir)
 # kde_locale        Where translation files should go to.(contains lang subdirs)
 # kde_cgidir        Where cgi-bin executables should go to.
@@ -11,17 +11,16 @@
 # kde_toolbardir    Where general toolbar icons should go to.
 # kde_wallpaperdir  Where general wallpapers should go to.
 
-# just set the variable
-APPSDIR = $(kde_appsdir)/Multimedia
 # set the include path for X, qt and KDE
-INCLUDES= @all_includes@
+INCLUDES = $(all_includes)
+
 # claim, which subdirectories you want to install
+# if you don't have subdirectories, comment it
 SUBDIRS = toolbar
 
-#DEFS = @DEFS@ -I. -I$(srcdir) -I.. -DDOTRACE
 ####### This part is very kguitar specific
 # you can add here more. This one gets installed 
-bin_PROGRAMS = kguitar
+bin_PROGRAMS = 	kguitar
 
 # Which sources should be compiled for kguitar.
 kguitar_SOURCES	= application.cpp chord.cpp fingers.cpp fingerlist.cpp \
@@ -33,12 +32,14 @@ kguitar_SOURCES	= application.cpp chord.cpp fingers.cpp fingerlist.cpp \
  radiustuner.moc.cpp notespinbox.moc.cpp options.moc.cpp chordlist.moc.cpp \
  timesig.moc.cpp strumming.moc.cpp filebrowser.moc.cpp
 
-# the library search path
-kguitar_LDFLAGS = @all_libraries@ @KDE_RPATH@
+# kguitar_METASOURCES = AUTO
+
+# the library search path. 
+kguitar_LDFLAGS = $(all_libraries) $(KDE_RPATH)
 
 # the libraries to link against. Be aware of the order. First the libraries,
 # that depend on the following ones.
-kguitar_LDADD  = -lkfm -lkfile -lkdeui -lkdecore -lqt -lX11 -lXext @LIBSOCKET@
+kguitar_LDADD   = $(LIB_KFILE)
 
 # this option you can leave out. Just, if you use "make dist", you need it
 noinst_HEADERS = application.h chord.h fingers.h fingerlist.h trackview.h \
@@ -46,53 +47,46 @@ noinst_HEADERS = application.h chord.h fingers.h fingerlist.h trackview.h \
  notespinbox.h options.h chordlistitem.h chordlist.h timesig.h strumming.h \
  filebrowser.h
 
-# just to make sure, automake makes them 
-BUILTSOURCES = application.moc.cpp chord.moc.cpp fingers.moc.cpp \
- fingerlist.moc.cpp trackview.moc.cpp setsong.moc.cpp settrack.moc.cpp \
- settabfret.moc.cpp radiustuner.moc.cpp notespinbox.moc.cpp options.moc.cpp \
- chordlist.moc.cpp timesig.moc.cpp strumming.moc.cpp filebrowser.moc.cpp
-
-EXTRA_DIST = kguitar.kdelnk kguitar.xpm kguitar-large.xpm kguitar-mini.xpm
-
-# if you "make distclean", this files get removed. If you want to remove
-# them while "make clean", use CLEANFILES
-CLEANFILES = $(BUILTSOURCES)
+# the -x is for skipping messages already translated in kdelibs
+messages:
+	$(XGETTEXT) $(kguitar_SOURCES) -o $(podir)/kguitar.pot
 
 # make messages.po. Move this one to ../po/ and "make merge" in po
 # the -x is for skipping messages already translated in kdelibs
-messages:
-	$(XGETTEXT) -C -ki18n -x $(includedir)/kde/kde.pot $(kguitar_SOURCES) && mv messages.po ../po/kguitar.pot
+#messages:
+#	$(XGETTEXT) -C -ki18n -x $(includedir)/kde/kde.pot $(kguitar_SOURCES) && mv messages.po ../po/kguitar.pot
+
+kdelnkdir = $(kde_appsdir)/Multimedia
+kdelnk_DATA = kguitar.desktop
+
+KDE_ICON = kguitar
+
+# OLD Makefile.am ===========================================================
+
+#EXTRA_DIST = kguitar.kdelnk kguitar.xpm kguitar-large.xpm kguitar-mini.xpm
 
 # just install datas here. Use install-exec-data for scripts and etc.
 # the binary itself is already installed from automake
 # use mkinstalldirs, not "install -d"
 # don't install a list of file. Just one file per install.
 # if you have more of them, create a subdirectory with an extra Makefile 
-install-data-local: 
-	$(mkinstalldirs) $(APPSDIR)
-	$(INSTALL_DATA) kguitar.kdelnk $(APPSDIR)
-	$(mkinstalldirs) $(kde_icondir)
-	$(mkinstalldirs) $(kde_minidir)
-	$(mkinstalldirs) $(kde_icondir)/large
-	$(INSTALL_DATA) kguitar.xpm $(kde_icondir)
-	$(INSTALL_DATA) kguitar-large.xpm $(kde_icondir)/large/kguitar.xpm
-	$(INSTALL_DATA) kguitar-mini.xpm $(kde_minidir)/kguitar.xpm
-	$(mkinstalldirs) $(kde_datadir)/kguitar/pics/
-	$(INSTALL_DATA) scandir.xpm $(kde_datadir)/kguitar/pics/scandir.xpm
-	$(INSTALL_DATA) play.xpm $(kde_datadir)/kguitar/pics/play.xpm
-	$(INSTALL_DATA) exit.xpm $(kde_datadir)/kguitar/pics/exit.xpm
+#install-data-local: 
+#	$(mkinstalldirs) $(APPSDIR)
+#	$(INSTALL_DATA) kguitar.kdelnk $(APPSDIR)
+#	$(mkinstalldirs) $(kde_icondir)
+#	$(mkinstalldirs) $(kde_minidir)
+#	$(mkinstalldirs) $(kde_icondir)/large
+#	$(INSTALL_DATA) kguitar.xpm $(kde_icondir)
+#	$(INSTALL_DATA) kguitar-large.xpm $(kde_icondir)/large/kguitar.xpm
+#	$(INSTALL_DATA) kguitar-mini.xpm $(kde_minidir)/kguitar.xpm
 
 # remove ALL you have installed in install-data-local or install-exec-local
-uninstall-local:
-	-rm -f $(APPSDIR)/kguitar.kdelnk
-	-rm -f $(kde_icondir)/kguitar.xpm
-	-rm -f $(kde_minidir)/kguitar.xpm
-	-rm -f $(kde_icondir)/large/kguitar.xpm
-	-rm -f $(kde_datadir)/kguitar/pics/scandir.xpm
-	-rm -f $(kde_datadir)/kguitar/pics/play.xpm
-	-rm -f $(kde_datadir)/kguitar/pics/exit.xpm
+#uninstall-local:
+#	-rm -f $(APPSDIR)/kguitar.kdelnk
+#	-rm -f $(kde_icondir)/kguitar.xpm
+#	-rm -f $(kde_minidir)/kguitar.xpm
+#	-rm -f $(kde_icondir)/large/kguitar.xpm
 
-# add a dependency for every moc file to be full portable
 application.moc.cpp: application.h
 	$(MOC) application.h -o application.moc.cpp
 
@@ -137,4 +131,3 @@ strumming.moc.cpp: strumming.h
 
 filebrowser.moc.cpp: filebrowser.h
 	$(MOC) filebrowser.h -o filebrowser.moc.cpp
-

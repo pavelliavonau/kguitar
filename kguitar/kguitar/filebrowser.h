@@ -21,19 +21,19 @@
 class Directory: public QListViewItem
 {
 public:
-    Directory( QListView * parent );
-    Directory( Directory * parent, const char * filename );
+    Directory(QListView *parent);
+    Directory(Directory *parent, const char *filename);
 
-    const char * text( int column ) const;
+    QString text(int column) const;
 
     QString fullName();
 
-    void setOpen( bool );
+    void setOpen(bool);
     void setup();
 
 private:
     QFile f;
-    Directory * p;
+    Directory *p;
     bool readable;
 };
 

@@ -5,7 +5,7 @@
 #include "tabsong.h"
 #include "strumming.h"
 
-#include <kapp.h>
+#include <klocale.h>
 
 #include <qpushbutton.h>
 #include <qbuttongroup.h>
@@ -90,7 +90,7 @@ ChordSelector::ChordSelector(TabTrack *p, QWidget *parent = 0,
 	tonic = new QListBox(this);
 	for (int i = 0; i < 12; i++)
 		tonic->insertItem(note_name(i));
-	tonic->setFixedVisibleLines(12);
+//	tonic->setFixedVisibleLines(12);
 	tonic->setMinimumWidth(40);
 	connect(tonic, SIGNAL(highlighted(int)), SLOT(findChords()));
 
@@ -104,7 +104,7 @@ ChordSelector::ChordSelector(TabTrack *p, QWidget *parent = 0,
 	step3->insertItem("m");
 	step3->insertItem("sus2");
 	step3->insertItem("sus4");
-	step3->setFixedVisibleLines(4);
+//	step3->setFixedVisibleLines(4);
 	step3->setMinimumWidth(40);
 	connect(step3, SIGNAL(highlighted(int)), SLOT(setStep3()));
 
@@ -119,7 +119,7 @@ ChordSelector::ChordSelector(TabTrack *p, QWidget *parent = 0,
 	stephigh->insertItem("aug");
 	stephigh->insertItem("dim");
 	stephigh->insertItem("5");
-	stephigh->setFixedVisibleLines(10);
+//	stephigh->setFixedVisibleLines(10);
 	stephigh->setMinimumWidth(40);
 	connect(stephigh, SIGNAL(highlighted(int)), SLOT(setHighSteps()));
 
@@ -325,7 +325,7 @@ void ChordSelector::detectChord()
 		}
 	}
 
-	chords->setAutoUpdate(FALSE);
+//	chords->setAutoUpdate(FALSE);
 	chords->clearSelection();
 	chords->clear();
 	
@@ -398,7 +398,7 @@ void ChordSelector::detectChord()
 		}
 	}
 	
-	chords->setAutoUpdate(TRUE);
+//	chords->setAutoUpdate(TRUE);
 	chords->repaint();
 }
 

@@ -1,6 +1,7 @@
 #include "setsong.h"
 
-#include <kapp.h>
+#include <klocale.h>
+
 #include <qlineedit.h>
 #include <qmultilinedit.h>
 #include <qlabel.h>

@@ -48,7 +48,7 @@ class MidiList: public QList<MidiEvent>
 public:
 	MidiList() { setAutoDelete(TRUE); }
 protected:
-	virtual int compareItems(GCI e1, GCI e2) {
+	virtual int compareItems(QCollection::Item e1, QCollection::Item e2) {
 		return ((MidiEvent *) e1)->timestamp - ((MidiEvent *) e2)->timestamp;
 	}
 };

@@ -1,10 +1,10 @@
 #include "settrack.h"
 #include "settabfret.h"
 
-#include <kapp.h>
+#include <klocale.h>
 #include <qlayout.h>
 #include <qlineedit.h>
-#include <kintegerline.h>
+#include <knuminput.h>
 #include <qlabel.h>
 #include <qpushbutton.h>
 
@@ -18,9 +18,9 @@ SetTrack::SetTrack(QWidget *parent=0, const char *name=0): QDialog(parent,name,T
     l->addLayout(g);
 
     title = new QLineEdit(this);
-    channel = new KIntegerLine(this);
-    bank = new KIntegerLine(this);
-    patch = new KIntegerLine(this);
+    channel = new KIntNumInput(this);
+    bank = new KIntNumInput(this);
+    patch = new KIntNumInput(this);
     QLabel *title_l = new QLabel(title,i18n("&Track name:"),this);
     QLabel *channel_l = new QLabel(bank,i18n("&Channel:"),this);
     QLabel *bank_l = new QLabel(bank,i18n("&Bank:"),this);

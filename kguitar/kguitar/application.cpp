@@ -18,15 +18,16 @@
 #include <klocale.h>
 #include <kfiledialog.h>
 #include <kaccel.h>
-#include <kmsgbox.h>
+#include <kmessagebox.h>
+#include <knuminput.h>
 
 #include <qpixmap.h>
 #include <qkeycode.h>
 #include <qstatusbar.h>
 #include <qprinter.h>
 
+#include <qlineedit.h>
 #include <qmultilinedit.h>
-#include <kintegerline.h>
 #include <qbuttongroup.h>
 #include <qradiobutton.h>
 
@@ -49,7 +50,11 @@ bool globalShowEditTB;
 int globalMainTBPos;
 int globalEditTBPos;
 
-ApplicationWindow::ApplicationWindow(): KTMainWindow()
+// ALSA
+int globalAlsaClient;
+int globalAlsaPort;
+
+ApplicationWindow::ApplicationWindow(): KMainWindow()
 {
 	printer = new QPrinter;
 	printer->setMinMax(1,10);
@@ -59,48 +64,47 @@ ApplicationWindow::ApplicationWindow(): KTMainWindow()
 
 	// MAIN WIDGET
 	tv = new TrackView(this);
-	setView(tv);
+	setCentralWidget(tv);
 	tv->setFocus();
 
 	// SET UP MAIN TOOLBAR
-	toolBar()->insertButton(Icon("filenew.xpm"), 1, SIGNAL(clicked()),
+	toolBar()->insertButton("filenew.png", 1, SIGNAL(clicked()),
 							this, SLOT(newDoc()), TRUE, i18n("New document"));
-	toolBar()->insertButton(Icon("fileopen.xpm"), 1, SIGNAL(clicked()),
+	toolBar()->insertButton("fileopen.png", 1, SIGNAL(clicked()),
 							this, SLOT(load()), TRUE, i18n("Open a file"));
-	toolBar()->insertButton(Icon("filefloppy.xpm"), 1, SIGNAL(clicked()),
+	toolBar()->insertButton("filesave.png", 1, SIGNAL(clicked()),
 							this, SLOT(save()), TRUE, i18n("Save a file"));
-	toolBar()->insertButton(Icon("fileprint.xpm"), 1, SIGNAL(clicked()),
+	toolBar()->insertButton("fileprint.png", 1, SIGNAL(clicked()),
 							this, SLOT(print()), TRUE, i18n("Print"));
-	toolBar()->insertSeparator();
 
 	// SET UP EDITING TOOLBAR
-	toolBar(1)->insertButton(Icon("chord.xpm"),1,SIGNAL(clicked()),
-							this,SLOT(inschord()),TRUE,i18n("Insert chord"));
-	toolBar(1)->insertButton(Icon("note1.xpm"),1,SIGNAL(clicked()),
-							tv,SLOT(setLength1()),TRUE,i18n("Whole"));
-	toolBar(1)->insertButton(Icon("note2.xpm"),1,SIGNAL(clicked()),
-							tv,SLOT(setLength2()),TRUE,"1/2");
-	toolBar(1)->insertButton(Icon("note4.xpm"),1,SIGNAL(clicked()),
-							tv,SLOT(setLength4()),TRUE,"1/4");
-	toolBar(1)->insertButton(Icon("note8.xpm"),1,SIGNAL(clicked()),
-							tv,SLOT(setLength8()),TRUE,"1/8");
-	toolBar(1)->insertButton(Icon("note16.xpm"),1,SIGNAL(clicked()),
-							tv,SLOT(setLength16()),TRUE,"1/16");
-	toolBar(1)->insertButton(Icon("note32.xpm"),1,SIGNAL(clicked()),
-							tv,SLOT(setLength32()),TRUE,"1/32");
-	toolBar(1)->insertButton(Icon("timesig.xpm"),1,SIGNAL(clicked()),
-							tv,SLOT(timeSig()),TRUE,i18n("Time signature"));
-	toolBar(1)->insertButton(Icon("arc.xpm"),1,SIGNAL(clicked()),
-							tv,SLOT(linkPrev()),TRUE,i18n("Link with previous column"));
-	toolBar(1)->insertButton(Icon("fx-legato.xpm"),1,SIGNAL(clicked()),
-							tv,SLOT(addLegato()),TRUE,i18n("Legato (hammer on/pull off)"));
-	toolBar(1)->insertButton(Icon("fx-harmonic.xpm"),1,SIGNAL(clicked()),
-							tv,SLOT(addHarmonic()),TRUE,i18n("Natural harmonic"));
-	toolBar(1)->insertButton(Icon("fx-harmonic.xpm"),1,SIGNAL(clicked()),
-							tv,SLOT(addArtHarm()),TRUE,i18n("Artificial harmonic"));
+	toolBar("Edit")->insertButton("chord.xpm", 1, SIGNAL(clicked()),
+								  this,SLOT(insertChord()),TRUE,i18n("Insert chord"));
+	toolBar("Edit")->insertButton("note1.xpm", 1, SIGNAL(clicked()),
+								  tv,SLOT(setLength1()),TRUE,i18n("Whole"));
+	toolBar("Edit")->insertButton("note2.xpm", 1, SIGNAL(clicked()),
+								  tv,SLOT(setLength2()),TRUE,"1/2");
+	toolBar("Edit")->insertButton("note4.xpm", 1, SIGNAL(clicked()),
+								  tv,SLOT(setLength4()),TRUE,"1/4");
+	toolBar("Edit")->insertButton("note8.xpm", 1, SIGNAL(clicked()),
+								  tv,SLOT(setLength8()),TRUE,"1/8");
+	toolBar("Edit")->insertButton("note16.xpm", 1, SIGNAL(clicked()),
+								  tv,SLOT(setLength16()),TRUE,"1/16");
+	toolBar("Edit")->insertButton("note32.xpm", 1, SIGNAL(clicked()),
+								  tv,SLOT(setLength32()),TRUE,"1/32");
+	toolBar("Edit")->insertButton("timesig.xpm", 1, SIGNAL(clicked()),
+								  tv,SLOT(timeSig()),TRUE,i18n("Time signature"));
+	toolBar("Edit")->insertButton("arc.xpm", 1, SIGNAL(clicked()),
+								  tv,SLOT(linkPrev()),TRUE,i18n("Link with previous column"));
+	toolBar("Edit")->insertButton("fx-legato.xpm", 1, SIGNAL(clicked()),
+								  tv,SLOT(addLegato()),TRUE,i18n("Legato (hammer on/pull off)"));
+	toolBar("Edit")->insertButton("fx-harmonic.xpm", 1, SIGNAL(clicked()),
+								  tv,SLOT(addHarmonic()),TRUE,i18n("Natural harmonic"));
+	toolBar("Edit")->insertButton("fx-harmonic.xpm", 1, SIGNAL(clicked()),
+								  tv,SLOT(addArtHarm()),TRUE,i18n("Artificial harmonic"));
 	
-	toolBar()->setBarPos(KToolBar::BarPosition(globalMainTBPos));
-	toolBar(1)->setBarPos(KToolBar::BarPosition(globalEditTBPos));
+//	toolBar()->setBarPos(KToolBar::BarPosition(globalMainTBPos));
+//	toolBar("Edit")->setBarPos(KToolBar::BarPosition(globalEditTBPos));
 
 	// SET UP MAIN MENU
 
@@ -146,11 +150,11 @@ ApplicationWindow::ApplicationWindow(): KTMainWindow()
 	menuBar()->insertItem(i18n("&Edit"), p);
 
 	p = new QPopupMenu();
-	p->insertItem(i18n("&Chord"),this,SLOT(inschord()));
+	p->insertItem(i18n("&Chord"),this,SLOT(insertChord()));
 	menuBar()->insertItem(i18n("&Insert"),p);
 
 	p = new QPopupMenu();
-	p->insertItem(i18n("&General..."), this, SLOT(options()));
+	p->insertItem(i18n("&Preferences..."), this, SLOT(options()));
 
 	tbMenu = new QPopupMenu();
 	tb[0] = tbMenu->insertItem(i18n("Main Toolbar"), this, SLOT(setMainTB()));
@@ -179,13 +183,13 @@ ApplicationWindow::ApplicationWindow(): KTMainWindow()
 
 	p->insertItem(i18n("&Note names"), nnMenu);
 
-	menuBar()->insertItem(i18n("&Options"),p);
+	menuBar()->insertItem(i18n("&Settings"), p);
 
 	QString aboutmess = "KGuitar " VERSION "\n\n";
-	aboutmess = aboutmess + i18n("A stringed instrument tabulature editor");
-	aboutmess = aboutmess + "\n(C) 2000 KGuitar development team\n";
+	aboutmess += DESCRIPTION;
+	aboutmess += "\n(C) 2000 by KGuitar development team\n";
 
-	p = KApplication::getKApplication()->getHelpMenu(0,aboutmess);
+	p = helpMenu(aboutmess);
 	
 	menuBar()->insertSeparator();
 	menuBar()->insertItem(i18n("&Help"), p);
@@ -203,7 +207,7 @@ ApplicationWindow::~ApplicationWindow()
 void ApplicationWindow::closeEvent(QCloseEvent *e)
 {
 	saveOptions();
-	KTMainWindow::closeEvent(e);
+	KMainWindow::closeEvent(e);
 }
 
 void ApplicationWindow::updateMenu()
@@ -220,14 +224,14 @@ void ApplicationWindow::updateTbMenu()
 	saveOptions();
 
 	if (globalShowMainTB)
-		enableToolBar(KToolBar::Show, 0);
+		toolBar()->show();
 	else
-		enableToolBar(KToolBar::Hide, 0);
+		toolBar()->hide();
 
 	if (globalShowEditTB)
-		enableToolBar(KToolBar::Show, 1);
+		toolBar("Edit")->show();
 	else
-		enableToolBar(KToolBar::Hide, 1);
+		toolBar("Edit")->hide();
 }
 
 void ApplicationWindow::updateStatusBar()
@@ -240,13 +244,14 @@ void ApplicationWindow::updateStatusBar()
 
 bool ApplicationWindow::jazzWarning()
 {
-	return KMsgBox::yesNo(this, "KGuitar",
-						  i18n("Jazz note names are very special and should be\n"
-							   "used only if really know what you do. Usage of jazz\n"
-							   "note names without a purpose would confuse or mislead\n"
-							   "anyone reading the music who did not have a knowledge\n"
-							   "of jazz note naming.\n\n"
-							   "Are you sure you want to use jazz notes?"))==1;
+	return KMessageBox::warningYesNo(this,
+									 i18n("Jazz note names are very special and should be\n"
+										  "used only if really know what you do. Usage of jazz\n"
+										  "note names without a purpose would confuse or mislead\n"
+										  "anyone reading the music who did not have a knowledge\n"
+										  "of jazz note naming.\n\n"
+										  "Are you sure you want to use jazz notes?"),
+									 "KGuitar") == KMessageBox::Yes;
 }
 
 void ApplicationWindow::newDoc()
@@ -261,15 +266,13 @@ void ApplicationWindow::load()
 	QString fn = KFileDialog::getOpenFileName(0, "*.kg", this);
 	if (!fn.isEmpty()) {
 		if (tv->sng()->load_from_kg(fn)) {
-			QString tmp = PACKAGE;
-			tmp =  fn + " - " + tmp;
-			setCaption(tmp);
+			setCaption(fn);
 			tv->setCurt(tv->sng()->t.first());
 			tv->sng()->t.first()->x = 0;
 			tv->sng()->t.first()->y = 0;
 			tv->sng()->filename = fn;
 			tv->updateRows();
-			addRecentFile(fn);
+			addRecentFile(fn.latin1());
 		}
 	}
 }
@@ -280,39 +283,32 @@ void ApplicationWindow::recentLoad(int _id)
 
 	if (!fn.isEmpty()) {
 		if (tv->sng()->load_from_kg(fn)) {
-			QString tmp = PACKAGE;
-			tmp =  fn + " - " + tmp;
-			setCaption(tmp);
+			setCaption(fn);
 			tv->setCurt(tv->sng()->t.first());
 			tv->sng()->t.first()->x = 0;
 			tv->sng()->t.first()->y = 0;
 			tv->sng()->filename = fn;
 			tv->updateRows();
-			addRecentFile(fn);
-		}
-		else {
+			addRecentFile(fn.latin1());
+		} else {
 			recentFiles.remove(_id);
 			recMenu->clear();
-			for (int i = 0 ; i < (int) recentFiles.count(); i++)
+			for (int i = 0; i < (int) recentFiles.count(); i++)
 				recMenu->insertItem(recentFiles.at(i));
-			KMsgBox::message(this, "KGuitar",
-							 i18n("Can't load the song!"));
+			KMessageBox::sorry(this, "KGuitar",
+							   i18n("Can't load the song!"));
 		}
 	}
 }
 
-void ApplicationWindow::addRecentFile(QString fn)
+void ApplicationWindow::addRecentFile(const char *fn)
 {
 	if (recentFiles.find(fn) == -1) {
-		if (recentFiles.count() < 5) {
-			recentFiles.insert(0, fn);
-		}
-		else {
+		if (recentFiles.count() == 5)
 			recentFiles.remove(4);
-			recentFiles.insert(0, fn);
-		}
+		recentFiles.insert(0, fn);
 		recMenu->clear();
-		for (int i = 0 ; i < (int) recentFiles.count(); i++)
+		for (uint i = 0 ; i < recentFiles.count(); i++)
 			recMenu->insertItem(recentFiles.at(i));
 	}
 }
@@ -329,29 +325,25 @@ void ApplicationWindow::save()
 	QString fn = tv->sng()->filename;
 
 	if (fn.isEmpty())
-		fn = KFileDialog::getSaveFileName(0,"*.kg",this);
+		fn = KFileDialog::getSaveFileName(0,"*.kg", this);
 
 	if (!fn.isEmpty()) {		
 		tv->arrangeBars();//gotemfix: arrange bars before saving
 		tv->sng()->save_to_kg(fn);
 		tv->sng()->filename = fn;
-		QString tmp = PACKAGE;
-		tmp =  fn + " - " + tmp;
-		setCaption(tmp);
-		addRecentFile(fn);
+		setCaption(fn);
+		addRecentFile(fn.latin1());
 	}
 }
 
 void ApplicationWindow::saveAs()
 {
-	QString fn = KFileDialog::getSaveFileName(0,"*.kg",this);
+	QString fn = KFileDialog::getSaveFileName(0, "*.kg", this);
 	if (!fn.isEmpty()) {
 		tv->sng()->save_to_kg(fn);
 		tv->sng()->filename = fn;
-		QString tmp = PACKAGE;
-		tmp =  fn + " - " + tmp;
-		setCaption(tmp);
-		addRecentFile(fn);
+		setCaption(fn);
+		addRecentFile(fn.latin1());
 	}
 }
 
@@ -436,7 +428,7 @@ void ApplicationWindow::appQuit()
 	closeDoc(); //ALINXFIX: exit(0) is impossible, because options will not be saved
 }
 
-void ApplicationWindow::inschord()
+void ApplicationWindow::insertChord()
 {
 	int a[MAX_STRINGS];
 
@@ -535,46 +527,54 @@ void ApplicationWindow::options()
 
 void ApplicationWindow::readOptions()
 {
-	kapp->getConfig()->setGroup("General");
-	globalMaj7 = kapp->getConfig()->readNumEntry("maj7", 0);
-	globalFlatPlus = kapp->getConfig()->readNumEntry("flatplus", 0);
-	globalNoteNames = kapp->getConfig()->readNumEntry("notenames", 0);
+	kapp->sessionConfig()->setGroup("General");
+	globalMaj7 = kapp->sessionConfig()->readNumEntry("maj7", 0);
+	globalFlatPlus = kapp->sessionConfig()->readNumEntry("flatplus", 0);
+	globalNoteNames = kapp->sessionConfig()->readNumEntry("notenames", 0);
 
-	kapp->getConfig()->setGroup("MusiXTeX");
-	globalTabSize = kapp->getConfig()->readNumEntry("tabsize", 2);
-	globalShowBarNumb = kapp->getConfig()->readBoolEntry("showbarnumb", TRUE);
-	globalShowStr = kapp->getConfig()->readBoolEntry("showstr", TRUE);
-	globalShowPageNumb = kapp->getConfig()->readBoolEntry("showpagenumb", TRUE);
+	kapp->sessionConfig()->setGroup("MusiXTeX");
+	globalTabSize = kapp->sessionConfig()->readNumEntry("tabsize", 2);
+	globalShowBarNumb = kapp->sessionConfig()->readBoolEntry("showbarnumb", TRUE);
+	globalShowStr = kapp->sessionConfig()->readBoolEntry("showstr", TRUE);
+	globalShowPageNumb = kapp->sessionConfig()->readBoolEntry("showpagenumb", TRUE);
 
-	kapp->getConfig()->setGroup("Appearance");
-	globalShowMainTB = kapp->getConfig()->readBoolEntry("showMainTB", TRUE);
-	globalShowEditTB = kapp->getConfig()->readBoolEntry("showEditTB", TRUE);
-	globalMainTBPos = kapp->getConfig()->readNumEntry("mainTBPos", 0);
-	globalEditTBPos = kapp->getConfig()->readNumEntry("editTBPos", 0);
-	QSize size = kapp->getConfig()->readSizeEntry("geometry");
+	kapp->sessionConfig()->setGroup("Appearance");
+	globalShowMainTB = kapp->sessionConfig()->readBoolEntry("showMainTB", TRUE);
+	globalShowEditTB = kapp->sessionConfig()->readBoolEntry("showEditTB", TRUE);
+	globalMainTBPos = kapp->sessionConfig()->readNumEntry("mainTBPos", 0);
+	globalEditTBPos = kapp->sessionConfig()->readNumEntry("editTBPos", 0);
+	QSize size = kapp->sessionConfig()->readSizeEntry("geometry");
 	if (!size.isEmpty())
 		resize(size);
-	kapp->getConfig()->readListEntry("recentFiles", recentFiles);
+	kapp->sessionConfig()->readListEntry("recentFiles", recentFiles);
+
+	kapp->sessionConfig()->setGroup("ALSA");
+	globalAlsaClient = kapp->sessionConfig()->readNumEntry("client", 64);
+	globalAlsaPort = kapp->sessionConfig()->readNumEntry("port", 0);
 }
 
 void ApplicationWindow::saveOptions()
 {
-	kapp->getConfig()->setGroup("General");
-	kapp->getConfig()->writeEntry("maj7", globalMaj7);
-	kapp->getConfig()->writeEntry("flatplus", globalFlatPlus);
-	kapp->getConfig()->writeEntry("notenames", globalNoteNames);
+	kapp->sessionConfig()->setGroup("General");
+	kapp->sessionConfig()->writeEntry("maj7", globalMaj7);
+	kapp->sessionConfig()->writeEntry("flatplus", globalFlatPlus);
+	kapp->sessionConfig()->writeEntry("notenames", globalNoteNames);
 
-	kapp->getConfig()->setGroup("MusiXTeX");
-	kapp->getConfig()->writeEntry("tabsize", globalTabSize);
-	kapp->getConfig()->writeEntry("showbarnumb", globalShowBarNumb);
-	kapp->getConfig()->writeEntry("showstr", globalShowStr);
-	kapp->getConfig()->writeEntry("showpagenumb", globalShowPageNumb);
+	kapp->sessionConfig()->setGroup("MusiXTeX");
+	kapp->sessionConfig()->writeEntry("tabsize", globalTabSize);
+	kapp->sessionConfig()->writeEntry("showbarnumb", globalShowBarNumb);
+	kapp->sessionConfig()->writeEntry("showstr", globalShowStr);
+	kapp->sessionConfig()->writeEntry("showpagenumb", globalShowPageNumb);
 
-	kapp->getConfig()->setGroup("Appearance");
-	kapp->getConfig()->writeEntry("showMainTB", globalShowMainTB);
-	kapp->getConfig()->writeEntry("showEditTB", globalShowEditTB);
-	kapp->getConfig()->writeEntry("mainTBPos", toolBar()->barPos());
-	kapp->getConfig()->writeEntry("editTBPos", toolBar(1)->barPos());
-	kapp->getConfig()->writeEntry("geometry", size());
-	kapp->getConfig()->writeEntry("recentFiles", recentFiles);
+	kapp->sessionConfig()->setGroup("Appearance");
+	kapp->sessionConfig()->writeEntry("showMainTB", globalShowMainTB);
+	kapp->sessionConfig()->writeEntry("showEditTB", globalShowEditTB);
+	kapp->sessionConfig()->writeEntry("mainTBPos", toolBar()->barPos());
+	kapp->sessionConfig()->writeEntry("editTBPos", toolBar("Edit")->barPos());
+	kapp->sessionConfig()->writeEntry("geometry", size());
+	kapp->sessionConfig()->writeEntry("recentFiles", recentFiles);
+
+	kapp->sessionConfig()->setGroup("ALSA");
+	kapp->sessionConfig()->writeEntry("client", globalAlsaClient);
+	kapp->sessionConfig()->writeEntry("port", globalAlsaPort);
 }

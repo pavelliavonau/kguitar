@@ -1,6 +1,6 @@
 #include "options.h"
 
-#include <kapp.h>
+#include <klocale.h>
 #include <qlayout.h>
 #include <qbuttongroup.h>
 #include <qradiobutton.h>
@@ -170,5 +170,5 @@ void Options::fillAlsaBox()
 			}
 		}
 	}
-#endif HAVE_LIBASOUND
+#endif
 }

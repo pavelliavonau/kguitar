@@ -5,7 +5,7 @@
 #include "global.h"
 
 class QLineEdit;
-class KIntegerLine;
+class KIntNumInput;
 class SetTabFret;
 
 class SetTrack: public QDialog
@@ -15,7 +15,7 @@ public:
     SetTrack(QWidget *parent=0, const char *name=0);
 
     QLineEdit *title;
-    KIntegerLine *channel,*bank,*patch;
+    KIntNumInput *channel,*bank,*patch;
     SetTabFret *fret;
 private:
 };
