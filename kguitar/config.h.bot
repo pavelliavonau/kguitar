@@ -5,6 +5,6 @@ const bool FALSE = 0;
 const bool TRUE = 1;
 #endif
 
-#ifdef HAVE_LIBASOUND
+#ifdef WITH_MIDISUPPORT
 #define HAVE_MIDI
 #endif

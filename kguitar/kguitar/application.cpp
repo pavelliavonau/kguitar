@@ -200,11 +200,15 @@ KGuitarPart::KGuitarPart(bool bBrowserView, QWidget *parentWidget,
 
     // SET UP MIDI-PLAY
     midiPlayTrackAct = new KAction(i18n("&Play Track"), "1rightarrow",
-                                   KAccel::stringToKey("Ctrl+P"), tv, SLOT(playTrack()),
+                                   KAccel::stringToKey("Shift+P"), tv, SLOT(playTrack()),
                                    actionCollection(), "midi_playtrack");
     midiStopPlayAct = new KAction(i18n("&Stop"), "player_stop",
                                   KAccel::stringToKey("Ctrl+Shift+P"), tv, SLOT(stopPlayTrack()),
                                   actionCollection(), "midi_stopplay");
+#ifndef HAVE_MIDI
+    midiPlayTrackAct->setEnabled(FALSE);
+    midiStopPlayAct->setEnabled(FALSE);
+#endif
 
 	// SET UP ACCEL...
 	mainAccel = new KAccel(tv);
