@@ -1,24 +1,24 @@
 #include "setsong.h"
 
 #include <kapp.h>
-#include <klined.h>
+#include <qlineedit.h>
 #include <qmultilinedit.h>
 #include <qlabel.h>
 #include <qpushbutton.h>
 
 SetSong::SetSong(QWidget *parent=0, const char *name=0): QDialog(parent,name,TRUE)
 {
-    title = new KLined(this);
+    title = new QLineEdit(this);
     title->setGeometry(100,10,290,20);
     QLabel *title_l = new QLabel(title,i18n("&Title:"),this);
     title_l->setGeometry(10,10,90,20);
 
-    author = new KLined(this);
+    author = new QLineEdit(this);
     author->setGeometry(100,40,290,20);
     QLabel *author_l = new QLabel(author,i18n("&Author:"),this);
     author_l->setGeometry(10,40,90,20);
 
-    transcriber = new KLined(this);
+    transcriber = new QLineEdit(this);
     transcriber->setGeometry(100,70,290,20);
     QLabel *transcriber_l = new QLabel(transcriber,i18n("&Transcriber:"),this);
     transcriber_l->setGeometry(10,70,90,20);
