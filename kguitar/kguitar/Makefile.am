@@ -28,7 +28,7 @@ libkguitar_la_SOURCES = application.cpp chord.cpp fingers.cpp fingerlist.cpp \
  trackview.cpp setsong.cpp tabsong.cpp tabtrack.cpp settrack.cpp \
  settabfret.cpp settabdrum.cpp radiustuner.cpp notespinbox.cpp \
  options.cpp chordlistitem.cpp chordlist.cpp timesig.cpp strumming.cpp \
- filebrowser.cpp midilist.cpp kguitar_shell.cpp
+ filebrowser.cpp midilist.cpp songview.cpp tracklist.cpp kguitar_shell.cpp
 
 METASOURCES = AUTO
 
@@ -44,7 +44,8 @@ kguitar_LDADD   = $(LIB_KFILE) libkguitar.la
 noinst_HEADERS = application.h chord.h fingers.h fingerlist.h trackview.h \
  setsong.h tabsong.h tabtrack.h settrack.h settabfret.h settabdrum.h \
  radiustuner.h notespinbox.h options.h chordlistitem.h chordlist.h \
- timesig.h strumming.h filebrowser.h midilist.h kguitar_shell.h
+ timesig.h strumming.h filebrowser.h midilist.h songview.h tracklist.h \
+ kguitar_shell.h
 
 libkguitar_la_LDFLAGS = $(all_libraries) -version-info 1:0:0 -module -no-undefined
 libkguitar_la_LIBADD = $(LIB_KFILE) -lkparts -lkmid
