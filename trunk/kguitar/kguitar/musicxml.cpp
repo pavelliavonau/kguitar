@@ -38,7 +38,11 @@
 // patch (== program): 0..127
 // KGuitar ???
 
+// LVIFIX:
+// check if dots are read back correctly
+
 #include "global.h"
+#include "accidentals.h"
 #include "musicxml.h"
 #include "tabsong.h"
 #include "tabtrack.h"
@@ -49,7 +53,6 @@
 // local conversion functions
 
 static QString kgNoteLen2Mxml(const int);
-static int mxmlSao2Kg(const QString&, const QString&, const QString&);
 static int mxmlStr2Kg(const int, const int);
 static int mxmlNoteType2Kg(const QString&);
 
@@ -74,37 +77,6 @@ static QString kgNoteLen2Mxml(const int kgNoteLen)
 	default:
 		return "";
 	}
-}
-
-// convert MusicXML step/alter/octave to KGuitar midi note number
-// return -1 on failure
-
-// LVIFIX: tuning-alter not supported
-
-static QString notes_us[12] = {"C",  "C#", "D",  "D#", "E",  "F",
-                               "F#", "G",  "G#", "A",  "A#", "B"};
-
-static int mxmlSao2Kg(const QString& mxmlStep,
-                      const QString& mxmlAlter,
-                      const QString& mxmlOctave)
-{
-    int cn = -1;
-
-	// search step in note name table
-    for (int i = 0; i < 12; i++) {
-		if (mxmlStep == notes_us[i]) {
-			cn = i;
-		}
-	}
-	if (cn == -1) {
-		return -1;
-	}
-
-	if (mxmlAlter != "") {
-		// LVIFIX: add
-	}
-
-	return mxmlOctave.toInt() * 12 + cn;
 }
 
 // convert MusicXML string number to KGuitar string number
@@ -291,7 +263,7 @@ bool MusicXMLParser::endElement( const QString&, const QString&,
 		if (trk) {
 			// LVIFIX: Check max_strings
 			trk->tune[mxmlStr2Kg(stPtl.toInt(), trk->string)]
-				= mxmlSao2Kg(stPts, "" /* LVIFIX */, stPto);
+				= accSt.sao2Pitch(stPts, 0 /* LVIFIX */, stPto.toInt());
 		}
 	} else if (qName == "string") {
 	    stStr = stCha;
@@ -520,6 +492,8 @@ void MusicXMLWriter::write(QTextStream& os)
 				} else {
 					// LVIFIX write time sig if changed
 				}
+				// Initialize the accidentals
+				accSt.resetToKeySig();
 			}
 			writeCol(os, trk, x);
 		}
@@ -529,6 +503,28 @@ void MusicXMLWriter::write(QTextStream& os)
 	}
 	os << "\n";
 	os << "</score-partwise>\n";
+}
+
+// write accidental of midi note n to QTextStream os
+
+void MusicXMLWriter::writeAccid(QTextStream& os, int n, QString tabs)
+{
+	int alt = 0;
+	int oct = 0;
+	Accidentals::Accid acc = Accidentals::None;
+	QString nam = "";
+
+	accSt.getNote(n, nam, alt, oct, acc);
+	if (acc != Accidentals::None) {
+		QString s;
+		switch (acc) {
+			case Accidentals::Natural: s = "natural"; break;
+			case Accidentals::Sharp:   s = "sharp";   break;
+			case Accidentals::Flat:    s = "flat";    break;
+			default:                   s = "unknown"; break;
+		}
+		os << tabs << "<accidental>" << s << "</accidental>\n";
+	}
 }
 
 // write column x of TabTrack trk to QTextStream os
@@ -548,6 +544,15 @@ void MusicXMLWriter::writeCol(QTextStream& os, TabTrack * trk, int x)
 	if (trk->c[x].flags & FLAG_DOT) {
 		duration = duration * 3 / 2;
 	}
+	// calculate accidentals
+	accSt.startChord();
+	for (int i = trk->string - 1; i >= 0 ; i--) {
+		if (trk->c[x].a[i] > -1) {
+			fret = trk->c[x].a[i];
+			accSt.addPitch(trk->tune[i] + fret);
+		}
+	}
+	accSt.calcChord();
 	// print all notes
 	for (int i = trk->string - 1; i >= 0 ; i--) {
 		if (trk->c[x].a[i] > -1) {
@@ -565,6 +570,7 @@ void MusicXMLWriter::writeCol(QTextStream& os, TabTrack * trk, int x)
 			if (trk->c[x].flags & FLAG_DOT) {
 				os << "\t\t\t\t<dot/>\n";
 			}
+			writeAccid(os, trk->tune[i] + fret, "\t\t\t\t");
 			os << "\t\t\t\t<notations>\n";
 			os << "\t\t\t\t\t<technical>\n";
 			os << "\t\t\t\t\t\t<string>" << mxmlStr2Kg(i, trk->string)
@@ -593,19 +599,19 @@ void MusicXMLWriter::writeCol(QTextStream& os, TabTrack * trk, int x)
 void MusicXMLWriter::writePitch(QTextStream& os,
                                 int n, QString tabs, QString prfx)
 {
-	QString noteName = notes_us[n % 12];
-	os << tabs << "<" << prfx << "step>" << noteName.left(1)
+	int alt = 0;
+	int oct = 0;
+	Accidentals::Accid acc = Accidentals::None;
+	QString nam = "";
+	
+	accSt.getNote(n, nam, alt, oct, acc);
+	os << tabs << "<" << prfx << "step>" << nam
 	   << "</" << prfx << "step>\n";
-	if (noteName.length() > 1) {
-		if (noteName.mid(1, 1) == "#") {
-			os << tabs << "<" << prfx << "alter>1</" << prfx << "alter>\n";
-		} else if (noteName.mid(1, 1) == "b") {
-			os << tabs << "<" << prfx << "alter>-1</" << prfx << "alter>\n";
-		} else {
-			// ignore
-		}
+	if (alt) {
+		os << tabs << "<" << prfx << "alter>" << alt
+		   << "</" << prfx << "alter>\n";
 	}
-	os << tabs << "<" << prfx << "octave>" << n / 12
+	os << tabs << "<" << prfx << "octave>" << oct
 	   << "</" << prfx << "octave>\n";
 }
 
@@ -613,6 +619,15 @@ void MusicXMLWriter::writePitch(QTextStream& os,
 
 void MusicXMLWriter::writeStaffDetails(QTextStream& os, TabTrack * trk)
 {
+	// note: writePitch uses accSt, which has to be initialized first
+	// Initialize the accidentals
+	accSt.resetToKeySig();
+	// calculate accidentals
+	accSt.startChord();
+	for (int i = 0; i < trk->string; i++) {
+		accSt.addPitch(trk->tune[i]);
+	}
+	accSt.calcChord();
 	os << "\t\t\t\t<staff-details>\n";
 	os << "\t\t\t\t\t<staff-lines>" << (int) trk->string << "</staff-lines>\n";
 	for (int i = 0; i < trk->string; i++) {
