@@ -3,7 +3,7 @@
 
 #include "timesig.h"
 
-#include <kapp.h>
+#include <kglobalsettings.h>
 #include <iostream.h>
 
 #include <qwidget.h>
@@ -171,26 +171,26 @@ void TrackView::paintCell(QPainter *p, int row, int col)
 	}
 
 	p->setFont(QFont("helvetica",VERTLINE));
-	p->setBrush(KApplication::getKApplication()->windowColor);	
-	for (uint t=curt->b[bn].start;t<=last;t++) {
+	p->setBrush(KGlobalSettings::baseColor());
+	for (uint t = curt->b[bn].start; t <= last; t++) {
 		// Drawing duration marks
 		
-		// Draw connection with previous, if applicabl
-		if ((t>0) && (t>curt->b[bn].start) && (curt->c[t-1].l==curt->c[t].l))
-			xdelta = lastxpos+VERTLINE/2;
+		// Draw connection with previous, if applicable
+		if ((t>0) && (t>curt->b[bn].start) && (curt->c[t-1].l == curt->c[t].l))
+			xdelta = lastxpos + VERTLINE / 2;
 		else
-			xdelta = xpos+VERTLINE/2+HORDUR;
+			xdelta = xpos + VERTLINE / 2 + HORDUR;
 		
 		switch (curt->c[t].l) {
 		case 15:  // 1/32
-			p->drawLine(xpos+VERTLINE/2,BOTTOMDUR+VERTLINE-4,
-						xdelta,BOTTOMDUR+VERTLINE-4);
+			p->drawLine(xpos + VERTLINE / 2, BOTTOMDUR + VERTLINE - 4,
+						xdelta, BOTTOMDUR + VERTLINE - 4);
 		case 30:  // 1/16
-			p->drawLine(xpos+VERTLINE/2,BOTTOMDUR+VERTLINE-2,
-						xdelta,BOTTOMDUR+VERTLINE-2);
+			p->drawLine(xpos + VERTLINE / 2, BOTTOMDUR + VERTLINE - 2,
+						xdelta, BOTTOMDUR + VERTLINE - 2);
 		case 60:  // 1/8
-			p->drawLine(xpos+VERTLINE/2,BOTTOMDUR+VERTLINE,
-						xdelta,BOTTOMDUR+VERTLINE);
+			p->drawLine(xpos + VERTLINE / 2, BOTTOMDUR + VERTLINE,
+						xdelta, BOTTOMDUR + VERTLINE);
 		case 120: // 1/4 - a long vertical line, so we need to find the highest note
 			for (i=s;((i>=0) && (curt->c[t].a[i]==-1));i--);
 			
@@ -231,32 +231,32 @@ void TrackView::paintCell(QPainter *p, int row, int col)
 		// Draw the number column
 		
 		p->setPen(NoPen);
-		for (i=0;i<=s;i++) {
-			if ((t==curt->x) && (i==curt->y)) {
-				p->setBrush(KApplication::getKApplication()->selectColor);
-				p->drawRect(xpos,VERTSPACE+(s-i)*VERTLINE-VERTLINE/2,
-							VERTLINE,VERTLINE+1);
-				p->setBrush(KApplication::getKApplication()->windowColor);
-				if (curt->c[t].a[i]!=-1) {
+		for (i = 0; i <= s; i++) {
+			if ((t == curt->x) && (i == curt->y)) {
+				p->setBrush(KGlobalSettings::highlightColor());
+				p->drawRect(xpos, VERTSPACE + (s - i) * VERTLINE - VERTLINE / 2,
+							VERTLINE, VERTLINE + 1);
+				p->setBrush(KGlobalSettings::baseColor());
+				if (curt->c[t].a[i] != -1) {
 					if (curt->c[t].a[i]==DEAD_NOTE)
 						tmp = "X";
 					else
 						tmp.setNum(curt->c[t].a[i]);
-					p->setPen(KApplication::getKApplication()->selectTextColor);
-					p->drawText(xpos,VERTSPACE+(s-i)*VERTLINE-VERTLINE/2,
-								VERTLINE,VERTLINE,AlignCenter,tmp);
+					p->setPen(KGlobalSettings::highlightedTextColor());
+					p->drawText(xpos, VERTSPACE + (s - i) * VERTLINE - VERTLINE / 2,
+								VERTLINE, VERTLINE, AlignCenter, tmp);
 					p->setPen(NoPen);
 				}
 			} else {
-				if (curt->c[t].a[i]!=-1) {
-					if (curt->c[t].a[i]==DEAD_NOTE)
+				if (curt->c[t].a[i] != -1) {
+					if (curt->c[t].a[i] == DEAD_NOTE)
 						tmp = "X";
 					else
 						tmp.setNum(curt->c[t].a[i]);
-					p->drawRect(xpos,VERTSPACE+(s-i)*VERTLINE-VERTLINE/2,
-								VERTLINE,VERTLINE+1);
-					p->drawText(xpos,VERTSPACE+(s-i)*VERTLINE-VERTLINE/2,
-								VERTLINE,VERTLINE,AlignCenter,tmp);
+					p->drawRect(xpos,VERTSPACE + (s - i) * VERTLINE - VERTLINE / 2,
+								VERTLINE, VERTLINE + 1);
+					p->drawText(xpos,VERTSPACE + (s - i) * VERTLINE - VERTLINE / 2,
+								VERTLINE, VERTLINE, AlignCenter, tmp);
 				}
 			}
 			

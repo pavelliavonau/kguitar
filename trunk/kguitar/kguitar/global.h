@@ -7,6 +7,7 @@
 // Global utility functions
 
 #include <qglobal.h>
+#include <config.h>
 
 class QString;
 

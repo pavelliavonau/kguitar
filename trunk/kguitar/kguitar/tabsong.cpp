@@ -6,7 +6,6 @@
 
 #include <qfile.h>
 #include <qdatastream.h>
-#include <iostream.h>
 
 TabSong::TabSong(QString _title, int _tempo)
 {
@@ -52,7 +51,8 @@ void len2dot(int l, int *len, bool *dot)
 
 // General header:
 // 3 bytes - 'K' 'G' 0 - general signature
-// 1 byte  - version number of _file_format_. Should be 1 for now.
+// 1 byte  - version number of _file_format_. Should be 2 (older 1 format
+//           included non-unicode strings)
 
 // Song properties (strings in Qt format)
 // string  - title
@@ -102,8 +102,8 @@ bool TabSong::load_from_kg(QString fileName)
 	
 	// FILE VERSION NUMBER
 	Q_UINT8 ver;
-	s >> ver; // we could only read version 1 files
-	if (ver != 1)
+	s >> ver; // version 2 files are unicode KDE2 files
+	if ((ver < 1) || (ver > 2))
 		return FALSE;
 
 	// HEADER SONG DATA
@@ -138,7 +138,7 @@ bool TabSong::load_from_kg(QString fileName)
 	Q_INT8 cn;
 	QString tn;
 
-	for (int i=0;i<cnt;i++) {
+	for (int i = 0; i < cnt; i++) {
 		s >> tm; // Track properties (Track mode)
 		
 		// GREYFIX - todo track mode check
@@ -178,7 +178,7 @@ bool TabSong::load_from_kg(QString fileName)
 		
 		bool dot;
 		int dur;
-		cout << "reading events\n";
+		printf("reading events\n");
 		do {
 			s >> event;
 			s >> elength;
@@ -248,14 +248,15 @@ bool TabSong::load_from_kg(QString fileName)
 	
 	return TRUE;
 }
+
 void TabSong::arrangeBars(){
 	QListIterator<TabTrack> it(t);
 	for (; it.current(); ++it) {		// For every track
 		TabTrack *trk = it.current();
 		trk->arrangeBars();
-			}
-	
+	}	
 }
+
 bool TabSong::save_to_kg(QString fileName)
 {
 	QFile f(fileName);
@@ -268,7 +269,7 @@ bool TabSong::save_to_kg(QString fileName)
 	s.writeRawBytes("KG\0",3);
 	
 	// VERSION SIGNATURE
-	s << (Q_UINT8) 1;
+	s << (Q_UINT8) 2;
 	
 	// HEADER SONG DATA
 	s << title;
@@ -862,7 +863,7 @@ QString TabSong::cleanString(QString str)  // insert control sequence
 {
 	QString tmp, toc;
 
-	for (uint i=0; i < str.size(); i++){
+	for (uint i=0; i < str.length(); i++){
 		toc = str.mid(i, 1);
 		if ((toc == "<") || (toc == ">"))
 			tmp = tmp + "$" + toc + "$";
@@ -1137,7 +1138,6 @@ bool TabSong::save_to_tex_notes(QString fileName)
 	QTextStream s(&f);
 
 	QListIterator<TabTrack> it(t);
-	TabTrack *trk = it.current();
 
 	// TeX-File INFO-HEADER
 	s << "%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%" << "\n";

@@ -5,7 +5,7 @@
 #include <qpainter.h>
 #include <qcolor.h>
 
-#include <kapp.h>
+#include <kglobalsettings.h>
 
 FingerList::FingerList(TabTrack *p, QWidget *parent,const char *name):
     QTableView(parent,name)
@@ -56,9 +56,9 @@ void FingerList::addFingering(const int a[MAX_STRINGS], bool update)
 
 void FingerList::resizeEvent(QResizeEvent *e)
 {
-    perRow = width()/ICONCHORD;
+    perRow = width() / ICONCHORD;
     setNumCols(perRow);
-    setNumRows((num-1)/perRow+1);
+    setNumRows((num - 1) / perRow + 1);
 }
 
 void FingerList::mousePressEvent(QMouseEvent *e)
@@ -86,14 +86,14 @@ void FingerList::paintCell(QPainter *p, int row, int col)
     
     if (n<num) {
 		int barre,eff;
-		QColor back = KApplication::getKApplication()->windowColor;
-		QColor fore = KApplication::getKApplication()->windowTextColor;
+		QColor back = KGlobalSettings::baseColor();
+		QColor fore = KGlobalSettings::textColor();
 		
 		// Selection painting
 		
 		if (curSel==n) {
-			back = KApplication::getKApplication()->selectColor;
-			fore = KApplication::getKApplication()->selectTextColor;
+			back = KGlobalSettings::highlightColor();
+			fore = KGlobalSettings::highlightedTextColor();
 			
 			p->setBrush(back);
 			p->setPen(NoPen);
@@ -102,10 +102,10 @@ void FingerList::paintCell(QPainter *p, int row, int col)
 			if (hasFocus()) {
 				p->setBrush(NoBrush);
 				p->setPen(fore);
-				// GREYFIX - assumes only 2 styles
-				if (KApplication::getKApplication()->applicationStyle==WindowsStyle)
-					p->drawWinFocusRect(0,0,ICONCHORD-1,ICONCHORD-1);
-				else
+				// GREYFIX - assumes only 2 styles - fix as to KDE2!
+// 				if (KGlobalSettings::applicationStyle == WindowsStyle)
+// 					p->drawWinFocusRect(0,0,ICONCHORD-1,ICONCHORD-1);
+// 				else
 					p->drawRect(1,1,ICONCHORD-3,ICONCHORD-3);
 			}
 		}

@@ -2,46 +2,41 @@
 
 #include <qvalidator.h>
 
-NoteValidator::NoteValidator(QWidget *parent, const char *name=0):
-    QValidator(parent,name)
-{
-}
-
-QValidator::State NoteValidator::validate(QString &input, int &pos)
+QValidator::State NoteValidator::validate(QString &input, int &pos) const
 {
     State res = Invalid;
 
     switch (input.length()) {
     case 1:
-	if ((input.left(1)>='A') && (input.left(1)<='H'))
-	    res = Valid;
+		if ((input.left(1)>='A') && (input.left(1)<='H'))
+			res = Valid;
 	break;
     case 2:
-	if ((input.left(1)>='A') && (input.left(1)<='H')) {
-	    if (input.mid(1,1)=='#') {
-		res = Valid;
-	    } else if ((input.mid(1,1)>='0') && (input.mid(1,1)<='9')) {
-		res = Acceptable;
-	    } else {
-		res = Invalid;
-	    }
-	}
-	break;
+		if ((input.left(1) >= 'A') && (input.left(1) <= 'H')) {
+			if (input.mid(1, 1) == '#') {
+				res = Valid;
+			} else if ((input.mid(1, 1) >= '0') && (input.mid(1,1) <= '9')) {
+				res = Acceptable;
+			} else {
+				res = Invalid;
+			}
+		}
+		break;
     case 3:
-	if ((input.left(1)>='A') && (input.left(1)<='H') &&
-	    (input.mid(1,1)=='#') &&
-	    (input.mid(2,1)>='0') && (input.mid(2,1)<='9')) {
-	    res = Acceptable;
-	} else {
-	    res = Invalid;
-	}
+		if ((input.left(1) >= 'A') && (input.left(1) <= 'H') &&
+			(input.mid(1,1) == '#') &&
+			(input.mid(2,1) >= '0') && (input.mid(2, 1) <= '9')) {
+			res = Acceptable;
+		} else {
+			res = Invalid;
+		}
     }
-
+	
     return res;
 }
 
-NoteSpinBox::NoteSpinBox(QWidget *parent=0, const char *name=0):
-    QSpinBox(0,255,1,parent,name)
+NoteSpinBox::NoteSpinBox(QWidget *parent = 0, const char *name = 0):
+    QSpinBox(0, 255, 1, parent, name)
 {
     nv = new NoteValidator(this);
     setValidator(nv);
@@ -56,8 +51,8 @@ QString NoteSpinBox::mapValueToText(int v)
 {
     QString tmp;
 
-    tmp.setNum(v/12);
-    tmp=note_name(v%12)+tmp;
+    tmp.setNum(v / 12);
+    tmp = note_name(v % 12) + tmp;
 
     return tmp;
 }
@@ -65,25 +60,25 @@ QString NoteSpinBox::mapValueToText(int v)
 int NoteSpinBox::mapTextToValue(bool *ok)
 {
     if (!ok)
-	return 0;
-
+		return 0;
+	
     QString t = text();
     QString nn;
-
-    if (t.data()[1]=='#') {
-	nn=t.left(2);
+	
+    if (t.latin1()[1] == '#') {
+		nn = t.left(2);
     } else {
-	nn=t.left(1);
+		nn = t.left(1);
     }
-
-    int cn=-1;
+	
+    int cn = -1;
     
-    for (int i=0;i<12;i++)
-	if (nn==note_name(i))
-	    cn=i;
-
-    nn=t.right(1);
+    for (int i = 0; i < 12; i++)
+		if (nn == note_name(i))
+			cn = i;
+	
+    nn = t.right(1);
     int oct = nn.toInt();
-
-    return oct*12+cn;
+	
+    return oct * 12 + cn;
 }

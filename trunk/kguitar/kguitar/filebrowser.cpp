@@ -1,23 +1,20 @@
-#include <kapp.h>
+#include <klocale.h>
 #include <qapp.h>
 #include <qtooltip.h>
 #include <qdir.h>
 #include <qfile.h>
 #include <qfileinfo.h>
-#include <kmsgbox.h>
+#include <kmessagebox.h>
 #include <kiconloader.h>
-
-#include <iostream.h>
 
 #include "application.h"
 #include "trackview.h"
 #include "tabsong.h"
 #include "filebrowser.h"
 
-
 //---------------------------------------------
 Directory::Directory(Directory *parent, const char *filename)
-: QListViewItem(parent), f(filename)
+	: QListViewItem(parent), f(filename)
 {
 	p = parent;
 	readable = TRUE;
@@ -25,7 +22,7 @@ Directory::Directory(Directory *parent, const char *filename)
 
 
 Directory::Directory(QListView *parent)
-: QListViewItem(parent), f("/")
+	: QListViewItem(parent), f("/")
 {
 	p = 0;
 	readable = TRUE;
@@ -79,22 +76,21 @@ QString Directory::fullName()
 	return s;
 }
 
-const char * Directory::text(int column) const
+QString Directory::text(int column) const
 {
 	if (column == 0)
 		return f.name();
-	else 
-		if (readable)
-			return "Directory";
-		else
-			return "Unreadable Directory";
+	else if (readable)
+		return "Directory";
+	else
+		return "Unreadable Directory";
 }
 
 //---------------------------------------------
 
 
 FileBrowser::FileBrowser(ApplicationWindow *parent, const char *name) 
-: QDialog(parent, name, true)
+	: QDialog(parent, name, TRUE)
 {
 	p = parent;
 
@@ -108,14 +104,14 @@ FileBrowser::FileBrowser(ApplicationWindow *parent, const char *name)
 	btnclose = new QPushButton(widget_1);
 	btnclose->setGeometry(0, 0, 24, 24);
 	btnclose->setMinimumSize(0, 0);
-	btnclose->setPixmap(Icon(KApplication::kde_datadir() + "/kguitar/pics/exit.xpm"));
+	btnclose->setPixmap(BarIcon("exit.xpm"));
 	connect(btnclose, SIGNAL(clicked()), SLOT(closeDlg()));
 	QToolTip::add(btnclose, i18n("Close Dialog"));
 
 	btnscan = new QPushButton(widget_1);
 	btnscan->setGeometry(30, 0, 24, 24);
 	btnscan->setMinimumSize(0, 0);
-	btnscan->setPixmap(Icon(KApplication::kde_datadir() + "/kguitar/pics/scandir.xpm"));
+	btnscan->setPixmap(BarIcon("scandir.xpm"));
 	connect(btnscan, SIGNAL(clicked()), SLOT(scanDir()));
 	QToolTip::add(btnscan, i18n("Scan Subdirectories"));
 
@@ -128,10 +124,10 @@ FileBrowser::FileBrowser(ApplicationWindow *parent, const char *name)
 	btnplay = new QPushButton(widget_1);
 	btnplay->setGeometry(80, 0, 24, 24);
 	btnplay->setMinimumSize(0, 0);
-	btnplay->setPixmap(Icon(KApplication::kde_datadir() + "/kguitar/pics/play.xpm"));
+	btnplay->setPixmap(BarIcon("play.xpm"));
 	connect(btnplay, SIGNAL(clicked()), SLOT(playSong()));
 	QToolTip::add(btnplay, i18n("Play score"));
-	btnplay->setToggleButton(true);
+	btnplay->setToggleButton(TRUE);
 
 	jumpcombo = new QComboBox(widget_1);
 	jumpcombo->setGeometry(110, 0, 150, 24);
@@ -247,7 +243,7 @@ void FileBrowser::scanSubDirs(QString path)
 	QFileInfoListIterator it(*fileinfolist);
 	QFileInfo* fi;
 
-	while ((fi = it.current()) != 0){
+	while ((fi = it.current()) != 0) {
 		if (fi->fileName() == "." || fi->fileName() == ".."){
 			++it;
 			continue;
@@ -255,11 +251,11 @@ void FileBrowser::scanSubDirs(QString path)
 		if (fi->isFile() && fi->isReadable()){
 			QString ext = fi->extension();
 			ext = ext.upper();
-			if (ext == "KG"){
+			if (ext == "KG") {
 				fname = fi->fileName();
 				fsize.setNum(fi->size());
-				fmodified = fi->lastModified().toString().data();
-				fdir = fi->dirPath().data();
+				fmodified = fi->lastModified().toString().latin1();
+				fdir = fi->dirPath().latin1();
 				QListViewItem* lv = new QListViewItem(fileview, fname, fsize, 
 													  fmodified, fdir);
 			}
@@ -282,7 +278,7 @@ void FileBrowser::scanDir()
 	if (lv == 0){
 		msg = i18n("Please select a directory!");
 		messagelabel->setText(msg);
-		KMsgBox::message(this, i18n("KGuitar - File browser"), msg);
+		KMessageBox::information(this, i18n("KGuitar - File browser"), msg);
 		return;
 	}
 
@@ -297,8 +293,8 @@ void FileBrowser::scanDir()
 	if (dir.isReadable())
 		scanSubDirs(getFullPath(lv));
 	else
-		KMsgBox::message(this, i18n("KGuitar - File browser"),
-						 i18n("You have no permission to read this directory!"));
+		KMessageBox::sorry(this, i18n("KGuitar - File browser"),
+						   i18n("You have no permission to read this directory!"));
 
 #ifdef HAVE_MIDI
 	btnplay->setEnabled(TRUE);
@@ -323,8 +319,8 @@ void FileBrowser::fillFileView(QListViewItem* item)
 	fileview->clear();
 	QDir dir(getFullPath(item));
 	if (!dir.isReadable()){
-		KMsgBox::message(this, i18n("KGuitar - File browser"),
-						 i18n("You have no permission to read this directory!"));
+		KMessageBox::sorry(this, i18n("KGuitar - File browser"),
+						   i18n("You have no permission to read this directory!"));
 		return;
 	}
 
@@ -344,8 +340,8 @@ void FileBrowser::fillFileView(QListViewItem* item)
 			if (ext == "KG"){
 				fname = fi->fileName();
 				fsize.setNum(fi->size());
-				fmodified = fi->lastModified().toString().data();
-				fdir = fi->dirPath().data();
+				fmodified = fi->lastModified().toString().latin1();
+				fdir = fi->dirPath().latin1();
 				QListViewItem* lv = new QListViewItem(fileview, fname, fsize, 
 													  fmodified, fdir);
 			}
@@ -365,9 +361,7 @@ void FileBrowser::loadSong(QListViewItem* item)
 	fname = fpath + "/" + fname;
 
 	if (p->tv->sng()->load_from_kg(fname)) {
-		QString tmp = PACKAGE;
-		tmp =  fname + " - " + tmp;
-		p->setCaption(tmp);
+		p->setCaption(fname);
 		p->tv->setCurt(p->tv->sng()->t.first());
 		p->tv->sng()->t.first()->x = 0;
 		p->tv->sng()->t.first()->y = 0;
@@ -378,10 +372,7 @@ void FileBrowser::loadSong(QListViewItem* item)
 		alabel->setText(p->tv->sng()->author);
 		tslabel->setText(p->tv->sng()->transcriber);
 		p->addRecentFile(fname);
-	}
-	else
-		KMsgBox::message(this, i18n("KGuitar - File browser"),
-						 i18n("Can't load the song!"));
-
-
+	} else
+		KMessageBox::sorry(this, i18n("KGuitar - File browser"),
+						   i18n("Can't load the song!"));
 }

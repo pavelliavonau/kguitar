@@ -1,10 +1,12 @@
 #ifndef APPLICATION_H
 #define APPLICATION_H
 
-#include <ktmainwindow.h>
+#include <kmainwindow.h>
 
 #include "global.h"
 #include "globaloptions.h"
+
+#define DESCRIPTION	I18N_NOOP("A stringed instrument tabulature editor")
 
 class KToolBar;
 class QPopupMenu;
@@ -12,14 +14,14 @@ class QLabel;
 class ChordSelector;
 class TrackView;
 
-class ApplicationWindow: public KTMainWindow
+class ApplicationWindow: public KMainWindow
 {
     Q_OBJECT
 public:
     ApplicationWindow();
     ~ApplicationWindow();
     TrackView *tv;                    //ALINX: I need it public for file browser
-    void addRecentFile(QString fn);   //ALINX: I need it public for file browser
+    void addRecentFile(const char *fn);
 
 private slots:
     void newDoc();
@@ -36,15 +38,15 @@ private slots:
     void print();
     void closeDoc();
     void appQuit();
-    void inschord();
+    void insertChord();
     void songProperties();
     void trackProperties();
     void options();
 
     void updateStatusBar();
 
-    void setMainTB()  {globalShowMainTB = !(globalShowMainTB); updateTbMenu(); };
-    void setEditTB()  {globalShowEditTB = !(globalShowEditTB); updateTbMenu(); };
+    void setMainTB()  { globalShowMainTB = !globalShowMainTB; updateTbMenu(); };
+    void setEditTB()  { globalShowEditTB = !globalShowEditTB; updateTbMenu(); };
 
     void setUSsharp() { globalNoteNames = 0; updateMenu(); };
     void setUSflats() { globalNoteNames = 1; updateMenu(); };
@@ -61,7 +63,6 @@ private slots:
 private:
     void updateMenu();
     void updateTbMenu();
-//    void addRecentFile(QString fn);   //ALINX: set disabled because I need it public for file browser
     bool jazzWarning();
 
     QPrinter *printer;

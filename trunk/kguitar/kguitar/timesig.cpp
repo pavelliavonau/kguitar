@@ -1,6 +1,6 @@
 #include "timesig.h"
 
-#include <kapp.h>
+#include <klocale.h>
 
 #include <qspinbox.h>
 #include <qcombobox.h>
