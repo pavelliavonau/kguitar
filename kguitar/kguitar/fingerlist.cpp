@@ -5,6 +5,8 @@
 #include <qpainter.h>
 #include <qcolor.h>
 
+#include <kapp.h>
+
 FingerList::FingerList(TabTrack *p, QWidget *parent,const char *name):
     QTableView(parent,name)
 {
@@ -13,6 +15,7 @@ FingerList::FingerList(TabTrack *p, QWidget *parent,const char *name):
     setTableFlags(Tbl_autoVScrollBar | Tbl_smoothScrolling);
     setFrameStyle(Panel | Sunken);
     setBackgroundMode(PaletteBase);
+    setFocusPolicy(StrongFocus);
     num=0;
     curSel=-1;
 
@@ -25,6 +28,7 @@ FingerList::FingerList(TabTrack *p, QWidget *parent,const char *name):
 void FingerList::clear()
 {
     num=0;
+    curSel=-1;
 }
 
 void FingerList::switchAuto(bool update)
@@ -71,18 +75,39 @@ void FingerList::paintCell(QPainter *p, int row, int col)
     
     if (n<num) {
 	int barre,eff;
+	QColor back = KApplication::getKApplication()->windowColor;
+	QColor fore = KApplication::getKApplication()->windowTextColor;
 	
+	// Selection painting
+
 	if (curSel==n) {
-	    p->setBrush(yellow);
+	    back = KApplication::getKApplication()->selectColor;
+	    fore = KApplication::getKApplication()->selectTextColor;
+
+	    p->setBrush(back);
+	    p->setPen(NoPen);
 	    p->drawRect(0,0,ICONCHORD,ICONCHORD);
-	    p->setBrush(NoBrush);
+
+	    if (hasFocus()) {
+		p->setBrush(NoBrush);
+		p->setPen(fore);
+		// GREYFIX - assumes only 2 styles
+		if (KApplication::getKApplication()->applicationStyle==WindowsStyle) {
+		    p->drawWinFocusRect(0,0,ICONCHORD,ICONCHORD);
+		} else {
+		    p->drawRect(1,1,ICONCHORD-2,ICONCHORD-2);
+		}
+	    }
 	}
+
+	p->setPen(fore);
 	
 	// Horizontal lines
 	
 	for (int i=0;i<=NUMFRETS;i++)
 	    p->drawLine(SCALE/2+BORDER+FRETTEXT,BORDER+SCALE+2*SPACER+i*SCALE,
-			SCALE/2+BORDER+parm->string*SCALE-SCALE+FRETTEXT,BORDER+SCALE+2*SPACER+i*SCALE);
+			SCALE/2+BORDER+parm->string*SCALE-SCALE+FRETTEXT,
+			BORDER+SCALE+2*SPACER+i*SCALE);
 	
 	// Beginning fret number
 	
@@ -109,29 +134,34 @@ void FingerList::paintCell(QPainter *p, int row, int col)
 	
 	for (int i=0;i<parm->string;i++) {
 	    p->drawLine(i*SCALE+BORDER+SCALE/2+FRETTEXT,BORDER+SCALE+2*SPACER,
-			i*SCALE+BORDER+SCALE/2+FRETTEXT,BORDER+SCALE+2*SPACER+NUMFRETS*SCALE);
+			i*SCALE+BORDER+SCALE/2+FRETTEXT,
+			BORDER+SCALE+2*SPACER+NUMFRETS*SCALE);
 	    if (appl[n][i]==-1) {
 		p->drawLine(i*SCALE+BORDER+CIRCBORD+FRETTEXT,BORDER+CIRCBORD,
-			    i*SCALE+BORDER+SCALE-CIRCBORD+FRETTEXT,BORDER+SCALE-CIRCBORD);
+			    i*SCALE+BORDER+SCALE-CIRCBORD+FRETTEXT,
+			    BORDER+SCALE-CIRCBORD);
 		p->drawLine(i*SCALE+BORDER+SCALE-CIRCBORD+FRETTEXT,BORDER+CIRCBORD,
 			    i*SCALE+BORDER+CIRCBORD+FRETTEXT,BORDER+SCALE-CIRCBORD);
 	    } else if (appl[n][i]==0) {
-		p->setBrush(NoBrush);
-		p->drawEllipse(i*SCALE+BORDER+CIRCBORD+FRETTEXT,BORDER+CIRCBORD,CIRCLE,CIRCLE);
+		p->setBrush(back);
+		p->drawEllipse(i*SCALE+BORDER+CIRCBORD+FRETTEXT,BORDER+CIRCBORD,
+			       CIRCLE,CIRCLE);
 	    } else {
-		p->setBrush(SolidPattern);
-		p->drawEllipse(i*SCALE+BORDER+CIRCBORD+FRETTEXT,BORDER+SCALE+2*SPACER+(appl[n][i]-firstFret)*SCALE+
+		p->setBrush(fore);
+		p->drawEllipse(i*SCALE+BORDER+CIRCBORD+FRETTEXT,
+			       BORDER+SCALE+2*SPACER+(appl[n][i]-firstFret)*SCALE+
 			       CIRCBORD,CIRCLE,CIRCLE);
 	    }
 	}
 	
 	// Analyze & draw barre
 	
-	p->setBrush(SolidPattern);
+	p->setBrush(fore);
 	
 	for (int i=0;i<NUMFRETS;i++) {
 	    barre=0;
-	    while ((appl[n][parm->string-barre-1]>=(i+firstFret)) || (appl[n][parm->string-barre-1]==-1)) {
+	    while ((appl[n][parm->string-barre-1]>=(i+firstFret)) ||
+		   (appl[n][parm->string-barre-1]==-1)) {
 		barre++;
 		if (barre>parm->string-1)
 		    break;
@@ -147,11 +177,13 @@ void FingerList::paintCell(QPainter *p, int row, int col)
 	    }
 	    
 	    if (eff>2) {
-		p->drawRect((parm->string-barre)*SCALE+SCALE/2+BORDER+FRETTEXT,BORDER+SCALE+2*SPACER+i*SCALE+CIRCBORD,
+		p->drawRect((parm->string-barre)*SCALE+SCALE/2+BORDER+FRETTEXT,
+			    BORDER+SCALE+2*SPACER+i*SCALE+CIRCBORD,
 			    (barre-1)*SCALE,CIRCLE);
 	    }
 	}  
 	
 	p->setBrush(NoBrush);
+	p->setPen(SolidLine);
     }
 }
