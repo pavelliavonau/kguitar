@@ -70,7 +70,6 @@
 #include "tabsong.h"
 #include "tabtrack.h"
 
-#include <iostream.h>
 #include <qstring.h>
 
 // local conversion functions
@@ -235,8 +234,8 @@ bool MusicXMLParser::startDocument()
 
 // start of element handler
 
-bool MusicXMLParser::startElement( const QString&, const QString&, 
-                                   const QString& qName, 
+bool MusicXMLParser::startElement( const QString&, const QString&,
+                                   const QString& qName,
                                    const QXmlAttributes& attributes)
 {
 	if (qName == "glissando") {
@@ -347,7 +346,7 @@ bool MusicXMLParser::endElement( const QString&, const QString&,
 	    stDiv = stCha;
 		iDiv = stDiv.toInt();
 		if (iDiv <= 0) {
-			cout << "illegal divisions value: " << stDiv << endl;
+			kdDebug() << "illegal divisions value: " << stDiv << endl;
 		}
 	} else if (qName == "dot") {
 	    stDts++;
@@ -483,8 +482,8 @@ bool MusicXMLParser::addNote()
 	if (stCho) {
 		if (tStartCur < 0) {
 			// LVIFIX: report error ?
-			cout << "<chord> at start of measure of after backup/forward"
-				<< endl;
+			kdDebug() << "<chord> at start of measure of after backup/forward"
+			          << endl;
 			// pretend to be appending
 			tStartCur = tEndCur;
 		}
@@ -497,7 +496,7 @@ bool MusicXMLParser::addNote()
 	x = trk->x + 1;
 
 	if (stRst) {
-		// cout << "rest, l=" << len << endl;
+		// kdDebug() << "rest, l=" << len << endl;
 	}
 
 	// if not rest or tie: fill in fret (if rest: frets stay -1)
@@ -515,9 +514,9 @@ bool MusicXMLParser::addNote()
 				Accidentals acc;
 				int pitch = acc.sao2Pitch(stStp, alt, oct);
 				if (!allocStrFrt(pitch, trk, x-1, str, frt)) {
-					cout << "MusicXMLParser::addNote() ";
-					cout << "string/fret allocation failed, ";
-					cout << "column=" << x << endl;
+					kdDebug() << "MusicXMLParser::addNote() ";
+					kdDebug() << "string/fret allocation failed, ";
+					kdDebug() << "column=" << x << endl;
 				}
 			}
 		}
@@ -568,13 +567,13 @@ bool MusicXMLParser::addTrack()
 	// current code gives uninitialized tuning if #strings > 6, but no tuning
 	// specified
 	TabTrack * trk = new TabTrack(
-		FretTab,				// _tm LVIFIX: no support for drumtrack
-		stPnm,					// _name
-		stPmc.toInt(),			// _channel
-		stPmb.toInt(),			// _bank
-		stPmp.toInt(),			// _patch (=program)
-		6,						// _string (default value)
-		24						// _frets (default value)
+		TabTrack::FretTab,      // _tm LVIFIX: no support for drumtrack
+		stPnm,                  // _name
+		stPmc.toInt(),          // _channel
+		stPmb.toInt(),          // _bank
+		stPmp.toInt(),          // _patch (=program)
+		6,                      // _string (default value)
+		24                      // _frets (default value)
 	);
 	ts->t.append(trk);
 	// don't want any columns yet, as that would interfere
@@ -809,7 +808,7 @@ void MusicXMLWriter::writeBeams(QTextStream& os, TabTrack * trk, int x, int v)
 		stxt = & trk->c[x].stu;
 	}
 	/*
-	cout
+	kdDebug()
 		<< "writeBeams()"
 		<< " x=" << x
 		<< " v=" << v
@@ -1137,7 +1136,7 @@ void MusicXMLWriter::writePitch(QTextStream& os,
 	int oct = 0;
 	Accidentals::Accid acc = Accidentals::None;
 	QString nam = "";
-	
+
 	accSt.getNote(n, nam, alt, oct, acc);
 	os << tabs << "<" << prfx << "step>" << nam
 	   << "</" << prfx << "step>\n";

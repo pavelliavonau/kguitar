@@ -436,7 +436,7 @@ void TrackView::paintCell(QPainter *p, int row, int /*col*/)
 
 	// Drum abbreviations markings
 
-	if (curt->trackMode() == DrumTab) {
+	if (curt->trackMode() == TabTrack::DrumTab) {
 		p->setPen(NoPen);
 		for (int i = 0; i <= s; i++) {
 			p->drawRect(xpos, VERTSPACE + (s - i) * VERTLINE - VERTLINE / 2,
