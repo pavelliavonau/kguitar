@@ -62,7 +62,7 @@ void TrackPane::mousePressEvent(QMouseEvent *e)
 
 		if (tracknum >= song->t.count())
 			return;
-		emit newTrackSelected(song->t.at(tracknum));
+		emit trackChanged(song->t.at(tracknum));
 		emit newBarSelected(barnum);
 	}
 }

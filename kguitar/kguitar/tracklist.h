@@ -18,7 +18,7 @@ public:
 	void updateList();
 
 signals:
-	void newTrackSelected(TabTrack *);
+	void trackChanged(TabTrack *);
 
 protected:
     virtual void contentsMousePressEvent(QMouseEvent *e);

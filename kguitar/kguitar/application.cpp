@@ -310,7 +310,7 @@ KGuitarPart::KGuitarPart(bool bBrowserView, KCommandHistory *_cmdHist, QWidget *
 
 	// SET UP RESPONSES FOR VARIOUS TRACK CHANGES
 
-	connect(sv->tv, SIGNAL(newTrackSelected()), SLOT(updateForNewTrack()));
+	connect(sv->tv, SIGNAL(trackChanged(TabTrack *)), SLOT(updateToolbars(TabTrack *)));
 
 	m_extension = new KGuitarBrowserExtension(this);
 
@@ -365,7 +365,7 @@ bool KGuitarPart::jazzWarning()
 
 // Updates possibility of actions, depending on freshly selected
 // track. For drum track, lots of actions are unavailable.
-void KGuitarPart::updateForNewTrack()
+void KGuitarPart::updateToolbars(TabTrack *)
 {
 	switch (sv->tv->trk()->trackMode() == DrumTab) {
 	case DrumTab:
