@@ -17,6 +17,7 @@ class KCommandHistory;
 class KPrinter;
 class SongPrint;
 class TabTrack;
+class MelodyEditor;
 
 #ifdef WITH_TSE3
 #include <tse3/MidiScheduler.h>
@@ -34,6 +35,7 @@ public:
 	TrackView *tv;
 	TrackList *tl;
 	TrackPane *tp;
+	MelodyEditor *me;
 
 	TabSong* sng() { return song; }
 #ifdef WITH_TSE3
