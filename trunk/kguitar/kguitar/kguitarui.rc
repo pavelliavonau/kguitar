@@ -19,6 +19,9 @@
   </Menu>
   <Menu noMerge="1" name="track" >
    <text>&amp;Track</text>
+   <Action name="time_sig" />
+   <Action name="arrange_trk" />
+   <Separator/>
    <Action name="track_properties" />
   </Menu>
   <Menu noMerge="1" name="note" >
@@ -68,7 +71,7 @@
    </Menu>
    <Action name="config_Toolbars" />
    <Separator/>
-   <Action name="save_Options" />
+   <Action name="save_options" />
    <Action name="pref_options" />
   </Menu>
  </MenuBar>
