@@ -62,7 +62,7 @@ private:
 
     QLineEdit *chname;
     QListBox *tonic, *step3, *stephigh;
-    QComboBox *st[6], *inv, *bassnote;
+    QComboBox *st[7], *inv, *bassnote;
     QLabel *cnote[7];
     QButtonGroup *complexity;
     QRadioButton *complexer[3];

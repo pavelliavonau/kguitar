@@ -129,7 +129,8 @@ void ChordSelector::initChordSelector(TabTrack *p)
 		tonic->insertItem(note_name(i));
 //     tonic->setHScrollBarMode(QScrollView::AlwaysOff);
 //     tonic->setVScrollBarMode(QScrollView::AlwaysOff);
-	tonic->setRowMode(12);
+// 	tonic->setRowMode(12);
+    tonic->setMinimumHeight(tonic->itemHeight() * 12 + 3);
 // 	tonic->setMinimumWidth(tonic->maxItemWidth());
 	connect(tonic, SIGNAL(highlighted(int)), SLOT(findChords()));
 
@@ -162,8 +163,13 @@ void ChordSelector::initChordSelector(TabTrack *p)
 	connect(stephigh, SIGNAL(highlighted(int)), SLOT(setHighSteps()));
 
 	// st array holds values for each step:
-	// st[0] - 3'	 st[1] - 5'	   st[2] - 7'
-	// st[3] - 9'	 st[4] - 11'   st[5] - 13'
+    // st[1] - 1'
+    // st[1] - 3'
+    // st[2] - 5'
+    // st[3] - 7'
+	// st[4] - 9'
+    // st[5] - 11'
+    // st[6] - 13'
 
 	QLabel *stlabel[7];
 	QString tmp;
@@ -176,27 +182,30 @@ void ChordSelector::initChordSelector(TabTrack *p)
 		cnote[i] = new QLabel(this);
 		cnote[i]->setAlignment(AlignCenter);
 
-		if (i > 0) {
-			st[i - 1] = new QComboBox(FALSE, this);
-			st[i - 1]->insertItem("x");
-			if ((i == 2) || (i >= 4)) {
-				st[i - 1]->insertItem(flat[globalFlatPlus]);
-				st[i - 1]->insertItem("0");
-				st[i - 1]->insertItem(sharp[globalFlatPlus]);
-			}
-			connect(st[i - 1], SIGNAL(activated(int)), SLOT(findSelection()));
-			connect(st[i - 1], SIGNAL(activated(int)), SLOT(findChords()));
-		}
+        st[i] = new QComboBox(FALSE, this);
+        if (i > 0)
+            st[i]->insertItem("x");
+        if ((i == 2) || (i >= 4)) {
+            st[i]->insertItem(flat[globalFlatPlus]);
+            st[i]->insertItem("0");
+            st[i]->insertItem(sharp[globalFlatPlus]);
+        }
+        if (i > 0)  {
+            connect(st[i], SIGNAL(activated(int)), SLOT(findSelection()));
+            connect(st[i], SIGNAL(activated(int)), SLOT(findChords()));
+        } else {
+            st[i]->setEnabled(FALSE);
+        }
 	}
 
-	st[0]->insertItem("2");
-	st[0]->insertItem(flat[globalFlatPlus]);
-	st[0]->insertItem("3");
-	st[0]->insertItem("4");
+	st[1]->insertItem("2");
+	st[1]->insertItem(flat[globalFlatPlus]);
+	st[1]->insertItem("3");
+	st[1]->insertItem("4");
 
-	st[2]->insertItem("6");
-	st[2]->insertItem(flat[globalFlatPlus]);
-	st[2]->insertItem("7");
+	st[3]->insertItem("6");
+	st[3]->insertItem(flat[globalFlatPlus]);
+	st[3]->insertItem("7");
 
 	inv = new QComboBox(FALSE, this);
 	inv->insertItem(i18n("Root"));
@@ -290,17 +299,14 @@ void ChordSelector::initChordSelector(TabTrack *p)
 	QGridLayout *lsteps = new QGridLayout(3, 7, 0);
 	lshow->addLayout(lsteps);
 
-	lsteps->addWidget(stlabel[0], 0, 0);
-	lsteps->addWidget(cnote[0], 2, 0);
-
 	lsteps->addRowSpacing(0, 15);
 	lsteps->addRowSpacing(1, 20);
 	lsteps->addRowSpacing(2, 15);
 	lsteps->setColStretch(0, 1);
 
-	for (int i = 1; i < 7; i++) {
+	for (int i = 0; i < 7; i++) {
 		lsteps->addWidget(stlabel[i], 0, i);
-		lsteps->addWidget(st[i - 1], 1, i);
+		lsteps->addWidget(st[i], 1, i);
 		lsteps->addWidget(cnote[i], 2, i);
 		lsteps->setColStretch(i, 1);
 	}
@@ -492,10 +498,10 @@ void ChordSelector::detectChord()
 void ChordSelector::setStep3()
 {
 	switch (step3->currentItem()) {
-	case 0: st[0]->setCurrentItem(3); break;				// Major
-	case 1: st[0]->setCurrentItem(2); break;				// Minor
-	case 2: st[0]->setCurrentItem(1); break;				// Sus2
-	case 3: st[0]->setCurrentItem(4); break;				// Sus4
+	case 0: st[1]->setCurrentItem(3); break;				// Major
+	case 1: st[1]->setCurrentItem(2); break;				// Minor
+	case 2: st[1]->setCurrentItem(1); break;				// Sus2
+	case 3: st[1]->setCurrentItem(4); break;				// Sus4
 	}
 
 	findSelection();
@@ -508,7 +514,7 @@ void ChordSelector::setStepsFromChord()
 
 	tonic->setCurrentItem(it->tonic());
 	for (int i = 0; i < 6; i++)
-		st[i]->setCurrentItem(it->step(i));
+		st[i + 1]->setCurrentItem(it->step(i));
 
 	findSelection();
 	findChords();
@@ -523,17 +529,19 @@ void ChordSelector::setHighSteps()
 
 	for (int i = 0; i < 6; i++)
 		if (stemplate[j][i] != -1)
-			st[i]->setCurrentItem(stemplate[j][i]);
+			st[i + 1]->setCurrentItem(stemplate[j][i]);
 
 	findSelection();
 	findChords();
 }
 
+// Analyses st[] combobox array and find out steps templating
+// listboxes selections from it
 void ChordSelector::findSelection()
 {
 	bool ok = TRUE;
 
-	switch (st[0]->currentItem()) {
+	switch (st[1]->currentItem()) {
 	case 0: step3->clearSelection(); break;					// no3
 	case 1: step3->setCurrentItem(2); break;				// Sus2
 	case 2: step3->setCurrentItem(1); break;				// Minor
@@ -541,11 +549,11 @@ void ChordSelector::findSelection()
 	case 4: step3->setCurrentItem(3); break;				// Sus4
 	}
 
-	for (uint j = stephigh->count() - 1; j > 0; j--) {
+	for (int j = stephigh->count() - 1; j >= 0; j--) {
 		ok = TRUE;
 		for (int i = 0; i < 6; i++) {
 			if ((stemplate[j][i] != -1) &&
-				(stemplate[j][i] != st[i]->currentItem())) {
+				(stemplate[j][i] != st[i + 1]->currentItem())) {
 				ok = FALSE;
 				break;
 			}
@@ -588,21 +596,21 @@ void ChordSelector::findChords()
 	need[0] = t;
 	cnote[0]->setText(note_name(t));
 
-	switch (st[0]->currentItem()) {
+	switch (st[1]->currentItem()) {
 	case 1: need[1] = (t + 2) % 12; notenum++; break;	  // 2
 	case 2: need[1] = (t + 3) % 12; notenum++; break;	  // 3-
 	case 3: need[1] = (t + 4) % 12; notenum++; break;	  // 3+
 	case 4: need[1] = (t + 5) % 12; notenum++; break;	  // 4
 	}
 
-	if (st[0]->currentItem()!=0) {
+	if (st[1]->currentItem()!=0) {
 		cnote[1]->setText(note_name(need[1]));
 	} else {
 		cnote[1]->clear();
 	}
 
 	for (i = 1; i < 6; i++) {
-		j = st[i]->currentItem();
+		j = st[i + 1]->currentItem();
 		if (j) {
 			need[notenum] = (t + toneshift[i] + (j - 2)) % 12;
 			cnote[i + 1]->setText(note_name(need[notenum]));
