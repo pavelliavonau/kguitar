@@ -5,6 +5,12 @@
 #include <qbuttongroup.h>
 #include <qradiobutton.h>
 
+#ifdef HAVE_LIBASOUND
+#include <sys/asoundlib.h>
+#include <qlistbox.h>
+#include <qlabel.h>
+#endif
+
 Options::Options(QWidget *parent=0, const char *name=0): QTabDialog(parent,name,TRUE)
 {
     //////////////////////////////////////////////////////////////////
@@ -72,6 +78,27 @@ Options::Options(QWidget *parent=0, const char *name=0): QTabDialog(parent,name,
 
     addTab(tex, i18n("MusiXTeX Export"));
 
+#ifdef HAVE_LIBASOUND
+    //////////////////////////////////////////////////////////////////
+	// ALSA MIDI SETTINGS
+    //////////////////////////////////////////////////////////////////
+
+    QWidget *alsa = new QWidget(this);
+
+	alsaport = new QListBox(alsa);
+	fillAlsaBox();
+
+	QLabel *alsaport_l = new QLabel(alsaport, i18n("MIDI &output port"), alsa);
+	alsaport_l->setMinimumSize(100, 20);
+
+	QVBoxLayout *alsavb = new QVBoxLayout(alsa, 10);
+	alsavb->addWidget(alsaport_l);
+	alsavb->addWidget(alsaport, 1);
+	alsavb->activate();
+
+	addTab(alsa, i18n("ALSA"));
+#endif
+
     //////////////////////////////////////////////////////////////////
     // REST OF TABDIALOG SETTINS
     //////////////////////////////////////////////////////////////////
@@ -81,4 +108,50 @@ Options::Options(QWidget *parent=0, const char *name=0): QTabDialog(parent,name,
 
     resize(400,300);
     setCaption(i18n("General options"));
+}
+
+void Options::fillAlsaBox()
+{
+#ifdef HAVE_LIBASOUND
+	snd_seq_client_info_t cinfo;
+	snd_seq_port_info_t pinfo;
+	snd_seq_system_info_t sysinfo;
+	int client;
+	int port;
+	int err;
+	snd_seq_t *handle;
+
+	err = snd_seq_open(&handle, SND_SEQ_OPEN);
+	if (err < 0) {
+		perror("Could not open sequencer");
+		return;
+	}
+
+	err = snd_seq_system_info(handle, &sysinfo);
+	if (err < 0) {
+		perror("Could not get sequencer information");
+		return;
+	}
+
+	int cap = (SND_SEQ_PORT_CAP_SUBS_WRITE | SND_SEQ_PORT_CAP_WRITE);
+
+	for (client = 0; client < sysinfo.clients; client++) {
+		err = snd_seq_get_any_client_info(handle, client, &cinfo);
+		if (err < 0)
+			continue;
+
+		for (port = 0; port < sysinfo.ports; port++) {
+
+			err = snd_seq_get_any_port_info(handle, client, port, &pinfo);
+			if (err < 0)
+				continue;
+			
+			if ((pinfo.capability & cap) == cap) {
+				alsaport->insertItem(QString(cinfo.name) + QString(": ") + QString(pinfo.name));
+//				printf("%3d:%-3d   %-30.30s    %s\n",
+//					   pinfo.client, pinfo.port, cinfo.name, pinfo.name);
+			}
+		}
+	}
+#endif HAVE_LIBASOUND
 }
