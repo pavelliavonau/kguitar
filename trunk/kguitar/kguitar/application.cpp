@@ -34,6 +34,7 @@
 #include <qmultilinedit.h>
 #include <qbuttongroup.h>
 #include <qradiobutton.h>
+#include <qfileinfo.h>
 
 
 // Global variables - real declarations
@@ -48,6 +49,7 @@ int globalTabSize;
 bool globalShowBarNumb;
 bool globalShowStr;
 bool globalShowPageNumb;
+int globalTexExpMode;
 
 // Appearance
 bool globalShowMainTB;
@@ -93,18 +95,6 @@ ApplicationWindow::ApplicationWindow(): KMainWindow()
 							 actionCollection(), "open_browser");
 	sngPropAct = new KAction(i18n("P&roperties..."), 0, this, SLOT(songProperties()),
 							 actionCollection(), "song_properties");
-
-	impMidAct = new KAction(i18n("&MIDI file..."), 0, this, SLOT(fileImportMid()),
-							actionCollection(), "imp_midi");
-
-	expMidAct = new KAction(i18n("&MIDI file..."), 0, this, SLOT(fileExportMid()), 
-							actionCollection(), "exp_midi");
-	expTabAct = new KAction(i18n("ASCII &tab..."), 0, this, SLOT(fileExportTab()), 
-							actionCollection(), "exp_tab");
-	expTexTabAct = new KAction(i18n("M&usiXTeX tab..."), 0, this, 
-							   SLOT(fileExportTexTab()), actionCollection(), "exp_textab");
-	expTexNotesAct = new KAction(i18n("Musi&XTeX notes..."), 0, this, 
-								 SLOT(fileExportTexNotes()), actionCollection(), "exp_texnotes");
 
 	trkPropAct = new KAction(i18n("&Properties..."), 0, this, SLOT(trackProperties()),
 							 actionCollection(), "track_properties");
@@ -175,6 +165,8 @@ ApplicationWindow::ApplicationWindow(): KMainWindow()
 	updateMenu();
 	updateTbMenu();
 
+	setCaption(i18n("Unnamed"));
+
 	//Used for translation
 	toolBar("mainToolBar")->setText(i18n("Main Toolbar"));
 	toolBar("editToolBar")->setText(i18n("Edit Toolbar"));
@@ -223,7 +215,7 @@ void ApplicationWindow::updateStatusBar()
 	QString tmp;
 	tmp.setNum(tv->trk()->xb + 1);
 	tmp = i18n("Bar: ") + tmp;
-	statusBar()->changeItem(tmp,1);
+	statusBar()->changeItem(tmp, 1);
 }
 
 bool ApplicationWindow::jazzWarning()
@@ -244,60 +236,97 @@ void ApplicationWindow::fileNew()
 	ed->show();
 }
 
+void ApplicationWindow::openFile(QString fn)
+{
+	if (!fn.isEmpty()) {
+		QFileInfo *fi = new QFileInfo(fn);
+
+		if (!fi->isFile()){
+			KMessageBox::sorry(this, i18n("Please select a file."));
+			return;
+		}
+		if (!fi->isReadable()){
+			KMessageBox::sorry(this, i18n("You have no permission to read this file."));
+			return;
+		}
+
+		QString ext = fi->extension();
+		ext = ext.upper();
+
+		if (ext == "KG"){
+			if (tv->sng()->load_from_kg(fn)) {
+				setCaption(fn);
+				tv->setCurt(tv->sng()->t.first());
+				tv->sng()->t.first()->x = 0;
+				tv->sng()->t.first()->y = 0;
+				tv->sng()->filename = fn;
+				tv->updateRows();
+				addRecentFile(fn);
+			} else {
+				KMessageBox::sorry(this, i18n("Can't load the song!"));
+				return;
+			}
+		}
+
+		if (ext == "TAB"){
+			if (tv->sng()->load_from_tab(fn)){
+				tv->sng()->filename = "";
+				setCaption(i18n("Unnamed"));
+				addRecentFile(fn);
+			} else {
+				KMessageBox::sorry(this, i18n("Can't load the song!"));
+				return;
+			}
+		}
+
+		if (ext == "MID"){
+			if (tv->sng()->load_from_mid(fn)){
+				tv->sng()->filename = "";
+				setCaption(i18n("Unnamed"));
+				addRecentFile(fn);
+			} else {
+				KMessageBox::sorry(this, i18n("Can't load the song!"));
+				return;
+			}
+		}
+
+		if (ext == "GTP"){
+			if (tv->sng()->load_from_gtp(fn)){
+				tv->sng()->filename = "";
+				setCaption(i18n("Unnamed"));
+				addRecentFile(fn);
+			} else {
+				KMessageBox::sorry(this, i18n("This feature is at this time not implemented.\n"
+											  "If you would help to implement this feature\n"
+											  "please write an email to: greycat@users.sourceforge.net"));
+				return;
+			}
+		}
+	}
+}
+
 void ApplicationWindow::fileOpen()
 {
 	QString fn = KFileDialog::getOpenFileName(0,
 											  "*.kg|KGuitar files (*.kg)\n"
+											  "*.tab|ASCII files (*.tab)\n"
 											  "*.mid|MIDI files (*.mid)\n"
 											  "*.gtp|Guitar Pro files (*.gtp)\n"
 											  "*|All files", this);
-	if (!fn.isEmpty()) {
-		if (tv->sng()->load_from_kg(fn)) {
-			setCaption(fn);
-			tv->setCurt(tv->sng()->t.first());
-			tv->sng()->t.first()->x = 0;
-			tv->sng()->t.first()->y = 0;
-			tv->sng()->filename = fn;
-			tv->updateRows();
-			addRecentFile(fn);
-		}
-	}
+	openFile(fn);
 }
 
 void ApplicationWindow::loadFile(KURL _url)
 {
 	QString fn = _url.path();
+	openFile(fn);
 
-	if (!fn.isEmpty()) {
-		if (tv->sng()->load_from_kg(fn)) {
-			setCaption(fn);
-			tv->setCurt(tv->sng()->t.first());
-			tv->sng()->t.first()->x = 0;
-			tv->sng()->t.first()->y = 0;
-			tv->sng()->filename = fn;
-			tv->updateRows();
-			addRecentFile(fn);
-		} else
-			KMessageBox::sorry(this, i18n("Can't load the song!"));
-	}
 }
 
 void ApplicationWindow::recentLoad(const KURL& _url)
 {
 	QString fn = _url.path();
-
-	if (!fn.isEmpty()) {
-		if (tv->sng()->load_from_kg(fn)) {
-			setCaption(fn);
-			tv->setCurt(tv->sng()->t.first());
-			tv->sng()->t.first()->x = 0;
-			tv->sng()->t.first()->y = 0;
-			tv->sng()->filename = fn;
-			tv->updateRows();
-			addRecentFile(fn);
-		} else
-			KMessageBox::sorry(this, i18n("Can't load the song!"));
-	}
+	openFile(fn);
 }
 
 void ApplicationWindow::addRecentFile(const char *fn)
@@ -318,62 +347,107 @@ void ApplicationWindow::fileSave()
 {
 	QString fn = tv->sng()->filename;
 
-	if (fn.isEmpty())
-		fn = KFileDialog::getSaveFileName(0,"*.kg", this);
+	if (fn.isEmpty()) {
+		fileSaveAs();
+		return;
+	}
 
-	if (!fn.isEmpty()) {		
+	QFileInfo *fi = new QFileInfo(fn);
+
+	if (fi->isWritable()) {		
 		tv->arrangeBars();//gotemfix: arrange bars before saving
 		tv->sng()->save_to_kg(fn);
 		tv->sng()->filename = fn;
 		setCaption(fn);
 		addRecentFile(fn);
-	}
+	} else
+		KMessageBox::sorry(this, i18n("You have no permission to write this file!"));
 }
 
 void ApplicationWindow::fileSaveAs()
 {
-	QString fn = KFileDialog::getSaveFileName(0, "*.kg", this);
+	KFileDialog *dlg=new KFileDialog(0, "*.kg|KGuitar files (*.kg)\n"
+									 "*.tab|ASCII files (*.tab)\n"
+									 "*.mid|MIDI files (*.mid)\n"
+									 "*.gtp|Guitar Pro files (*.gtp)\n"
+									 "*.tex|MusiXTeX (*.tex)\n"
+									 "*|All files", this, 0, TRUE);
+	dlg->setCaption(i18n("Save as..."));
+
+	dlg->show();
+
+	QString filter = dlg->currentFilter();
+	QString fn = dlg->selectedFile();
+
 	if (!fn.isEmpty()) {
-		tv->sng()->save_to_kg(fn);
-		tv->sng()->filename = fn;
-		setCaption(fn);
-		addRecentFile(fn);
+		QFileInfo *fi = new QFileInfo(fn);
+		if (fi->exists())
+			if (KMessageBox::warningYesNo(this, i18n("This file exists! "
+													 "Do you overwrite this file?")) == KMessageBox::No)
+				return;
+		if (fi->exists() && !fi->isWritable()) {
+			KMessageBox::sorry(this, i18n("You have no permission to write this file!"));
+			return;
+		}
+
+		if (filter == "*"){
+			filter = fi->extension();
+			filter = filter.lower();
+			if (!((filter == "kg") || (filter == "mid") || (filter == "gtp") || 
+				(filter == "tex") || (filter == "tab"))) {
+				KMessageBox::sorry(this, i18n("Please select a Filter or add an extension."));
+				return;
+			}
+			filter = "*." + filter;
+		}
+		if (filter == "*.kg") {
+			tv->arrangeBars();
+			if (tv->sng()->save_to_kg(fn)) {
+				tv->sng()->filename = fn;
+				setCaption(fn);
+				addRecentFile(fn);
+			} else {
+				KMessageBox::sorry(this, i18n("Can't save the song!"));
+				return;
+			}
+		}
+		if (filter == "*.tab") {
+			if (tv->sng()->save_to_tab(fn))
+				addRecentFile(fn);
+			else {
+				KMessageBox::sorry(this, i18n("Can't export the song!"));
+				return;
+			}
+		}
+		if (filter == "*.mid") {
+			if (tv->sng()->save_to_mid(fn))
+				addRecentFile(fn);
+			else {
+				KMessageBox::sorry(this, i18n("Can't export the song!"));
+				return;
+			}
+		}
+		if (filter == "*.gtp") {
+			if (tv->sng()->save_to_gtp(fn))
+				addRecentFile(fn);
+			else {
+				KMessageBox::sorry(this, i18n("Can't export the song!"));
+				return;
+			}
+		}
+		if (filter == "*.tex") {
+			bool ret;
+			switch (globalTexExpMode) {
+			case 0: ret = tv->sng()->save_to_tex_tab(fn); break;
+			case 1: ret = tv->sng()->save_to_tex_notes(fn); break;
+			default: ret = FALSE; break;
+			}
+			if (!ret) {
+				KMessageBox::sorry(this, i18n("Can't export the song!"));
+				return;
+			}
+		}
 	}
-}
-
-void ApplicationWindow::fileImportMid()
-{
-	QString fn = KFileDialog::getSaveFileName(0,"*.mid",this);
-	if (!fn.isEmpty())
-		tv->sng()->load_from_mid(fn);
-}
-
-void ApplicationWindow::fileExportMid()
-{
-	QString fn = KFileDialog::getSaveFileName(0,"*.mid",this);
-	if (!fn.isEmpty())
-		tv->sng()->save_to_mid(fn);
-}
-
-void ApplicationWindow::fileExportTab()
-{
-	QString fn = KFileDialog::getSaveFileName(0,"*.tab",this);
-	if (!fn.isEmpty())
-		tv->sng()->save_to_tab(fn);
-}
-
-void ApplicationWindow::fileExportTexTab()
-{
-	QString fn = KFileDialog::getSaveFileName(0,"*.tex",this);
-	if (!fn.isEmpty())
-		tv->sng()->save_to_tex_tab(fn);
-}
-
-void ApplicationWindow::fileExportTexNotes()
-{
-	QString fn = KFileDialog::getSaveFileName(0,"*.tex",this);
-	if (!fn.isEmpty())
-		tv->sng()->save_to_tex_notes(fn);
 }
 
 void ApplicationWindow::filePrint()
@@ -499,6 +573,7 @@ void ApplicationWindow::options()
 	op->showbarnumb->setChecked(globalShowBarNumb);
 	op->showstr->setChecked(globalShowStr);
 	op->showpagenumb->setChecked(globalShowPageNumb);
+	op->texexpgr->setButton(globalTexExpMode);
 
 	if (op->exec()) {
 		if (op->maj7[0]->isChecked())  globalMaj7 = 0;
@@ -514,6 +589,9 @@ void ApplicationWindow::options()
 		globalShowBarNumb = op->showbarnumb->isChecked();
 		globalShowStr = op->showstr->isChecked();
 		globalShowPageNumb = op->showpagenumb->isChecked();
+
+		if (op->expmode[0]->isChecked()) globalTexExpMode = 0;
+		if (op->expmode[1]->isChecked()) globalTexExpMode = 1;
 	}
 
 	delete op;
@@ -541,6 +619,7 @@ void ApplicationWindow::readOptions()
 	globalShowBarNumb = config->readBoolEntry("ShowBarNumb", TRUE);
 	globalShowStr = config->readBoolEntry("ShowStr", TRUE);
 	globalShowPageNumb = config->readBoolEntry("ShowPageNumb", TRUE);
+	globalTexExpMode = config->readNumEntry("TexExpMode", 0);
 
 	config->setGroup("Appearance");
 	globalShowMainTB = config->readBoolEntry("ShowMainTB", TRUE);
@@ -574,6 +653,7 @@ void ApplicationWindow::saveOptions()
 	config->writeEntry("ShowBarNumb", globalShowBarNumb);
 	config->writeEntry("ShowStr", globalShowStr);
 	config->writeEntry("ShowPageNumb", globalShowPageNumb);
+	config->writeEntry("TexExpMode", globalTexExpMode);
 
 	config->setGroup("Appearance");
 	config->writeEntry("ShowMainTB", globalShowMainTB);
