@@ -4,16 +4,18 @@
 #include "chordlist.h"
 #include "tabsong.h"
 
+#include "strum.h"
+
 #include <kapp.h>
 
 #include <qpushbutton.h>
 #include <qbuttongroup.h>
 #include <qradiobutton.h>
-#include <qcombobox.h>
 #include <qlistbox.h>
 #include <qlineedit.h>
 #include <qstring.h>
 #include <qlabel.h>
+#include <qlayout.h>
 
 QString notes_us1[12] = {"C",  "C#", "D",  "D#", "E",  "F",
 						 "F#", "G",	 "G#", "A",	 "A#", "B"};
@@ -81,22 +83,29 @@ ChordSelector::ChordSelector(TabTrack *p, QWidget *parent = 0,
 	parm = p;
 
 	chname = new QLineEdit(this);
-	chname->setGeometry(10, 10, 210, 20);
+	chname->setMinimumHeight(20);
 
 	// CHORD SELECTOR FOR FINDER WIDGETS
 
 	tonic = new QListBox(this);
 	for (int i = 0; i < 12; i++)
 		tonic->insertItem(note_name(i));
-	tonic->setGeometry(10, 40, 50, 200);
+	tonic->setFixedVisibleLines(12);
+	tonic->setMinimumWidth(40);
 	connect(tonic, SIGNAL(highlighted(int)), SLOT(findChords()));
+
+	bassnote = new QComboBox(FALSE, this);
+	for (int i = 0; i < 12; i++)
+		bassnote->insertItem(note_name(i));
+	bassnote->setMinimumSize(40, 20);
 
 	step3 = new QListBox(this);
 	step3->insertItem("M");
 	step3->insertItem("m");
 	step3->insertItem("sus2");
 	step3->insertItem("sus4");
-	step3->setGeometry(70, 40, 80, 70);
+	step3->setFixedVisibleLines(4);
+	step3->setMinimumWidth(40);
 	connect(step3, SIGNAL(highlighted(int)), SLOT(setStep3()));
 
 	stephigh = new QListBox(this);
@@ -110,7 +119,8 @@ ChordSelector::ChordSelector(TabTrack *p, QWidget *parent = 0,
 	stephigh->insertItem("aug");
 	stephigh->insertItem("dim");
 	stephigh->insertItem("5");
-	stephigh->setGeometry(160, 40, 60, 200);
+	stephigh->setFixedVisibleLines(10);
+	stephigh->setMinimumWidth(40);
 	connect(stephigh, SIGNAL(highlighted(int)), SLOT(setHighSteps()));
 
 	// st array holds values for each step:
@@ -123,16 +133,13 @@ ChordSelector::ChordSelector(TabTrack *p, QWidget *parent = 0,
 		tmp.setNum(i * 2 + 1);
 		tmp = tmp + "\'";
 		stlabel[i] = new QLabel(tmp, this);
-		stlabel[i]->setGeometry(230 + i * STEPSIZE, 170, STEPSIZE, 20);
 		stlabel[i]->setAlignment(AlignCenter);
 		
 		cnote[i] = new QLabel(this);
-		cnote[i]->setGeometry(230 + i * STEPSIZE, 210, STEPSIZE, 20);
 		cnote[i]->setAlignment(AlignCenter);
 		
 		if (i > 0) {
-			st[i - 1] = new QComboBox(FALSE,this);
-			st[i - 1]->setGeometry(230+i*STEPSIZE, 190, STEPSIZE, 20);
+			st[i - 1] = new QComboBox(FALSE, this);
 			st[i - 1]->insertItem("x");
 			if ((i == 2) || (i >= 4)) {
 				st[i - 1]->insertItem(flat[global_flatplus]);
@@ -161,19 +168,25 @@ ChordSelector::ChordSelector(TabTrack *p, QWidget *parent = 0,
 	inv->insertItem(i18n("Inv #4"));
 	inv->insertItem(i18n("Inv #5"));
 	inv->insertItem(i18n("Inv #6"));
-	inv->setGeometry(70, 120, 80, 20);
-	connect(inv,SIGNAL(activated(int)),SLOT(findChords()));
+	connect(inv, SIGNAL(activated(int)), SLOT(findChords()));
 
 	complexity = new QButtonGroup(this);
-	complexity->setGeometry(70, 150, 80, 70);
+	complexity->setMinimumSize(90, 70);
 	complexer[0] = new QRadioButton(i18n("Usual"), complexity);
-	complexer[0]->setGeometry(5, 5, 70, 20);
+	complexer[0]->setGeometry(5, 5, 80, 20);
 	complexer[1] = new QRadioButton(i18n("Rare"), complexity);
-	complexer[1]->setGeometry(5, 25, 70, 20);
+	complexer[1]->setGeometry(5, 25, 80, 20);
 	complexer[2] = new QRadioButton(i18n("All"), complexity);
-	complexer[2]->setGeometry(5, 45, 70, 20);
+	complexer[2]->setGeometry(5, 45, 80, 20);
 	complexity->setButton(0);
 	connect(complexity, SIGNAL(clicked(int)), SLOT(findChords()));
+
+	// CHORD INSERTION OPTIONS & STRUMMING
+
+	strum = new QComboBox(FALSE, this);
+	for (int i = 0; lib_strum[i].len[0]; i++)
+		strum->insertItem(lib_strum[i].name);
+	strum->setMinimumSize(150, 25);
 
 	// CHORD ANALYZER
 
@@ -182,13 +195,12 @@ ChordSelector::ChordSelector(TabTrack *p, QWidget *parent = 0,
 	connect(fng, SIGNAL(chordChange()), SLOT(detectChord()));
 
 	chords = new ChordList(this);
-	chords->setGeometry(fng->x()+fng->width()+10,10,120,150);
+	chords->setMinimumWidth(120);
 	connect(chords,SIGNAL(highlighted(int)),SLOT(setStepsFromChord()));
 
 	// CHORD FINDER OUTPUT
 
 	fnglist = new FingerList(p,this);
-	fnglist->setGeometry(10,250,500,140);
 	connect(fnglist,SIGNAL(chordSelected(const int *)),
 	        fng,SLOT(setFingering(const int *)));
 	
@@ -197,22 +209,89 @@ ChordSelector::ChordSelector(TabTrack *p, QWidget *parent = 0,
 	QPushButton *ok, *cancel;
 
 	ok = new QPushButton(i18n("OK"), this);
-	ok->setGeometry(520, 250, 75, 30);
+	ok->setMinimumSize(75, 30);
 	connect(ok, SIGNAL(clicked()), SLOT(accept()));
 
-	cancel = new QPushButton(i18n("Cancel"),this);
-	cancel->setGeometry(520, 290, 75, 30);
+	cancel = new QPushButton(i18n("Cancel"), this);
+	cancel->setMinimumSize(75, 30);
 	connect(cancel, SIGNAL(clicked()), SLOT(reject()));
 
+	// LAYOUT MANAGEMENT
+
+	// Main layout
+	QBoxLayout *l = new QHBoxLayout(this, 10);
+
+	// Chord finding & analyzing layout
+	QBoxLayout *lchord = new QVBoxLayout();
+	l->addLayout(lchord, 1);
+
+	// Chord editing layout
+	QBoxLayout *lchedit = new QHBoxLayout();
+	lchord->addWidget(chname);
+	lchord->addLayout(lchedit);
+	lchord->addWidget(fnglist, 1);
+
+	// Chord selection (template-based) layout
+	QGridLayout *lselect = new QGridLayout(3, 3, 5);
+	lchedit->addLayout(lselect);
+
+	lselect->addMultiCellWidget(tonic, 0, 2, 0, 0);
+	lselect->addColSpacing(0, 40);
+
+	lselect->addWidget(step3, 0, 1);
+	lselect->addWidget(complexity, 1, 1);
+	lselect->addWidget(inv, 2, 1);
+
+	lselect->addMultiCellWidget(stephigh, 0, 1, 2, 2);
+	lselect->addWidget(bassnote, 2, 2);
+
+	// Chord icon showing layout
+	QBoxLayout *lshow = new QVBoxLayout();
+	lchedit->addLayout(lshow);
+
+	// Analyzing and showing chord layout
+	QBoxLayout *lanalyze = new QHBoxLayout();
+	lshow->addLayout(lanalyze);
+	lanalyze->addWidget(fng);
+	lanalyze->addWidget(chords);
+
+	// Steps editor layout
+	QGridLayout *lsteps = new QGridLayout(3, 7, 0);
+	lshow->addLayout(lsteps);
+	
+	lsteps->addWidget(stlabel[0], 0, 0);
+	lsteps->addWidget(cnote[0], 2, 0);
+
+	lsteps->addRowSpacing(0, 15);
+	lsteps->addRowSpacing(1, 20);
+	lsteps->addRowSpacing(2, 15);
+	lsteps->setColStretch(0, 1);
+
+	for (int i = 1; i < 7; i++) {
+		lsteps->addWidget(stlabel[i], 0, i);
+		lsteps->addWidget(st[i - 1], 1, i);
+		lsteps->addWidget(cnote[i], 2, i);
+		lsteps->setColStretch(i, 1);
+	}	
+
+	// Strumming and buttons stuff layout
+	QBoxLayout *lstrum = new QVBoxLayout();
+	l->addLayout(lstrum);
+	lstrum->addWidget(strum);
+	lstrum->addStretch(1);
+	lstrum->addWidget(ok);
+	lstrum->addWidget(cancel);
+
+	l->activate();
+
 	setCaption(i18n("Chord constructor"));
-	setFixedSize(600, 400);
 }
 
 // Try to detect some chord forms from a given applicature.
 void ChordSelector::detectChord()
 {
 	bool cn[12];
-	int i, j, numnotes, noteok, bassnote=255, bass;
+	int i, j, numnotes, noteok, bassiest = 255, bass;
 	QString name;
 	int s3, s5, s7, s9, s11, s13;
 
