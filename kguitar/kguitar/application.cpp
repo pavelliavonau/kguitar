@@ -264,6 +264,24 @@ void ApplicationWindow::fileOpen()
 	}
 }
 
+void ApplicationWindow::loadFile(KURL _url)
+{
+	QString fn = _url.path();
+
+	if (!fn.isEmpty()) {
+		if (tv->sng()->load_from_kg(fn)) {
+			setCaption(fn);
+			tv->setCurt(tv->sng()->t.first());
+			tv->sng()->t.first()->x = 0;
+			tv->sng()->t.first()->y = 0;
+			tv->sng()->filename = fn;
+			tv->updateRows();
+			addRecentFile(fn);
+		} else
+			KMessageBox::sorry(this, i18n("Can't load the song!"));
+	}
+}
+
 void ApplicationWindow::recentLoad(const KURL& _url)
 {
 	QString fn = _url.path();

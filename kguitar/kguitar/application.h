@@ -23,6 +23,7 @@ public:
     ~ApplicationWindow();
     TrackView *tv;                    //ALINX: I need it public for file browser
     void addRecentFile(const char *fn);
+    void loadFile(KURL _url);
 
 private slots:
     void fileNew();
@@ -81,9 +82,6 @@ private:
                   *usMixAct, *euSharpAct, *euFlatAct, *euMixAct, *jazzSharpAct, 
                   *jazzFlatAct, *jazzMixAct;
     KRecentFilesAction *openRecentAct;
-
-	QStrList recentFiles;
-	QPopupMenu *recMenu;
 
     // Status bar labels
     QLabel *s_bar;

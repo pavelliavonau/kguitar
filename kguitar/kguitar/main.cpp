@@ -38,8 +38,7 @@ int main(int argc, char **argv)
 		ApplicationWindow *kguitar = new ApplicationWindow;
 		if (argc > 1) {
 			KCmdLineArgs *args = KCmdLineArgs::parsedArgs();
-//			kguitar->loadFile(KURL(QDir::currentDirPath()+"/", args->arg(0)));
-// GREYFIX - do the proper loading
+			kguitar->loadFile(args->url(0));
 			args->clear();
 		}
 // 		a.setMainWidget(kguitar);

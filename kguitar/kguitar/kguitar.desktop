@@ -2,6 +2,7 @@
 Type=Application
 Exec=kguitar -caption "%c" %i %m
 Icon=kguitar
+MimeType=application/x-kguitar
 Name=KGuitar
 DocPath=kguitar/index.html
 Comment=Tabulature editor for music instruments
