@@ -23,9 +23,11 @@ void RadiusTuner::paintEvent(QPaintEvent *p)
 {
     QPainter paint(this);
 
-    // GREYFIX: Minimum operation. It's GCC-only. Unportable?
-    int maxd = width() <? (height()-20);
-    int d = (255-val->value())*maxd/255;
+    int maxd = QMIN(width(), height()-20);
+    int v = val->value()-12;
+    if (v<0)  v=0;
+    if (v>103)  v=103;
+    int d = (103-v)*maxd/103;
 
     paint.setBrush(SolidPattern);
     paint.drawEllipse((width()-d)/2,(height()-20-d)/2,d,d);
