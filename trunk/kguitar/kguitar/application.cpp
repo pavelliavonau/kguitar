@@ -102,8 +102,12 @@ ApplicationWindow::ApplicationWindow(): KTMainWindow()
 	p->insertItem(i18n("&Save"), this, SLOT(save()));
 	p->insertItem(i18n("S&ave as..."), this, SLOT(saveAs()));
 
+	QPopupMenu *imp = new QPopupMenu();
+	imp->insertItem(i18n("&MIDI file..."), this, SLOT(importMID()));
+	p->insertItem(i18n("&Import"), imp);
+
 	QPopupMenu *exp = new QPopupMenu();
-//	  exp->insertItem(i18n("&MIDI file..."), this, SLOT(exportMID()));
+	exp->insertItem(i18n("&MIDI file..."), this, SLOT(exportMID()));
 	exp->insertItem(i18n("ASCII &tab..."), this, SLOT(exportTAB()));
 	exp->insertItem(i18n("&MusiXTeX tab..."), this, SLOT(exportTEXTAB()));
 	//exp->insertItem(i18n("Musi&XTeX notes..."), this, SLOT(exportTEXNOTES()));
@@ -234,6 +238,13 @@ void ApplicationWindow::saveAs()
 		tv->sng()->save_to_kg(fn);
 		tv->sng()->filename = fn;
 	}
+}
+
+void ApplicationWindow::importMID()
+{
+	QString fn = KFileDialog::getSaveFileName(0,"*.mid",this);
+	if (!fn.isEmpty())
+		tv->sng()->load_from_mid(fn);
 }
 
 void ApplicationWindow::exportMID()

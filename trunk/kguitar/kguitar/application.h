@@ -24,6 +24,7 @@ private slots:
     void load();
     void save();
     void saveAs();
+	void importMID();
     void exportMID();
     void exportTAB();
     void exportTEXTAB();
