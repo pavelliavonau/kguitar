@@ -45,6 +45,10 @@ int stemplate[9][6]={ {-1,2, 0, 0, 0, 0 },
 		      {-1,2, 2, 2, 2, 0 },
                       {0, 2, 0, 0, 0, 0 } };
 
+QString maj7name[] = { "7M", "maj7", "dom7" };
+QString flat[]  = { "-", "b" };
+QString sharp[] = { "+", "#" };
+
 ChordSelector::ChordSelector(TabTrack *p, QWidget *parent=0, const char *name=0)
     :QDialog(parent,name,TRUE)
 {
@@ -72,7 +76,7 @@ ChordSelector::ChordSelector(TabTrack *p, QWidget *parent=0, const char *name=0)
     stephigh = new QListBox(this);
     stephigh->insertItem("");
     stephigh->insertItem("7");
-    stephigh->insertItem("7M");
+    stephigh->insertItem(maj7name[global_maj7]);
     stephigh->insertItem("6");
     stephigh->insertItem("aug");
     stephigh->insertItem("dim");
@@ -104,9 +108,9 @@ ChordSelector::ChordSelector(TabTrack *p, QWidget *parent=0, const char *name=0)
 	    st[i-1]->setGeometry(230+i*STEPSIZE,190,STEPSIZE,20);
 	    st[i-1]->insertItem("x");
 	    if ((i==2) || (i>=4)) {
-		st[i-1]->insertItem("-");
+		st[i-1]->insertItem(flat[global_flatplus]);
 		st[i-1]->insertItem("0");
-		st[i-1]->insertItem("+");
+		st[i-1]->insertItem(sharp[global_flatplus]);
 	    }
 	    connect(st[i-1],SIGNAL(activated(int)),SLOT(findSelection()));
 	    connect(st[i-1],SIGNAL(activated(int)),SLOT(findChords()));
@@ -114,13 +118,13 @@ ChordSelector::ChordSelector(TabTrack *p, QWidget *parent=0, const char *name=0)
     }
 
     st[0]->insertItem("2");
-    st[0]->insertItem("-");
-    st[0]->insertItem("+");
+    st[0]->insertItem(flat[global_flatplus]);
+    st[0]->insertItem("3");
     st[0]->insertItem("4");
 
     st[2]->insertItem("6");
-    st[2]->insertItem("-");
-    st[2]->insertItem("+");
+    st[2]->insertItem(flat[global_flatplus]);
+    st[2]->insertItem("7");
 
     inv = new QComboBox(FALSE,this);
     inv->insertItem(i18n("Root"));
@@ -287,9 +291,9 @@ void ChordSelector::detectChord()
 		    name=name+"m";
 		
 		if (s5==6)
-		    name=name+"/5-";
+		    name=name+"/5"+flat[global_flatplus];
 		if (s5==8)
-		    name=name+"/5+";
+		    name=name+"/5"+sharp[global_flatplus];
 		if (((s5==6) || (s5==8)) && ((s7!=-1) || (s9!=-1) ||
 					     (s11!=-1) || (s13!=-1)))
 		    name=name+"/";
@@ -297,7 +301,7 @@ void ChordSelector::detectChord()
 		if ((s7==10) && (s9==-1))
 		    name=name+"7";
 		if (s7==11)
-		    name=name+"7M";
+		    name=name+maj7name[global_maj7];
 		if (s7==9)
 		    name=name+"6";
 		if (((s7==11) || (s7==9)) && ((s9!=-1) || (s11!=-1) || (s13!=-1)))
@@ -309,9 +313,9 @@ void ChordSelector::detectChord()
 	    if ((s9==2) && (s11==-1))
 		name=name+"9";
 	    if (s9==1)
-		name=name+"9-";
+		name=name+"9"+flat[global_flatplus];
 	    if (s9==3)
-		name=name+"9+";
+		name=name+"9"+sharp[global_flatplus];
 	    if (((s9==1) || (s9==3)) && ((s11!=-1) || (s13!=-1)))
 		name=name+"/";
 
@@ -320,9 +324,9 @@ void ChordSelector::detectChord()
 	    if ((s11==5) && (s13==-1))
 		name=name+"11";
 	    if (s11==6)
-		name=name+"11+";
+		name=name+"11"+sharp[global_flatplus];
 	    if (s11==4)
-		name=name+"11-";
+		name=name+"11"+flat[global_flatplus];
 	    if (((s11==4) || (s11==6)) && (s13!=-1))
 		name=name+"/";
 
@@ -331,9 +335,9 @@ void ChordSelector::detectChord()
 	    if (s13==9)
 		name=name+"13";
 	    if (s13==10)
-		name=name+"13+";
+		name=name+"13"+sharp[global_flatplus];
 	    if (s13==8)
-		name=name+"13-";
+		name=name+"13"+flat[global_flatplus];
 
 	    if (s3==2)
 		name=name+"sus2";
@@ -477,18 +481,21 @@ void ChordSelector::findChords()
     //                1 5 7 9 11 13 
     int toneshift[6]={0,7,10,2,5,9};
 
-    int fb[MAX_STRINGS][parm->frets];  // array with an either -1 or number of note from a chord
+    int fb[MAX_STRINGS][parm->frets];   // array with an either -1 or number of note from a chord
 
-    int hfret[MAX_STRINGS][parm->frets]; // numbers of frets to hold on every string
-    int hnote[MAX_STRINGS][parm->frets]; // numbers of notes in a chord that make ^^
+    int hfret[MAX_STRINGS][parm->frets];// numbers of frets to hold on every string
+    int hnote[MAX_STRINGS][parm->frets];// numbers of notes in a chord that make ^^
 
-    bool needrecalc;                     // needs recalculate max/min
+    bool needrecalc;                    // needs recalculate max/min
 
     // CALCULATION OF REQUIRED NOTES FOR A CHORD FROM USER STEP INPUT
 
     int need[7],got[7];
 
     int t = tonic->currentItem();
+
+    if (t==-1)                          // no calculations without tonic
+	return;
 
     int notenum=1;
     need[0]=t;
@@ -577,7 +584,7 @@ void ChordSelector::findChords()
     i=0;
     do {
 	// end of string not reached
-	if (hnote[i][ind[i]]!=-1) {
+	if (!( (hnote[i][ind[i]]==-1) || ( (!needrecalc) && (max-min>=span)))) {
 	    if (needrecalc) {
 		min=parm->frets+1;max=0;
 		for (j=0;j<parm->string;j++) {
@@ -632,7 +639,7 @@ void ChordSelector::findChords()
 	if (hfret[i][ind[i]]>min) {
 	    ind[i]++;
 	    if (hfret[i][ind[i]]>max)
-		max = hfret[i][ind[i]];	    
+		max = hfret[i][ind[i]];
 	    needrecalc=FALSE;
 	} else {
 	    ind[i]++;
@@ -643,6 +650,3 @@ void ChordSelector::findChords()
     fnglist->switchAuto(TRUE);
     fnglist->repaint();
 }
-
-
-
