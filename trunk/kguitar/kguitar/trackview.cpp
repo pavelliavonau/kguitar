@@ -1,7 +1,6 @@
 #include "trackview.h"
 #include "tabsong.h"
 #include "chord.h"
-
 #include "timesig.h"
 
 #include "globaloptions.h"
@@ -183,6 +182,8 @@ void TrackView::insertChord()
 			a[i] = cs.app(i);
 		curt->insertStrum(cs.scheme(), a);
 	}
+
+	update();
 }
 
 // Determine horizontal offset between two columns - n and n+1
@@ -522,7 +523,7 @@ void TrackView::keyInsert()
 	update();
 }
 
-void TrackView::keyM()
+void TrackView::palmMute()
 {
 	curt->c[curt->x].flags ^= FLAG_PM;
 	update();
