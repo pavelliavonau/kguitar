@@ -79,6 +79,7 @@ ApplicationWindow::ApplicationWindow(): KTMainWindow()
 
     tv = new TrackView(this);
     setView(tv);
+    tv->setFocus();
 
     cs = new ChordSelector();
 
