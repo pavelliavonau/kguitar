@@ -35,6 +35,14 @@ void Fingering::setFinger(int string, int fret)
   }
 }
 
+void Fingering::setFingering(const int a[MAX_STRINGS])
+{
+  for (int i=0;i<MAX_STRINGS;i++)
+    appl[i]=a[i];
+  repaint();
+  emit chordChange();
+}
+
 void Fingering::setFirstFret(int fret)
 {
   for (int i=0;i<numstr;i++)
@@ -75,8 +83,6 @@ void Fingering::mousePressEvent( QMouseEvent *e )
 void Fingering::drawContents(QPainter *p)
 {
   int barre,eff;
-  QString fs;
-  fs.setNum(firstFret);
 
   // Horizontal separator line
 
@@ -84,14 +90,16 @@ void Fingering::drawContents(QPainter *p)
   
   // Horizontal lines
 
-  for (int i=0;i<=NUMFRETS;i++) {
+  for (int i=0;i<=NUMFRETS;i++)
     p->drawLine(SCALE/2+BORDER+FRETTEXT,BORDER+SCALE+2*SPACER+i*SCALE,
 		SCALE/2+BORDER+numstr*SCALE-SCALE+FRETTEXT,BORDER+SCALE+2*SPACER+i*SCALE);
-  }
 
   // Beginning fret number
 
-  p->drawText(0,BORDER+2*SPACER,fs);
+  QString fs;
+  fs.setNum(firstFret);
+
+  p->drawText(BORDER,BORDER+SCALE+2*SPACER,50,50,AlignLeft | AlignTop,fs);
 
   // Vertical lines and fingering
 
@@ -125,9 +133,8 @@ void Fingering::drawContents(QPainter *p)
 	break;
     }
 
-    while ((appl[numstr-barre]!=(i+firstFret)) && (barre>1)) {
+    while ((appl[numstr-barre]!=(i+firstFret)) && (barre>1))
       barre--;
-    }
 
     eff=0;
     for (int j=numstr-barre;j<numstr;j++) {
