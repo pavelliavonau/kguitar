@@ -178,35 +178,35 @@ void ApplicationWindow::closeDoc()
 
 void ApplicationWindow::toggleMenuBar()
 {
-    if ( menuBar()->isVisible() ) {
-	menuBar()->hide();
-	controls->setItemChecked( mb, FALSE );
-    } else {
-	menuBar()->show();
-	controls->setItemChecked( mb, TRUE );
-    }
+//     if ( menuBar()->isVisible() ) {
+// 	menuBar()->hide();
+// 	controls->setItemChecked( mb, FALSE );
+//     } else {
+// 	menuBar()->show();
+// 	controls->setItemChecked( mb, TRUE );
+//     }
 }
 
 void ApplicationWindow::toggleToolBar()
 {
-    if ( toolBar()->isVisible() ) {
-	toolBar()->hide();
-	controls->setItemChecked( tb, FALSE );
-    } else {
-	toolBar()->show();
-	controls->setItemChecked( tb, TRUE );
-    }
+//     if ( toolBar()->isVisible() ) {
+// 	toolBar()->hide();
+// 	controls->setItemChecked( tb, FALSE );
+//     } else {
+// 	toolBar()->show();
+// 	controls->setItemChecked( tb, TRUE );
+//     }
 }
 
 void ApplicationWindow::toggleStatusBar()
 {
-    if ( statusBar()->isVisible() ) {
-	statusBar()->hide();
-	controls->setItemChecked( sb, FALSE );
-    } else {
-	statusBar()->show();
-	controls->setItemChecked( sb, TRUE );
-    }
+//     if ( statusBar()->isVisible() ) {
+// 	statusBar()->hide();
+// 	controls->setItemChecked( sb, FALSE );
+//     } else {
+// 	statusBar()->show();
+// 	controls->setItemChecked( sb, TRUE );
+//     }
 }
 
 void ApplicationWindow::inschord()
