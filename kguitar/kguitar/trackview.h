@@ -4,7 +4,6 @@
 #include <qtableview.h>
 #include <qscrollview.h>
 
-#include "midilist.h"
 
 class TabSong;
 class TabTrack;
@@ -15,13 +14,12 @@ class KXMLGUIClient;
 class TrackView: public QTableView {
 	Q_OBJECT
 public:
-	TrackView(TabSong* s, KXMLGUIClient *_XMLGUIClient, QWidget *parent = 0, const char *name = 0);
+	TrackView(TabSong* s, KXMLGUIClient *_XMLGUIClient, DeviceManager *_dm,
+			  QWidget *parent = 0, const char *name = 0);
 	~TrackView();
 
 	TabTrack* trk() { return curt; }
 	void setCurt(TabTrack *);
-
-	DeviceManager* devMan() { return midi; }
 
 	void setFinger(int num, int fret);
 	int finger(int num);
@@ -69,15 +67,10 @@ public slots:
 	void key8() { insertTab(8); }
 	void key9() { insertTab(9); }
 	void key0() { insertTab(0); }
-	void playTrack();
-	void stopPlayTrack();
 
 	void selectTrack(TabTrack *);
 	void selectBar(uint);
 	void ensureCurrentVisible();
-
-private slots:
-	void playMidi(MidiList &ml);
 
 signals:
 	void statusBarChanged();
@@ -110,9 +103,6 @@ private:
 	char lastnumber;
 	int selxcoord;
 
-	// MIDI stuff
-	MidiList midiList;
-	bool midiInUse, midiStopPlay;
 };
 
 #endif

@@ -3,16 +3,11 @@
 #include "chord.h"
 #include "timesig.h"
 
-#include "globaloptions.h"
-
-#include "midilist.h"
-
 #include <kglobalsettings.h>
-#include <kstddirs.h>
+#include <kglobal.h>
 #include <kdebug.h>
 #include <kmessagebox.h>
 #include <klocale.h>
-#include <kapp.h>
 #include <kpopupmenu.h>
 #include <kxmlgui.h>
 #include <kxmlguiclient.h>
@@ -25,20 +20,9 @@
 #include <qspinbox.h>
 #include <qcombobox.h>
 #include <qcheckbox.h>
-#include <qdir.h>
 
-#include <libkmid/deviceman.h>
-#include <libkmid/midimapper.h>
-#include <libkmid/fmout.h>
-
-#include <unistd.h>
 #include <stdlib.h>
-#include <stdio.h>
-#include <sys/types.h>
-#include <sys/wait.h>
 
-#include <signal.h>   // kill is declared on signal.h on bsd, not sys/signal.h
-#include <sys/signal.h>
 
 #define VERTSPACE 30
 #define VERTLINE 10
@@ -50,8 +34,8 @@
 
 #define BOTTOMDUR	VERTSPACE+VERTLINE*(s+1)
 
-TrackView::TrackView(TabSong *s, KXMLGUIClient *_XMLGUIClient, QWidget *parent = 0, const char *name = 0):
-    QTableView(parent, name)
+TrackView::TrackView(TabSong *s, KXMLGUIClient *_XMLGUIClient, DeviceManager *_dm,
+					 QWidget *parent = 0, const char *name = 0): QTableView(parent, name)
 {
 	setTableFlags(Tbl_autoVScrollBar | Tbl_smoothScrolling);
 	setFrameStyle(Panel | Sunken);
@@ -62,6 +46,7 @@ TrackView::TrackView(TabSong *s, KXMLGUIClient *_XMLGUIClient, QWidget *parent =
 	setFocusPolicy(QWidget::StrongFocus);
 
     m_XMLGUIClient = _XMLGUIClient;
+	midi = _dm;
 
 	song = s;
 	setCurt(s->t.first());
@@ -69,49 +54,10 @@ TrackView::TrackView(TabSong *s, KXMLGUIClient *_XMLGUIClient, QWidget *parent =
 	updateRows();
 
 	lastnumber = -1;
-
-    // MIDI INIT STUFF
-    QString fmPatch, fmPatchDir;
-    fmPatch = locate("data", "kmid/fm/std.o3");
-
-	if (!fmPatch.isEmpty()) {
-		QFileInfo *fi = new QFileInfo(fmPatch);
-		fmPatchDir = fi->dirPath().latin1();
-		fmPatchDir += "/";
-		globalHaveMidi = TRUE;
-
-		FMOut::setFMPatchesDirectory(fmPatchDir);
-
-		kdDebug() << "FMPatchesDirectory: " << fmPatchDir << endl;
-	} else {
-		kdDebug() << "Can't find FMPatches from KMid !! ** MIDI not ready !! ***" << endl;
-		globalHaveMidi = FALSE;
-	}
-
-	midi = new DeviceManager( /*mididev*/ -1);
-
-	if (midi->initManager() == 0)
-		kdDebug() << "midi->initManager()...  OK" << endl;
-
-	MidiMapper *map = new MidiMapper(NULL); // alinx - for future option in Optiondialog
-												// Maps are stored in:
-												// "$DKEDIR/share/apps/kmid/maps/*.map"
-	midi->setMidiMap(map);
-
-	midi->openDev();
-	midi->initDev();
-
-	midiInUse = FALSE;
-	midiStopPlay = FALSE;
 }
 
 TrackView::~TrackView()
 {
-	kdDebug() << "Closing device" << endl;
-	midi->closeDev();
-
-	kdDebug() << "Deleting devicemanager" << endl;
-	//	delete midi;
 }
 
 void TrackView::selectTrack(TabTrack *trk)
@@ -231,7 +177,7 @@ void TrackView::insertChord()
 {
 	int a[MAX_STRINGS];
 
-	ChordSelector cs(devMan(), curt);
+	ChordSelector cs(midi, curt);
 	for (int i = 0; i < curt->string; i++)
 		cs.setApp(i, curt->c[curt->x].a[i]);
 
@@ -856,337 +802,4 @@ void TrackView::mousePressEvent(QMouseEvent *e)
 	}
 }
 
-void TrackView::playTrack()
-{
-#ifdef HAVE_MIDI
-    kdDebug() << "TrackView::playTrack with pid:" << getpid() << endl;
 
-    if (midiInUse) {
-        kdDebug() << "   ** Sorry you are playing a track!!" << endl;
-        return;
-    }
-
-    midiInUse = TRUE;
-    midiStopPlay = FALSE;
-
-    midiList.clear();
-
-    MidiData::getMidiList(curt, midiList); // ALINXFIX: at this time only one track...
-
-    playMidi(midiList);
-#endif
-}
-
-void TrackView::stopPlayTrack()
-{
-#ifdef HAVE_MIDI
-    kdDebug() << "TrackView::stopPlayTrack" << endl;
-
-    if (midiInUse) midiStopPlay = TRUE;
-#endif
-}
-
-void TrackView::playMidi(MidiList &ml)
-{
-    /*****************************************************************
-    * TODO:
-    *  - make it possible to use the GUI ( !! Stop MIDI play !! )
-    *  - handle other MidiEvents/KG_Effecs
-    *  - make something configurable (Tempo, TPCN)
-    *  - use real noteOff event (also in MidiData::getMidiList)
-    *  - find a callback to make played note visible on TrackView
-    ******************************************************************/
-
-#ifdef HAVE_MIDI
-    kdDebug() << "TrackView::playMidi" << endl;
-
-    if (ml.isEmpty()) {
-        midiStopPlay = TRUE;
-        midiInUse = FALSE;
-        kdDebug() << "    MidiList is empty!! Nothing to play." << endl;
-        return;
-    }
-
-    kdDebug() << "    Parent1 pid: " << getpid() << endl;
-
-    int defDevice = midi->defaultDevice(); // get the device for the child
-    if (defDevice == -1) {
-        kdDebug() << "There is no device available" << endl;
-        return;
-    }
-
-    midi->closeDev(); // close MidiDevice for child process
-    delete midi;
-
-    int status;
-    pid_t m_pid;
-
-    QApplication::flushX();
-
-    m_pid = fork();       // create child process
-
-    if (m_pid == -1) {
-        kdDebug() << "    **** Error: can't fork a child process!!" << endl;
-        return;
-    }
-
-    if (m_pid == 0) {      // ***** child process *****
-
-        kdDebug() << "    --child process with pid: " << getpid() << " and parent pid: " << getppid() << endl;
-
-        // create own MidiDevice for child process
-        QString fmPatch, fmPatchDir;
-        fmPatch = locate("data", "kmid/fm/std.o3");
-
-        if (!fmPatch.isEmpty()) {
-
-            QFileInfo *fi = new QFileInfo(fmPatch);
-            fmPatchDir = fi->dirPath().latin1();
-            fmPatchDir += "/";
-            globalHaveMidi = TRUE;
-
-            FMOut::setFMPatchesDirectory(fmPatchDir);
-
-            kdDebug() << "      child process: FMPatchesDirectory: " << fmPatchDir << endl;
-        }
-        else {
-            kdDebug() << "      child process: Can't find FMPatches from KMid !! ** MIDI not ready !! ***" << endl;
-            globalHaveMidi = FALSE;
-        }
-
-        DeviceManager *c_midi;
-
-        kdDebug() << "      child process: c_midi = new DeviceManager(-1)" << endl;
-        c_midi = new DeviceManager( /*mididev*/ -1);
-
-        if (c_midi->initManager() == 0)
-            kdDebug() << "      child process: c_midi->initManager()...  OK" << endl;
-        else {
-            kdDebug() << "      child process: c_midi->initManager() FAILED *******" << endl;
-            exit(EXIT_FAILURE);
-        }
-
-        MidiMapper *c_map = new MidiMapper(NULL); // alinx - for future option in Optiondialog
-                                                  // Maps are stored in:
-                                                  // "$DKEDIR/share/apps/kmid/maps/*.map"
-
-        kdDebug() << "      child process: c_midi->setMidiMap()" << endl;
-        c_midi->setMidiMap(c_map);
-
-        kdDebug() << "      child process: c_midi->openDev()" << endl;
-        c_midi->openDev();
-        kdDebug() << "      child process: c_midi->initDev()" << endl;
-        c_midi->initDev();
-        kdDebug() << "      child process: c_midi->setDefaultDevice(" << defDevice << ")" << endl;
-        c_midi->setDefaultDevice(defDevice);
-
-        MidiEvent *e;
-        long tempo;
-        int tpcn = 4;          // ALINXFIX: TicksPerCuarterNote: make it as option
-
-        c_midi->chnPatchChange(0, curt->patch);
-        c_midi->tmrStart(tpcn);
-
-        for (e = ml.first(); e != 0; e = ml.next()) {
-            tempo = e->timestamp * 2;     // ALINXFIX: make the tempo as option
-
-            c_midi->wait(tempo);
-            c_midi->noteOn(0, e->data1, e->data2);
-        }
-        c_midi->wait(0);
-        c_midi->sync();
-        c_midi->tmrStop();
-
-        sleep(1);
-        exit(EXIT_SUCCESS);              // exit child process
-    }
-    else {                               // ****** parent process ******
-        kdDebug() << "    Parent3 pid: " << getpid() << endl;
-
-        pid_t child_pid;
-        child_pid = m_pid;   // copy child pid for kill()
-
-        while ((m_pid = waitpid(-1, &status, WNOHANG)) == 0) { //wait for child process
-            kdDebug() << "    wait for child process (pid: " << child_pid << ")" << endl;
-
-            kapp->processEvents();
-
-            if (midiStopPlay) {
-                kdDebug() << "====> try to stop the midi timer..." << endl;
-                kill(child_pid, SIGTERM);
-                waitpid(child_pid, NULL, 0);
-            }
-        }
-
-        if (WIFEXITED(status) != 0)
-            kdDebug() << "    child process: no error on exit" << endl;
-        else
-            kdDebug() << "    child process exit with error => " << WEXITSTATUS(status) << endl;
-
-        midiInUse = FALSE;
-
-        kdDebug() << "    -->reopen MidiDevice 'midi'..." << endl;
-
-        kdDebug() << "    -->midi = new DeviceManager(-1)" << endl;
-        midi = new DeviceManager( /*mididev*/ -1);
-
-        if (midi->initManager() == 0)
-            kdDebug() << "    -->midi->initManager()...  OK" << endl;
-        else {
-            kdDebug() << "    -->midi->initManager() FAILED *******" << endl;
-            return;
-        }
-        kdDebug() << "    -->midi->openDev()" << endl;
-        midi->openDev();      // reopen MidiDevice
-        kdDebug() << "    -->midi->initDev()" << endl;
-        midi->initDev();
-        kdDebug() << "    -->midi->setDefaultDevice(" << defDevice << ")" << endl;
-        midi->setDefaultDevice(defDevice);
-    }
-#endif
-}
-
-/*
-
-void TrackView::playMidi(MidiList &ml)
-{
-//     /*****************************************************************
-//     * TODO:
-//     *  - make it possible to use the GUI ( !! Stop MIDI play !! )
-//     *  - handle other MidiEvents/KG_Effecs
-//     *  - make something configurable (Tempo, TPCN)
-//     *  - use real noteOff event (also in MidiData::getMidiList)
-//     *  - find a callback to make played note visible on TrackView
-//     *****************************************************************
-
-    kdDebug() << "TrackView::playMidi" << endl;
-
-    if (ml.isEmpty()) {
-        midiStopPlay = TRUE;
-        midiInUse = FALSE;
-        kdDebug() << "    MidiList is empty!! Nothing to play." << endl;
-        return;
-    }
-
-    kdDebug() << "    Parent1 pid: " << getpid() << endl;
-
-    int defDevice = midi->defaultDevice(); // get the device for the child
-    if (defDevice == -1) {
-        kdDebug() << "There is no device available" << endl;
-        return;
-    }
-
-    midi->closeDev(); // close MidiDevice for child process
-
-    int status;
-    pid_t m_pid;
-
-    QApplication::flushX();
-
-    m_pid = fork();       // create child process
-
-    if (m_pid == -1) {
-        kdDebug() << "    **** Error: can't fork a child process!!" << endl;
-        return;
-    }
-
-    kdDebug() << "    Parent2 pid: " << getpid() << endl;
-
-    if (m_pid == 0) {      // ***** child process *****
-
-        kdDebug() << "    --child process with pid: " << getpid() << " and parent pid: " << getppid() << endl;
-
-        // create own MidiDevice for child process
-        QString fmPatch, fmPatchDir;
-        fmPatch = locate("data", "kmid/fm/std.o3");
-
-        if (!fmPatch.isEmpty()) {
-
-            QFileInfo *fi = new QFileInfo(fmPatch);
-            fmPatchDir = fi->dirPath().latin1();
-            fmPatchDir += "/";
-            globalHaveMidi = TRUE;
-
-            FMOut::setFMPatchesDirectory(fmPatchDir);
-
-            kdDebug() << "      child process: FMPatchesDirectory: " << fmPatchDir << endl;
-        }
-        else {
-            kdDebug() << "      child process: Can't find FMPatches from KMid !! ** MIDI not ready !! ***" << endl;
-            globalHaveMidi = FALSE;
-        }
-
-        DeviceManager *c_midi;
-
-        kdDebug() << "      child process: c_midi = new DeviceManager(-1)" << endl;
-        c_midi = new DeviceManager( -1);
-
-        if (c_midi->initManager() == 0)
-            kdDebug() << "      child process: c_midi->initManager()...  OK" << endl;
-        else
-            kdDebug() << "      child process: c_midi->initManager() FAILED *******" << endl;
-
-        MidiMapper *c_map = new MidiMapper(NULL); // alinx - for future option in Optiondialog
-                                                  // Maps are stored in:
-                                                  // "$DKEDIR/share/apps/kmid/maps/*.map"
-
-        kdDebug() << "      child process: c_midi->setMidiMap()" << endl;
-        c_midi->setMidiMap(c_map);
-
-        kdDebug() << "      child process: c_midi->openDev()" << endl;
-        c_midi->openDev();
-        kdDebug() << "      child process: c_midi->initDev()" << endl;
-        c_midi->initDev();
-        kdDebug() << "      child process: c_midi->setDefaultDevice(" << defDevice << ")" << endl;
-        c_midi->setDefaultDevice(defDevice);
-
-        MidiEvent *e;
-        long tempo;
-        int tpcn = 4;          // ALINXFIX: TicksPerCuarterNote: make it as option
-
-        c_midi->chnPatchChange(0, curt->patch);
-        c_midi->tmrStart(tpcn);
-
-        for (e = ml.first(); e != 0; e = ml.next()) {
-            tempo = e->timestamp * 2;     // ALINXFIX: make the tempo as option
-
-            c_midi->wait(tempo);
-            c_midi->noteOn(0, e->data1, e->data2);
-        }
-        c_midi->wait(0);
-        c_midi->sync();
-        c_midi->tmrStop();
-
-        sleep(1);
-        exit(EXIT_SUCCESS);              // exit child process
-    }
-    else {                               // ****** parent process ******
-        kdDebug() << "    Parent3 pid: " << getpid() << endl;
-
-        pid_t child_pid;
-        child_pid = m_pid;   // copy child pid for kill()
-
-        while ((m_pid = waitpid(-1, &status, WNOHANG)) == 0) { //wait for child process
-            kdDebug() << "    wait for child process (pid: " << child_pid << ")" << endl;
-
-            kapp->processEvents();
-
-            if (midiStopPlay) {
-                kdDebug() << "====> try to stop the midi timer..." << endl;
-                kill(child_pid, SIGTERM);
-                waitpid(child_pid, NULL, 0);
-            }
-        }
-
-        if (WIFEXITED(status) != 0)
-            kdDebug() << "    child process: no error on exit" << endl;
-        else
-            kdDebug() << "    child process exit with error => " << WEXITSTATUS(status) << endl;
-
-        midiInUse = FALSE;
-
-        midi->openDev();      // reopen MidiDevice
-        midi->initDev();
-    }
-}
-*/

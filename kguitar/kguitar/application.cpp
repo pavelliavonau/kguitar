@@ -208,10 +208,10 @@ KGuitarPart::KGuitarPart(bool bBrowserView, QWidget *parentWidget,
 
     // SET UP MIDI-PLAY
     midiPlayTrackAct = new KAction(i18n("&Play Track"), "1rightarrow",
-                                   KAccel::stringToKey("Shift+P"), sv->tv, SLOT(playTrack()),
+                                   KAccel::stringToKey("Shift+P"), sv, SLOT(playTrack()),
                                    actionCollection(), "midi_playtrack");
     midiStopPlayAct = new KAction(i18n("&Stop"), "player_stop",
-                                  KAccel::stringToKey("Ctrl+Shift+P"), sv->tv, SLOT(stopPlayTrack()),
+                                  KAccel::stringToKey("Ctrl+Shift+P"), sv, SLOT(stopPlayTrack()),
                                   actionCollection(), "midi_stopplay");
 #ifndef HAVE_MIDI
     midiPlayTrackAct->setEnabled(FALSE);
@@ -542,7 +542,7 @@ void KGuitarPart::filePrint()
 
 void KGuitarPart::options()
 {
-	Options *op = new Options(sv->tv->devMan());
+	Options *op = new Options(sv->devMan());
 
 	op->maj7gr->setButton(globalMaj7);
 	op->flatgr->setButton(globalFlatPlus);
@@ -590,7 +590,7 @@ void KGuitarPart::readOptions()
 
 	config->setGroup("MIDI");
 	int d = config->readNumEntry("Device", 0);
-	sv->tv->devMan()->setDefaultDevice(d);
+	sv->devMan()->setDefaultDevice(d);
 }
 
 void KGuitarPart::saveOptions()
@@ -621,7 +621,7 @@ void KGuitarPart::saveOptions()
 // 	config->writeEntry("Port", globalAlsaPort);
 
 	config->setGroup("MIDI");
-	config->writeEntry("Device", sv->tv->devMan()->defaultDevice());
+	config->writeEntry("Device", sv->devMan()->defaultDevice());
 
 	config->sync();
 

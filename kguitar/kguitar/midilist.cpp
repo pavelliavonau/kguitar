@@ -4,8 +4,7 @@
 #include "midilist.h"
 #include "tabtrack.h"
 
-
-void MidiData::getMidiList(TabTrack *&trk, MidiList &ml)
+void MidiData::getMidiList(TabTrack *trk, MidiList &ml)
 {
     long timer = 0;
     Q_UINT8 noteon = MIDI_NOTEON | (trk->channel - 1);
@@ -65,3 +64,4 @@ int MidiList::compareItems(QCollection::Item e1, QCollection::Item e2)
     else
         return i;
 }
+

@@ -3,6 +3,8 @@
 
 #include <qwidget.h>
 
+#include "midilist.h"
+
 class TrackView;
 class TrackList;
 class TrackPane;
@@ -23,6 +25,7 @@ public:
 	TrackPane *tp;
 
 	TabSong* sng() { return song; }
+	DeviceManager* devMan() { return midi; }
 
 public slots:
 	bool trackNew();
@@ -30,11 +33,20 @@ public slots:
 	bool trackProperties();
 	void trackBassLine();
 	void songProperties();
+	void playTrack();
+	void stopPlayTrack();
+
+private slots:
+	void playMidi(MidiList &ml);
 
 private:
 	QSplitter *split, *splitv;
 	DeviceManager *midi;
 	TabSong *song;
+
+	// MIDI stuff
+	MidiList midiList;
+	bool midiInUse, midiStopPlay;
 };
 
 #endif
