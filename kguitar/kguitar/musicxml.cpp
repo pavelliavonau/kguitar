@@ -21,7 +21,6 @@
 // LVIFIX missing features:
 // effects
 // input error reporting
-// triplet handling
 
 // LVIFIX:
 // add bounds checking on all toInt() results
@@ -37,9 +36,6 @@
 // channel 0..15
 // patch (== program): 0..127
 // KGuitar ???
-
-// LVIFIX:
-// check if dots are read back correctly
 
 // LVIFIX:
 // saving a file with empty "author" property results in an empty <encoder>,
@@ -227,7 +223,9 @@ bool MusicXMLParser::startElement( const QString&, const QString&,
 bool MusicXMLParser::endElement( const QString&, const QString&,
                                   const QString& qName)
 {
-	if (qName == "attributes") {
+	if (qName == "actual-notes") {
+	    stAno = stCha;
+	} else if (qName == "attributes") {
 		// update this bar's attributes
 		if (trk) {
 			trk->b[bar-1].time1=stBts.toInt();
@@ -241,7 +239,7 @@ bool MusicXMLParser::endElement( const QString&, const QString&,
 	    stCho = TRUE;
 	} else if (qName == "creator") {
 	    stCrt = stCha;
-	} else if (qName == "dots") {
+	} else if (qName == "dot") {
 	    stDts++;
 	} else if (qName == "encoder") {
 	    stEnc = stCha;
@@ -258,6 +256,8 @@ bool MusicXMLParser::endElement( const QString&, const QString&,
 	    stPmc = stCha;
 	} else if (qName == "midi-program") {
 	    stPmp = stCha;
+	} else if (qName == "normal-notes") {
+	    stNno = stCha;
 	} else if (qName == "note") {
 	    return addNote();
 	} else if (qName == "part") {
@@ -316,8 +316,12 @@ bool MusicXMLParser::addNote()
     // string conversions
 	bool ok1;
 	bool ok2;
+	bool ok3;
+	bool ok4;
 	unsigned int frt = stFrt.toUInt(&ok1);
 	unsigned int str = stStr.toUInt(&ok2);
+	unsigned int ano = stAno.toUInt(&ok3);
+	unsigned int nno = stNno.toUInt(&ok4);
 	int len = mxmlNoteType2Kg(stTyp);
 	// sanity checks
 	// LVIFIX: check valid range for frt and str
@@ -330,7 +334,8 @@ bool MusicXMLParser::addNote()
 	// all ok, append note
 	// append note to current track
 	if (stCho && (x > 0)) {
-	    // chord with previous note (cannot be first note of track)
+	    // chord with previous note (cannot be first note of track):
+		// add to current column
 	    if (!stRst) {
 		    trk->c[x-1].a[mxmlStr2Kg(stStr.toInt(), trk->string)]
 			  = stFrt.toInt();
@@ -342,7 +347,7 @@ bool MusicXMLParser::addNote()
 	      trk->c[x-1].flags = (stDts ? FLAG_DOT : 0);
 		}
 	} else {
-		// single note or first note of chord
+		// single note or first note of chord: add a new column
 		x++;
 		trk->c.resize(x);
 		for (int k = 0; k < trk->string; k++) {
@@ -354,6 +359,10 @@ bool MusicXMLParser::addNote()
 		}
 	    trk->c[x-1].l = len;
 	    trk->c[x-1].flags = (stDts ? FLAG_DOT : 0);
+	}
+	// handle triplets
+	if (ok3 && ok4 && (ano == 3) && (nno == 2)) {
+		trk->c[x-1].flags |= FLAG_TRIPLET;
 	}
     // re-init note specific variables
 	initStNote();
@@ -391,9 +400,11 @@ bool MusicXMLParser::addTrack()
 
 void MusicXMLParser::initStNote()
 {
+	stAno = "";
 	stCho = FALSE;
 	stDts = 0;
 	stFrt = "";
+	stNno = "";
 	stRst = FALSE;
 	stStr = "";
 	stTyp = "";
@@ -488,6 +499,7 @@ void MusicXMLWriter::write(QTextStream& os)
 		os << "\n";
 		os << "\t<part id=\"P" << it+1 << "\">\n";
 
+		int trp = 0;			// triplet state (0=none, 1=1st, 2=2nd, 3=3rd)
 		// loop over all columns
 		for (uint x = 0; x < trk->c.size(); x++) {
 			if (bar+1 < trk->b.size()) {	// This bar's not last
@@ -526,7 +538,7 @@ void MusicXMLWriter::write(QTextStream& os)
 				// Initialize the accidentals
 				accSt.resetToKeySig();
 			}
-			writeCol(os, trk, x);
+			writeCol(os, trk, x, trp);
 		}
 		os << "\t\t</measure>\n";
 		os << "\n";
@@ -559,9 +571,8 @@ void MusicXMLWriter::writeAccid(QTextStream& os, int n, QString tabs)
 }
 
 // write column x of TabTrack trk to QTextStream os
-// LVIFIX triplet
 
-void MusicXMLWriter::writeCol(QTextStream& os, TabTrack * trk, int x)
+void MusicXMLWriter::writeCol(QTextStream& os, TabTrack * trk, int x, int& trp)
 {
 	int duration;				// note duration (incl. dot/triplet)
 	int fret;
@@ -574,6 +585,18 @@ void MusicXMLWriter::writeCol(QTextStream& os, TabTrack * trk, int x)
 	duration = length * 2 / 5;
 	if (trk->c[x].flags & FLAG_DOT) {
 		duration = duration * 3 / 2;
+	}
+	if (trk->c[x].flags & FLAG_TRIPLET) {
+		duration = duration * 2 / 3;
+	}
+	// triplet handling:
+	// - reset after third note of triplet
+	// - count notes while inside triplet
+	if (trp >= 3) {
+		trp = 0;
+	}
+	if (trk->c[x].flags & FLAG_TRIPLET) {
+		trp++;
 	}
 	// calculate accidentals
 	accSt.startChord();
@@ -601,8 +624,20 @@ void MusicXMLWriter::writeCol(QTextStream& os, TabTrack * trk, int x)
 			if (trk->c[x].flags & FLAG_DOT) {
 				os << "\t\t\t\t<dot/>\n";
 			}
+			if (trp) {
+				os << "\t\t\t\t<time-modification>\n";
+				os << "\t\t\t\t\t<actual-notes>3</actual-notes>\n";
+				os << "\t\t\t\t\t<normal-notes>2</normal-notes>\n";
+				os << "\t\t\t\t</time-modification>\n";
+			}
 			writeAccid(os, trk->tune[i] + fret, "\t\t\t\t");
 			os << "\t\t\t\t<notations>\n";
+			if (trp == 1) {
+				os << "\t\t\t\t\t<tuplet type=\"start\"/>\n";
+			}
+			if (trp == 3) {
+				os << "\t\t\t\t\t<tuplet type=\"stop\"/>\n";
+			}
 			os << "\t\t\t\t\t<technical>\n";
 			os << "\t\t\t\t\t\t<string>" << mxmlStr2Kg(i, trk->string)
 			   << "</string>\n";

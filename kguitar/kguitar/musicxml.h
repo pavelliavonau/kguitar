@@ -64,9 +64,11 @@ private:
 	QString stBts;				// beats
 	QString stBtt;				// beat-type
 	// note -- initialized in initStNote()
+	QString	stAno;				// actual notes
 	bool    stCho;				// chord with previous note
 	int     stDts;				// dots (count)
 	QString stFrt;				// fret
+	QString	stNno;				// normal notes
 	bool    stRst;				// rest
 	QString stStr;				// string
 	QString stTyp;				// type
@@ -90,7 +92,7 @@ public:
 	void write(QTextStream&);
 private:
 	void writeAccid(QTextStream&, int, QString);
-	void writeCol(QTextStream&, TabTrack *, int);
+	void writeCol(QTextStream&, TabTrack *, int, int&);
 	void writePitch(QTextStream&, int, QString, QString);
 	void writeStaffDetails(QTextStream&, TabTrack *);
 	void writeTime(QTextStream&, int, int);
