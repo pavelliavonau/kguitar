@@ -42,6 +42,7 @@ ApplicationWindow::ApplicationWindow(): KTMainWindow()
     p->insertItem(i18n("&Open..."), this, SLOT(load()));
     p->insertItem(i18n("&Save"), this, SLOT(save()));
     p->insertItem(i18n("S&ave as..."), this, SLOT(saveAs()));
+    p->insertItem(i18n("&Export..."), this, SLOT(exportMID()));
     p->insertSeparator();
     p->insertItem(i18n("P&roperties..."), this, SLOT(songProperties()));
     p->insertItem(i18n("&Print..."), this, SLOT(print()));
@@ -135,6 +136,13 @@ void ApplicationWindow::saveAs()
 	tv->sng()->save_to_kg(fn);
 	tv->sng()->filename=fn;
     }
+}
+
+void ApplicationWindow::exportMID()
+{
+    QString fn = KFileDialog::getSaveFileName(0,"*.mid",this);
+    if (!fn.isEmpty())
+	tv->sng()->save_to_mid(fn);
 }
 
 void ApplicationWindow::print()
