@@ -7,7 +7,7 @@
 
 class TabSong;
 class TabTrack;
-class DeviceManager;
+//##class DeviceManager;
 class QListViewItem;
 class KXMLGUIClient;
 class KCommandHistory;
@@ -16,7 +16,7 @@ class TrackView: public QTableView {
 	Q_OBJECT
 public:
 	TrackView(TabSong* s, KXMLGUIClient *_XMLGUIClient, KCommandHistory* _cmdHist,
-			  DeviceManager *_dm, QWidget *parent = 0, const char *name = 0);
+			  /*DeviceManager *_dm,*/ QWidget *parent = 0, const char *name = 0); //##
 	~TrackView();
 
 	TabTrack* trk() { return curt; }
@@ -100,7 +100,7 @@ private:
 
 	TabSong *song;
 	TabTrack *curt;
-	DeviceManager *midi;
+//##	DeviceManager *midi;
 	KXMLGUIClient *m_XMLGUIClient;
 	KCommandHistory *m_cmdHist;
 

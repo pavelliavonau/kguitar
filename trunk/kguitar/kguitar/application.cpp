@@ -554,7 +554,7 @@ void KGuitarPart::filePrint()
 
 void KGuitarPart::options()
 {
-	Options *op = new Options(sv->devMan());
+	Options *op = new Options(/*sv->devMan()*/); //##
 
 	op->maj7gr->setButton(globalMaj7);
 	op->flatgr->setButton(globalFlatPlus);
@@ -600,9 +600,9 @@ void KGuitarPart::readOptions()
 // 	globalAlsaClient = config->readNumEntry("client", 64);
 // 	globalAlsaPort = config->readNumEntry("port", 0);
 
-	config->setGroup("MIDI");
-	int d = config->readNumEntry("Device", 0);
-	sv->devMan()->setDefaultDevice(d);
+//##	config->setGroup("MIDI");
+//##	int d = config->readNumEntry("Device", 0);
+//##	sv->devMan()->setDefaultDevice(d);
 }
 
 void KGuitarPart::saveOptions()
@@ -632,8 +632,8 @@ void KGuitarPart::saveOptions()
 // 	config->writeEntry("Client", globalAlsaClient);
 // 	config->writeEntry("Port", globalAlsaPort);
 
-	config->setGroup("MIDI");
-	config->writeEntry("Device", sv->devMan()->defaultDevice());
+//##	config->setGroup("MIDI");
+//##	config->writeEntry("Device", sv->devMan()->defaultDevice());
 
 	config->sync();
 
