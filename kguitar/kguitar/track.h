@@ -1,52 +1,69 @@
-#include <qlist.h>
+#ifndef TRACK_H
+#define TRACK_H
 
-#include "global.h"
+// GREYFIX - change to global.h
+#define MAX_STRINGS 12
+
+#include <qlist.h>
+#include <qstring.h>
 
 // Durations as in MIDI:
-// 480 = whole
-// 240 = half
-// 120 = quarter
-// 60  = eighth
-// 30  = 16th
-// 15  = 32nd
+// 480 = whole    = 1
+// 240 = half     = 2
+// 120 = quarter  = 3
+// 60  = eighth   = 4
+// 30  = 16th     = 5
+// 15  = 32nd     = 6
 
 class TabColumn
 {
 public:
-    TabColumn() { for (int i=0;i<MAX_STRINGS;i++) {a[i]=-1;e[i]=0;};l=120; };
+    TabColumn() { for (int i=0;i<MAX_STRINGS;i++) {a[i]=-1;e[i]=0;};l=3; };
 
-    int l;                              // Duration of note or chord
-    int a[MAX_STRINGS];                 // Number of fret
-    int e[MAX_STRINGS];                 // Effect parameter
+    uint l;                             // Duration of note or chord
+    char a[MAX_STRINGS];                // Number of fret
+    char e[MAX_STRINGS];                // Effect parameter
 };
 
 class TabTrack
 {
 public:
-    TabTrack(int bank, int patch, int str) { mbank=bank;mpatch=patch;_string=str; };
+    TabTrack(int bank, uchar patch, uchar str) { mbank=bank;mpatch=patch;_string=str;c.setAutoDelete(TRUE); };
     QList<TabColumn> c;                 // Tab columns
 
-    void setTuning(const int t[MAX_STRINGS]) { for (int i=0;i<_string;i++)  _tune[i]=t[i]; };
+    void setTuning(const uchar t[MAX_STRINGS]) { for (int i=0;i<_string;i++)  _tune[i]=t[i]; };
     int string() { return _string; }
     int tune(int x) { return _tune[x]; }
+
+    int bank() { return mbank; }
+    int patch() { return mpatch; }
+
+//    QListIterator<TabColumn> xi(QListT<TabColumn>);        // Current tab col iterator
 
     int x;                              // Current tab col
     int y;                              // Current tab row
 private:
     int mbank;                          // MIDI bank
-    int mpatch;                         // MIDI patch
-    int _string;                        // Number of strings
-    int _tune[MAX_STRINGS];             // Tuning, if appicable
+    uchar mpatch;                       // MIDI patch
+    uchar _string;                      // Number of strings
+    uchar _tune[MAX_STRINGS];           // Tuning, if appicable
 };
 
 class TabSong
 {
 public:
-    TabSong(QString _title, int _tempo) { tempo=_tempo; title=_title; };
+    TabSong(QString _title, int _tempo) { tempo=_tempo;title=_title;t.setAutoDelete(TRUE); };
     int tempo;
     QList<TabTrack> t;                  // Track data
     QString title;                      // Title of the song
     QString author;                     // Author of the tune
     QString transcriber;                // Who made the tab
     QString comments;                   // Comments
+
+    bool load_from_kg(const char* fileName);
+    bool save_to_kg(const char* fileName);
+    bool load_from_gtp(const char* fileName);
+    bool save_to_gtp(const char* fileName);
 };
+
+#endif
