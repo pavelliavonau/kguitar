@@ -208,9 +208,10 @@ static char beamL1(int t, int v, int bn, TabTrack *trk)
 		return 'n';
 	}
 	// if no note in this voice, then no beam
-	int tp;						// note type
 	int dt;						// dots (not used)
-	if (!trk->getNoteTypeAndDots(t, v, tp, dt)) {
+	int tp;						// note type
+	bool tr;					// triplet (not used)
+	if (!trk->getNoteTypeAndDots(t, v, tp, dt, tr)) {
 		return 'n';
 	}
 	// if note is 1/4 or longer, then no beam
@@ -226,12 +227,12 @@ static char beamL1(int t, int v, int bn, TabTrack *trk)
 	n = (t == l) ? -1 : (t + 1);
 	int ptp = 480;				// previous note type, default to 1/1
 	int ntp = 480;				// next note type, default to 1/1
-	if ((p == -1) || !trk->getNoteTypeAndDots(p, v, ptp, dt)) {
+	if ((p == -1) || !trk->getNoteTypeAndDots(p, v, ptp, dt, tr)) {
 		// no previous note (or not in this voice),
 		// therefore pretend 1/1 (which has no stem)
 		ptp = 480;
 	}
-	if ((n == -1) || !trk->getNoteTypeAndDots(n, v, ntp, dt)) {
+	if ((n == -1) || !trk->getNoteTypeAndDots(n, v, ntp, dt, tr)) {
 		// no previous note (or not in this voice),
 		// therefore pretend 1/1 (which has no stem)
 		ntp = 480;
@@ -284,9 +285,10 @@ static char beamL1(int t, int v, int bn, TabTrack *trk)
 static char beamL2plus(int t, int v, int bn, int lvl, TabTrack *trk)
 {
 	// if no note in this voice, then no beam
-	int tp;						// note type
 	int dt;						// dots (not used)
-	if (!trk->getNoteTypeAndDots(t, v, tp, dt)) {
+	int tp;						// note type
+	bool tr;					// triplet (not used)
+	if (!trk->getNoteTypeAndDots(t, v, tp, dt, tr)) {
 		return 'n';
 	}
 	// determine duration for this level
@@ -316,12 +318,12 @@ static char beamL2plus(int t, int v, int bn, int lvl, TabTrack *trk)
 	n = (t == l) ? -1 : (t + 1);
 	int ptp = 480;				// previous note type, default to 1/1
 	int ntp = 480;				// next note type, default to 1/1
-	if ((p == -1) || !trk->getNoteTypeAndDots(p, v, ptp, dt)) {
+	if ((p == -1) || !trk->getNoteTypeAndDots(p, v, ptp, dt, tr)) {
 		// no previous note (or not in this voice),
 		// therefore pretend 1/1 (which has no stem)
 		ptp = 480;
 	}
-	if ((n == -1) || !trk->getNoteTypeAndDots(n, v, ntp, dt)) {
+	if ((n == -1) || !trk->getNoteTypeAndDots(n, v, ntp, dt, tr)) {
 		// no previous note (or not in this voice),
 		// therefore pretend 1/1 (which has no stem)
 		ntp = 480;
@@ -578,8 +580,9 @@ void SongPrint::drawBar(int bn, TabTrack *trk, int es)
 			for (int i = 0; i < 2; i++) {
 				int dt;
 				int tp;
+				bool tr;
 				bool res;
-				res = trk->getNoteTypeAndDots(t, i, tp, dt);
+				res = trk->getNoteTypeAndDots(t, i, tp, dt, tr);
 				/*
 				cout
 					<< "getNoteTypeAndDots()"
@@ -607,8 +610,9 @@ void SongPrint::drawBar(int bn, TabTrack *trk, int es)
 			bool res1;
 			bool res2;
 			int tp;
+			bool tr;
 			// print voice 0
-			res1 = trk->getNoteTypeAndDots(t, 0, tp, dt);
+			res1 = trk->getNoteTypeAndDots(t, 0, tp, dt, tr);
 			res2 = findHiLo(t, 0, trk, yh, yl);
 			if (res1 && res2) {
 				// voice 0 found
@@ -641,7 +645,7 @@ void SongPrint::drawBar(int bn, TabTrack *trk, int es)
 				}
 			}
 			// print voice 1
-			res1 = trk->getNoteTypeAndDots(t, 1, tp, dt);
+			res1 = trk->getNoteTypeAndDots(t, 1, tp, dt, tr);
 			res2 = findHiLo(t, 1, trk, yh, yl);
 			if (res1 && res2) {
 				// voice 1 found

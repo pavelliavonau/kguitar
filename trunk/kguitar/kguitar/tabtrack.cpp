@@ -142,14 +142,14 @@ Q_UINT16 TabTrack::noteDuration(uint t, int i)
 
 // Returns the number of columns used by the note in column t and string i
 // Ringing and bar end are taken into account
-// LVIFIX: returns 0 for a "rest" column
+
 int TabTrack::noteNrCols(uint t, int i)
 {
 	if ((t >= c.size()) || (i < 0) || (i >= string)) {
-		return 0;
+		return 1;
 	}
 	if (c[t].a[i] == NULL_NOTE) {
-		return 0;
+		return 1;
 	}
 	if (c[t].e[i] == EFFECT_LETRING) {
 		int b  = barNr(t);
@@ -171,11 +171,8 @@ int TabTrack::noteNrCols(uint t, int i)
 			&& (c[cc].e[i] != EFFECT_STOPRING))
 				res++;
 		return res;
-	} else {
-		// not ringing: length is one column
-		return 1;
 	}
-	return 0;
+	return 1;
 }
 
 // Inserts n columns at current cursor position
@@ -518,52 +515,53 @@ void  TabTrack::calcVoices()
 			}
 			t++;
 		}
-		return;
-	}
 
-	// loop through track and allocate voice 0
-	t = 0;
-	while (t < c.size()) {
-		// find all lowest notes of equal length in this column
-		int  lntlen = 0;		// lowest note length
-		for (int i = 0; i < string; i++) {
-			if (c[t].a[i] != NULL_NOTE) {
-				if (lntlen == 0) {
-					// lowest note in this column, allocate to voice 0
-					c[t].v[i] = 0;
-					lntlen = noteNrCols(t, i);
-				} else {
-					if (lntlen == noteNrCols(t, i)) {
-						// same length as lowest note in this column,
-						// allocate to voice 0
+	} else {
+
+		// handle multiple voices
+
+		// loop through track and allocate voice 0
+		t = 0;
+		while (t < c.size()) {
+			// find all lowest notes of equal length in this column
+			int  lntlen = 0;		// lowest note length
+			for (int i = 0; i < string; i++) {
+				if (c[t].a[i] != NULL_NOTE) {
+					if (lntlen == 0) {
+						// lowest note in this column, allocate to voice 0
 						c[t].v[i] = 0;
+						lntlen = noteNrCols(t, i);
+					} else {
+						if (lntlen == noteNrCols(t, i)) {
+							// same length as lowest note in this column,
+							// allocate to voice 0
+							c[t].v[i] = 0;
+						}
 					}
 				}
 			}
-		}
-		// move to next note
-		if (lntlen == 0) {
-			t++;
-		} else {
-			t += lntlen;
-		}
-	}
-	// loop through track again and allocate remaining notes to voice 1
-	// LVIFIX: cannot handle more than two voices:
-	// print error when more voices are found
-	t = 0;
-	while (t < c.size()) {
-		for (int i = 0; i < string; i++) {
-			if ((c[t].a[i] != NULL_NOTE) && (c[t].v[i] == -1)) {
-				c[t].v[i] = 1;
+			// move to next note
+			if (lntlen == 0) {
+				t++;
+			} else {
+				t += lntlen;
 			}
 		}
-		t++;
-	}
-	// in multiple voice mode, if a column contains more than one notes
-	// in voice 0, but none in voice 1, then allocate all but lowest note
-	// to voice 1
-	if (hasMultiVoices()) {
+		// loop through track again and allocate remaining notes to voice 1
+		// LVIFIX: cannot handle more than two voices:
+		// print error when more voices are found
+		t = 0;
+		while (t < c.size()) {
+			for (int i = 0; i < string; i++) {
+				if ((c[t].a[i] != NULL_NOTE) && (c[t].v[i] == -1)) {
+					c[t].v[i] = 1;
+				}
+			}
+			t++;
+		}
+		// if a column contains more than one notes in voice 0,
+		// but none in voice 1, then allocate all but lowest note
+		// to voice 1
 		t = 0;
 		while (t < c.size()) {
 			int v0 = 0;			// number of notes in voice 1
@@ -591,6 +589,15 @@ void  TabTrack::calcVoices()
 			}
 			t++;
 		} // while (t ...
+	} // if (!hasMulti
+
+	// if linked with previous column, then copy voices from previous
+	for (t = 0; t < c.size(); t++) {
+		if ((t > 0) && (c[t].flags & FLAG_ARC)) {
+			for (int i = 0; i < string; i++) {
+				c[t].v[i] = c[t-1].v[i];
+			}
+		}
 	}
 }
 
@@ -624,16 +631,19 @@ bool TabTrack::isExactNoteDur(int d)
 	return false;
 }
 
-// get note head type tp and number of dots dt for column t in voice v
+// get note head type tp, number of dots dt and triplet flag
+// for column t in voice v
 // if no note in voice v, then return false
 // if note found but no valid type/dot combination, then return true,
-// but tp = dt = 0;
+// but tp = dt = 0, tr = false;
 
-bool TabTrack::getNoteTypeAndDots(int t, int v, int & tp, int & dt)
+bool TabTrack::getNoteTypeAndDots(int t, int v, int & tp, int & dt, bool & tr)
 {
-	// defaults: no note, no dots
+	// defaults: no note, no dots, no triplet
 	tp = 0;
 	dt = 0;
+	tr = false;
+
 	// find a note in voice v
 	int i;
 	for (i = string-1; i >= 0; i--) {
@@ -646,6 +656,7 @@ bool TabTrack::getNoteTypeAndDots(int t, int v, int & tp, int & dt)
 		// no note in this voice
 		return false;
 	}
+
 	int dur = noteDuration(t, i);
 	// try no dots
 	tp = dur;
@@ -665,9 +676,17 @@ bool TabTrack::getNoteTypeAndDots(int t, int v, int & tp, int & dt)
 	if (isExactNoteDur(tp)) {
 		return true;
 	}
+	// try triplet (duration = type * 2 / 3)
+	tp = dur * 3 / 2;
+	dt = 0;
+	tr = true;
+	if (isExactNoteDur(tp)) {
+		return true;
+	}
 
 	// no valid note type / dot combination found
 	tp = 0;
 	dt = 0;
+	tr = false;
 	return true;
 }

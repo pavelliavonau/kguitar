@@ -71,7 +71,7 @@ public:
 	void calcVoices();
 	bool hasMultiVoices();
 	bool isExactNoteDur(int d);
-	bool getNoteTypeAndDots(int t, int v, int & tp, int & dt);
+	bool getNoteTypeAndDots(int t, int v, int & tp, int & dt, bool & tr);
 
 #ifdef WITH_TSE3
 	TSE3::PhraseEdit *midiTrack();

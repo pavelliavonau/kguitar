@@ -651,7 +651,6 @@ void MusicXMLWriter::write(QTextStream& os)
 		trk = ts->t.at(it);
 		trk->calcVoices();
 		trk->calcStepAltOct();
-		uint bar = 0;
 		os << "\n";
 		os << "\t<part id=\"P" << it+1 << "\">\n";
 
@@ -678,11 +677,24 @@ void MusicXMLWriter::write(QTextStream& os)
 				// LVIFIX write time sig if changed
 			}
 
-			int trp = 0;		// triplet state (0=none, 1=1st, 2=2nd, 3=3rd)
-			// loop over all columns in this bar
-			for (uint x = trk->b[ib].start; x <= trk->lastColumn(ib); x++) {
-				writeCol(os, trk, x, trp);
-			} // end for (uint x = 0; ....
+			// loop over all voices in this bar
+			for (int i = 0; i < 2; i++) {
+				// write only voice 1 in single voice tracks,
+				// write all voices in multi voice tracks
+				if ((i == 1) || trk->hasMultiVoices()) {
+					// loop over all columns in this bar
+					for (uint x = trk->b[ib].start;
+							x <= trk->lastColumn(ib); /* nothing */) {
+						int tp;
+						int dt;
+						bool tr;
+						if (!trk->getNoteTypeAndDots(x, i, tp, dt, tr)) {
+							// LVIFIX: error handling ?
+						}
+						x += writeCol(os, trk, x, i);
+					} // end for (uint x = 0; ....
+				} // end if (trk->hasMulti ...
+			} // end for (int i = 0; ...
 
 			os << "\t\t</measure>\n";
 			os << "\n";
@@ -708,26 +720,76 @@ QString MusicXMLWriter::strAccid(Accidentals::Accid acc)
 	return s;
 }
 
-// write column x of TabTrack trk to QTextStream os
+// write voice v of column x of TabTrack trk to QTextStream os
+// update triplet state
+// return ncols used
 
-void MusicXMLWriter::writeCol(QTextStream& os, TabTrack * trk, int x, int& trp)
+// writeCol must write rest:
+// single voice: only in voice 1
+// multi voice: only in voice 0
+// LVIFIX: cause of this is that in a single voice track all notes
+// are allocated to voice 1 to force stem up when printing
+
+int MusicXMLWriter::writeCol(QTextStream& os, TabTrack * trk, int x, int v)
 {
 	// debug: dump this column
 	/*
 	os << "x=" << x;
-	os << " a[i]/e[i]=";
-	for (int i = trk->string - 1; i >= 0 ; i--) {
-		os << " " << (int) trk->c[x].a[i] << "/" << (int) trk->c[x].e[i];
+	os << " a[i]/e[i]/v[i]=";
+	for (int i = 0; i < trk->string; i++) {
+		os << " " << (int) trk->c[x].a[i]
+		   << "/" << (int) trk->c[x].e[i]
+		   << "/" << (int) trk->c[x].v[i];
 	}
 	os << " fl=" << (int) trk->c[x].flags;
 	os << endl;
 	*/
 	// end debug: dump this column
 
+	if (trk->b[trk->barNr(x)].start == x) {
+		// do start of bar specific init
+		tEndPrev  = 0;
+		trpCnt    = 0;
+		tStartCur = 0;
+		if ((v != 0) && trk->hasMultiVoices()) {
+			// write backup
+			// note scaling: quarter note = 48
+			os << "\t\t\t<backup>" << endl;
+			os << "\t\t\t\t<duration>" << trk->currentBarDuration() * 2 / 5
+				<< "</duration>\n";
+			os << "\t\t\t</backup>" << endl;
+		}
+	}
+	// debug info
+	/*
+	os << "tEndPrev=" << tEndPrev << " tStartCur=" << tStartCur;
+	if (tStartCur - tEndPrev) {
+		os << " -> forward: " << tStartCur - tEndPrev;
+	}
+	os << endl;
+	*/
+	// end debug info
+	if (tStartCur - tEndPrev) {
+		os << "\t\t\t<forward>" << endl;
+		os << "\t\t\t\t<duration>" << tStartCur - tEndPrev
+		   << "</duration>\n";
+		os << "\t\t\t\t<voice>" << v + 1 << "</voice>\n";
+		os << "\t\t\t</forward>" << endl;
+		tEndPrev = tStartCur;
+	}
+
+	int dots = 0;				// # dots
+	bool triplet = false;		// triplet flag
 	int duration;				// note duration (incl. dot/triplet)
 	int fret;
-	int length;					// note length (excl. dot/triplet)
-	int nNotes = 0;				// # notes in this column
+	int length = 0;				// note length (excl. dot/triplet)
+	int nCols = 1;				// # columns used (default 1)
+	int nNotes = 0;				// # notes printed in this column
+	int nRests = 0;				// # rests printed in this column
+
+	if (!trk->getNoteTypeAndDots(x, v, length, dots, triplet)) {
+		// LVIFIX: error handling ?
+	}
 
 	// tie handling:
 	// if the next column is linked with this one, start a tie
@@ -749,29 +811,45 @@ void MusicXMLWriter::writeCol(QTextStream& os, TabTrack * trk, int x, int& trp)
 		tieStop = TRUE;
 		xt = x - 1;				// LVIFIX
 	}
-	// duration is common for note and rest
-	length = trk->c[x].l;
-	// note scaling: quarter note = 48
-	duration = length * 2 / 5;
-	if (trk->c[x].flags & FLAG_DOT) {
-		duration = duration * 3 / 2;
-	}
-	if (trk->c[x].flags & FLAG_TRIPLET) {
-		duration = duration * 2 / 3;
-	}
+
 	// triplet handling:
 	// - reset after third note of triplet
 	// - count notes while inside triplet
-	if (trp >= 3) {
-		trp = 0;
+	if (trpCnt >= 3) {
+		trpCnt = 0;
 	}
-	if (trk->c[x].flags & FLAG_TRIPLET) {
-		trp++;
+	if (triplet) {
+		trpCnt++;
 	}
 	// print all notes
 	for (int i = trk->string - 1; i >= 0 ; i--) {
-		if (trk->c[xt].a[i] > -1) {
+		if ((trk->c[xt].a[i] > -1) && (trk->c[x].v[i] == v)) {
 			nNotes++;
+			if (nNotes == 1) {
+				// first note: calc duration etc.
+				// for regular column, include ringing etc.
+				// for column linked to previous, use colun length
+				if (trk->c[x].flags & FLAG_ARC) {
+					length = trk->c[x].l;
+					// note scaling: quarter note = 48
+					duration = length * 2 / 5;
+					// LVIFIX: dot and triplet handling required here ?
+					dots = 0;
+					triplet = false;
+					nCols = 1;
+				} else {
+					// note scaling: quarter note = 48
+					duration = length * 2 / 5;
+					// LVIFIX: allow more than one dot ?
+					if (dots) {
+						duration = duration * 3 / 2;
+					}
+					if (triplet) {
+						duration = duration * 2 / 3;
+					}
+					nCols = trk->noteNrCols(x, i);
+				}
+			}
 			fret = trk->c[xt].a[i];
 			// if this note has an effect legato, start slur
 			// if previous note has an effect legato, stop slur
@@ -807,14 +885,15 @@ void MusicXMLWriter::writeCol(QTextStream& os, TabTrack * trk, int x, int& trp)
 				os << "\t\t\t\t<chord/>\n";
 			}
 			os << "\t\t\t\t<pitch>\n";
-			os << "\t\t\t\t\t<step>" << trk->c[x].stp[i] << "</step>\n";
-			if (trk->c[x].alt[i] != '\0')
-				os << "\t\t\t\t\t<alter>" << (int) trk->c[x].alt[i]
+			os << "\t\t\t\t\t<step>" << trk->c[xt].stp[i] << "</step>\n";
+			if (trk->c[xt].alt[i] != '\0')
+				os << "\t\t\t\t\t<alter>" << (int) trk->c[xt].alt[i]
 					<< "</alter>\n";
-			os << "\t\t\t\t\t<octave>" << (int) trk->c[x].oct[i]
+			os << "\t\t\t\t\t<octave>" << (int) trk->c[xt].oct[i]
 				<< "</octave>\n";
 			os << "\t\t\t\t</pitch>\n";
 			os << "\t\t\t\t<duration>" << duration << "</duration>\n";
+			os << "\t\t\t\t<voice>" << v + 1 << "</voice>\n";
 			if (tieStart) {
 				os << "\t\t\t\t<tie type=\"start\"/>\n";
 			}
@@ -822,10 +901,10 @@ void MusicXMLWriter::writeCol(QTextStream& os, TabTrack * trk, int x, int& trp)
 				os << "\t\t\t\t<tie type=\"stop\"/>\n";
 			}
 			os << "\t\t\t\t<type>" << kgNoteLen2Mxml(length) << "</type>\n";
-			if (trk->c[x].flags & FLAG_DOT) {
+			if (dots) {
 				os << "\t\t\t\t<dot/>\n";
 			}
-			if (trp) {
+			if (trpCnt) {
 				os << "\t\t\t\t<time-modification>\n";
 				os << "\t\t\t\t\t<actual-notes>3</actual-notes>\n";
 				os << "\t\t\t\t\t<normal-notes>2</normal-notes>\n";
@@ -854,10 +933,10 @@ void MusicXMLWriter::writeCol(QTextStream& os, TabTrack * trk, int x, int& trp)
 			if (tieStop) {
 				os << "\t\t\t\t\t<tied type=\"stop\"/>\n";
 			}
-			if (trp == 1) {
+			if (trpCnt == 1) {
 				os << "\t\t\t\t\t<tuplet type=\"start\"/>\n";
 			}
-			if (trp == 3) {
+			if (trpCnt == 3) {
 				os << "\t\t\t\t\t<tuplet type=\"stop\"/>\n";
 			}
 			os << "\t\t\t\t\t<technical>\n";
@@ -878,16 +957,65 @@ void MusicXMLWriter::writeCol(QTextStream& os, TabTrack * trk, int x, int& trp)
 		}
 	}
 	// if no notes in this column, it is a rest
+	// rests are printed:
+	// single voice: only in voice 1
+	// multi voice: only in voice 0
 	if (nNotes == 0) {
-		os << "\t\t\t<note>\n";
-		os << "\t\t\t\t<rest/>\n";
-		os << "\t\t\t\t<duration>" << duration << "</duration>\n";
-		os << "\t\t\t\t<type>" << kgNoteLen2Mxml(length) << "</type>\n";
+		length = trk->c[x].l;
+		// note scaling: quarter note = 48
+		duration = length * 2 / 5;
+		// LVIFIX: dot and triplet handling required here ?
 		if (trk->c[x].flags & FLAG_DOT) {
-			os << "\t\t\t\t<dot/>\n";
+			duration = duration * 3 / 2;
 		}
-		os << "\t\t\t</note>\n";
+		if (trk->c[x].flags & FLAG_TRIPLET) {
+			duration = duration * 2 / 3;
+		}
+		if (((v == 1) && !trk->hasMultiVoices())
+			|| ((v == 0) && trk->hasMultiVoices())) {
+			os << "\t\t\t<note>\n";
+			os << "\t\t\t\t<rest/>\n";
+			os << "\t\t\t\t<duration>" << duration << "</duration>\n";
+			os << "\t\t\t\t<voice>" << v + 1 << "</voice>\n";
+			os << "\t\t\t\t<type>" << kgNoteLen2Mxml(length) << "</type>\n";
+			if (trk->c[x].flags & FLAG_DOT) {
+				os << "\t\t\t\t<dot/>\n";
+			}
+			os << "\t\t\t</note>\n";
+			nRests++;
+		}
 	}
+
+	tStartCur += duration;
+	if (nNotes || nRests) {
+		tEndPrev += duration;
+	}
+
+	if (trk->lastColumn(trk->barNr(x)) == x) {
+		// end of bar specifics: forward if necessary
+		if (v != 0) {
+			// write forward
+			// debug info
+			/*
+			os << "forward needed ? ";
+			os << "tEndPrev=" << tEndPrev << " tStartCur=" << tStartCur;
+			if (tStartCur - tEndPrev) {
+				os << " -> forward: " << tStartCur - tEndPrev;
+			}
+			os << endl;
+			*/
+			// end debug info
+			if (tStartCur - tEndPrev) {
+				os << "\t\t\t<forward>" << endl;
+				os << "\t\t\t\t<duration>" << tStartCur - tEndPrev
+				   << "</duration>\n";
+				os << "\t\t\t\t<voice>" << v + 1 << "</voice>\n";
+				os << "\t\t\t</forward>" << endl;
+			}
+		}
+	}
+
+	return nCols;
 }
 
 // write midi note number as step/alter/octave to QTextStream os
