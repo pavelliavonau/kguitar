@@ -1,13 +1,17 @@
 #ifndef TRACKVIEW_H
 #define TRACKVIEW_H
 
+#include "config.h"
+
 #include <qtableview.h>
 #include <qscrollview.h>
 
+#ifdef WITH_TSE3
+#include <tse3/MidiScheduler.h>
+#endif
 
 class TabSong;
 class TabTrack;
-//##class DeviceManager;
 class QListViewItem;
 class KXMLGUIClient;
 class KCommandHistory;
@@ -16,9 +20,17 @@ class QFont;
 class TrackView: public QTableView {
 	Q_OBJECT
 public:
-	TrackView(TabSong* s, KXMLGUIClient *_XMLGUIClient, KCommandHistory* _cmdHist,
-			  /*DeviceManager *_dm,*/ QWidget *parent = 0, const char *name = 0); //##
+#ifdef WITH_TSE3
+	TrackView(TabSong *s, KXMLGUIClient *_XMLGUIClient, KCommandHistory *_cmdHist,
+			  TSE3::MidiScheduler *_scheduler, QWidget *parent = 0, const char *name = 0);
+#else
+	TrackView(TabSong *s, KXMLGUIClient *_XMLGUIClient, KCommandHistory *_cmdHist,
+			  QWidget *parent = 0, const char *name = 0);
+#endif
+
 	~TrackView();
+
+	void initTrackView(TabSong *s, KXMLGUIClient *_XMLGUIClient, KCommandHistory *_cmdHist);
 
 	TabTrack* trk() { return curt; }
 	void setCurt(TabTrack *);
@@ -104,9 +116,13 @@ private:
 
 	TabSong *song;
 	TabTrack *curt;
-//##	DeviceManager *midi;
-	KXMLGUIClient *m_XMLGUIClient;
-	KCommandHistory *m_cmdHist;
+
+#ifdef WITH_TSE3
+	TSE3::MidiScheduler *scheduler;
+#endif
+
+	KXMLGUIClient *xmlGUIClient;
+	KCommandHistory *cmdHist;
 
 	void drawLetRing(QPainter *p, int x, int y);
 

@@ -1,3 +1,5 @@
+#include "config.h"
+
 #include "trackview.h"
 #include "trackviewcommands.h"
 #include "tabsong.h"
@@ -23,8 +25,6 @@
 #include <qcombobox.h>
 #include <qcheckbox.h>
 
-#include <stdlib.h>
-
 
 #define VERTSPACE 30
 #define VERTLINE 10
@@ -36,9 +36,28 @@
 
 #define BOTTOMDUR	VERTSPACE+VERTLINE*(s+1)
 
-TrackView::TrackView(TabSong *s, KXMLGUIClient *_XMLGUIClient, KCommandHistory* _cmdHist,
-					 /*DeviceManager *_dm,*/ QWidget *parent = 0, const char *name = 0): //##
+
+#ifdef WITH_TSE3
+
+TrackView::TrackView(TabSong *s, KXMLGUIClient *_XMLGUIClient, KCommandHistory *_cmdHist,
+					 TSE3::MidiScheduler *_scheduler, QWidget *parent = 0, const char *name = 0):
 	QTableView(parent, name)
+{
+	initTrackView(s, _XMLGUIClient, _cmdHist);
+	scheduler = _scheduler;
+}
+
+#else
+
+TrackView::TrackView(TabSong *s, KXMLGUIClient *_XMLGUIClient, KCommandHistory *_cmdHist,
+					 QWidget *parent = 0, const char *name = 0): QTableView(parent, name)
+{
+	initTrackView(s, _XMLGUIClient, _cmdHist);
+}
+
+#endif
+
+void TrackView::initTrackView(TabSong *s, KXMLGUIClient *_XMLGUIClient, KCommandHistory *_cmdHist)
 {
 	setTableFlags(Tbl_autoVScrollBar | Tbl_smoothScrolling);
 	setFrameStyle(Panel | Sunken);
@@ -48,9 +67,8 @@ TrackView::TrackView(TabSong *s, KXMLGUIClient *_XMLGUIClient, KCommandHistory* 
 
 	setFocusPolicy(QWidget::StrongFocus);
 
-	m_XMLGUIClient = _XMLGUIClient;
-	m_cmdHist = _cmdHist;
-//##	midi = _dm;
+	xmlGUIClient = _XMLGUIClient;
+	cmdHist = _cmdHist;
 
 	song = s;
 	setCurt(s->t.first());
@@ -153,47 +171,47 @@ void TrackView::setLength(int l)
 {
 	//only if needed
 	if (curt->c[curt->x].l != l)
-		m_cmdHist->addCommand(new SetLengthCommand(this, curt, l));
+		cmdHist->addCommand(new SetLengthCommand(this, curt, l));
 }
 
 void TrackView::linkPrev()
 {
-	m_cmdHist->addCommand(new SetFlagCommand(this, curt, FLAG_ARC));
+	cmdHist->addCommand(new SetFlagCommand(this, curt, FLAG_ARC));
 	lastnumber = -1;
 }
 
 void TrackView::addHarmonic()
 {
 	if (curt->c[curt->x].a[curt->y] >= 0)
-		m_cmdHist->addCommand(new AddFXCommand(this, curt, EFFECT_HARMONIC));
+		cmdHist->addCommand(new AddFXCommand(this, curt, EFFECT_HARMONIC));
 	lastnumber = -1;
 }
 
 void TrackView::addArtHarm()
 {
 	if (curt->c[curt->x].a[curt->y] >= 0)
-		m_cmdHist->addCommand(new AddFXCommand(this, curt, EFFECT_ARTHARM));
+		cmdHist->addCommand(new AddFXCommand(this, curt, EFFECT_ARTHARM));
 	lastnumber = -1;
 }
 
 void TrackView::addLegato()
 {
 	if (curt->c[curt->x].a[curt->y] >= 0)
-		m_cmdHist->addCommand(new AddFXCommand(this, curt, EFFECT_LEGATO));
+		cmdHist->addCommand(new AddFXCommand(this, curt, EFFECT_LEGATO));
 	lastnumber = -1;
 }
 
 void TrackView::addSlide()
 {
 	if (curt->c[curt->x].a[curt->y] >= 0)
-		m_cmdHist->addCommand(new AddFXCommand(this, curt, EFFECT_SLIDE));
+		cmdHist->addCommand(new AddFXCommand(this, curt, EFFECT_SLIDE));
 	lastnumber = -1;
 }
 
 void TrackView::addLetRing()
 {
 	if (curt->c[curt->x].a[curt->y] >= 0)
-		m_cmdHist->addCommand(new AddFXCommand(this, curt, EFFECT_LETRING));
+		cmdHist->addCommand(new AddFXCommand(this, curt, EFFECT_LETRING));
 	lastnumber = -1;
 }
 
@@ -201,7 +219,12 @@ void TrackView::insertChord()
 {
 	int a[MAX_STRINGS];
 
-	ChordSelector cs(/*midi,*/ curt); //##
+#ifdef WITH_TSE3
+	ChordSelector cs(scheduler, curt);
+#else
+	ChordSelector cs(curt);
+#endif
+
 	for (int i = 0; i < curt->string; i++)
 		cs.setApp(i, curt->c[curt->x].a[i]);
 
@@ -218,7 +241,7 @@ void TrackView::insertChord()
 	if (cs.exec()) {
 		for (i = 0; i < curt->string; i++)
 			a[i] = cs.app(i);
-		m_cmdHist->addCommand(new InsertStrumCommand(this, curt, cs.scheme(), a));
+		cmdHist->addCommand(new InsertStrumCommand(this, curt, cs.scheme(), a));
 	}
 
 	lastnumber = -1;
@@ -375,7 +398,7 @@ void TrackView::paintCell(QPainter *p, int row, int col)
 					   (curt->c[t - 2].l == curt->c[t].l)))) {
 					p->setFont(*smallCaptionFont);
 					p->drawText(xpos, BOTTOMDUR + VERTLINE + 7, HORCELL, VERTLINE, AlignHCenter | AlignTop, "3");
-					p->setFont(KGlobalSettings::generalFont());					
+					p->setFont(KGlobalSettings::generalFont());
 				}
 			}
 		}
@@ -546,7 +569,7 @@ bool TrackView::moveFinger(int from, int dir)
 			return FALSE;
 	} while (curt->c[curt->x].a[to] != -1);
 
-	m_cmdHist->addCommand(new MoveFingerCommand(this, curt, from, to, n));
+	cmdHist->addCommand(new MoveFingerCommand(this, curt, from, to, n));
 
 	return TRUE;
 }
@@ -570,7 +593,7 @@ void TrackView::timeSig()
 		int time1 = sts->time1->value();
 		int time2 = ((QString) sts->time2->currentText()).toUInt();
 
-		m_cmdHist->addCommand(new SetTimeSigCommand(this, curt, sts->toend->isChecked(),
+		cmdHist->addCommand(new SetTimeSigCommand(this, curt, sts->toend->isChecked(),
 													time1, time2));
 	}
 
@@ -617,7 +640,7 @@ void TrackView::moveLeft()
 void TrackView::moveRight()
 {
 	if (curt->x + 1 == curt->c.size())
-		m_cmdHist->addCommand(new AddColumnCommand(this, curt));
+		cmdHist->addCommand(new AddColumnCommand(this, curt));
 	else {
 		if (curt->b.size() == curt->xb + 1)
 			curt->x++;
@@ -697,49 +720,49 @@ void TrackView::transposeDown()
 
 void TrackView::deadNote()
 {
-	m_cmdHist->addCommand(new SetFlagCommand(this, curt, DEAD_NOTE));
+	cmdHist->addCommand(new SetFlagCommand(this, curt, DEAD_NOTE));
 	lastnumber = -1;
 }
 
 void TrackView::deleteNote()
 {
 	if (curt->c[curt->x].a[curt->y] != -1)
-		m_cmdHist->addCommand(new DeleteNoteCommand(this, curt));
+		cmdHist->addCommand(new DeleteNoteCommand(this, curt));
 	lastnumber = -1;
 }
 
 void TrackView::deleteColumn()
 {
-	m_cmdHist->addCommand(new DeleteColumnCommand(this, curt));
+	cmdHist->addCommand(new DeleteColumnCommand(this, curt));
 	lastnumber = -1;
 }
 
 void TrackView::deleteColumn(QString name)
 {
-	m_cmdHist->addCommand(new DeleteColumnCommand(name, this, curt));
+	cmdHist->addCommand(new DeleteColumnCommand(name, this, curt));
 }
 
 void TrackView::insertColumn()
 {
-	m_cmdHist->addCommand(new InsertColumnCommand(this, curt));
+	cmdHist->addCommand(new InsertColumnCommand(this, curt));
 	lastnumber = -1;
 }
 
 void TrackView::palmMute()
 {
-	m_cmdHist->addCommand(new SetFlagCommand(this, curt, FLAG_PM));
+	cmdHist->addCommand(new SetFlagCommand(this, curt, FLAG_PM));
 	lastnumber = -1;
 }
 
 void TrackView::dotNote()
 {
-	m_cmdHist->addCommand(new SetFlagCommand(this, curt, FLAG_DOT));
+	cmdHist->addCommand(new SetFlagCommand(this, curt, FLAG_DOT));
 	lastnumber = -1;
 }
 
 void TrackView::tripletNote()
 {
-	m_cmdHist->addCommand(new SetFlagCommand(this, curt, FLAG_TRIPLET));
+	cmdHist->addCommand(new SetFlagCommand(this, curt, FLAG_TRIPLET));
 	lastnumber = -1;
 }
 
@@ -759,7 +782,7 @@ void TrackView::keyMinus()
 
 void TrackView::arrangeTracks()
 {
-	m_cmdHist->clear();       // because columns will be changed
+	cmdHist->clear();       // because columns will be changed
 	curt->arrangeBars();
 	emit statusBarChanged();
 	updateRows();
@@ -784,7 +807,7 @@ void TrackView::insertTab(int num)
 	}
 
 	if ((totab <= curt->frets) && (curt->c[curt->x].a[curt->y] != totab))
-		m_cmdHist->addCommand(new InsertTabCommand(this, curt, totab));
+		cmdHist->addCommand(new InsertTabCommand(this, curt, totab));
 }
 
 void TrackView::arrangeBars()
@@ -801,7 +824,7 @@ void TrackView::mousePressEvent(QMouseEvent *e)
 	// RightButton pressed
 	if (e->button() == RightButton) {
 		QWidget *tmpWidget = 0;
-		tmpWidget = m_XMLGUIClient->factory()->container("trackviewpopup", m_XMLGUIClient);
+		tmpWidget = xmlGUIClient->factory()->container("trackviewpopup", xmlGUIClient);
 
 		if (!tmpWidget || !tmpWidget->inherits("KPopupMenu")) {
 			kdDebug() << "TrackView::mousePressEvent => wrong container widget" << endl;

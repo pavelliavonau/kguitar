@@ -1,11 +1,18 @@
 #ifndef SONGVIEW_H
 #define SONGVIEW_H
 
+#include "config.h"
+#include "midilist.h"
+
 #include <qwidget.h>
 
 #include <kcommand.h>
 
-#include "midilist.h"
+#ifdef WITH_TSE3
+#include <tse3/MidiScheduler.h>
+#include <tse3/plt/Alsa.h>
+#include <tse3/plt/OSS.h>
+#endif
 
 class TrackView;
 class TrackList;
@@ -18,7 +25,7 @@ class KCommandHistory;
 class SongView: public QWidget {
 	Q_OBJECT
 public:
-	SongView(KXMLGUIClient *_XMLGUIClient, KCommandHistory* _cmdHist,
+	SongView(KXMLGUIClient *_XMLGUIClient, KCommandHistory *_cmdHist,
 			 QWidget *parent = 0, const char *name = 0);
 	~SongView();
 	void refreshView();
@@ -53,13 +60,19 @@ private:
 	bool setTrackProperties();
 
 	QSplitter *split, *splitv;
-//##	DeviceManager *midi;
 	TabSong *song;
-	KCommandHistory *m_cmdHist;
+	KCommandHistory *cmdHist;
 
 	// MIDI stuff
 	MidiList midiList;
 	bool midiInUse, midiStopPlay;
+
+#ifdef WITH_TSE3
+	TSE3::MidiScheduler *scheduler;
+	TSE3::Plt::AlsaMidiSchedulerFactory AlsaFactory;
+	TSE3::Plt::OSSMidiSchedulerFactory OSSFactory;
+	bool initScheduler();
+#endif
 };
 
 #endif
