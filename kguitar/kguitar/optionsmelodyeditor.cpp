@@ -53,11 +53,15 @@ OptionsMelodyEditor::OptionsMelodyEditor(KConfig *conf, QWidget *parent, const c
 
 	l->addWidget(designGroup);
 
-	QGridLayout *gl = new QGridLayout(this, 3, 3, 5, 11);
+	QGroupBox *actionsGroup = new QGroupBox(3, Horizontal, i18n("Mouse button actions"), this, "actionsbox");
+
+	QStringList labels;
+	labels << i18n("Left:") << i18n("Middle:") << i18n("Right:");
 
 	for (int i = 0; i < 3; i++) {
-		mouseAction[i] = new QComboBox(FALSE, this);
-		gl->addWidget(mouseAction[i], i, 1);
+		(void) new QLabel(labels[i], actionsGroup);
+
+		mouseAction[i] = new QComboBox(FALSE, actionsGroup);
 		mouseAction[i]->insertItem(i18n("No action"));
 		mouseAction[i]->insertItem(i18n("Set note"));
 		mouseAction[i]->insertItem(i18n("Set 02 power chord"));
@@ -68,19 +72,12 @@ OptionsMelodyEditor::OptionsMelodyEditor(KConfig *conf, QWidget *parent, const c
 
 		mouseAction[i]->setCurrentItem(globalMelodyEditorAction[i]);
 
-		mouseAdvance[i] = new QCheckBox(i18n("Advance to next column"), this);
-		gl->addWidget(mouseAdvance[i], i, 2);
+		mouseAdvance[i] = new QCheckBox(i18n("Advance to next column"), actionsGroup);
 
 		mouseAdvance[i]->setChecked(globalMelodyEditorAdvance[i]);
 	}
 
-	gl->addWidget(new QLabel(mouseAction[0], i18n("Left button:"), this), 0, 0);
-	gl->addWidget(new QLabel(mouseAction[1], i18n("Middle button:"), this), 1, 0);
-	gl->addWidget(new QLabel(mouseAction[2], i18n("Right button:"), this), 2, 0);
-
-	l->addLayout(gl);
-
-	resize(300, 300);
+	l->addWidget(actionsGroup);
 }
 
 void OptionsMelodyEditor::defaultBtnClicked()
