@@ -3,9 +3,10 @@
 #include "fingerlist.h"
 
 #include <qpushbutton.h>
+#include <qbuttongroup.h>
+#include <qradiobutton.h>
 #include <qlistbox.h>
 #include <qlineedit.h>
-#include <qscrollbar.h>
 #include <qstring.h>
 
 // GREYFIX
@@ -49,7 +50,7 @@ ChordSelector::ChordSelector(QWidget *parent=0, const char *name=0)
     chname = new QLineEdit(this);
     chname->setGeometry(10,10,130,20);
 
-    fng = new Fingering(6,this);
+    fng = new Fingering(6,this); // GREYFIX hack 6 strings
     fng->setGeometry(150,10,100,100);
     connect(fng,SIGNAL(chordChange()),SLOT(detectChord()));
 
@@ -71,6 +72,16 @@ ChordSelector::ChordSelector(QWidget *parent=0, const char *name=0)
     step3->insertItem("sus2");
     step3->insertItem("sus4");
     step3->setGeometry(60,40,50,100);
+
+    complexity = new QButtonGroup(this);
+    complexity->setGeometry(60,150,90,70);
+    complexer[0] = new QRadioButton("Usual",complexity);
+    complexer[0]->setGeometry(5,5,80,20);
+    complexer[1] = new QRadioButton("Rare",complexity);
+    complexer[1]->setGeometry(5,25,80,20);
+    complexer[2] = new QRadioButton("All",complexity);
+    complexer[2]->setGeometry(5,45,80,20);
+    complexity->setButton(0);
 
     setFixedSize(450,350);
 }
@@ -156,7 +167,7 @@ void ChordSelector::findChords()
     int i,j,k,cn,min,max;
     int app[MAX_STRINGS],appb[MAX_STRINGS];
 
-    int maxfret=24,notenum=3,numstr=6,span=3; // GREYFIX!!
+    int maxfret=24,notenum=3,numstr=6; // GREYFIX!!
     bool finished=FALSE,ok;
 
     int fb[MAX_STRINGS][maxfret];  // array with an either -1 or number of note from a chord
@@ -167,6 +178,13 @@ void ChordSelector::findChords()
 
     for (i=0;i<notenum;i++)
       need[i]=(need[i]+tonic->currentItem())%12;
+
+    int span=3; // maximal fingerspan
+
+    if (complexer[1]->isChecked())
+      span=4;
+    if (complexer[2]->isChecked())
+      span=5;    
 
     // PREPARING FOR FINGERING CALCULATION
 
