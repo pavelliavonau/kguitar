@@ -4,6 +4,7 @@
 #include "chord.h"
 #include "track.h"
 #include "setsong.h"
+#include "settrack.h"
 
 #include <qpopupmenu.h>
 
@@ -17,19 +18,16 @@
 
 #include <qpixmap.h>
 #include <qkeycode.h>
-#include <qmultilinedit.h>
 #include <qstatusbar.h>
-#include <qmessagebox.h>
 #include <qprinter.h>
-#include <qpainter.h>
-#include <qpaintdevicemetrics.h>
-#include <qwhatsthis.h>
 
+#include <qmultilinedit.h>
+#include <kintegerline.h>
 
 ApplicationWindow::ApplicationWindow(): KTMainWindow()
 {
     printer = new QPrinter;
-    printer->setMinMax( 1, 10 );
+    printer->setMinMax(1,10);
 
     toolBar()->insertButton(Icon("filenew.xpm"),1,SIGNAL(clicked()),this,SLOT(newDoc()),TRUE,i18n("New"));
     toolBar()->insertButton(Icon("fileopen.xpm"),1,SIGNAL(clicked()),this,SLOT(load()),TRUE,i18n("Open file"));
@@ -50,6 +48,10 @@ ApplicationWindow::ApplicationWindow(): KTMainWindow()
     p->insertItem(i18n("&Close"), this, SLOT(closeDoc()));
     p->insertItem(i18n("&Quit"), qApp, SLOT(quit()));
     menuBar()->insertItem(i18n("&File"), p);
+
+    p = new QPopupMenu();
+    p->insertItem(i18n("&Track..."),this,SLOT(trackProperties()));
+    menuBar()->insertItem(i18n("&Edit"), p);
 
     p = new QPopupMenu();
     p->insertItem(i18n("&Chord"),this,SLOT(inschord()));
@@ -234,4 +236,21 @@ void ApplicationWindow::songProperties()
     }
 
     delete ss;
+}
+
+void ApplicationWindow::trackProperties()
+{
+    SetTrack *st = new SetTrack();
+
+    st->title->setText(tv->trk()->name);
+    st->bank->setValue(tv->trk()->bank);
+    st->patch->setValue(tv->trk()->patch);
+
+    if (st->exec()) {
+	tv->trk()->name = st->title->text();
+	tv->trk()->bank = st->bank->value();
+	tv->trk()->patch = st->patch->value();
+    }
+
+    delete st;
 }
