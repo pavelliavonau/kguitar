@@ -771,6 +771,7 @@ bool TabSong::load_from_gp3(QString fileName)
 	//Read track infos: name
 	t.clear();
 	int nbtrack = 0;
+	int nbstring = 6;	//Shoud be read somewhere for each track
 
 	do {
 		GET_STR_NO_INCBUF;
@@ -817,21 +818,27 @@ E|2
 
 	do {
 //		printf("New bar lgr %ld | time[numtrack] = %ld / %ld | buf = %d %d\n",lgrbar,time[numtrack],tempstotal,buf[0],buf[1]);
+		#ifndef NOT_IN_KGUITAR
 		tracks.toFirst();
+		#endif
 		for (int numtrack=0; numtrack<nbtrack; numtrack++) {
-			int lgr,strings=0,cur_string=0,string=0;
+			#ifndef NOT_IN_KGUITAR
 			TabTrack *track = tracks.current();++tracks;
-
+			#endif
 			if (buf[1]==100) {	//Effect ?
 				DUMMIES(36);	//Seems to be a note that begin
 			}	//and end on 2 different bars, or a changement of timing (ie: 4/4 -> 12/8)
 			GET_LONG( lgrbar );
-
+			if (lgrbar==0) break;
+			#ifdef NOT_IN_KGUITAR
+			track = partition->get_track(numtrack);
+			#endif
 			tempstotal[numtrack] += lgrbar;
 			#ifdef VERBOSE_NOTES
-			sprintf(message,"Track %d bar %ld lenght %ld\n",numtrack,numbar,lgrbar);	LOGS
+			sprintf(message,"Track %d bar %ld lenght %ld  begin at %ld end at %ld\n",numtrack,numbar,lgrbar,time[numtrack],tempstotal[numtrack]);	LOGS
 			#endif
 
+			#ifndef NOT_IN_KGUITAR
 			unsigned long begin_bar = track->c.size();
 			track->c.resize( track->c.size()+lgrbar );
 			unsigned long end_bar = track->c.size();
@@ -847,6 +854,7 @@ E|2
 			track->b[numbar].start = time[numtrack];
 			track->b[numbar].time1 = 4;
 			track->b[numbar].time2 = 4;
+			#endif
 
 			if (lgrbar>0)
 			do {
@@ -991,7 +999,13 @@ E|2
 						DUMMIES(54);
 						break;
 					case 8:		//Efect - vibrato
-						DUMMIES(1);
+						if (buf[1]==254) {	//AH
+							length = 120/(1+buf[3]);
+							strings = buf[2];
+							note_length = 1;
+							DUMMIES(4);
+						}
+						else	DUMMIES(1);
 						break;
 					case 5:		//Effect - Slide + text + strings
 						if (buf[1]==0) {
@@ -1011,15 +1025,15 @@ E|2
 						break;
 					default:
 						#ifdef SLY_LOG
-						sprintf(message,"\n** Unknown command (%d)\n\n",*buf);	LOGS
+						sprintf(message,"\n** Unknown command Track %d bar %ld (%d)\n\n", numtrack,numbar, *buf);	fflush(stdout);	LOGS
 						#else
-						printf("\n** Unknown command (%d)\n\n",*buf);	fflush(stdout);
+						printf("\n** Unknown command Track %d bar %ld (%d)\n\n", numtrack,numbar, *buf);	fflush(stdout);
 						#endif
 						error = 1;
 						break;
 				}
 				int mask,string;
-				for (mask=1<<6,string=0; string<6&& error==0; mask>>=1,string++) {
+				for (mask=1<<6,string=0; string<nbstring && error==0; mask>>=1,string++) {
 					if (strings&mask) {
 						unsigned char fetch = 0;
 						switch (*buf) {
@@ -1039,6 +1053,7 @@ E|2
 								break;
 							case 40:	//Dot note
 							case 42:	//Pull (?)
+							case 48:	//Vibrato
 								fetch = buf[2];
 								DUMMIES(4);
 								#ifdef VERBOSE_NOTES
@@ -1053,9 +1068,9 @@ E|2
 								break;
 							default:
 								#ifdef SLY_LOGS
-								sprintf(message,"\n** Unknown note (%d)\n\n",*buf);	LOGS
+								sprintf(message,"\n** Unknown note Track %d bar %ld (%d)\n\n", numtrack,numbar, *buf);	fflush(stdout);	LOGS
 								#else
-								printf("\n** Unknown note (%d)\n\n",*buf);	fflush(stdout);
+								printf("\n** Unknown note Track %d bar %ld (%d)\n\n", numtrack,numbar, *buf);	fflush(stdout);
 								#endif
 								error = 1;
 								break;
@@ -1074,6 +1089,7 @@ E|2
 WHEREAMI("fin bar");
 //			sprintf(message, "Track %d bar %ld fini\n",numtrack,numbar);	LOGS
 			#endif
+			if (size<=0) break;
 			while (*buf==0) DUMMIES( -1 );	//Out of sync after a triplet at the end of the bar
 
 			#ifdef NOT_IN_KGUITAR
@@ -1083,13 +1099,13 @@ WHEREAMI("fin bar");
 				track->add( i,'|',time[numtrack],0 );
 			#endif
 			if (time[numtrack]!=tempstotal[numtrack]) {
-				sprintf(message, "BUG! time[numtrack]!=tempstotal[numtrack]\n");	LOGS
+				sprintf(message, "BUG! time[numtrack]!=tempstotal[numtrack] : Track %d, Bar %ld : %ld != %ld (size=%ld)\n", numtrack, numbar, time[numtrack], tempstotal[numtrack], size);	LOGS
 				error = 1;
 				break;
 			}
 		}	//Next bar
 		numbar++;
-	} while (!error && numbar<140 && lgrbar>0 && size>=0);
+	} while (!error && lgrbar>0 && size>=0);
 	if (size<0) size = 0;
 
 	printf("Managed to parse %.2f percent of the track infos\n\n", 100.0f-100.0f*(float)size/(float)size_tracks);
