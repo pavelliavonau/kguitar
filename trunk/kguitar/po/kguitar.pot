@@ -6,7 +6,7 @@
 msgid ""
 msgstr ""
 "Project-Id-Version: PACKAGE VERSION\n"
-"POT-Creation-Date: 2000-08-26 21:44+0000\n"
+"POT-Creation-Date: 2000-09-04 14:42-0400\n"
 "PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
 "Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
 "Language-Team: LANGUAGE <LL@li.org>\n"
@@ -114,20 +114,21 @@ msgstr ""
 msgid "&Note names"
 msgstr ""
 
-#: application.cpp:157
+#: application.cpp:142
 msgid "A stringed instrument tabulature editor"
 msgstr ""
 
-#: application.cpp:165 application.cpp:185
+#: application.cpp:150 application.cpp:170
 msgid "Bar: "
 msgstr ""
 
-#: application.cpp:192
+#: application.cpp:177
 msgid ""
 "Jazz note names are very special and should be\n"
 "used only if really know what you do. Usage of jazz\n"
-"note names without a purpose would confuse the user\n"
-"and could let the misunderstanding of music.\n"
+"note names without a purpose would confuse or mislead\n"
+"anyone reading the music who did not have a knowledge\n"
+"of jazz note naming.\n"
 "\n"
 "Are you sure you want to use jazz notes?"
 msgstr ""
@@ -172,7 +173,7 @@ msgstr ""
 msgid "All"
 msgstr ""
 
-#: chord.cpp:206
+#: chord.cpp:207
 msgid "Chord constructor"
 msgstr ""
 
