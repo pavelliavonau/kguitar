@@ -13,7 +13,8 @@
 #include <qpushbutton.h>
 #endif
 
-Options::Options(QWidget *parent=0, const char *name=0): QTabDialog(parent,name,TRUE)
+Options::Options(QWidget *parent = 0, const char *name = 0)
+	: QTabDialog(parent, name, TRUE)
 {
     //////////////////////////////////////////////////////////////////
     // CHORD DIALOG SETTINGS TAB
@@ -48,7 +49,7 @@ Options::Options(QWidget *parent=0, const char *name=0): QTabDialog(parent,name,
     vb2->addWidget(flat[1]);
     vb2->activate();
 
-    addTab(cd,i18n("&Chords"));
+    addTab(cd, i18n("&Chords"));
 
     ///////////////////////////////////////////////////////////////////
     // MusiXTeX Settings Tab  - alinx
