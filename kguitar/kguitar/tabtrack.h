@@ -56,6 +56,8 @@ public:
 	int lastColumn(int n);
 	bool showBarSig(int n);
 	bool barStatus(int n);
+	Q_UINT16 currentBarDuration();
+	Q_UINT16 maxCurrentBarDuration();
 
 	void removeColumn(int n);
 	void insertColumn(int n);

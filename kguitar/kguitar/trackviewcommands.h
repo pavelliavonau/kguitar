@@ -130,6 +130,7 @@ public:
 private:
 	int x, y, xsel;
 	bool sel;
+	bool addBar;
 	TabTrack *trk;
 	TrackView *tv;
 };

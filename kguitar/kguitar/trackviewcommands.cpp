@@ -9,6 +9,7 @@
 
 #include <klocale.h>
 
+//GREYFIX
 #include <stdio.h>
 
 extern strummer lib_strum[];
@@ -358,6 +359,7 @@ AddColumnCommand::AddColumnCommand(TrackView *_tv, TabTrack *&_trk):
 	y = trk->y;
 	xsel = trk->xsel;
 	sel = trk->sel;
+	addBar = trk->currentBarDuration() == trk->maxCurrentBarDuration();
 }
 
 AddColumnCommand::~AddColumnCommand()
@@ -368,6 +370,7 @@ void AddColumnCommand::execute()
 {
 	trk->x = x;
 	trk->y = y;
+	trk->xb = trk->b.size() - 1;
 	trk->c.resize(trk->c.size()+1);
 	trk->x++;
 	for (uint i = 0; i < MAX_STRINGS; i++) {
@@ -376,6 +379,17 @@ void AddColumnCommand::execute()
 	}
 	trk->c[trk->x].l = trk->c[trk->x - 1].l;
 	trk->c[trk->x].flags = 0;
+
+	// Check if we need to close this bar and open a new one
+	if (addBar) {
+		trk->b.resize(trk->b.size()+1);
+		trk->xb++;
+		trk->b[trk->xb].start = trk->x;
+		trk->b[trk->xb].time1 = trk->b[trk->xb-1].time1;
+		trk->b[trk->xb].time2 = trk->b[trk->xb-1].time2;
+	}
+
+	tv->ensureCurrentVisible();
 	tv->updateRows();
 	tv->repaintCurrentCell();
 }
@@ -388,6 +402,8 @@ void AddColumnCommand::unexecute()
 	trk->x = x;
 	trk->xsel = xsel;
 	trk->sel = sel;
+
+	tv->ensureCurrentVisible();
 	tv->updateRows();
 	tv->repaintCurrentCell();
 }
