@@ -37,6 +37,14 @@ tuning lib_tuning[] = {
 
     { 5, {28,33,38,43,47},         "Bass (5): standard" },
 
+    { 5, {67,50,55,59,62},         "Banjo (5): open G" },
+    { 5, {67,48,55,59,62},         "Banjo (5): drop C"},
+    { 5, {69,50,54,57,62},         "Banjo (5): open D"},
+    { 5, {67,50,55,58,62},         "Banjo (5): G minor"},
+    { 5, {67,50,55,57,62},         "Banjo (5): G modal"},
+
+    { 4, {55,62,69,76},            "Mandolin (4): standard"},
+
     { 4, {57,50,54,59},            "Ukulele (4): standard" },                   
 
     { 0 }
