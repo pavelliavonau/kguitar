@@ -4,6 +4,7 @@
 #include <qlistview.h>
 
 class TabSong;
+class TabTrack;
 class QListViewItem;
 class QMouseEvent;
 class KXMLGUIClient;
@@ -16,8 +17,14 @@ public:
 	~TrackList();
 	void updateList();
 
+signals:
+	void newTrackSelected(TabTrack *);
+
 protected:
     virtual void contentsMousePressEvent(QMouseEvent *e);
+
+private slots:
+	void selectNewTrack(QListViewItem *);
 
 private:
 	TabSong *song;
