@@ -135,9 +135,10 @@ void TabTrack::removeColumn(int n)
 }
 
 // Toggles effect FX on current cursor position
+// Stop ringing is the only effect allowed when no note is played at x,y
 void TabTrack::addFX(char fx)
 {
-	if (c[x].a[y]>=0) {
+	if ((c[x].a[y]>=0) || ((c[x].a[y]==NULL_NOTE) && (fx==EFFECT_STOPRING))) {
 		if (c[x].e[y] != fx)
 			c[x].e[y] = fx;
 		else
