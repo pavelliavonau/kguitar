@@ -1,5 +1,5 @@
 #include "application.h"
-#include "global.h"
+
 #include "trackview.h"
 #include "chord.h"
 #include "track.h"
@@ -17,6 +17,7 @@
 #include <klocale.h>
 #include <kfiledialog.h>
 #include <kaccel.h>
+#include <kmsgbox.h>
 
 #include <qpixmap.h>
 #include <qkeycode.h>
@@ -32,6 +33,7 @@
 
 int global_maj7;
 int global_flatplus;
+int global_notenames;
 
 ApplicationWindow::ApplicationWindow(): KTMainWindow()
 {
@@ -43,6 +45,7 @@ ApplicationWindow::ApplicationWindow(): KTMainWindow()
 
     global_maj7=0;
     global_flatplus=0;
+    global_notenames=0;
 
     // MAIN WIDGET
 
@@ -106,6 +109,25 @@ ApplicationWindow::ApplicationWindow(): KTMainWindow()
 
     p = new QPopupMenu();
     p->insertItem(i18n("&General..."), this, SLOT(options()));
+
+    nnMenu = new QPopupMenu();
+    ni[0] = nnMenu->insertItem(i18n("American, sharps"), this, SLOT(setUSsharp()));
+    ni[1] = nnMenu->insertItem(i18n("American, flats"),  this, SLOT(setUSflats()));
+    ni[2] = nnMenu->insertItem(i18n("American, mixed"),  this, SLOT(setUSmixed()));
+    nnMenu->insertSeparator();
+    ni[3] = nnMenu->insertItem(i18n("European, sharps"), this, SLOT(setEUsharp()));
+    ni[4] = nnMenu->insertItem(i18n("European, flats"),  this, SLOT(setEUflats()));
+    ni[5] = nnMenu->insertItem(i18n("European, mixed"),  this, SLOT(setEUmixed()));
+    nnMenu->insertSeparator();
+    ni[6] = nnMenu->insertItem(i18n("Jazz, sharps"),     this, SLOT(setJZsharp()));
+    ni[7] = nnMenu->insertItem(i18n("Jazz, flats"),      this, SLOT(setJZflats()));
+    ni[8] = nnMenu->insertItem(i18n("Jazz, mixed"),      this, SLOT(setJZmixed()));
+
+    nnMenu->setCheckable(TRUE);
+    updateMenu();
+
+    p->insertItem(i18n("&Note names"), nnMenu);
+
     menuBar()->insertItem(i18n("&Options"),p);
 
 //     controls = new QPopupMenu();
@@ -139,6 +161,23 @@ ApplicationWindow::~ApplicationWindow()
 {
     delete tv;
     delete printer;
+}
+
+void ApplicationWindow::updateMenu()
+{
+    for (int i=0;i<9;i++)
+	nnMenu->setItemChecked(ni[i], i==global_notenames);
+}
+
+bool ApplicationWindow::jazzWarning()
+{
+    return KMsgBox::yesNo(this, "KGuitar",
+			  i18n("Jazz note names are very special and should be\n"
+			       "used only if really know what you do. Usage of jazz\n"
+			       "note names without a purpose would confuse the user\n"
+			       "and could let the misunderstanding of music.\n\n"
+			       "Are you sure you want to use jazz notes?"))==1;
+
 }
 
 void ApplicationWindow::newDoc()
@@ -238,39 +277,6 @@ void ApplicationWindow::print()
 void ApplicationWindow::closeDoc()
 {
     close( TRUE ); // close AND DELETE!
-}
-
-void ApplicationWindow::toggleMenuBar()
-{
-//     if ( menuBar()->isVisible() ) {
-// 	menuBar()->hide();
-// 	controls->setItemChecked( mb, FALSE );
-//     } else {
-// 	menuBar()->show();
-// 	controls->setItemChecked( mb, TRUE );
-//     }
-}
-
-void ApplicationWindow::toggleToolBar()
-{
-//     if ( toolBar()->isVisible() ) {
-// 	toolBar()->hide();
-// 	controls->setItemChecked( tb, FALSE );
-//     } else {
-// 	toolBar()->show();
-// 	controls->setItemChecked( tb, TRUE );
-//     }
-}
-
-void ApplicationWindow::toggleStatusBar()
-{
-//     if ( statusBar()->isVisible() ) {
-// 	statusBar()->hide();
-// 	controls->setItemChecked( sb, FALSE );
-//     } else {
-// 	statusBar()->show();
-// 	controls->setItemChecked( sb, TRUE );
-//     }
 }
 
 void ApplicationWindow::inschord()

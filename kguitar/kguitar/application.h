@@ -3,6 +3,9 @@
 
 #include <ktmainwindow.h>
 
+#include "global.h"
+#include "globaloptions.h"
+
 class KToolBar;
 class QPopupMenu;
 
@@ -30,15 +33,27 @@ private slots:
     void trackProperties();
     void options();
 
-    void toggleMenuBar();
-    void toggleStatusBar();
-    void toggleToolBar();
+    void setUSsharp() { global_notenames = 0; updateMenu(); };
+    void setUSflats() { global_notenames = 1; updateMenu(); };
+    void setUSmixed() { global_notenames = 2; updateMenu(); };
+
+    void setEUsharp() { global_notenames = 3; updateMenu(); };
+    void setEUflats() { global_notenames = 4; updateMenu(); };
+    void setEUmixed() { global_notenames = 5; updateMenu(); };
+
+    void setJZsharp() { if (jazzWarning()) { global_notenames = 6; updateMenu(); } };
+    void setJZflats() { if (jazzWarning()) { global_notenames = 7; updateMenu(); } };
+    void setJZmixed() { if (jazzWarning()) { global_notenames = 8; updateMenu(); } };
 
 private:
+    void updateMenu();
+    bool jazzWarning();
+
     QPrinter *printer;
     TrackView *tv;
     KToolBar *fileTools;
-    int mb, tb, sb;
+    QPopupMenu *nnMenu;
+    int ni[9];
 };
 
 
