@@ -4,6 +4,7 @@
 #include "tabsong.h"
 
 #include <qheader.h>
+#include <qcursor.h>
 
 #include <kdebug.h>
 #include <klocale.h>

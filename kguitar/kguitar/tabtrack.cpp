@@ -193,8 +193,8 @@ void TabTrack::arrangeBars()
 
 	// COLLECT ALL NOTES INFORMATION
 
-	QArray<TabColumn> an;			// Collected columns information
-	int nn = 0;						// Number of already made columns
+	QMemArray<TabColumn> an;        // Collected columns information
+	int nn = 0;                     // Number of already made columns
 
 	for (int i = 0; i < c.size(); i++) {
 		if (!(c[i].flags & FLAG_ARC)) { // Add the note, if it's not arc

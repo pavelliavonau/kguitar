@@ -3,7 +3,7 @@
 
 #include "config.h"
 
-#include <qtableview.h>
+#include <qgridview.h>
 #include <qscrollview.h>
 
 #ifdef WITH_TSE3
@@ -17,20 +17,16 @@ class KXMLGUIClient;
 class KCommandHistory;
 class QFont;
 
-class TrackView: public QTableView {
+class TrackView: public QGridView {
 	Q_OBJECT
 public:
+	TrackView(TabSong *s, KXMLGUIClient *_XMLGUIClient, KCommandHistory *_cmdHist,
 #ifdef WITH_TSE3
-	TrackView(TabSong *s, KXMLGUIClient *_XMLGUIClient, KCommandHistory *_cmdHist,
-			  TSE3::MidiScheduler *_scheduler, QWidget *parent = 0, const char *name = 0);
-#else
-	TrackView(TabSong *s, KXMLGUIClient *_XMLGUIClient, KCommandHistory *_cmdHist,
-			  QWidget *parent = 0, const char *name = 0);
+	          TSE3::MidiScheduler *_scheduler,
 #endif
+			  QWidget *parent = 0, const char *name = 0);
 
 	~TrackView();
-
-	void initTrackView(TabSong *s, KXMLGUIClient *_XMLGUIClient, KCommandHistory *_cmdHist);
 
 	TabTrack* trk() { return curt; }
 	void setCurt(TabTrack *);
@@ -59,6 +55,7 @@ public slots:
 	void addSlide();
 	void addLetRing();
 	void insertChord();
+	void rhythmer();
 	void keyLeft();
 	void keyRight();
 	void moveUp();

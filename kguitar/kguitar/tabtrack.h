@@ -3,7 +3,7 @@
 
 #include "global.h"
 
-#include <qarray.h>
+#include <qmemarray.h>
 #include <qstring.h>
 #include <qrect.h>
 
@@ -28,8 +28,8 @@ public:
 	TabTrack(TrackMode _tm, QString _name, int _channel,
 			 int _bank, uchar _patch, char _string, char _frets);
 
-	QArray<TabColumn> c;                // Array of columns
-	QArray<TabBar> b;                   // Array of bars
+	QMemArray<TabColumn> c;             // Array of columns
+	QMemArray<TabBar> b;                // Array of bars
 
 	uchar string;                       // Number of strings
 	uchar frets;                        // Number of frets

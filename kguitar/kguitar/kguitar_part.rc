@@ -19,6 +19,7 @@
    <Menu name="insert" >
     <text>&amp;Insert</text>
     <Action name="insert_chord" />
+    <Action name="rhythmer" />
    </Menu>
    <Menu name="duration" >
     <text>&amp;Duration</text>
@@ -87,6 +88,7 @@
  <ToolBar noMerge="1" name="editToolBar" fullWidth="true" >
   <text>Edit Toolbar</text>
   <Action name="insert_chord" />
+  <Action name="rhythmer" />
   <Separator/>
   <Action name="set_len1" />
   <Action name="set_len2" />

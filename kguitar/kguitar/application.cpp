@@ -73,14 +73,13 @@ KGuitarFactory::~KGuitarFactory()
 	s_instance = 0;
 }
 
-KParts::Part *KGuitarFactory::createPart(QWidget *parentWidget, const char *widgetName,
-									 QObject *parent, const char *name, const char *className,
-									 const QStringList &)
+KParts::Part *KGuitarFactory::createPartObject(QWidget *parentWidget, const char *widgetName,
+                                               QObject *parent, const char *name, const char *className,
+                                               const QStringList &)
 {
 	bool bBrowserView = (strcmp(className, "Browser/View") == 0);
 	KParts::Part *obj = new KGuitarPart(bBrowserView, 0, parentWidget, widgetName,
-										parent, name);
-	emit objectCreated(obj);
+	                                    parent, name);
 	return obj;
 }
 
@@ -139,8 +138,10 @@ KGuitarPart::KGuitarPart(bool bBrowserView, KCommandHistory *_cmdHist, QWidget *
 							   actionCollection(), "track_delete");
 	trkBassLineAct = new KAction(i18n("&Generate Bass Line"), 0, sv, SLOT(trackBassLine()),
 	                             actionCollection(), "track_bassline");
-	trkPropAct = new KAction(i18n("&Properties..."), 0, sv, SLOT(trackProperties()),
+	trkPropAct = new KAction(i18n("P&roperties..."), 0, sv, SLOT(trackProperties()),
 							 actionCollection(), "track_properties");
+	rhythmerAct = new KAction(i18n("&Rhythm..."), "rhythmer", KAccel::stringToKey("Shift+R"),
+							  sv->tv, SLOT(rhythmer()), actionCollection(), "rhythmer");
 	insChordAct = new KAction(i18n("&Chord..."), "chord", KAccel::stringToKey("Shift+C"),
 							  sv->tv, SLOT(insertChord()), actionCollection(), "insert_chord");
 
@@ -153,15 +154,15 @@ KGuitarPart::KGuitarPart(bool bBrowserView, KCommandHistory *_cmdHist, QWidget *
 	// SET UP DURATION
 	len1Act = new KAction(i18n("Whole"), "note1", KAccel::stringToKey("Ctrl+1"),
 						  sv->tv, SLOT(setLength1()), actionCollection(), "set_len1");
-	len2Act = new KAction(i18n("1/2"), "note2", KAccel::stringToKey("Ctrl+2"),
+	len2Act = new KAction("1/2", "note2", KAccel::stringToKey("Ctrl+2"),
 						  sv->tv, SLOT(setLength2()), actionCollection(), "set_len2");
-	len4Act = new KAction(i18n("1/4"), "note4", KAccel::stringToKey("Ctrl+3"),
+	len4Act = new KAction("1/4", "note4", KAccel::stringToKey("Ctrl+3"),
 						  sv->tv, SLOT(setLength4()), actionCollection(), "set_len4");
-	len8Act = new KAction(i18n("1/8"), "note8", KAccel::stringToKey("Ctrl+4"),
+	len8Act = new KAction("1/8", "note8", KAccel::stringToKey("Ctrl+4"),
 						  sv->tv, SLOT(setLength8()), actionCollection(), "set_len8");
-	len16Act = new KAction(i18n("1/16"), "note16", KAccel::stringToKey("Ctrl+5"),
+	len16Act = new KAction("1/16", "note16", KAccel::stringToKey("Ctrl+5"),
 						   sv->tv, SLOT(setLength16()), actionCollection(), "set_len16");
-	len32Act = new KAction(i18n("1/32"), "note32", KAccel::stringToKey("Ctrl+6"),
+	len32Act = new KAction("1/32", "note32", KAccel::stringToKey("Ctrl+6"),
 						   sv->tv, SLOT(setLength32()), actionCollection(), "set_len32");
 
 	// SET UP EFFECTS
@@ -421,6 +422,7 @@ bool KGuitarPart::slotOpenFile(QString fn)
 			}
 		}
 
+#ifdef WITH_TSE3
 		if (ext == "MID") {
 			if (sv->sng()->load_from_mid(fn)) {
 				sv->sng()->filename = "";
@@ -431,6 +433,7 @@ bool KGuitarPart::slotOpenFile(QString fn)
 				return FALSE;
 			}
 		}
+#endif
 
 		if (ext == "GTP") {
 			if (sv->sng()->load_from_gtp(fn)) {
@@ -488,6 +491,7 @@ bool KGuitarPart::fileSave(QString fn)
 			return FALSE;
 		}
 	}
+#ifdef WITH_TSE3
 	if (ext == "MID") {
 		if (sv->sng()->save_to_mid(fn)) {
 			ret = TRUE;
@@ -504,6 +508,7 @@ bool KGuitarPart::fileSave(QString fn)
 			return FALSE;
 		}
 	}
+#endif
 	if (ext == "GTP") {
 		if (sv->sng()->save_to_gtp(fn)) {
 			ret = TRUE;

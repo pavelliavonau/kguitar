@@ -4,6 +4,7 @@
 #include "trackviewcommands.h"
 #include "tabsong.h"
 #include "chord.h"
+#include "rhythmer.h"
 #include "timesig.h"
 #include "songview.h"
 
@@ -20,6 +21,7 @@
 #include <qpainter.h>
 #include <qpen.h>
 #include <qkeycode.h>
+#include <qcursor.h>
 
 #include <qspinbox.h>
 #include <qcombobox.h>
@@ -37,30 +39,12 @@
 
 #define BOTTOMDUR	VERTSPACE+VERTLINE*(s+1)
 
-
+TrackView::TrackView(TabSong *s, KXMLGUIClient *_XMLGUIClient, KCommandHistory *_cmdHist,
 #ifdef WITH_TSE3
-
-TrackView::TrackView(TabSong *s, KXMLGUIClient *_XMLGUIClient, KCommandHistory *_cmdHist,
-					 TSE3::MidiScheduler *_scheduler, QWidget *parent = 0, const char *name = 0):
-	QTableView(parent, name)
-{
-	initTrackView(s, _XMLGUIClient, _cmdHist);
-	scheduler = _scheduler;
-}
-
-#else
-
-TrackView::TrackView(TabSong *s, KXMLGUIClient *_XMLGUIClient, KCommandHistory *_cmdHist,
-					 QWidget *parent = 0, const char *name = 0): QTableView(parent, name)
-{
-	initTrackView(s, _XMLGUIClient, _cmdHist);
-}
-
+                     TSE3::MidiScheduler *_scheduler,
 #endif
-
-void TrackView::initTrackView(TabSong *s, KXMLGUIClient *_XMLGUIClient, KCommandHistory *_cmdHist)
+                     QWidget *parent = 0, const char *name = 0): QGridView(parent, name)
 {
-	setTableFlags(Tbl_autoVScrollBar | Tbl_smoothScrolling);
 	setFrameStyle(Panel | Sunken);
 	setBackgroundMode(PaletteBase);
 
@@ -83,6 +67,10 @@ void TrackView::initTrackView(TabSong *s, KXMLGUIClient *_XMLGUIClient, KCommand
   	timeSigFont->setBold(TRUE);
 
 	lastnumber = -1;
+
+#ifdef WITH_TSE3
+	scheduler = _scheduler;
+#endif
 }
 
 TrackView::~TrackView()
@@ -125,9 +113,7 @@ void TrackView::updateRows()
 
 void TrackView::repaintCellNumber(int n)
 {
-	int ycoord = 0;
-	if (rowYPos(n, &ycoord))
-		repaint(0, ycoord, width(), cellHeight());
+	repaintCell(n, 0);
 }
 
 void TrackView::repaintCurrentCell()
@@ -140,9 +126,9 @@ void TrackView::repaintCurrentColumn()
 {
 	//VERTSPACE + (s - i) * VERTLINE - VERTLINE / 2
 
-	int ycoord = 0;
-	if (rowYPos(curt->xb, &ycoord))
-		repaint(selxcoord, ycoord, HORCELL + 1, cellHeight());
+	//	int ycoord = 0;
+//	if (rowYPos(curt->xb, &ycoord)) // GREYFIX - what was it all about?
+	repaintContents(selxcoord, cellHeight() * curt->xb, HORCELL + 1, cellHeight());
 	emit paneChanged();
 }
 
@@ -150,12 +136,14 @@ void TrackView::repaintCurrentColumn()
 // do minimal scrolling to ensure the full visibility
 void TrackView::ensureCurrentVisible()
 {
-	int ch = cellHeight();
+/*	int ch = cellHeight();
 
 	if ((curt->xb + 1) * ch > yOffset() + height())
 		setYOffset((curt->xb + 1) * ch - height());
 	else if (curt->xb * ch < yOffset())
 		setYOffset(curt->xb * ch);
+*/ //GREYFIX
+	ensureCellVisible(curt->xb, 0);
 }
 
 void TrackView::setFinger(int num, int fret)
@@ -216,15 +204,16 @@ void TrackView::addLetRing()
 	lastnumber = -1;
 }
 
+// Call the chord constructor dialog and may be parse something from it
 void TrackView::insertChord()
 {
 	int a[MAX_STRINGS];
 
+	ChordSelector cs(
 #ifdef WITH_TSE3
-	ChordSelector cs(scheduler, curt);
-#else
-	ChordSelector cs(curt);
+	                 scheduler, 
 #endif
+	                 curt);
 
 	for (int i = 0; i < curt->string; i++)
 		cs.setApp(i, curt->c[curt->x].a[i]);
@@ -244,6 +233,21 @@ void TrackView::insertChord()
 			a[i] = cs.app(i);
 		cmdHist->addCommand(new InsertStrumCommand(this, curt, cs.scheme(), a));
 	}
+
+	lastnumber = -1;
+}
+
+// Call rhythm construction dialog and may be parse something from it
+void TrackView::rhythmer()
+{
+	Rhythmer r(
+#ifdef WITH_TSE3
+			   scheduler
+#endif
+			   );
+
+	if (r.exec())
+		cmdHist->addCommand(new InsertRhythm(this, curt, r.quantized));
 
 	lastnumber = -1;
 }
@@ -548,7 +552,7 @@ void TrackView::paintCell(QPainter *p, int row, int col)
 
 void TrackView::resizeEvent(QResizeEvent *e)
 {
-	QTableView::resizeEvent(e); // GREYFIX ? Is it C++-correct?
+	QGridView::resizeEvent(e); // GREYFIX ? Is it C++-correct?
 	setCellWidth(width() - 2);
 }
 
@@ -841,14 +845,14 @@ void TrackView::mousePressEvent(QMouseEvent *e)
 		bool found = FALSE;
 		QPoint clickpt;
 
-		uint tabrow = findRow(e->pos().y());
+		uint tabrow = rowAt(e->pos().y());
 
 		// Clicks on non-existing rows are not allowed
 		if (tabrow >= curt->b.size())
 			return;
 
-		clickpt.setX(xOffset() + e->pos().x());
-		clickpt.setY(yOffset() + e->pos().y());
+		clickpt.setX(contentsX() + e->pos().x());
+		clickpt.setY(contentsY() + e->pos().y());
 
 		int xpos=40, xdelta, lastxpos = 20;
 

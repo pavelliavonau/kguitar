@@ -26,8 +26,7 @@ class QPainter;
 class TabSong;
 class TabTrack;
 
-class SongPrint
-{
+class SongPrint {
 public:
 	SongPrint();
 	~SongPrint();

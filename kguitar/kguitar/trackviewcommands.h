@@ -14,8 +14,7 @@ class TabTrack;
 class TrackView;
 
 // Set the duration for the notes
-class SetLengthCommand : public KCommand
-{
+class SetLengthCommand : public KNamedCommand {
 public:
 	SetLengthCommand(TrackView *_tv, TabTrack *&_trk, int l);
 	virtual ~SetLengthCommand();
@@ -33,8 +32,7 @@ private:
 
 
 // Insert tabs from keyboard
-class InsertTabCommand : public KCommand
-{
+class InsertTabCommand : public KNamedCommand {
 public:
 	InsertTabCommand(TrackView *_tv, TabTrack *&_trk, int t);
 	virtual ~InsertTabCommand();
@@ -43,16 +41,15 @@ public:
 	virtual void unexecute();
 
 private:
-	int totab, oldtab,  //Tab
-		x, y, xsel;      //Position
+	int totab, oldtab,   //Tab
+	    x, y, xsel;      //Position
 	bool sel;
 	TabTrack *trk;
 	TrackView *tv;
 };
 
 // Moves the finger
-class MoveFingerCommand : public KCommand
-{
+class MoveFingerCommand : public KNamedCommand {
 public:
 	MoveFingerCommand(TrackView *_tv, TabTrack *&_trk, int _from, int _to, int _tune);
 	virtual ~MoveFingerCommand();
@@ -68,8 +65,7 @@ private:
 };
 
 // Add FX
-class AddFXCommand : public KCommand
-{
+class AddFXCommand : public KNamedCommand {
 public:
 	AddFXCommand(TrackView *_tv, TabTrack *&_trk, char _fx);
 	virtual ~AddFXCommand();
@@ -86,8 +82,7 @@ private:
 };
 
 // Set a flag
-class SetFlagCommand : public KCommand
-{
+class SetFlagCommand : public KNamedCommand {
 public:
 	SetFlagCommand(TrackView *_tv, TabTrack *&_trk, int _flag);
 	virtual ~SetFlagCommand();
@@ -106,8 +101,7 @@ private:
 };
 
 // Delete Note
-class DeleteNoteCommand : public KCommand
-{
+class DeleteNoteCommand : public KNamedCommand {
 public:
 	DeleteNoteCommand(TrackView *_tv, TabTrack *&_trk);
 	virtual ~DeleteNoteCommand();
@@ -125,8 +119,7 @@ private:
 };
 
 // Add a column at end of track
-class AddColumnCommand : public KCommand
-{
+class AddColumnCommand : public KNamedCommand {
 public:
 	AddColumnCommand(TrackView *_tv, TabTrack *&_trk);
 	virtual ~AddColumnCommand();
@@ -142,8 +135,7 @@ private:
 };
 
 // Delete column
-class DeleteColumnCommand : public KCommand
-{
+class DeleteColumnCommand : public KNamedCommand {
 public:
 	DeleteColumnCommand(TrackView *_tv, TabTrack *&_trk);
 	DeleteColumnCommand(QString name, TrackView *_tv, TabTrack *&_trk);
@@ -155,15 +147,14 @@ public:
 private:
 	int x, y, xsel;
 	uint p_delta, p_del, p_start;
-	QArray<TabColumn> c;
+	QMemArray<TabColumn> c;
 	bool p_all, sel;
 	TabTrack *trk;
 	TrackView *tv;
 };
 
 // Set time sig
-class SetTimeSigCommand : public KCommand
-{
+class SetTimeSigCommand : public KNamedCommand {
 public:
 	SetTimeSigCommand(TrackView *_tv, TabTrack *&_trk, bool _toend, int _time1, int _time2);
 	virtual ~SetTimeSigCommand();
@@ -174,14 +165,13 @@ public:
 private:
 	int x, y, xb, xsel, time1, time2;
 	bool sel, toend;
-	QArray<TabBar> b;
+	QMemArray<TabBar> b;
 	TabTrack *trk;
 	TrackView *tv;
 };
 
 // Insert a column at cursor pos
-class InsertColumnCommand : public KCommand
-{
+class InsertColumnCommand : public KNamedCommand {
 public:
 	InsertColumnCommand(TrackView *_tv, TabTrack *&_trk);
 	virtual ~InsertColumnCommand();
@@ -197,8 +187,7 @@ private:
 };
 
 // Insert strum
-class InsertStrumCommand : public KCommand
-{
+class InsertStrumCommand : public KNamedCommand {
 public:
 	InsertStrumCommand(TrackView *_tv, TabTrack *&_trk, int _sch, int *_chord);
 	virtual ~InsertStrumCommand();
@@ -209,11 +198,27 @@ public:
 private:
 	int sch, x, y, xsel, len, toadd;
 	int chord[MAX_STRINGS];
-	QArray<TabColumn> c;
+	QMemArray<TabColumn> c;
 	bool sel;
 	TabTrack *trk;
 	TrackView *tv;
 };
 
-#endif
+#include <qlistbox.h>
 
+// Insert rhythm from rhythmer
+class InsertRhythm: public KNamedCommand {
+public:
+	InsertRhythm(TrackView *_tv, TabTrack *&_trk, QListBox *quantized);
+
+	virtual void execute();
+	virtual void unexecute();
+
+private:
+	int x;
+	QMemArray<int> newdur, olddur;
+	TabTrack *trk;
+	TrackView *tv;
+};
+
+#endif

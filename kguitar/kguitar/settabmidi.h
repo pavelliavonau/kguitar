@@ -4,8 +4,7 @@
 #include "settabmidibase.h"
 
 
-class SetTabMidi : public SetTabMidiBase
-{
+class SetTabMidi: public SetTabMidiBase {
 	Q_OBJECT
 
 public:

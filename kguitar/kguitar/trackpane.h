@@ -1,12 +1,12 @@
 #ifndef TRACKPANE_H
 #define TRACKPANE_H
 
-#include <qtableview.h>
+#include <qgridview.h>
 
 class TabSong;
 class TabTrack;
 
-class TrackPane: public QTableView {
+class TrackPane: public QGridView {
 	Q_OBJECT
 
 public:

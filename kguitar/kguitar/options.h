@@ -16,9 +16,9 @@ class QSlider;
 #endif
 
 class Options: public KDialogBase {
-    Q_OBJECT
+	Q_OBJECT
 public:
-    Options(
+	Options(
 #ifdef WITH_TSE3
 			TSE3::MidiScheduler *_sch,
 #endif
@@ -30,9 +30,9 @@ public:
     QCheckBox *showbarnumb, *showstr, *showpagenumb;
 
 protected:
-    void setupTheoryTab();
-    void setupMusixtexTab();
-    void setupMidiTab();
+	void setupTheoryTab();
+	void setupMusixtexTab();
+	void setupMidiTab();
 
 protected slots:
 	void fillMidiBox();

@@ -324,7 +324,7 @@ void ChordSelector::initChordSelector(TabTrack *p)
 
 	l->activate();
 
-	setCaption(i18n("Chord constructor"));
+	setCaption(i18n("Chord Constructor"));
 }
 
 void ChordSelector::askStrum()
@@ -627,7 +627,7 @@ void ChordSelector::findChords()
 	// Ex: it's impossible to play 13th chords on 6 strings, but it's
 	//	   possible on 7 string guitar. This way we optimize things a bit
 
-	if (parm->string<notenum) {
+	if (parm->string < notenum) {
 		fnglist->endSession();
 		return;
 	}
@@ -753,4 +753,3 @@ void ChordSelector::findChords()
 
 	fnglist->endSession();
 }
-

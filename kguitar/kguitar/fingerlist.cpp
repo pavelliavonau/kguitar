@@ -4,15 +4,18 @@
 
 #include <qpainter.h>
 #include <qcolor.h>
+#include <qstyle.h>
 
 #include <kglobalsettings.h>
 
 FingerList::FingerList(TabTrack *p, QWidget *parent, const char *name)
-	: QTableView(parent, name)
+	: QGridView(parent, name)
 {
     parm = p;
 
-    setTableFlags(Tbl_autoVScrollBar | Tbl_smoothScrolling);
+	setVScrollBarMode(Auto);
+	setHScrollBarMode(AlwaysOff);
+
     setFrameStyle(Panel | Sunken);
     setBackgroundMode(PaletteBase);
     setFocusPolicy(StrongFocus);
@@ -27,20 +30,21 @@ FingerList::FingerList(TabTrack *p, QWidget *parent, const char *name)
     repaint();
 }
 
+// Begins new "session" for fingering list, i.e. clears it and
+// prepares for adding new chords.
 void FingerList::beginSession()
 {
-	setAutoUpdate(FALSE);
 	clear();
 }
 
+// Ends adding "session" for the list, setting proper number of
+// columns / rows, updating it, etc.
 void FingerList::endSession()
 {
     // num is overral number of chord fingerings. If it's 0 - then there are no
     // fingerings. In the appl array, indexes should be ranged from 0 to (num-1)
     setNumRows((num - 1) / perRow + 1);
-
-	setAutoUpdate(TRUE);
-	repaint();
+	repaintContents();
 }
 
 void FingerList::clear()
@@ -52,46 +56,44 @@ void FingerList::clear()
 
 void FingerList::addFingering(const int a[MAX_STRINGS])
 {
-    appl.resize((num + 1) * MAX_STRINGS);
+	appl.resize((num + 1) * MAX_STRINGS);
 
-    for (int i = 0; i < MAX_STRINGS; i++)
+	for (int i = 0; i < MAX_STRINGS; i++)
 		appl[num].f[i] = a[i];
 
-    num++;
+	num++;
 }
 
 void FingerList::resizeEvent(QResizeEvent *e)
 {
-	QTableView::resizeEvent(e);
-    perRow = width() / ICONCHORD;
-    setNumCols(perRow);
-    setNumRows((num - 1) / perRow + 1);
+	QGridView::resizeEvent(e);
+	perRow = width() / ICONCHORD;
+	setNumCols(perRow);
+	setNumRows((num - 1) / perRow + 1);
 }
 
 void FingerList::mousePressEvent(QMouseEvent *e)
 {
-    int col = e->x() / ICONCHORD;
-    int row = (e->y() + yOffset()) / ICONCHORD;
+	int col = columnAt(e->x());
+	int row = rowAt(e->y() + contentsY());
 
-    int n = row * perRow + col;
+	int n = row * perRow + col;
 
-    if ((n >= 0) && (n < num)) {
+	if ((n >= 0) && (n < num)) {
 		curSel = row * perRow + col;
-		repaint(oldCol * ICONCHORD, oldRow * ICONCHORD - yOffset(),
-				ICONCHORD, ICONCHORD);
-		repaint(col * ICONCHORD, row * ICONCHORD - yOffset(),
-				ICONCHORD, ICONCHORD);
+		repaintCell(oldRow, oldCol);
+		repaintCell(row, col);
 		oldCol = col;
 		oldRow = row;
 		emit chordSelected(appl[curSel].f);
-    }
+	}
 }
 
 void FingerList::paintCell(QPainter *p, int row, int col)
 {
-    int n = row*perRow+col;
+	int n = row * perRow + col;
 
-    if (n<num) {
+	if (n < num) {
 		int barre, eff;
 		QColor back = KGlobalSettings::baseColor();
 		QColor fore = KGlobalSettings::textColor();
@@ -104,12 +106,12 @@ void FingerList::paintCell(QPainter *p, int row, int col)
 
 			p->setBrush(back);
 			p->setPen(NoPen);
-			p->drawRect(0,0,ICONCHORD-1,ICONCHORD-1);
+			p->drawRect(0, 0, ICONCHORD - 1, ICONCHORD - 1);
 
 			if (hasFocus()) {
 				p->setBrush(NoBrush);
 				p->setPen(fore);
-				style().drawFocusRect(p, QRect(0, 0, ICONCHORD - 1, ICONCHORD - 1), colorGroup(), 0, TRUE);
+				style().drawPrimitive(QStyle::PE_FocusRect, p, QRect(0, 0, ICONCHORD - 1, ICONCHORD - 1), colorGroup());
 			}
 		}
 
@@ -173,12 +175,12 @@ void FingerList::paintCell(QPainter *p, int row, int col)
 
 		p->setBrush(fore);
 
-		for (int i=0;i<NUMFRETS;i++) {
-			barre=0;
-			while ((appl[n].f[parm->string-barre-1]>=(i+firstFret)) ||
-				   (appl[n].f[parm->string-barre-1]==-1)) {
+		for (int i = 0; i < NUMFRETS; i++) {
+			barre = 0;
+			while ((appl[n].f[parm->string - barre - 1] >= (i + firstFret)) ||
+				   (appl[n].f[parm->string - barre - 1] == -1)) {
 				barre++;
-				if (barre>parm->string-1)
+				if (barre > parm->string - 1)
 					break;
 			}
 
