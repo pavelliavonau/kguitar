@@ -179,15 +179,15 @@ static void fontInfo(QFont * f)
 {
 	QFont lf = *f;
 	QFontInfo fi = QFontInfo(lf);
-//	bool b = fi.exactMatch();
+	bool b = fi.exactMatch();
 	QString s = fi.family();
 	if (s.isNull()) s = "(null)";
-//	cout
-//	<< "f=" << hex << f << dec
-//	<< (b ? " exact match" : " not matched")
-//	<< " family=" << s
-//	<< " pointsize=" << fi.pointSize()
-//	<< endl;
+// 	kdDebug()
+// 	<< "f=" << f <<
+// 	<< (b ? " exact match" : " not matched")
+// 	<< " family=" << s
+// 	<< " pointsize=" << fi.pointSize()
+// 	<< endl;
 }
 
 static bool fontIsExactMatch(QFont * f)
@@ -208,8 +208,10 @@ void SongPrint::initFonts()
 	fTBar1  = new QFont("Helvetica",  8, QFont::Bold);
 	fTBar2  = new QFont("Helvetica",  7, QFont::Normal);
 	fTSig   = new QFont("Helvetica", 12, QFont::Bold);
-	fFeta   = new QFont("TeX feta19", 18);
-	fFetaNr = new QFont("TeX feta nummer10", 10);
+// 	fFeta   = new QFont("TeX feta19", 18);
+// 	fFetaNr = new QFont("TeX feta nummer10", 10);
+ 	fFeta   = new QFont("LilyPond feta", 24);
+ 	fFetaNr = new QFont("LilyPond feta nummer", 10);
 	fFetaFnd = true;
 
 	fontInfo(fTSig);
@@ -217,11 +219,11 @@ void SongPrint::initFonts()
 	fontInfo(fFetaNr);
 
 	// verify font feta is found: if not, printing of notes will be disabled
-	if (!fontIsExactMatch(fFeta)) {
-		delete fFeta;
-		fFeta = 0;
-		kdWarning() << "KGuitar: could not find font 'TeX feta19', cannot show or print score\n";
-	}
+// 	if (!fontIsExactMatch(fFeta)) {
+// 		delete fFeta;
+// 		fFeta = 0;
+// 		kdWarning() << "KGuitar: could not find feta font, cannot show or print score\n";
+// 	}
 }
 
 // initialize paper format and font dependent metrics
