@@ -3,7 +3,7 @@
  *
  * This file is part of KGuitar, a KDE tabulature editor
  *
- * copyright (C) 2002 the KGuitar development team
+ * copyright (C) 2002-2003 the KGuitar development team
  *
  * Copyright of the MusicXML file format:
  * (C) Recordare LLC. All rights reserved. http://www.recordare.com
@@ -619,6 +619,7 @@ void MusicXMLWriter::write(QTextStream& os)
 // part list
 	os << "\n";
 	os << "\t<part-list>\n";
+	// loop over all tracks
 	for (unsigned int it = 0; it < ts->t.count(); it++) {
 		os << "\t\t<score-part id=\"P" << it+1 << "\">\n";
 		os << "\t\t\t<part-name>" << ts->t.at(it)->name << "</part-name>\n";
@@ -640,11 +641,12 @@ void MusicXMLWriter::write(QTextStream& os)
 		   << "</midi-program>\n";
 		os << "\t\t\t</midi-instrument>\n";
 		os << "\t\t</score-part>\n";
-	}
+	} // end for (unsigned int it = 0; ...
 	os << "\t</part-list>\n";
 
 // parts
 	TabTrack *trk;
+	// loop over all tracks
 	for (unsigned int it = 0; it < ts->t.count(); it++) {
 		trk = ts->t.at(it);
 		trk->calcVoices();
@@ -653,49 +655,41 @@ void MusicXMLWriter::write(QTextStream& os)
 		os << "\n";
 		os << "\t<part id=\"P" << it+1 << "\">\n";
 
-		int trp = 0;			// triplet state (0=none, 1=1st, 2=2nd, 3=3rd)
-		// loop over all columns
-		for (uint x = 0; x < trk->c.size(); x++) {
-			if (bar+1 < trk->b.size()) {	// This bar's not last
-				if (((unsigned int) trk->b[bar+1].start) == x)
-					bar++;				// Time for next bar
+		// loop over all bars
+		for (uint ib = 0; ib < trk->b.size(); ib++) {
+			os << "\t\t<measure number=\"" << ib + 1 << "\">\n";
+			if (ib == 0) {
+				// First bar: write all attributes
+				os << "\t\t\t<attributes>\n";
+				os << "\t\t\t\t<divisions>48</divisions>\n";
+				os << "\t\t\t\t<key>\n";
+				os << "\t\t\t\t\t<fifths>0</fifths>\n";
+				os << "\t\t\t\t\t<mode>major</mode>\n";
+				os << "\t\t\t\t</key>\n";
+				writeTime(os, trk->b[ib].time1, trk->b[ib].time2);
+				os << "\t\t\t\t<clef>\n";
+				os << "\t\t\t\t\t<sign>G</sign>\n";
+				os << "\t\t\t\t\t<line>2</line>\n";
+				os << "\t\t\t\t</clef>\n";
+				writeStaffDetails(os, trk);
+				os << "\t\t\t</attributes>\n";
+				os << "\t\t\t<sound tempo=\"" << ts->tempo << "\"/>\n";
+			} else {
+				// LVIFIX write time sig if changed
 			}
 
-			if ((bar < trk->b.size())
-			    && (((unsigned int) trk->b[bar].start) == x)) {
-				// New bar event
-				if (bar > 0) {
-					// End of previous measure
-					os << "\t\t</measure>\n";
-					os << "\n";
-				}
-				os << "\t\t<measure number=\"" << bar + 1 << "\">\n";
-				if (bar == 0) {
-					// First bar: write all attributes
-					os << "\t\t\t<attributes>\n";
-					os << "\t\t\t\t<divisions>48</divisions>\n";
-					os << "\t\t\t\t<key>\n";
-					os << "\t\t\t\t\t<fifths>0</fifths>\n";
-					os << "\t\t\t\t\t<mode>major</mode>\n";
-					os << "\t\t\t\t</key>\n";
-					writeTime(os, trk->b[bar].time1, trk->b[bar].time2);
-					os << "\t\t\t\t<clef>\n";
-					os << "\t\t\t\t\t<sign>G</sign>\n";
-					os << "\t\t\t\t\t<line>2</line>\n";
-					os << "\t\t\t\t</clef>\n";
-					writeStaffDetails(os, trk);
-					os << "\t\t\t</attributes>\n";
-					os << "\t\t\t<sound tempo=\"" << ts->tempo << "\"/>\n";
-				} else {
-					// LVIFIX write time sig if changed
-				}
-			}
-			writeCol(os, trk, x, trp);
-		}
-		os << "\t\t</measure>\n";
-		os << "\n";
+			int trp = 0;		// triplet state (0=none, 1=1st, 2=2nd, 3=3rd)
+			// loop over all columns in this bar
+			for (uint x = trk->b[ib].start; x <= trk->lastColumn(ib); x++) {
+				writeCol(os, trk, x, trp);
+			} // end for (uint x = 0; ....
+
+			os << "\t\t</measure>\n";
+			os << "\n";
+		} // end for (uint ib = 0; ...
+
 		os << "\t</part>\n";
-	}
+	} // end for (unsigned int it = 0; ...
 	os << "\n";
 	os << "</score-partwise>\n";
 }
