@@ -74,6 +74,7 @@ Please at least include KDE, the KDE package it is in, the name
 <keyword>guitar</keyword>
 <keyword>tabulature</keyword>
 <keyword>tab</keyword>
+<keyword>chord</keyword>
 <keyword>editor</keyword>
 <keyword>MIDI</keyword>
 <keyword>MusicXML</keyword>
@@ -176,9 +177,11 @@ aspects, they're more or less compatible and comparable.
 
 <para>
 In particular, when tabulature is written down for guitar or similar
-fretted instruments (we'll refer to all them as guitar below),
-tabulature contains data on what fret should be touched with one hand
-and what strings should be picked with the other.
+fretted instruments (we'll refer to all them as &quot;guitar&quot; and
+we'll refer to a human being that plays these instruments as
+&quot;guitarists&quot; below), tabulature contains data on what fret
+should be touched with one hand and what strings should be picked with
+the other.
 </para>
 
 </sect1>
@@ -194,12 +197,12 @@ everything else seems to revolve around it.
 <screenshot>
 <screeninfo>A screenshot of song view</screeninfo>
 	<mediaobject>
-	  <imageobject>
-	    <imagedata fileref="songview.png" format="PNG"/>
-	  </imageobject>
-	  <textobject>
-	    <phrase>Screenshot</phrase>
-	  </textobject>
+		<imageobject>
+			<imagedata fileref="songview.png" format="PNG"/>
+		</imageobject>
+		<textobject>
+			<phrase>Screenshot</phrase>
+		</textobject>
 	</mediaobject>
 </screenshot>
 
@@ -382,6 +385,66 @@ TODO
 
 </sect1>
 
+<sect1 id="melody-editor">
+<title>Melody Editor</title>
+
+<para>
+Melody editor is a tool that helps entering tabulature with mouse. It
+somewhat loosely resembles Cakewalk's tab staff fretboard or
+TablEdit's fretboard, but much more useful and flexible. Melody editor
+lets you easily and quickly enter harmonized solos, fills and etc, by
+just clicking every note on the fretboard in order of playing.
+</para>
+
+<sect2>
+<title>Basic usage</title>
+
+<para>
+Editor looks like fretboard photo from the same point of view as you
+read tabulature from. By default, you can click any place on that
+fretboard and some sort of action will be executes, depending on what
+button you have pressed:
+</para>
+
+<itemizedlist>
+
+<listitem><para><keycap>Left mouse button</keycap> - set note on
+clicked fret and string.</para></listitem>
+
+<listitem><para><keycap>Middle mouse button</keycap> - set 022-type power
+chord on clicked fret and string.</para></listitem>
+
+<listitem><para><keycap>Right mouse button</keycap> - set note on
+clicked fret and string, and on release of mouse button, track cursor
+advances to the next column - ideal for entering mono-voiced
+soloes.</para></listitem>
+
+</itemizedlist>
+
+</sect2>
+
+<sect2>
+<title>Setting actions</title>
+
+<para>
+TODO
+</para>
+
+</sect2>
+
+<sect2>
+<title>Customizing Melody Editor</title>
+
+<para>
+Fully customizable, now supports several inlay types. Work in
+progress, so more to come.
+TODO
+</para>
+
+</sect2>
+
+</sect1>
+
 <sect1 id="advanced-transcribing">
 <title>Advanced Transcribing</title>
 
@@ -400,39 +463,141 @@ from one type of tabulature to another is automated task you can delegate
 to your computer, rather that comprehending it yourself.
 </para>
 
-<sect2 id="example-1">
+<sect2 id="advanced-example-1">
 <title>Example 1: Mixed duration notes</title>
 
 <para>
-We need to transcribe two notes that start at the same time, but first one
-sounds for 1/8 or a beat and second one lasts for 1/4 (TODO: picture). It seem
-to be impossible to do that it in column-based tabulature, as all notes stacked
-in a column seem to have same duration.
+We need to transcribe two notes that start at the same time, but first
+one sounds for 1/4 or a beat and second one lasts for 1/2. This is how
+it looks in classic note staff (screenshot of a Rosegarden sequencer's
+note editor):
+</para>
+
+<screenshot>
+<screeninfo>Mixed duration notes on a classic note staff</screeninfo>
+	<mediaobject>
+		<imageobject>
+			<imagedata fileref="multi-duration-staff.png" format="PNG"/>
+		</imageobject>
+	</mediaobject>
+</screenshot>
+
+<para>
+It seems to be impossible to do that it in column-based tabulature, as
+all notes stacked in a column seem to have same duration.
 </para>
 
 <para>
-Remembering the main principle mentioned above, let's think about how such a
-figure would be played, for example, on a guitar. Naturally, strings are all the
-same and we can assume here that they sound infinitely long if not interrupted.
-How can a guitarist interrupt string sound? There are two possibilities:
+Remembering the main principle mentioned above, let's think about how
+such a figure would be played, for example, on a guitar. Naturally,
+strings are all the same and we can assume here that they sound
+infinitely long if not interrupted.  How can a guitarist interrupt
+string sound? There are three possibilities:
 </para>
 
 <itemizedlist>
 
 <listitem><para>He can fret some sort of other note on the same
 string, thus ending the tone of previous one;</para></listitem>
-<listitem><para>He can just mute the string with his finger or
-palm;</para></listitem>
+
+<listitem><para>He can mute the string with his finger or palm with
+audible muting click (so called &quot;dead
+note&quot;);</para></listitem>
+
+<listitem><para>He can just mute the string with his finger or palm
+silently;</para></listitem>
 
 </itemizedlist>
 
 <para>
+You can implement it all three ways in KGuitar tabulatures. Let's see
+how to do that. In all cases, we'll use note &quot;let ring&quot; tool
+to transcribe long notes. Let ring is a property of every single fret
+number in a tab. Use the &quot;let ring&quot; tool to toggle that
+property: either the fret will let ring or not.
+</para>
 
+<sect3>
+<title>Ending sound with some other note</title>
+
+<screenshot>
+<screeninfo>Ending sound with some other note</screeninfo>
+	<mediaobject>
+		<imageobject>
+			<imagedata fileref="let-ring-other.png" format="PNG"/>
+		</imageobject>
+	</mediaobject>
+</screenshot>
+
+<para>
+This is how it will look like. Fifth string "2" fret number has a let
+ring option, so it will ring for as long as bar lasts or anything will
+interrupt it. Note that horizontal line that normally represent a
+string became an arrow that represents how long the note sounds - note
+starts on the digit and ends on the arrowhead, i.e. 1/4 (full length
+of bar). Fourth string "2" sounds only 1/8 as it's superseeded by "5",
+picked on a same string.
 </para>
 
 <para>
-TODO
+In complex cases, "2" on fourth string can have let ring options
+turned on too to achieve even more sophisticated timings.
 </para>
+
+</sect3>
+
+<sect3>
+<title>Ending sound with audible muting (dead note)</title>
+
+<screenshot>
+<screeninfo>Ending sound with audible muting (dead note)</screeninfo>
+	<mediaobject>
+		<imageobject>
+			<imagedata fileref="let-ring-dead.png" format="PNG"/>
+		</imageobject>
+	</mediaobject>
+</screenshot>
+
+<para>
+This one is just like the first one, but with real note ("5") replaced
+to dead note ("X"). Dead note means that guitarist will mute the
+string in some sort of way (for example, with a direct pick strike)
+that it will produce a loud audible click and stop
+sounding. Transcribing technique used is just the same.
+</para>
+
+</sect3>
+
+<sect3>
+<title>Muting string silently</title>
+
+<para>
+It was mentioned above that "let ring" options is toggleable for every
+fret number in the track. That's more than it. You can turn "let ring"
+on for empty space (i.e. nothing played) to produce some sort of
+anti-"leg ring". Such empty space with anti-"let ring" will stop
+previously ringing string.
+</para>
+
+<screenshot>
+<screeninfo>Muting string silently</screeninfo>
+	<mediaobject>
+		<imageobject>
+			<imagedata fileref="let-ring-null.png" format="PNG"/>
+		</imageobject>
+	</mediaobject>
+</screenshot>
+
+<para>
+This technique is demonstrated on the this tabulature. Both 2 notes
+from the beginning have a "let ring" on them. However, in second
+column on the fourth string there is empty space with anti-"let ring"
+that signals guitarist to mute the string without making any more
+noises. Fifth string continues to ring to the end of bar. Arrows show
+for how long each note will sound.
+</para>
+
+</sect3>
 
 </sect2>
 
