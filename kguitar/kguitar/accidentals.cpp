@@ -15,10 +15,6 @@
  * See the file COPYING for more information.
  ***************************************************************************/
 
-// LVIFIX:
-// a sharp is printed on all F#'s in the same chord, while the accidentals
-// for all F's should be independent
-
 #include <qstring.h>
 #include "accidentals.h"
 
@@ -35,6 +31,11 @@
 //     calcChord()
 //     foreach note in chord:
 //       getNote()
+//
+// Note: two opinions about accidental handling can be found:
+// - accidentals apply to a single octave
+// - accidentals apply to all octaves
+// Class Accidentals assumes accidentals apply to all octaves
 
 static const QString notes_flat[12]  = {"C",  "Db", "D",  "Eb", "E",  "F",
                                         "Gb", "G",  "Ab", "A",  "Bb", "B"};
@@ -51,11 +52,34 @@ static const QString notes_sharp[12] = {"C",  "C#", "D",  "D#", "E",  "F",
 //                               F  C  G  D  A  E   B
 static const int keySigTab[7] = {5, 0, 7, 2, 9, 4, 11};
 
+// Note about accidental handling options:
+// (currently set to fixed values in the class constructor)
+
+// printAllAccInChrd determines if an accidental must be printed
+// for all instances of a given note in a chord.
+// E.g. if a chord contains three F# then:
+// printAllAccInCh = false prints one F# and two F's
+// printAllAccInCh = true prints three F#'s
+// LVIFIX: make configurable (i.e.global option)
+
+// printAccAllPitch determines if an accidental must be printed
+// for all instances of a given note.
+// E.g. if a chord contains two F# and a later chord contains
+// a different F# then:
+// printAccAllInst = false print accidental on first chord
+// printAccAllInst = true also print accidental on second chord
+// LVIFIX: make configurable (i.e.global option)
+
 // Accidentals constructor
 
 Accidentals::Accidentals()
 {
 	keySig = 0;
+	printAllAccInChrd = true;
+//	printAllAccInChrd = false;
+	printAccAllInst = true;
+//	printAccAllInst = false;
+
 	for (int i=0; i<stPerOct; i++) {
 		notes_av[i]       = false;
 		notes_req[i]      = false;
@@ -72,13 +96,6 @@ void Accidentals::addPitch(int pitch)
 {
 	int noteNumber = normalize(pitch);
 	notes_req[noteNumber] = true;
-}
-
-// return the key signature
-
-int Accidentals::getKeySig()
-{
-	return keySig;
 }
 
 // do the work
@@ -149,10 +166,49 @@ void Accidentals::calcChord()
 			}
 		}
 	}
+
 	// copy new_acc_state into old_acc_state
+	// set required "need accidental" flags
 	for (int i=0; i<stPerOct; i++) {
 		old_acc_state[i] = new_acc_state[i];
+		if (notes_req[i] && (out_accidental[i] != None)) {
+			naSetAll(notes_sharp[out_root_note[i]]);
+		}
 	}
+}
+
+// count # accidentals "printed" in this chord
+// includes suppressed accidentals
+
+void Accidentals::countAccPrnt(QString& stp, Accid& acc)
+{
+	QChar a = QChar('A');
+	int i = stp[0].unicode() - a.unicode();
+	if ((i < 0) || (i >= 7)) {
+		return;
+	}
+	if (acc != None) {
+		accPrnt[i]++;
+	}
+}
+
+// return # accidentals printed in this chord
+
+int Accidentals::getAccPrnt(QString& stp)
+{
+	QChar a = QChar('A');
+	int i = stp[0].unicode() - a.unicode();
+	if ((i < 0) || (i >= 7)) {
+		return 0;
+	}
+	return accPrnt[i];
+}
+
+// return the key signature
+
+int Accidentals::getKeySig()
+{
+	return keySig;
 }
 
 // get note info for given pitch
@@ -168,6 +224,23 @@ bool Accidentals::getNote(int pitch, QString& stp,
 	oct = pitch / stPerOct;
 	alt = pitch - (oct * stPerOct + out_root_note[noteNumber]);
 	acc = out_accidental[noteNumber];
+	if ((acc != None) && (!mustPrntAllAcc(noteNumber))) {
+		naReset(stp, oct);
+	}
+	// if requested, suppress printing of second and following accidentals
+	// but make sure that if both F natural and F accidental are printed,
+	// all F's in the chord get an accidental even if printAllAccInCh = false
+	if ((getAccPrnt(stp) > 0) && !printAllAccInChrd
+		&& !mustPrntAllAcc(noteNumber)
+		&& !printAccAllInst) {
+		acc = None;
+	}
+	countAccPrnt(stp, acc);
+	// if no accidental printed, check pending accidentals
+	if ((acc == None) && naGet(stp, oct)) {
+		acc = new_acc_state[out_root_note[noteNumber]];
+		naReset(stp, oct);
+	}
 	return true;
 }
 
@@ -185,6 +258,82 @@ void Accidentals::markInUse(int i, int nlh, Accid a)
 	}
 }
 
+// determine if all accidentals must be printed for note nn
+// this is the case when both nn with natural and nn with sharp are printed
+
+// if one char notename (without accidental):
+// - next note also requested and same root note
+// if two char notename (with accidental):
+// - previous note also requested (must be a natural) and same root note
+
+bool Accidentals::mustPrntAllAcc(int nn)
+{
+	int on = 0;					// the other (previous or next) note
+	bool res = true;
+	if (notes_sharp[nn].length() == 1) {
+		// nn is a single char note, compare with next
+		on = normalize(nn + 1);
+	} else {
+		// nn must be double char note, compare with previous
+		on = normalize(nn - 1);
+	}
+	res = notes_req[on] && (out_root_note[nn] == out_root_note[on]);
+	return res;;
+}
+
+// get the "needs accidental" flag for note stp in octave oct
+
+bool Accidentals::naGet(const QString& stp, int oct)
+{
+	return needs_acc[naSo2i(stp, oct)];
+}
+
+// reset the "needs accidental" flag for note stp in octave oct
+
+void Accidentals::naReset(const QString& stp, int oct)
+{
+	needs_acc[naSo2i(stp, oct)] = false;
+}
+
+// reset all "needs accidental" flags
+
+void Accidentals::naResetAll()
+{
+	int k = 0;
+	for (int i = 0; i < 11; i++) {
+		for (int j = 0; j < 7; j++) {
+			needs_acc[k] = false;
+			k++;
+		}
+	}
+}
+
+// set "needs accidental" flags for note stp in all octaves
+
+void Accidentals::naSetAll(const QString& stp)
+{
+	int j = naSo2i(stp, 0);
+	for (int i = 0; i < 11; i++) {
+		needs_acc[j] = true;
+		j += 7;
+	}
+}
+
+// convert stp/oct to index
+
+int Accidentals::naSo2i(const QString& stp, int oct)
+{
+	QChar a = QChar('A');
+	int i = stp[0].unicode() - a.unicode();
+	if ((i < 0) || (i >= 7)) {
+		return 0;
+	}
+	if ((oct < 0) || (oct >= 11)) {
+		return 0;
+	}
+	return 7 * oct + i;
+}
+
 // make sure note number is in range 0..11
 
 int Accidentals::normalize(int pitch)
@@ -197,6 +346,7 @@ int Accidentals::normalize(int pitch)
 }
 
 // reset to key signature
+// clear all "needs accidental" flags
 
 void Accidentals::resetToKeySig()
 {
@@ -212,6 +362,7 @@ void Accidentals::resetToKeySig()
 			old_acc_state[keySigTab[i + 6]] = Flat;
 		}
 	}
+	naResetAll();
 }
 
 // convert step (note name), alter (flat/sharp) and octave to pitch
@@ -251,8 +402,11 @@ void Accidentals::setKeySig(int sig)
 
 void Accidentals::startChord()
 {
-	for (int i=0; i<stPerOct; i++) {
+	for (int i=0; i < stPerOct; i++) {
 		notes_req[i] = false;
 		out_root_note[i] = 0;
+	}
+	for (int i=0; i < 7; i++) {
+		accPrnt[i] = 0;
 	}
 }
