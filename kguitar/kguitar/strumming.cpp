@@ -20,7 +20,7 @@ Strumming::Strumming(int default_scheme, QWidget *parent=0, const char *name=0)
 
 	pattern = new QComboBox(FALSE, this);
 	for (int i = 0; lib_strum[i].len[0]; i++)
-		pattern->insertItem(lib_strum[i].name);
+		pattern->insertItem(i18n(lib_strum[i].name));
 	pattern->setCurrentItem(default_scheme);
 	connect(pattern, SIGNAL(highlighted(int)), SLOT(updateComment(int)));
 
@@ -57,7 +57,7 @@ Strumming::Strumming(int default_scheme, QWidget *parent=0, const char *name=0)
     butt->addWidget(ok);
     butt->addWidget(cancel);
     butt->addStrut(30);
-    
+
     l->activate();
 
     setCaption(i18n("Strumming pattern"));
@@ -71,5 +71,5 @@ int Strumming::scheme()
 
 void Strumming::updateComment(int n)
 {
-	comment->setText(lib_strum[n].description);
+	comment->setText(i18n(lib_strum[n].description));
 }
