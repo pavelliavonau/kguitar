@@ -21,7 +21,7 @@ int main(int argc, char **argv)
 {
 	KAboutData aboutData("kguitar", I18N_NOOP("KGuitar"),
 						 VERSION, DESCRIPTION, KAboutData::License_GPL,
-						 "(C) 2000 by KGuitar Development Team", 0,
+						 "(C) 2000, 2001 by KGuitar Development Team", 0,
 						 "http://kguitar.sourceforge.net");
 
 	aboutData.addAuthor("Mikhail Yakshin AKA GreyCat", I18N_NOOP("Maintainer and main coder"),
