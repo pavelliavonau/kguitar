@@ -1,3 +1,33 @@
+2000-10-14  Mikhail Yakshin  <yakshin@online.ru>
+
+	* Release 0.2.1
+
+	* Lots of work done in separated mini-project (developing ALSA
+	sequencing C++ classes for MIDI playback), though in this branch
+	lots of changes too.
+
+	* Loading and saving options implemented (at last)
+
+	* Working MIDI export - lots of work, but it worthed it. Exports
+	in MIDI files, format 0. Honors all track properties and some
+	effects (harmonics).
+
+	* Renewed resizable chord dialog made with layouts.	
+
+	* Strumming patterns in chord constructor. Now it's possible to
+	insert a chord as an arpegio or picked with pre-defined
+	pattern. Small library of patterns is supplied with this version.
+	
+	* Tabulature printing via MusiXTeX and custom macros. You'll need
+	to export the song via "Export/MusiXTeX tab" and then you get a
+	ready-to-use tex-file. Process it with TeX as usual and print it.
+
+	* Several new tunings in library, including banjo, mandolin and
+	brahms 8-string guitar.
+	
+	* Fixed several bugs, fixed "mixed" notenames (with proper
+	sharp/flat combinations), etc.
+
 2000-09-08  Mikhail Yakshin  <yakshin@online.ru>
 
 	* Release 0.2
