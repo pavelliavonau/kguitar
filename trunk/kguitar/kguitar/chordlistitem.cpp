@@ -44,9 +44,9 @@ ChordListItem::ChordListItem(int _tonic, int _bass, int s3, int s5, int s7,
 			name = name + "m";
 
 		if (s5 == 6)
-			name = name + "/5" + flat[global_flatplus];
+			name = name + "/5" + flat[globalFlatPlus];
 		if (s5 == 8)
-			name = name + "/5" + sharp[global_flatplus];
+			name = name + "/5" + sharp[globalFlatPlus];
 		if (((s5 == 6) || (s5 == 8)) && ((s7 != -1) || (s9 != -1) ||
 										 (s11 != -1) || (s13 != -1)))
 			name = name + "/";
@@ -54,7 +54,7 @@ ChordListItem::ChordListItem(int _tonic, int _bass, int s3, int s5, int s7,
 		if ((s7 == 10) && (s9 == -1))
 			name = name + "7";
 		if (s7 == 11)
-			name = name + maj7name[global_maj7];
+			name = name + maj7name[globalMaj7];
 		if (s7 == 9)
 			name = name + "6";
 		if (((s7 == 11) || (s7 == 9))
@@ -67,9 +67,9 @@ ChordListItem::ChordListItem(int _tonic, int _bass, int s3, int s5, int s7,
 	if ((s9 == 2) && (s11 == -1))
 		name = name + "9";
 	if (s9 == 1)
-		name = name + "9" + flat[global_flatplus];
+		name = name + "9" + flat[globalFlatPlus];
 	if (s9 == 3)
-		name = name + "9" + sharp[global_flatplus];
+		name = name + "9" + sharp[globalFlatPlus];
 	if (((s9 == 1) || (s9 == 3)) && ((s11 != -1) || (s13 != -1)))
 		name = name + "/";
 
@@ -78,9 +78,9 @@ ChordListItem::ChordListItem(int _tonic, int _bass, int s3, int s5, int s7,
 	if ((s11 == 5) && (s13 == -1))
 		name = name + "11";
 	if (s11 == 6)
-		name = name + "11" + sharp[global_flatplus];
+		name = name + "11" + sharp[globalFlatPlus];
 	if (s11 == 4)
-		name = name + "11" + flat[global_flatplus];
+		name = name + "11" + flat[globalFlatPlus];
 	if (((s11 == 4) || (s11 == 6)) && (s13 != -1))
 		name = name + "/";
 
@@ -89,9 +89,9 @@ ChordListItem::ChordListItem(int _tonic, int _bass, int s3, int s5, int s7,
 	if (s13 == 9)
 		name = name + "13";
 	if (s13 == 10)
-		name = name + "13" + sharp[global_flatplus];
+		name = name + "13" + sharp[globalFlatPlus];
 	if (s13 == 8)
-		name = name + "13" + flat[global_flatplus];
+		name = name + "13" + flat[globalFlatPlus];
 
 	if (s3 == 2)
 		name = name + "sus2";

@@ -40,20 +40,20 @@ private slots:
 
     void updateStatusBar();
 
-    void setMainTB()  {global_showMainTB = !(global_showMainTB); updateTbMenu(); };
-    void setEditTB()  {global_showEditTB = !(global_showEditTB); updateTbMenu(); };
+    void setMainTB()  {globalShowMainTB = !(globalShowMainTB); updateTbMenu(); };
+    void setEditTB()  {globalShowEditTB = !(globalShowEditTB); updateTbMenu(); };
 
-    void setUSsharp() { global_notenames = 0; updateMenu(); };
-    void setUSflats() { global_notenames = 1; updateMenu(); };
-    void setUSmixed() { global_notenames = 2; updateMenu(); };
+    void setUSsharp() { globalNoteNames = 0; updateMenu(); };
+    void setUSflats() { globalNoteNames = 1; updateMenu(); };
+    void setUSmixed() { globalNoteNames = 2; updateMenu(); };
 
-    void setEUsharp() { global_notenames = 3; updateMenu(); };
-    void setEUflats() { global_notenames = 4; updateMenu(); };
-    void setEUmixed() { global_notenames = 5; updateMenu(); };
+    void setEUsharp() { globalNoteNames = 3; updateMenu(); };
+    void setEUflats() { globalNoteNames = 4; updateMenu(); };
+    void setEUmixed() { globalNoteNames = 5; updateMenu(); };
 
-    void setJZsharp() { if (jazzWarning()) { global_notenames = 6; updateMenu(); } };
-    void setJZflats() { if (jazzWarning()) { global_notenames = 7; updateMenu(); } };
-    void setJZmixed() { if (jazzWarning()) { global_notenames = 8; updateMenu(); } };
+    void setJZsharp() { if (jazzWarning()) { globalNoteNames = 6; updateMenu(); } };
+    void setJZflats() { if (jazzWarning()) { globalNoteNames = 7; updateMenu(); } };
+    void setJZmixed() { if (jazzWarning()) { globalNoteNames = 8; updateMenu(); } };
 
 private:
     void updateMenu();
