@@ -63,7 +63,7 @@ SetTrack::SetTrack(TabTrack *trk, QWidget *parent = 0, const char *name = 0)
 	//	bank->setDisabled(isBrowserView);
 	patch->setValue(trk->patch);
 	//	patch->setDisabled(isBrowserView);
-	mode->setCurrentItem(trk->trackmode());
+	mode->setCurrentItem(trk->trackMode());
 	//	mode->setDisabled(isBrowserView);
 	connect(mode, SIGNAL(highlighted(int)), SLOT(selectTrackMode(int)));
 
@@ -79,7 +79,7 @@ SetTrack::SetTrack(TabTrack *trk, QWidget *parent = 0, const char *name = 0)
 	addTab(modespec, i18n("&Mode-specific"));
 
 	// Fill tab with information
-	selectTrackMode(trk->trackmode());
+	selectTrackMode(trk->trackMode());
 
 	// Buttons
 
@@ -117,4 +117,8 @@ void SetTrack::selectDrum()
     modespec = new SetTabDrum(this);
 	addTab(modespec, i18n("&Mode-specific"));
 	SetTabDrum *drum = (SetTabDrum *) modespec;
+
+	drum->setDrums(track->string);
+	for (int i = 0; i < track->string; i++)
+		drum->setTune(i, track->tune[i]);
 }
