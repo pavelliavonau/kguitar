@@ -6,6 +6,7 @@
 #include <kparts/factory.h>
 
 #include <kaction.h>
+#include <kcommand.h>
 
 #include "songview.h"
 
@@ -94,6 +95,7 @@ private:
 
     // parentWidget
     QWidget *p;
+	KCommandHistory* m_cmdHist;
 
 protected:
     // reimplemented from ReadWritePart
