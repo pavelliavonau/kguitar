@@ -27,14 +27,13 @@ protected:
 /*     void         mouseHandle(const QPoint &pos, bool domute); */
 
 private:
-    enum { SCALE=20, CIRCLE=16, CIRCBORD=2, BORDER=5, SPACER=3, FRETTEXT=10 };
+    enum { SCALE=6, CIRCLE=4, CIRCBORD=1, BORDER=1, SPACER=1, FRETTEXT=5 };
     
     int num,perRow;
     int appl[100][MAX_STRINGS];
 
     int current;
     int numstr;
-    int firstFret;
 };
 
 #endif
