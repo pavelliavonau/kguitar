@@ -323,9 +323,8 @@ bool TabSong::save_to_mid(QString fileName)
 // Quick & easy centered text writing function
 void TabSong::writeCentered(QTextStream *s, QString l)
 {
-    for (int i=0;i<(twidth-(int) l.length())/2;i++) {
+    for (int i=0;i<(twidth-(int) l.length())/2;i++)
 	(*s) << ' ';
-    }
     (*s) << l << '\n';
 }
 
