@@ -31,11 +31,66 @@ void TabTrack::removeColumn(uint n)
     c.resize(c.size()-1);
 }
 
+//////////////////////////////////////////////////////////////////////
+//
+// Okay, down below is the probably the *messiest* and the *ugliest*
+// code in the whole program. It's not for the faint of heart. It's
+// really hard to understand (I doubt if I understand it myself), but
+// it should work. If you'll proceed, please read it and think of
+// any way of improving it...
+//
+//////////////////////////////////////////////////////////////////////
+
+
+
+// Well, if you insist on reading... Then try...
+
+
+
+#define ADD_NEW_COLUMN(value);                                  \
+        toput = value;						\
+	while (toput>0) {					\
+	    if (toput>=720) {					\
+		dot = TRUE;  ln = 480; toput -= 720;		\
+	    } else if (toput>=480) {				\
+		dot = FALSE; ln = 480; toput -= 480;		\
+	    } else if (toput>=360) {				\
+		dot = TRUE;  ln = 240; toput -= 360;		\
+	    } else if (toput>=240) {				\
+		dot = FALSE; ln = 240; toput -= 240;		\
+	    } else if (toput>=180) {				\
+		dot = TRUE;  ln = 120; toput -= 180;		\
+	    } else if (toput>=120) {				\
+		dot = FALSE; ln = 120; toput -= 120;		\
+	    } else if (toput>=90) {				\
+		dot = TRUE;  ln = 60; toput -= 90;		\
+	    } else if (toput>=60) {				\
+		dot = FALSE; ln = 60; toput -= 60;		\
+	    } else if (toput>=45) {				\
+		dot = TRUE;  ln = 30; toput -= 45;		\
+	    } else if (toput>=30) {				\
+		dot = FALSE; ln = 30; toput -= 30;		\
+	    } else if (toput>=23) {				\
+		dot = TRUE;  ln = 15; toput -= 23;		\
+	    } else if (toput>=15) {				\
+		dot = FALSE; ln = 15; toput -= 15;		\
+	    }							\
+	    i++;						\
+            c.resize(i); c[i-1] = an[nn]; c[i-1].l = ln;	\
+	    if (dot)  c[i-1].flags |= FLAG_DOT;			\
+	    if (!firstnote) {					\
+                c[i-1].flags |= FLAG_ARC;			\
+		for (uint k=0;k<MAX_STRINGS;k++)		\
+		    c[i-1].a[k]=-1;				\
+            }							\
+	    firstnote = FALSE;					\
+	}
+
 void TabTrack::arrangeBars()
 {
     int barlen = 480 * b[0].time1 / b[0].time2;
     int barnum = 1;
-    int cl = 0;                         // Current length
+    uint cl = 0;                        // Current length
 
     // COLLECT ALL NOTES INFORMATION
 
@@ -62,75 +117,41 @@ void TabTrack::arrangeBars()
     i = 0;
     uint ln;
     uint cbl;
+    uint toput;
     bool firstnote = TRUE, dot = FALSE;
+
+    cbl = barlen;
+    b[0].start = 0;
+    barnum = 0;
 
     for (nn=0;nn<an.size();nn++) {
 	cl = an[nn].l;
 	firstnote = TRUE;
-	cbl = 480;
 
-//	while (cbl>0) {
-//	    printf("New bar...\n");
-	    while (cl>0) {
-		if (cl>=720) {
-		    dot = TRUE;  ln = 480; cl -= 720;
-		} else if (cl>=480) {
-		    dot = FALSE; ln = 480; cl -= 480;
-		} else if (cl>=360) {
-		    dot = TRUE;  ln = 240; cl -= 360;
-		} else if (cl>=240) {
-		    dot = FALSE; ln = 240; cl -= 240;
-		} else if (cl>=180) {
-		    dot = TRUE;  ln = 120; cl -= 180;
-		} else if (cl>=120) {
-		    dot = FALSE; ln = 120; cl -= 120;
-		} else if (cl>=90) {
-		    dot = TRUE;  ln = 60; cl -= 90;
-		} else if (cl>=60) {
-		    dot = FALSE; ln = 60; cl -= 60;
-		} else if (cl>=45) {
-		    dot = TRUE;  ln = 30; cl -= 45;
-		} else if (cl>=30) {
-		    dot = FALSE; ln = 30; cl -= 30;
-		} else if (cl>=23) {
-		    dot = TRUE;  ln = 15; cl -= 23;
-		} else if (cl>=15) {
-		    dot = FALSE; ln = 15; cl -= 15;
-		}
-		
-		i++;
-		printf("Col %d, duration: %d",i,ln);
-		if (dot)  printf(", dotted");
-		if (!firstnote)  printf(", arc");
-		printf("\n");
-		firstnote = FALSE;
+	while (cl>0) {
+	    if (cl<cbl) {
+		ADD_NEW_COLUMN(cl);
+		cbl -= cl;
+		cl = 0;
+	    } else {
+		ADD_NEW_COLUMN(cbl);
+		cl -= cbl;
+		cbl = barlen;
+
+		barnum++;
+		b.resize(barnum+1);
+		b[barnum].start = i;
+		// GREYFIX - preserve other possible time signatures
+		b[barnum].time1 = b[barnum-1].time1;
+		b[barnum].time2 = b[barnum-1].time2;
+		if ((b[barnum].time1 != b[barnum-1].time1) ||
+		    (b[barnum].time2 != b[barnum-1].time2))
+		    b[barnum].showsig=TRUE;
+		else 
+		    b[barnum].showsig=FALSE;
 	    }
-    }
-
-    cl = 0;
-    b[0].start = 0;
-
-    for (uint i=0;i<c.size();i++) {
-	cl += c[i].l;
-
-	if (c[i].flags & FLAG_DOT)      // Dotted are 1.5 times larger
-	    cl += c[i].l/2;
-
-	if (cl>barlen) {
-	    b.resize(barnum+1);
-	    b[barnum].start = i;
-	    // GREYFIX - preserve other possible time signatures
-	    b[barnum].time1 = b[barnum-1].time1;
-	    b[barnum].time2 = b[barnum-1].time2;
-
-	    if ((b[barnum].time1 != b[barnum-1].time1) ||
-		(b[barnum].time2 != b[barnum-1].time2))
-		b[barnum].showsig=TRUE;
-	    else 
-		b[barnum].showsig=FALSE;
-
-	    barnum++;
-	    cl-=barlen;
 	}
     }
+
+    // All should be done now.
 }
