@@ -23,7 +23,6 @@ private:
     QListBox *tonic,*step3; 
     QListBox *chords;
     Fingering *fng;
-    QScrollBar *firstFret;
     FingerList *fnglist;
 };
 
