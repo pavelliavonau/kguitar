@@ -21,15 +21,17 @@ typedef enum {
 // 30  = 16th
 // 15  = 32nd
 
-class TabColumn
-{
-public:
-    TabColumn() { for (int i=0;i<MAX_STRINGS;i++) {a[i]=-1;e[i]=0;};l=120; };
-
+typedef struct {
     uint l;                             // Duration of note or chord
     char a[MAX_STRINGS];                // Number of fret
     char e[MAX_STRINGS];                // Effect parameter
-};
+} TabColumn;
+
+typedef struct {
+    uint start;                         // Starting column
+    uchar time1,time2;                  // Time signature
+    bool showsig;                       // Show time signature
+} TabBar;
 
 class TabTrack
 {
@@ -37,11 +39,12 @@ public:
     TabTrack(TrackMode _tm, QString _name, int _channel,
 	     int _bank, uchar _patch, uchar _string, uchar _frets);
 
-    QList<TabColumn> c;                 // Tab columns
+    QArray<TabColumn> c;                // Array of columns
+    QArray<TabBar> b;                   // Array of bars
 
     uchar string;                       // Number of strings
     uchar frets;                        // Number of frets
-    uchar tune[MAX_STRINGS] ;           // Tuning, if appicable
+    uchar tune[MAX_STRINGS];            // Tuning, if appicable
 
     TrackMode trackmode() { return tm; }
 
@@ -53,8 +56,9 @@ public:
 
     QString name;                       // Track text name
 
-//    int x;                              // Current tab col
-    int y;                              // Current tab row
+    uint x;                             // Current tab column
+    uint xb;                            // Current tab bar
+    uint y;                             // Current tab string
 private:
     TrackMode tm;                       // Track mode
 };
