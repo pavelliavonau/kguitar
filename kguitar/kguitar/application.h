@@ -31,12 +31,16 @@ private slots:
 	void exportTEXNOTES();
     void print();
     void closeDoc();
+    void appQuit();
     void inschord();
     void songProperties();
     void trackProperties();
     void options();
 
     void updateStatusBar();
+
+    void setMainTB()  {global_showMainTB = !(global_showMainTB); updateTbMenu(); };
+    void setEditTB()  {global_showEditTB = !(global_showEditTB); updateTbMenu(); };
 
     void setUSsharp() { global_notenames = 0; updateMenu(); };
     void setUSflats() { global_notenames = 1; updateMenu(); };
@@ -52,13 +56,14 @@ private slots:
 
 private:
     void updateMenu();
+    void updateTbMenu();
     bool jazzWarning();
 
     QPrinter *printer;
     TrackView *tv;
     KToolBar *fileTools;
-    QPopupMenu *nnMenu;
-    int ni[9];
+    QPopupMenu *nnMenu, *tbMenu;
+    int ni[9], tb[2];
 
     // Status bar labels
     QLabel *s_bar;

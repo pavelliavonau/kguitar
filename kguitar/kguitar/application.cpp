@@ -31,13 +31,26 @@
 
 // Global variables - real declarations
 
+// General
 int global_maj7;
 int global_flatplus;
 int global_notenames;
+
+// MusiXTeX
 int global_tabsize;
 bool global_showbarnumb;
 bool global_showstr;
 bool global_showpagenumb;
+
+// Appearance
+bool global_showMainTB;
+bool global_showEditTB;
+int global_mainTBPos;
+int global_editTBPos;
+int global_mainWinWidth;
+int global_mainWinHeight;
+int global_mainWinX;
+int global_mainWinY;
 
 ApplicationWindow::ApplicationWindow(): KTMainWindow()
 {
@@ -53,38 +66,50 @@ ApplicationWindow::ApplicationWindow(): KTMainWindow()
 	setView(tv);
 	tv->setFocus();
 
-	// SET UP TOOLBAR
+	setGeometry(global_mainWinX, global_mainWinY, 
+				global_mainWinWidth, global_mainWinHeight);
 
-	toolBar()->insertButton(Icon("filenew.xpm"),1,SIGNAL(clicked()),this,SLOT(newDoc()),TRUE,i18n("New document"));
-	toolBar()->insertButton(Icon("fileopen.xpm"),1,SIGNAL(clicked()),this,SLOT(load()),TRUE,i18n("Open a file"));
-	toolBar()->insertButton(Icon("filefloppy.xpm"),1,SIGNAL(clicked()),this,SLOT(save()),TRUE,i18n("Save a file"));
-	toolBar()->insertButton(Icon("fileprint.xpm"),1,SIGNAL(clicked()),this,SLOT(print()),TRUE,i18n("Print"));
+	// SET UP TOOLBAR
+	// MainToolBar
+	toolBar()->insertButton(Icon("filenew.xpm"),1,SIGNAL(clicked()),
+							this,SLOT(newDoc()),TRUE,i18n("New document"));
+	toolBar()->insertButton(Icon("fileopen.xpm"),1,SIGNAL(clicked()),
+							this,SLOT(load()),TRUE,i18n("Open a file"));
+	toolBar()->insertButton(Icon("filefloppy.xpm"),1,SIGNAL(clicked()),
+							this,SLOT(save()),TRUE,i18n("Save a file"));
+	toolBar()->insertButton(Icon("fileprint.xpm"),1,SIGNAL(clicked()),
+							this,SLOT(print()),TRUE,i18n("Print"));
 	toolBar()->insertSeparator();
-	toolBar()->insertButton(Icon("chord.xpm"),1,SIGNAL(clicked()),
+
+	//EditToolBar
+	toolBar(1)->insertButton(Icon("chord.xpm"),1,SIGNAL(clicked()),
 							this,SLOT(inschord()),TRUE,i18n("Insert chord"));
-	toolBar()->insertButton(Icon("note1.xpm"),1,SIGNAL(clicked()),
+	toolBar(1)->insertButton(Icon("note1.xpm"),1,SIGNAL(clicked()),
 							tv,SLOT(setLength1()),TRUE,i18n("Whole"));
-	toolBar()->insertButton(Icon("note2.xpm"),1,SIGNAL(clicked()),
+	toolBar(1)->insertButton(Icon("note2.xpm"),1,SIGNAL(clicked()),
 							tv,SLOT(setLength2()),TRUE,"1/2");
-	toolBar()->insertButton(Icon("note4.xpm"),1,SIGNAL(clicked()),
+	toolBar(1)->insertButton(Icon("note4.xpm"),1,SIGNAL(clicked()),
 							tv,SLOT(setLength4()),TRUE,"1/4");
-	toolBar()->insertButton(Icon("note8.xpm"),1,SIGNAL(clicked()),
+	toolBar(1)->insertButton(Icon("note8.xpm"),1,SIGNAL(clicked()),
 							tv,SLOT(setLength8()),TRUE,"1/8");
-	toolBar()->insertButton(Icon("note16.xpm"),1,SIGNAL(clicked()),
+	toolBar(1)->insertButton(Icon("note16.xpm"),1,SIGNAL(clicked()),
 							tv,SLOT(setLength16()),TRUE,"1/16");
-	toolBar()->insertButton(Icon("note32.xpm"),1,SIGNAL(clicked()),
+	toolBar(1)->insertButton(Icon("note32.xpm"),1,SIGNAL(clicked()),
 							tv,SLOT(setLength32()),TRUE,"1/32");
-	toolBar()->insertButton(Icon("timesig.xpm"),1,SIGNAL(clicked()),
+	toolBar(1)->insertButton(Icon("timesig.xpm"),1,SIGNAL(clicked()),
 							tv,SLOT(timeSig()),TRUE,i18n("Time signature"));
-	toolBar()->insertButton(Icon("arc.xpm"),1,SIGNAL(clicked()),
+	toolBar(1)->insertButton(Icon("arc.xpm"),1,SIGNAL(clicked()),
 							tv,SLOT(linkPrev()),TRUE,i18n("Link with previous column"));
-	toolBar()->insertButton(Icon("fx-legato.xpm"),1,SIGNAL(clicked()),
+	toolBar(1)->insertButton(Icon("fx-legato.xpm"),1,SIGNAL(clicked()),
 							tv,SLOT(addLegato()),TRUE,i18n("Legato (hammer on/pull off)"));
-	toolBar()->insertButton(Icon("fx-harmonic.xpm"),1,SIGNAL(clicked()),
+	toolBar(1)->insertButton(Icon("fx-harmonic.xpm"),1,SIGNAL(clicked()),
 							tv,SLOT(addHarmonic()),TRUE,i18n("Natural harmonic"));
-	toolBar()->insertButton(Icon("fx-harmonic.xpm"),1,SIGNAL(clicked()),
+	toolBar(1)->insertButton(Icon("fx-harmonic.xpm"),1,SIGNAL(clicked()),
 							tv,SLOT(addArtHarm()),TRUE,i18n("Artificial harmonic"));
 	
+	toolBar()->setBarPos(KToolBar::BarPosition(global_mainTBPos));
+	toolBar(1)->setBarPos(KToolBar::BarPosition(global_editTBPos));
+
 	// SET UP MAIN MENU
 
 	QPopupMenu *p = new QPopupMenu();
@@ -110,7 +135,7 @@ ApplicationWindow::ApplicationWindow(): KTMainWindow()
 	p->insertItem(i18n("&Print..."), this, SLOT(print()));
 	p->insertSeparator();
 	p->insertItem(i18n("&Close"), this, SLOT(closeDoc()));
-	p->insertItem(i18n("&Quit"), qApp, SLOT(quit()));
+	p->insertItem(i18n("&Quit"), this, SLOT(appQuit())); //qApp, SLOT(quit()));
 	menuBar()->insertItem(i18n("&File"), p);
 
 	p = new QPopupMenu();
@@ -123,6 +148,15 @@ ApplicationWindow::ApplicationWindow(): KTMainWindow()
 
 	p = new QPopupMenu();
 	p->insertItem(i18n("&General..."), this, SLOT(options()));
+
+	tbMenu = new QPopupMenu();
+	tb[0] = tbMenu->insertItem(i18n("Main Toolbar"), this, SLOT(setMainTB()));
+	tb[1] = tbMenu->insertItem(i18n("Edit Toolbar"), this, SLOT(setEditTB()));
+
+	tbMenu->setCheckable(TRUE);
+	updateTbMenu();
+
+	p->insertItem(i18n("Show Toolbars..."), tbMenu);
 
 	nnMenu = new QPopupMenu();
 	ni[0] = nnMenu->insertItem(i18n("American, sharps"), this, SLOT(setUSsharp()));
@@ -168,6 +202,31 @@ void ApplicationWindow::updateMenu()
 	for (int i = 0; i < 9; i++)
 		nnMenu->setItemChecked(ni[i], i == global_notenames);
 	saveOptions();
+}
+
+void ApplicationWindow::updateTbMenu()
+{
+	tbMenu->setItemChecked(tb[0], global_showMainTB);
+	tbMenu->setItemChecked(tb[1], global_showEditTB);
+	saveOptions();
+
+	if (global_showMainTB)
+		toolBar()->show();
+	else
+		toolBar()->hide();
+
+	if (global_showEditTB)
+		toolBar(1)->show();
+	else
+		toolBar(1)->hide();
+
+	int  w, h;
+	w = width();
+	h = height();
+	w += 2;
+	resize(w, h);
+	w -=2;          // ALINXFIX: is there a better way?
+	resize(w, h);
 }
 
 void ApplicationWindow::updateStatusBar()
@@ -310,6 +369,12 @@ void ApplicationWindow::closeDoc()
 	close(TRUE); // close AND DELETE!
 }
 
+void ApplicationWindow::appQuit()
+{
+	saveOptions();
+	closeDoc(); //ALINXFIX: exit(0) is impossible, because options will not be saved
+}
+
 void ApplicationWindow::inschord()
 {
 	int a[MAX_STRINGS];
@@ -416,6 +481,16 @@ void ApplicationWindow::readOptions()
 	global_showbarnumb = kapp->getConfig()->readBoolEntry("showbarnumb", TRUE);
 	global_showstr = kapp->getConfig()->readBoolEntry("showstr", TRUE);
 	global_showpagenumb = kapp->getConfig()->readBoolEntry("showpagenumb", TRUE);
+
+	kapp->getConfig()->setGroup("Appearance");
+	global_showMainTB = kapp->getConfig()->readBoolEntry("showMainTB", TRUE);
+	global_showEditTB = kapp->getConfig()->readBoolEntry("showEditTB", TRUE);
+	global_mainTBPos = kapp->getConfig()->readNumEntry("mainTBPos", 0);
+	global_editTBPos = kapp->getConfig()->readNumEntry("editTBPos", 0);
+	global_mainWinWidth = kapp->getConfig()->readNumEntry("mainWinWidth",400);
+	global_mainWinHeight = kapp->getConfig()->readNumEntry("mainWinHeight", 240);
+	global_mainWinX = kapp->getConfig()->readNumEntry("mainWinX",10);
+	global_mainWinY = kapp->getConfig()->readNumEntry("mainWinX", 10);
 }
 
 void ApplicationWindow::saveOptions()
@@ -430,4 +505,14 @@ void ApplicationWindow::saveOptions()
 	kapp->getConfig()->writeEntry("showbarnumb", global_showbarnumb);
 	kapp->getConfig()->writeEntry("showstr", global_showstr);
 	kapp->getConfig()->writeEntry("showpagenumb", global_showpagenumb);
+
+	kapp->getConfig()->setGroup("Appearance");
+	kapp->getConfig()->writeEntry("showMainTB", global_showMainTB);
+	kapp->getConfig()->writeEntry("showEditTB", global_showEditTB);
+	kapp->getConfig()->writeEntry("mainTBPos", toolBar()->barPos());
+	kapp->getConfig()->writeEntry("editTBPos", toolBar(1)->barPos());
+	kapp->getConfig()->writeEntry("mainWinWidth", width());
+	kapp->getConfig()->writeEntry("mainWinHeight", height());
+	kapp->getConfig()->writeEntry("mainWinX", x());
+	kapp->getConfig()->writeEntry("mainWinY", y());
 }
