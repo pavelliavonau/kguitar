@@ -44,19 +44,6 @@ public:
 #ifdef WITH_TSE3
 	TSE3::Song *midiSong(bool tracking = FALSE);
 #endif
-
-	bool loadFromGtp(QString fileName);		// Guitar Pro format
-	bool saveToGtp(QString fileName);
-	bool loadFromGp3(QString fileName);		// Guitar Pro 3 format
-	bool saveToGp3(QString fileName);
-
-private:
-	Q_UINT32 readVarLen(QDataStream *s);
-	void writeVarLen(QDataStream *s, uint value);
-	void writeTempo(QDataStream *s, uint value);
-
-	void readDelphiString(QDataStream *s, char *c);
-	int readDelphiInteger(QDataStream *s);
 };
 
 #endif
