@@ -158,6 +158,11 @@ ChordSelector::ChordSelector(QWidget *parent=0, const char *name=0)
     setFixedSize(600,400);
 }
 
+int ChordSelector::app(int l)
+{
+    return fng->app(l);
+}
+
 // Standard tuning
 //int tune[6] = {64,59,55,50,45,40};
 int tune[6]={40,45,50,55,59,64};
