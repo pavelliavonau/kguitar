@@ -3,6 +3,7 @@
 #include "tabtrack.h"
 
 #include <kdebug.h>
+#ifdef WITH_TSE3
 
 PlaybackTracker::PlaybackTracker(SongView *_sv): TransportCallback()
 {
@@ -23,3 +24,4 @@ void PlaybackTracker::Transport_MidiOut(TSE3::MidiCommand c)
 }
 
 void PlaybackTracker::Transport_MidiIn(TSE3::MidiCommand) {}
+#endif
