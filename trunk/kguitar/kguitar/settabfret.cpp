@@ -25,6 +25,7 @@ SetTabFret::SetTabFret(QWidget *parent=0, const char *name=0):
 
     st = new QSpinBox(1,MAX_STRINGS,1,this);
     connect(st,SIGNAL(valueChanged(int)),SLOT(stringChanged(int)));
+    connect(st,SIGNAL(valueChanged(int)),SLOT(tuneChanged()));
 
     QLabel *st_l = new QLabel(i18n("Strings:"),this);
     st_l->setGeometry(10,50,50,20);
@@ -34,18 +35,27 @@ SetTabFret::SetTabFret(QWidget *parent=0, const char *name=0):
     QLabel *fr_l = new QLabel(i18n("Frets:"),this);
     fr_l->setGeometry(140,50,50,20);
 
+    st->setGeometry(80,50,40,20);
+    fr->setGeometry(190,50,40,20);
+
     // Tuners
 
-    for (int i=0;i<MAX_STRINGS;i++)
+    for (int i=0;i<MAX_STRINGS;i++) {
 	tuner[i] = new RadiusTuner(this);
+	connect(tuner[i],SIGNAL(valueChanged(int)),SLOT(tuneChanged()));
+    }
     oldst=MAX_STRINGS;
 }
 
 void SetTabFret::setLibTuning(int n)
 {
-    st->setValue(lib_tuning[n].strings);
-    for (int i=0;i<lib_tuning[n].strings;i++)
-	tuner[i]->setValue(lib_tuning[n].shift[i]);
+    if (n!=0) {
+	st->setValue(lib_tuning[n].strings);
+	for (int i=0;i<lib_tuning[n].strings;i++)
+	    tuner[i]->setValue(lib_tuning[n].shift[i]);
+    } else {
+	tuneChanged();
+    }
 }
 
 void SetTabFret::stringChanged(int n)
@@ -64,15 +74,39 @@ void SetTabFret::stringChanged(int n)
 
     // GREYFIX: Maximum operation. Unportable?
     setMinimumSize(330 >? 20+RADTUNER_W*n,90+RADTUNER_H);
-    resize(width(),height());
+    reposTuners();
+}
+
+void SetTabFret::tuneChanged()
+{
+    int found = 0;
+
+    for (int i=1;lib_tuning[i].strings;i++) {
+	if (lib_tuning[i].strings!=st->value())
+	    continue;
+	bool ok = TRUE;
+	for (int j=0;j<lib_tuning[i].strings;j++)
+	    if (tuner[j]->value()!=lib_tuning[i].shift[j]) {
+		ok = FALSE;
+		break;
+	    }
+	if (ok) {
+	    found = i;
+	    break;
+	}
+    }
+
+    lib->setCurrentItem(found);
 }
 
 void SetTabFret::resizeEvent(QResizeEvent *e)
 {
     lib->setGeometry(80,20,width()-110,20);
-    st->setGeometry(80,50,40,20);
-    fr->setGeometry(190,50,40,20);
+    reposTuners();
+}
 
+void SetTabFret::reposTuners()
+{
     int s = st->value();                // Current number of tuners
 
     int tw = (width()-20)/s;            // Width of one tuner

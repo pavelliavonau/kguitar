@@ -25,9 +25,11 @@ public:
 public slots:
     void setLibTuning(int n);
     void stringChanged(int n);
+    void tuneChanged();
 
 private:
     virtual void resizeEvent(QResizeEvent *e);
+    void reposTuners();
 
     QComboBox *lib;
     QSpinBox *st,*fr;
