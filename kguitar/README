@@ -2,7 +2,7 @@
 					   A KDE tabulature editor
 
 				 (C) 2000 by KGuitar development team
-	Current coordinator - GreyCat <GreyCat@users.sourceforge.net>
+	 Current maintainer - GreyCat <GreyCat@users.sourceforge.net>
 
 KGuitar is basically a guitar tabulature editor for K Desktop
 Environment. It's much more than just a tab editor. It's features are:
@@ -32,7 +32,7 @@ everything stated. However, it already features a nice tabulature
 editor, though not ultimately powerful, loading/saving its own format (kg
 files) and all the chord construction tools.
 
-As the KDE style docs aren't available, I'd try to give some
+As the KDE style docs are still not available, I'd try to give some
 directions on usage of KGuitar here:
 
 MAIN WINDOW
@@ -49,8 +49,6 @@ in this release, so it won't hurt to learn these keys:
 Left, Right - move the cursor on previous/next column;
 
 Up, Down - move the cursor on previous/next string;
-
-W - reWind the cursor to the first column (cakewalk-style);
 
 Number keys - edit the fret number in cursor position. To enter simple
 one-digited fret number just press the apropriate key. To enter
@@ -93,9 +91,12 @@ current column. Sounds complex, but that's really just links the
 column with previous one to make possible durations like 5/16 (1/4 as
 4/16 and 1/16 linked to it).
 
-A - reArrange bars, according to specified time signature. It splits
-the columns when needed and joins them where possible to simplify the
-notation (for example, 1/4 and 1/4 will be joined into single 1/2).
+Shift+A - reArrange bars, according to specified time signature. It
+splits the columns when needed and joins them where possible to
+simplify the notation (for example, 1/4 and 1/4 will be joined into
+single 1/2).
+
+Shift+C - insert chord, starts a chord construction dialog, look below.
 
 That were the basic editing tools. That's enough to create pretty
 complex tabs.
@@ -140,6 +141,19 @@ editor.
 Using chord analyzer is even simplier. Just set the fingering using
 the big chord diagram and instantly get the result in the box near
 it. It would read all somewhat reasonable naming of a given chord.
+
+Also, for a quick creation of pretty complex rhythms, there is a
+support for so-called strumming schemes. It's nothing more than just a
+pre-defined pattern that states how a given chord should be played,
+what strings picked and what's the notes duration should be.
+
+Let's demonstrate on a small example. The famous song's "House of the
+Rising Sun" chord progression is Am-C-D-F. If you want to tab this
+song really fast, just set the 3:4 size, and call the chord
+constructor. Select an Am chord first, then select a "Smooth arpegio"
+from the list of strummings and just press "OK". You'll get a properly
+picked Am chord instantly. Proceed with C, D and F chords in the same
+way and you'll get the pretty good-sounding first line of the song.
 
 SONG PROPERTIES
 ===============
