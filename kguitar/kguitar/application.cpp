@@ -608,7 +608,7 @@ void KGuitarPart::configKeys()
 
 void KGuitarPart::readOptions()
 {
-	KConfig *config = kapp->config();
+	KConfig *config = KGuitarFactory::instance()->config();
 
 	config->setGroup("General");
 	globalMaj7 = config->readNumEntry("Maj7", 0);
@@ -629,7 +629,7 @@ void KGuitarPart::readOptions()
 
 void KGuitarPart::saveOptions()
 {
-	KConfig *config = kapp->config();
+	KConfig *config = KGuitarFactory::instance()->config();
 
 	config->setGroup("General");
 	config->writeEntry("Maj7", globalMaj7);
