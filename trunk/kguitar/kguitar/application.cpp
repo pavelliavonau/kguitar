@@ -31,20 +31,18 @@ ApplicationWindow::ApplicationWindow(): KTMainWindow()
     printer->setMinMax( 1, 10 );
     QPixmap openIcon, saveIcon, printIcon, chordIcon;
 
-    fileTools = new KToolBar( this, "file operations" );
-
     openIcon = QPixmap(fileopen);
     saveIcon = QPixmap(filesave);
     printIcon = QPixmap(fileprint);
     chordIcon = QPixmap(chord_xpm);
 
-    fileTools->insertButton(openIcon,1);
-    fileTools->insertButton(saveIcon,2);
-    fileTools->insertButton(printIcon,3);
-    fileTools->insertButton(chordIcon,4);
+    toolBar()->insertButton(openIcon,1,SIGNAL(clicked()),this,SLOT(load()),TRUE,"Open file");
+    toolBar()->insertButton(saveIcon,1,SIGNAL(clicked()),this,SLOT(save()),TRUE,"Save file");
+    toolBar()->insertButton(printIcon,1,SIGNAL(clicked()),this,SLOT(print()),TRUE,"Print tabulature");
+    toolBar()->insertButton(chordIcon,1,SIGNAL(clicked()),this,SLOT(inschord()),TRUE,"Insert chord");
     
     QPopupMenu * file = new QPopupMenu();
-    menuBar()->insertItem("&File", file );
+    menuBar()->insertItem("&File", file);
 
     file->insertItem( "New", this, SLOT(newDoc()), CTRL+Key_N );
     file->insertItem( openIcon, "Open", this, SLOT(load()), CTRL+Key_O );
@@ -74,6 +72,8 @@ ApplicationWindow::ApplicationWindow(): KTMainWindow()
     controls->setItemChecked( mb, TRUE );
     controls->setItemChecked( tb, TRUE );
     controls->setItemChecked( sb, TRUE );
+
+//     menuBar()->insertItem("&Help",getHelpMenu(FALSE,"Something"));
 
 //     e = new QMultiLineEdit( this, "editor" );
 //     e->setFocus();
@@ -194,11 +194,11 @@ void ApplicationWindow::toggleMenuBar()
 
 void ApplicationWindow::toggleToolBar()
 {
-    if ( fileTools->isVisible() ) {
-	fileTools->hide();
+    if ( toolBar()->isVisible() ) {
+	toolBar()->hide();
 	controls->setItemChecked( tb, FALSE );
     } else {
-	fileTools->show();
+	toolBar()->show();
 	controls->setItemChecked( tb, TRUE );
     }
 }
