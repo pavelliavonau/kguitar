@@ -2,7 +2,7 @@
 
 #include "trackview.h"
 #include "chord.h"
-#include "track.h"
+#include "tabsong.h"
 #include "setsong.h"
 #include "settrack.h"
 #include "settabfret.h"
