@@ -397,29 +397,29 @@ bool KGuitarPart::saveFile()
 
 	if (ext == "kg") {
 		sv->tv->arrangeBars(); // GREYFIX !
-		success = sv->sng()->save_to_kg(m_file);
+		success = sv->sng()->saveToKg(m_file);
 	}
 	if (ext == "tab")
-		success = sv->sng()->save_to_tab(m_file);
+		success = sv->sng()->saveToTab(m_file);
 #ifdef WITH_TSE3
 	if (ext == "mid")
-		success = sv->sng()->save_to_mid(m_file);
+		success = sv->sng()->saveToMid(m_file);
 	if (ext == "tse3")
-		success = sv->sng()->save_to_tse3(m_file);
+		success = sv->sng()->saveToTse3(m_file);
 #endif
 	if (ext == "gtp")
-		success = sv->sng()->save_to_gtp(m_file);
+		success = sv->sng()->saveToGtp(m_file);
 	if (ext == "gp3")
-		success = sv->sng()->save_to_gp3(m_file);
+		success = sv->sng()->saveToGp3(m_file);
 	if (ext == "tex") {
 		switch (globalTexExpMode) {
-		case 0: success = sv->sng()->save_to_tex_tab(m_file); break;
-		case 1: success = sv->sng()->save_to_tex_notes(m_file); break;
+		case 0: success = sv->sng()->saveToTexTab(m_file); break;
+		case 1: success = sv->sng()->saveToTexNotes(m_file); break;
 		default: success = FALSE; break;
 		}
 	}
 	if (ext == "xml")
-		success = sv->sng()->save_to_xml(m_file);
+		success = sv->sng()->saveToXml(m_file);
 
 	if (success) {
 		setWinCaption(m_file);
@@ -456,19 +456,19 @@ bool KGuitarPart::openFile()
 	ext = ext.lower();
 
 	if (ext == "kg")
-		success = sv->sng()->load_from_kg(m_file);
+		success = sv->sng()->loadFromKg(m_file);
 	if (ext == "tab")
-		success = sv->sng()->load_from_tab(m_file);
+		success = sv->sng()->loadFromTab(m_file);
 #ifdef WITH_TSE3
 	if (ext == "mid")
-		success = sv->sng()->load_from_mid(m_file);
+		success = sv->sng()->loadFromMid(m_file);
 #endif
 	if (ext == "gtp")
-		success = sv->sng()->load_from_gtp(m_file);
+		success = sv->sng()->loadFromGtp(m_file);
 	if (ext == "gp3")
-		success = sv->sng()->load_from_gp3(m_file);
+		success = sv->sng()->loadFromGp3(m_file);
 	if (ext == "xml")
-		success = sv->sng()->load_from_xml(m_file);
+		success = sv->sng()->loadFromXml(m_file);
 
 	if (success) {
 		setWinCaption(m_file);
