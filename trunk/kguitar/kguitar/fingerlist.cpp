@@ -14,6 +14,11 @@ FingerList::FingerList(QWidget *parent,const char *name): QTableView(parent,name
   repaint();
 }
 
+void FingerList::clear()
+{
+  num=0;
+}
+
 void FingerList::addFingering(const int a[MAX_STRINGS])
 {
   for (int i=0;i<MAX_STRINGS;i++)
