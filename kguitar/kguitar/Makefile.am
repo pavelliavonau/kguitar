@@ -27,11 +27,11 @@ bin_PROGRAMS = kguitar
 kguitar_SOURCES	= application.cpp chord.cpp fingers.cpp fingerlist.cpp \
  main.cpp trackview.cpp setsong.cpp tabsong.cpp tabtrack.cpp settrack.cpp \
  settabfret.cpp radiustuner.cpp notespinbox.cpp options.cpp chordlistitem.cpp \
- chordlist.cpp timesig.cpp strumming.cpp \
+ chordlist.cpp timesig.cpp strumming.cpp filebrowser.cpp\
  application.moc.cpp chord.moc.cpp fingers.moc.cpp fingerlist.moc.cpp \
  trackview.moc.cpp setsong.moc.cpp settrack.moc.cpp settabfret.moc.cpp \
  radiustuner.moc.cpp notespinbox.moc.cpp options.moc.cpp chordlist.moc.cpp \
- timesig.moc.cpp strumming.moc.cpp
+ timesig.moc.cpp strumming.moc.cpp filebrowser.moc.cpp
 
 # the library search path
 kguitar_LDFLAGS = @all_libraries@ @KDE_RPATH@
@@ -43,13 +43,14 @@ kguitar_LDADD  = -lkfm -lkfile -lkdeui -lkdecore -lqt -lX11 -lXext @LIBSOCKET@
 # this option you can leave out. Just, if you use "make dist", you need it
 noinst_HEADERS = application.h chord.h fingers.h fingerlist.h trackview.h \
  setsong.h tabsong.h tabtrack.h settrack.h settabfret.h radiustuner.h \
- notespinbox.h options.h chordlistitem.h chordlist.h timesig.h strumming.h
+ notespinbox.h options.h chordlistitem.h chordlist.h timesig.h strumming.h \
+ filebrowser.h
 
 # just to make sure, automake makes them 
 BUILTSOURCES = application.moc.cpp chord.moc.cpp fingers.moc.cpp \
  fingerlist.moc.cpp trackview.moc.cpp setsong.moc.cpp settrack.moc.cpp \
  settabfret.moc.cpp radiustuner.moc.cpp notespinbox.moc.cpp options.moc.cpp \
- chordlist.moc.cpp timesig.moc.cpp strumming.moc.cpp
+ chordlist.moc.cpp timesig.moc.cpp strumming.moc.cpp filebrowser.moc.cpp
 
 EXTRA_DIST = kguitar.kdelnk kguitar.xpm kguitar-large.xpm kguitar-mini.xpm
 
@@ -76,6 +77,10 @@ install-data-local:
 	$(INSTALL_DATA) kguitar.xpm $(kde_icondir)
 	$(INSTALL_DATA) kguitar-large.xpm $(kde_icondir)/large/kguitar.xpm
 	$(INSTALL_DATA) kguitar-mini.xpm $(kde_minidir)/kguitar.xpm
+	$(mkinstalldirs) $(kde_datadir)/kguitar/pics/
+	$(INSTALL_DATA) scandir.xpm $(kde_datadir)/kguitar/pics/scandir.xpm
+	$(INSTALL_DATA) play.xpm $(kde_datadir)/kguitar/pics/play.xpm
+	$(INSTALL_DATA) exit.xpm $(kde_datadir)/kguitar/pics/exit.xpm
 
 # remove ALL you have installed in install-data-local or install-exec-local
 uninstall-local:
@@ -83,6 +88,9 @@ uninstall-local:
 	-rm -f $(kde_icondir)/kguitar.xpm
 	-rm -f $(kde_minidir)/kguitar.xpm
 	-rm -f $(kde_icondir)/large/kguitar.xpm
+	-rm -f $(kde_datadir)/kguitar/pics/scandir.xpm
+	-rm -f $(kde_datadir)/kguitar/pics/play.xpm
+	-rm -f $(kde_datadir)/kguitar/pics/exit.xpm
 
 # add a dependency for every moc file to be full portable
 application.moc.cpp: application.h
@@ -126,4 +134,7 @@ timesig.moc.cpp: timesig.h
 
 strumming.moc.cpp: strumming.h
 	$(MOC) strumming.h -o strumming.moc.cpp
+
+filebrowser.moc.cpp: filebrowser.h
+	$(MOC) filebrowser.h -o filebrowser.moc.cpp
 
