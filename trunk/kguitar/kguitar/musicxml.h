@@ -74,6 +74,7 @@ private:
 	bool    stRst;				// rest
 	QString stStp;				// step
 	QString stStr;				// string
+	bool    stTie;				// tie stop
 	QString stTyp;				// type
 	// part (== track) -- initialized in initStScorePart()
 	QString stPid;				// ID

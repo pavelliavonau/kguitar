@@ -23,6 +23,12 @@
 // input error reporting
 
 // LVIFIX:
+// slurs work about the same as ties, but:
+// - need to be numbered in case of overlap (?)
+// - only present in <notations>
+// - need to distinguish between slides, hammers and pull-offs
+
+// LVIFIX:
 // add bounds checking on all toInt() results
 // check <score-partwise> (score-timewise is not supported)
 
@@ -267,6 +273,11 @@ bool MusicXMLParser::startElement( const QString&, const QString&,
 	    // re-init staff tuning specific variables
 		initStStaffTuning();
 	    stPtl = attributes.value("line");
+	} else if (qName == "tie") {
+		QString tp = attributes.value("type");
+		if (tp == "stop") {
+			stTie = TRUE;
+		}
 	} else {
 	    // others (silently) ignored
 	}
@@ -371,7 +382,6 @@ bool MusicXMLParser::characters(const QString& ch)
 }
 
 // add a note to the current track
-// LVIFIX: remove debug cout statements
 
 bool MusicXMLParser::addNote()
 {
@@ -388,15 +398,29 @@ bool MusicXMLParser::addNote()
 	unsigned int nno = stNno.toUInt(&ok4);
 	         int alt = stAlt.toInt( &ok5);
 	unsigned int oct = stOct.toUInt(&ok6);
-	int len = mxmlNoteType2Kg(stTyp);
+	int          len = mxmlNoteType2Kg(stTyp);
 
 	// sanity checks
 	if ((trk == NULL) || (len == 0)) {
 		initStNote();
-		return TRUE;		// LVIFIX: how to report error ?
+		return TRUE;			// LVIFIX: how to report error ?
 	}
 
-	// all ok, append note
+	int  nnDur   = len;			// new note duration incl dot/triplet
+	uint nnFlags = 0;			// new note flags
+
+	// handle dot (LVIFIX: more than one not supported by KGuitar)
+    if (stDts) {
+		nnDur = nnDur * 3 / 2;
+	    nnFlags |= FLAG_DOT;
+	}
+
+	// handle triplets
+	if (ok3 && ok4 && (ano == 3) && (nno == 2)) {
+		nnDur = nnDur * 2 / 3;
+		nnFlags |= FLAG_TRIPLET;
+	}
+
 	// append note to current track
 	if (!stCho || (x == 0)) {
 		// single note or first note of track: add a new column
@@ -408,54 +432,63 @@ bool MusicXMLParser::addNote()
 			trk->c[x-1].e[k] = 0;
 		}
 	    trk->c[x-1].l = len;
-		trk->c[x-1].flags = 0;
+		trk->c[x-1].flags = nnFlags;
 	} else {
+
+		// note is part of existing column
+
 		// LVIFIX: as KGuitar does not support notes of different length
 		// in a chord, length is set to the length of the shortest note
-		if (len < trk->c[x-1].l) {
+		// note: use duration of note including dot and triplet
+		//       shortest note also determines column's dot and triplet flag
+
+		int ccDur = trk->c[x-1].l;			// current column duration
+		uint ccFlags = trk->c[x-1].flags;	// current column flags
+		if (ccFlags & FLAG_DOT) {
+			ccDur = ccDur * 3 / 2;
+		}
+		if (ccFlags & FLAG_TRIPLET) {
+			ccDur = ccDur * 2 / 3;
+		}
+		if (nnDur < ccDur) {
 	      trk->c[x-1].l = len;
+		  ccFlags &= ~FLAG_DOT;
+		  ccFlags &= ~FLAG_TRIPLET;
+		  ccFlags |= nnFlags;
+		  trk->c[x-1].flags = ccFlags;
 		}
 	}
-	// handle dot (LVIFIX: more than one not supported by KGuitar)
-    if (stDts) {
-	    trk->c[x-1].flags |= FLAG_DOT;
-	}
-	// handle triplets
-	if (ok3 && ok4 && (ano == 3) && (nno == 2)) {
-		trk->c[x-1].flags |= FLAG_TRIPLET;
-	}
-	// if not rest: fill in fret (if rest: frets stay -1)
+
+	// if not rest or tie: fill in fret (if rest: frets stay -1)
 	// placed here on purpose:
 	// in case of failure, fret stays -1 which is a safe value
-	if (!stRst) {
+	if (!stRst && !stTie) {
 		if (!ok1 || !ok2) {
 			// no valid frt/str: try if stp/alt/oct can be used instead
 			// note: alt may be missing
-			// cout << "no valid str/frt,";
 			if ((stStp == "") || !ok6) {
-				// cout << "no valid stp/alt/oct,";
+				// no valid stp/alt/oct
 				initStNote();
 				return TRUE;	// LVIFIX: how to report error ?
 			} else {
-				// cout << " stp=" << stStp;
-				// cout << " alt=" << alt << "(" << ok5 << ")";
-				// cout << " oct=" << oct << "(" << ok6 << ")";
 				Accidentals acc;
 				int pitch = acc.sao2Pitch(stStp, alt, oct);
-				// cout << " pitch=" << pitch;
 				if (!allocStrFrt(pitch, trk, x-1, str, frt)) {
 					cout << "MusicXMLParser::addNote() ";
 					cout << "string/fret allocation failed, ";
 					cout << "column=" << x << endl;
 				}
-				// cout << " alloc: str=" << str;
-				// cout << " frt=" << frt;
 			}
-			// cout << endl;
 		}
 		// LVIFIX: check valid range for frt and str
 		trk->c[x-1].a[mxmlStr2Kg(str, trk->string)] = frt;
 	}
+
+	// handle tie
+	if (stTie && (x>0)) {
+		trk->c[x-1].flags |= FLAG_ARC;
+	}
+
     // re-init note specific variables
 	initStNote();
 	return TRUE;
@@ -502,6 +535,7 @@ void MusicXMLParser::initStNote()
 	stRst = FALSE;
 	stStp = "";
 	stStr = "";
+	stTie = FALSE;
 	stTyp = "";
 }
 
@@ -673,7 +707,27 @@ void MusicXMLWriter::writeCol(QTextStream& os, TabTrack * trk, int x, int& trp)
 	int fret;
 	int length;					// note length (excl. dot/triplet)
 	int nNotes = 0;				// # notes in this column
-	
+
+	// tie handling:
+	// if the next column is linked with this one, start a tie
+	// if the this column is linked with the previous one, end a tie
+	// LVIFIX:
+	// KGuitar stores the second column of a tie as a rest (an empty column),
+	// while MusicXML requires notes there. Therefore take the notes from the
+	// previous column.
+	// LVIFIX:
+	// "previous" should be "first column of the set of tied columns"
+	// (there may be more than two)
+	bool tieStart = FALSE;
+	bool tieStop  = FALSE;
+	int  xt = x;				// x where tie starts
+	if (((unsigned)(x+1) < trk->c.size()) && (trk->c[x+1].flags & FLAG_ARC)) {
+		tieStart = TRUE;
+	}
+	if ((x > 0) && (trk->c[x].flags & FLAG_ARC)) {
+		tieStop = TRUE;
+		xt = x - 1;				// LVIFIX
+	}
 	// duration is common for note and rest
 	length = trk->c[x].l;
 	// note scaling: quarter note = 48
@@ -696,17 +750,17 @@ void MusicXMLWriter::writeCol(QTextStream& os, TabTrack * trk, int x, int& trp)
 	// calculate accidentals
 	accSt.startChord();
 	for (int i = trk->string - 1; i >= 0 ; i--) {
-		if (trk->c[x].a[i] > -1) {
-			fret = trk->c[x].a[i];
+		if (trk->c[xt].a[i] > -1) {
+			fret = trk->c[xt].a[i];
 			accSt.addPitch(trk->tune[i] + fret);
 		}
 	}
 	accSt.calcChord();
 	// print all notes
 	for (int i = trk->string - 1; i >= 0 ; i--) {
-		if (trk->c[x].a[i] > -1) {
+		if (trk->c[xt].a[i] > -1) {
 			nNotes++;
-			fret = trk->c[x].a[i];
+			fret = trk->c[xt].a[i];
 			os << "\t\t\t<note>\n";
 			if (nNotes > 1) {
 				os << "\t\t\t\t<chord/>\n";
@@ -715,6 +769,12 @@ void MusicXMLWriter::writeCol(QTextStream& os, TabTrack * trk, int x, int& trp)
 			writePitch(os, trk->tune[i] + fret, "\t\t\t\t\t", "");
 			os << "\t\t\t\t</pitch>\n";
 			os << "\t\t\t\t<duration>" << duration << "</duration>\n";
+			if (tieStart) {
+				os << "\t\t\t\t<tie type=\"start\"/>\n";
+			}
+			if (tieStop) {
+				os << "\t\t\t\t<tie type=\"stop\"/>\n";
+			}
 			os << "\t\t\t\t<type>" << kgNoteLen2Mxml(length) << "</type>\n";
 			if (trk->c[x].flags & FLAG_DOT) {
 				os << "\t\t\t\t<dot/>\n";
@@ -727,6 +787,12 @@ void MusicXMLWriter::writeCol(QTextStream& os, TabTrack * trk, int x, int& trp)
 			}
 			writeAccid(os, trk->tune[i] + fret, "\t\t\t\t");
 			os << "\t\t\t\t<notations>\n";
+			if (tieStart) {
+				os << "\t\t\t\t\t<tied type=\"start\"/>\n";
+			}
+			if (tieStop) {
+				os << "\t\t\t\t\t<tied type=\"stop\"/>\n";
+			}
 			if (trp == 1) {
 				os << "\t\t\t\t\t<tuplet type=\"start\"/>\n";
 			}
