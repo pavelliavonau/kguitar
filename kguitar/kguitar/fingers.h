@@ -32,7 +32,8 @@ protected:
     void         mouseHandle(const QPoint &pos, bool domute);
 
 private:
-    enum { SCALE=20, CIRCLE=16, CIRCBORD=2, BORDER=5, SPACER=3, FRETTEXT=10, SCROLLER=15 };
+    enum { SCALE=20, CIRCLE=16, CIRCBORD=2, BORDER=5, SPACER=3,
+	   FRETTEXT=10, SCROLLER=15, NOTES=20 };
 
     QScrollBar *ff;
 
