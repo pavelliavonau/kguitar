@@ -16,12 +16,12 @@ TabTrack::TabTrack(TrackMode _tm, QString _name, int _channel,
 };
 
 // Pretty sophisticated expression that determines if we can omit the time sig
-
 bool TabTrack::showBarSig(uint n)
 {
 	return !((n>0) && (b[n-1].time1==b[n].time1) && (b[n-1].time2==b[n].time2));
 }
 
+// Inserts column before n-th
 void TabTrack::insertColumn(uint n)
 {
 	c.resize(c.size()+1);
@@ -31,6 +31,7 @@ void TabTrack::insertColumn(uint n)
 		c[x].a[i] = -1;
 }
 
+// Removes column n-th
 void TabTrack::removeColumn(uint n)
 {
 	for (uint i=n;i<c.size()-1;i++)
@@ -51,6 +52,18 @@ void TabTrack::addFX(char fx)
 		else
 			c[x].e[y] = 0;
 	}
+}
+
+void TabTrack::updateXB()
+{
+	if (x>=b[b.size()-1].start)
+		xb = b.size()-1;
+	else
+		for (uint i=0; i<b.size()-1; i++)
+			if ((x>=b[i].start) && (x<b[i+1].start)) {
+				xb = i;
+				break;
+			}
 }
 
 //////////////////////////////////////////////////////////////////////
@@ -179,14 +192,7 @@ void TabTrack::arrangeBars()
 		x = c.size()-1;
 	
 	// Find the bar the cursor in
-	if (x>=b[b.size()-1].start)
-		xb = b.size()-1;
-	else
-		for (i=0; i<b.size()-1; i++)
-			if ((x>=b[i].start) && (x<b[i+1].start)) {
-				xb = i;
-				break;
-			}
-	
+	updateXB();
+
 	// All should be done now.
 }

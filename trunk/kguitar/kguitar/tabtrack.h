@@ -5,6 +5,7 @@
 
 #include <qarray.h>
 #include <qstring.h>
+#include <qrect.h>
 
 typedef enum {
     GuitarTab,
@@ -33,6 +34,7 @@ typedef struct {
     char a[MAX_STRINGS];                // Number of fret
     char e[MAX_STRINGS];                // Effect parameter
     uint flags;                         // Various flags
+	QRect clickrect;                    // Click rectangle
 } TabColumn;
 
 typedef struct {
@@ -65,7 +67,7 @@ public:
 
     uint x;                             // Current tab column
     uint xb;                            // Current tab bar
-    uint y;                             // Current tab string
+    int y;                              // Current tab string
 
     bool showBarSig(uint n);
 
@@ -73,6 +75,7 @@ public:
     void insertColumn(uint n);
     void arrangeBars();
     void addFX(char fx);
+	void updateXB();
 
 private:
     TrackMode tm;                       // Track mode
