@@ -18,11 +18,9 @@
 TabSong::TabSong(QString _title, int _tempo)
 {
 	tempo = _tempo;
-	title = _title;
+	info["TITLE"] = _title;
 	t.setAutoDelete(TRUE);
 }
-
-// Helper functions for duration conversion
 
 int TabSong::freeChannel()
 {

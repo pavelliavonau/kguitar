@@ -6,6 +6,8 @@
 #include "songview.h"
 
 #include <kcommand.h>
+#include <qmap.h>
+#include <qstring.h>
 
 class TabTrack;
 class TrackView;
@@ -13,25 +15,26 @@ class TrackList;
 class TrackPane;
 class SongView;
 
-// Set the song properties
+/**
+ * Undo/redo command to set song properties
+ */
 class SongView::SetSongPropCommand: public KNamedCommand {
 public:
-	SetSongPropCommand(SongView *_song, QString _title,
-	                   QString _author, QString _trans,
-	                   QString _com, int _tempo);
+	SetSongPropCommand(SongView *_song, QMap<QString, QString> _info, int _tempo);
 	virtual ~SetSongPropCommand() {};
 
 	virtual void execute();
 	virtual void unexecute();
 
 private:
-	QString title, author, transcriber, comments,
-		oldtitle, oldauthor, oldtranscriber, oldcomments;
+	QMap<QString, QString> info, oldinfo;
 	int tempo, oldtempo;
 	SongView *sv;
 };
 
-// Set track properties
+/**
+ * Undo/redo command to set track properties
+ */
 class SongView::SetTrackPropCommand: public KNamedCommand {
 public:
 	SetTrackPropCommand(TrackView *_tv, TrackList *_tl, TrackPane *_tp,
@@ -56,7 +59,9 @@ private:
 	TrackPane *tp;
 };
 
-// Insert tabs
+/**
+ * Undo/redo command to insert tabs
+ */
 class SongView::InsertTabsCommand: public KNamedCommand {
 public:
 	InsertTabsCommand(TrackView *_tv, TabTrack *_trk, TabTrack *_tabs);
@@ -72,4 +77,3 @@ private:
 	TrackView *tv;
 };
 #endif
-
