@@ -1,5 +1,6 @@
 #include "fingers.h"
 #include "tabtrack.h"
+#include "settings.h"
 
 #include <qpainter.h>
 #include <qdrawutil.h>
@@ -107,79 +108,80 @@ void Fingering::mousePressEvent(QMouseEvent *e)
 
 void Fingering::drawContents(QPainter *p)
 {
-    int barre, eff;
+	int barre, eff;
 
-    // Horizontal separator line
+	// Horizontal separator line
 
-    p->drawLine(BORDER + FRETTEXT, BORDER + SCALE + SPACER,
-                BORDER +FRETTEXT + parm->string * SCALE, BORDER+SCALE + SPACER);
+	p->drawLine(BORDER + FRETTEXT, BORDER + SCALE + SPACER,
+	            BORDER + FRETTEXT + parm->string * SCALE, BORDER + SCALE + SPACER);
 
-    // Horizontal lines
+	// Horizontal lines
 
-    for (int i = 0; i <= NUMFRETS; i++)
-	p->drawLine(SCALE / 2 + BORDER + FRETTEXT, BORDER + SCALE + 2 * SPACER + i * SCALE,
-                SCALE / 2 + BORDER + parm->string * SCALE - SCALE + FRETTEXT,
-                BORDER +SCALE + 2 * SPACER + i * SCALE);
+	for (int i = 0; i <= NUMFRETS; i++)
+		p->drawLine(SCALE / 2 + BORDER + FRETTEXT, BORDER + SCALE + 2 * SPACER + i * SCALE,
+		            SCALE / 2 + BORDER + parm->string * SCALE - SCALE + FRETTEXT,
+		            BORDER +SCALE + 2 * SPACER + i * SCALE);
 
-    // Beginning fret number
+	// Beginning fret number
 
-    QString tmp;
-    tmp.setNum(ff->value());
-    p->drawText(BORDER - SPACER, BORDER + SCALE + 2 * SPACER, 50, 50, AlignLeft | AlignTop, tmp);
+	QString tmp;
+	tmp.setNum(ff->value());
+	p->drawText(BORDER - SPACER, BORDER + SCALE + 2 * SPACER, 50, 50, AlignLeft | AlignTop, tmp);
 
-    // Vertical lines, fingering and note names
+	// Vertical lines, fingering and note names
 
-    for (int i = 0; i < parm->string; i++) {
-	p->drawLine( i * SCALE + BORDER + SCALE / 2 + FRETTEXT, BORDER + SCALE + 2 * SPACER,
-                 i * SCALE + BORDER + SCALE / 2 + FRETTEXT,
-                 BORDER + SCALE + 2 * SPACER + NUMFRETS *SCALE);
-	if (appl[i] == -1) {
-	    p->drawLine( i * SCALE + BORDER + CIRCBORD + FRETTEXT, BORDER + CIRCBORD,
-                     i * SCALE + BORDER + SCALE - CIRCBORD + FRETTEXT, BORDER + SCALE - CIRCBORD);
-	    p->drawLine( i * SCALE + BORDER + SCALE - CIRCBORD + FRETTEXT, BORDER +CIRCBORD,
-                     i * SCALE + BORDER + CIRCBORD + FRETTEXT, BORDER + SCALE - CIRCBORD);
-	} else {
-	    if (appl[i] == 0) {
-            p->setBrush(NoBrush);
-            p->drawEllipse(i * SCALE + BORDER + CIRCBORD + FRETTEXT,
-                           BORDER + CIRCBORD, CIRCLE, CIRCLE);
-	    } else {
-            p->setBrush(SolidPattern);
-            p->drawEllipse(i * SCALE + BORDER + CIRCBORD + FRETTEXT,
-                           BORDER + SCALE + 2 * SPACER + (appl[i] - ff->value()) * SCALE + CIRCBORD,
-                           CIRCLE, CIRCLE);
-	    };
-	    p->drawText(BORDER + FRETTEXT + i * SCALE, BORDER + NUMFRETS * SCALE + SCALE + 2 * SPACER,
-                    SCALE, 30, AlignHCenter | AlignTop, note_name((appl[i] + parm->tune[i]) % 12));
+	for (int i = 0; i < parm->string; i++) {
+		p->drawLine( i * SCALE + BORDER + SCALE / 2 + FRETTEXT, BORDER + SCALE + 2 * SPACER,
+		         i * SCALE + BORDER + SCALE / 2 + FRETTEXT,
+		         BORDER + SCALE + 2 * SPACER + NUMFRETS *SCALE);
+		if (appl[i] == -1) {
+			p->drawLine(i * SCALE + BORDER + CIRCBORD + FRETTEXT, BORDER + CIRCBORD,
+			            i * SCALE + BORDER + SCALE - CIRCBORD + FRETTEXT, BORDER + SCALE - CIRCBORD);
+			p->drawLine(i * SCALE + BORDER + SCALE - CIRCBORD + FRETTEXT, BORDER +CIRCBORD,
+			            i * SCALE + BORDER + CIRCBORD + FRETTEXT, BORDER + SCALE - CIRCBORD);
+		} else {
+			if (appl[i] == 0) {
+				p->setBrush(NoBrush);
+				p->drawEllipse(i * SCALE + BORDER + CIRCBORD + FRETTEXT,
+				               BORDER + CIRCBORD, CIRCLE, CIRCLE);
+			} else {
+				p->setBrush(SolidPattern);
+				p->drawEllipse(i * SCALE + BORDER + CIRCBORD + FRETTEXT,
+				               BORDER + SCALE + 2 * SPACER + (appl[i] - ff->value()) * SCALE + CIRCBORD,
+				               CIRCLE, CIRCLE);
+			};
+			p->drawText(BORDER + FRETTEXT + i * SCALE, BORDER + NUMFRETS * SCALE + SCALE + 2 * SPACER,
+			            SCALE, 30, AlignHCenter | AlignTop,
+			            Settings::noteName((appl[i] + parm->tune[i]) % 12));
+		}
 	}
-    }
 
-    // Analyze & draw barre
+	// Analyze & draw barre
 
-    p->setBrush(SolidPattern);
+	p->setBrush(SolidPattern);
 
-    for (int i = 0; i < NUMFRETS; i++) {
-        barre = 0;
-        while ((appl[parm->string - barre - 1] >= (i+ff->value())) ||
-               (appl[parm->string - barre -1] == -1)) {
-            barre++;
-            if (barre>parm->string - 1)
-                break;
-        }
+	for (int i = 0; i < NUMFRETS; i++) {
+		barre = 0;
+		while ((appl[parm->string - barre - 1] >= (i + ff->value())) ||
+		       (appl[parm->string - barre - 1] == -1)) {
+			barre++;
+			if (barre>parm->string - 1)
+				break;
+		}
 
-        while ((appl[parm->string - barre] != (i + ff->value())) && (barre > 1))
-            barre--;
+		while ((appl[parm->string - barre] != (i + ff->value())) && (barre > 1))
+			barre--;
 
-        eff = 0;
-        for (int j = parm->string - barre; j < parm->string; j++) {
-            if (appl[j] != -1)
-                eff++;
-        }
+		eff = 0;
+		for (int j = parm->string - barre; j < parm->string; j++) {
+			if (appl[j] != -1)
+				eff++;
+		}
 
-        if (eff > 2) {
-            p->drawRect((parm->string - barre) * SCALE + SCALE / 2 + BORDER + FRETTEXT,
-                        BORDER + SCALE + 2 * SPACER + i * SCALE + CIRCBORD,
-                        (barre - 1) * SCALE, CIRCLE);
-        }
-    }
+		if (eff > 2) {
+			p->drawRect((parm->string - barre) * SCALE + SCALE / 2 + BORDER + FRETTEXT,
+			            BORDER + SCALE + 2 * SPACER + i * SCALE + CIRCBORD,
+			            (barre - 1) * SCALE, CIRCLE);
+		}
+	}
 }

@@ -1,5 +1,4 @@
 #include "options.h"
-#include "globaloptions.h"
 
 #include "optionspage.h"
 #include "optionsmusictheory.h"

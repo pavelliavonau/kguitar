@@ -1,7 +1,7 @@
 #include "config.h"
 #include "fretboard.h"
 #include "tabtrack.h"
-#include "globaloptions.h"
+#include "settings.h"
 
 #include <qpainter.h>
 #include <qsizepolicy.h>
@@ -186,7 +186,7 @@ void Fretboard::drawBackground()
 		// Draw inlay marks, if applicable
 		if (marks[i] == 0)
 			continue;
-		switch (globalMelodyEditorInlay)  {
+		switch (Settings::melodyEditorInlay())  {
  		case 0: // none
 			break;
 		case 1: // center dots
