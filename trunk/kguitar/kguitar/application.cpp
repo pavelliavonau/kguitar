@@ -138,11 +138,11 @@ ApplicationWindow::ApplicationWindow(): KMainWindow()
 	arcAct = new KAction(i18n("Link with previous column"), "arc.xpm", 0, tv,
 						 SLOT(linkPrev()), actionCollection(), "link_prev");
 	legatoAct = new KAction(i18n("Legato (hammer on/pull off)"), "fx-legato.xpm", 0, tv, 
-							SLOT(addLegato()), actionCollection(), "add_legato");
+							SLOT(addLegato()), actionCollection(), "fx_legato");
 	natHarmAct = new KAction(i18n("Natural harmonic"), "fx-harmonic.xpm", 0, tv, 
-							 SLOT(addHarmonic()), actionCollection(), "nat_harm");
+							 SLOT(addHarmonic()), actionCollection(), "fx_nat_harm");
 	artHarmAct = new KAction(i18n("Artificial harmonic"), "fx-harmonic.xpm", 0, tv, 
-							 SLOT(addArtHarm()), actionCollection(), "art_harm");
+							 SLOT(addArtHarm()), actionCollection(), "fx_art_harm");
 
 	//SET UP 'Note Names'
 	usSharpAct = new KToggleAction(i18n("American, sharps"), 0, this, 
@@ -490,8 +490,8 @@ void ApplicationWindow::options()
 		if (op->flat[0]->isChecked())  globalFlatPlus = 0;
 		if (op->flat[1]->isChecked())  globalFlatPlus = 1;
 
-		for (int i = 0;i <= 3; i++)
-			if (op->tabsize[i]->isChecked()) globalTabSize = i;
+		for (int i = 0; i <= 3; i++)
+			if (op->tabsize[i]->isChecked())  globalTabSize = i;
 
 		globalShowBarNumb = op->showbarnumb->isChecked();
 		globalShowStr = op->showstr->isChecked();
