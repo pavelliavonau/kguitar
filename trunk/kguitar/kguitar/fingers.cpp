@@ -9,13 +9,14 @@
 #include <qscrollbar.h>
 
 Fingering::Fingering(TabTrack *p, QWidget *parent, const char *name):
-    QFrame(parent,name)
+    QFrame(parent, name)
 {
     parm = p;
 
     lastff=1;
     
-    setFixedSize(parm->string*SCALE+2*BORDER+FRETTEXT+SCROLLER,NUMFRETS*SCALE+SCALE+2*BORDER+2*SPACER+NOTES);
+    setFixedSize(parm->string*SCALE+2*BORDER+FRETTEXT+SCROLLER,
+		 NUMFRETS*SCALE+SCALE+2*BORDER+2*SPACER+NOTES);
     setFrameStyle(Panel | Sunken);
     setBackgroundMode(PaletteBase);
     
