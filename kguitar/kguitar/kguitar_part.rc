@@ -10,6 +10,7 @@
    <Separator/>
    <Action name="track_new" />
    <Action name="track_delete" />
+   <Action name="track_bassline" />
    <Action name="track_properties" />
   </Menu>
   <Menu noMerge="1" name="note" >
@@ -32,6 +33,8 @@
     <Action name="fx_legato" />
     <Action name="fx_nat_harm" />
     <Action name="fx_art_harm" />
+    <Separator/>
+    <Action name="fx_palmmute" />
    </Menu>
   </Menu>
   <Menu noMerge="1" name="play" >
@@ -79,6 +82,7 @@
   <Action name="fx_legato" />
   <Action name="fx_nat_harm" />
   <Action name="fx_art_harm" />
+  <Action name="fx_palmmute" />
  </ToolBar>
 </kpartgui>
 
