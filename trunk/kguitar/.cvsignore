@@ -16,3 +16,8 @@ subdirs
 libtool
 autom4te.cache
 stamp-h1
+doc/Makefile
+doc/Makefile.in
+doc/en/Makefile
+doc/en/Makefile.in
+doc/en/index.cache.bz2
