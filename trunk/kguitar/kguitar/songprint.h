@@ -91,9 +91,9 @@ private:
 	QFont fHdr1;				// used for headers (title/author)
 	QFont fHdr2;				// used for headers (pagenr/trkname)
 	QFont fHdr3;				// used for headers (transcriber)
-	QFont fTBar1;				// used for notes on the tab bar
-	QFont fTBar2;				// used for notes on the tab bar
-	QFont fTSig;				// used for time signature
+	QFont *fTBar1;				// used for notes on the tab bar
+	QFont *fTBar2;				// used for notes on the tab bar
+	QFont *fTSig;				// used for time signature
 	// Pens used
 	QPen pLnBl;					// used for black lines & text
 	QPen pLnWh;					// used for white lines

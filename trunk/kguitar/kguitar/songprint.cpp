@@ -3,7 +3,7 @@
  *
  * This file is part of KGuitar, a KDE tabulature editor
  *
- * copyright (C) 2002-2003 the KGuitar development team
+ * copyright (C) 2002-2004 the KGuitar development team
  ***************************************************************************/
 
 /***************************************************************************
@@ -79,6 +79,9 @@ SongPrint::SongPrint()
 {
 	p = new QPainter;
 	trp = new TrackPrint;
+	fTBar1 = 0;
+	fTBar2 = 0;
+	fTSig  = 0;
 }
 
 // SongPrint destructor
@@ -87,6 +90,12 @@ SongPrint::~SongPrint()
 {
 	delete p;
 	delete trp;
+	if (fTBar1)
+		delete fTBar1;
+	if (fTBar2)
+		delete fTBar2;
+	if (fTSig)
+		delete fTSig;
 }
 
 // draw header of song song, page n
@@ -190,12 +199,13 @@ static bool initExactFont(const QString fn, int fs, QFont & fnt)
 
 void SongPrint::initFonts()
 {
+	// LVIFIX: use same font for printing as is used on-screen
 	fHdr1  = QFont("Helvetica", 12, QFont::Bold);
 	fHdr2  = QFont("Helvetica", 10, QFont::Normal);
 	fHdr3  = QFont("Helvetica",  8, QFont::Normal);
-	fTBar1 = QFont("Helvetica",  8, QFont::Bold);
-	fTBar2 = QFont("Helvetica",  7, QFont::Normal);
-	fTSig  = QFont("Helvetica", 12, QFont::Bold);
+	fTBar1 = new QFont("Helvetica",  8, QFont::Bold);
+	fTBar2 = new QFont("Helvetica",  7, QFont::Normal);
+	fTSig  = new QFont("Helvetica", 12, QFont::Bold);
 
 	// following fonts must be found: if not, printing of notes is disabled
 	QString fn;
@@ -223,7 +233,7 @@ void SongPrint::initMetrics(QPaintDevice *printer)
 	pprh  = pdm.height();
 	pprw  = pdm.width();
 	// determine font-dependent bar metrics
-	p->setFont(fTBar1);
+	p->setFont(*fTBar1);
 	QFontMetrics fm  = p->fontMetrics();
 	br8h = fm.boundingRect("8").height();
 	br8w = fm.boundingRect("8").width();
@@ -341,7 +351,7 @@ void SongPrint::printSong(KPrinter *printer, TabSong *song)
 	initPrStyle();
 
 	// now also initialize the TrackPrint
-	trp->initFonts();
+	trp->initFonts(fTBar1, fTBar2, fTSig);
 	trp->setPainter(p);
 	trp->initMetrics();
 	trp->initPens();
