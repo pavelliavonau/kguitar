@@ -21,7 +21,7 @@ public:
     QCheckBox *showbarnumb, *showstr, *showpagenumb;
 
 protected:
-    void setupChordTab();
+    void setupTheoryTab();
     void setupMusixtexTab();
     void setupAlsaTab();
 
