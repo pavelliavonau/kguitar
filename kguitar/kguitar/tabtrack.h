@@ -8,7 +8,7 @@
 #include <qrect.h>
 
 typedef enum {
-    GuitarTab,
+    FretTab,
     DrumTab
 } TrackMode;
 
@@ -57,6 +57,7 @@ public:
     uchar tune[MAX_STRINGS];            // Tuning, if appicable
 
     TrackMode trackmode() { return tm; }
+    void setTrackMode(TrackMode t) { tm = t; }
 
     uchar channel;                      // MIDI channel
     int bank;                           // MIDI bank

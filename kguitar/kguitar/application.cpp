@@ -60,12 +60,10 @@ int globalAlsaPort;
 
 bool globalHaveMidi;
 
+bool isBrowserView;
 
 extern "C" {
-	void *init_libkguitar()
-	{
-		return new KGuitarFactory;
-	}
+	void *init_libkguitar() { return new KGuitarFactory; }
 };
 
 KInstance *KGuitarFactory::s_instance = 0L;
@@ -140,12 +138,14 @@ KGuitarPart::KGuitarPart(bool bBrowserView, QWidget *parentWidget,
 	insChordAct = new KAction(i18n("&Chord..."), "chord",  KAccel::stringToKey("Shift+C"),
 							  this, SLOT(insertChord()), actionCollection(), "insert_chord");
 
-
 	saveOptionAct = new KAction(i18n("&Save Options"), 0, this,
 								SLOT(saveOptions()), actionCollection(), "save_options");
 
 	arrTrkAct = new KAction(i18n("&Arrange Track"), KAccel::stringToKey("Shift+A"), tv,
 							SLOT(arrangeTracks()), actionCollection(), "arrange_trk");
+
+//	midiPlayAct = new KAction(i18n("&Play"), KAccel::stringToKey("Space"), tv,
+//							  SLOT(midiPlay()), actionCollection(), "midi_play");
 
 	// SET UP DURATION
 	len1Act = new KAction(i18n("Whole"), "note1", KAccel::stringToKey("Ctrl+1"),
@@ -545,34 +545,28 @@ void KGuitarPart::songProperties()
 
 void KGuitarPart::trackProperties()
 {
-	SetTrack *st = new SetTrack();
-
-	st->title->setText(tv->trk()->name);
-	st->title->setReadOnly(isBrowserView);
-	st->channel->setValue(tv->trk()->channel);
-	st->channel->setDisabled(isBrowserView);
-	st->bank->setValue(tv->trk()->bank);
-	st->bank->setDisabled(isBrowserView);
-	st->patch->setValue(tv->trk()->patch);
-	st->patch->setDisabled(isBrowserView);
-	st->mode->setDisabled(isBrowserView);
-
-	st->fret->setString(tv->trk()->string);
-	st->fret->setFrets(tv->trk()->frets);
-	for (int i = 0; i < tv->trk()->string; i++)
-		st->fret->setTune(i, tv->trk()->tune[i]);
-	st->fret->setDisabled(isBrowserView);
+	SetTrack *st = new SetTrack(tv->trk());
 
 	if (st->exec()) {
 		tv->trk()->name = st->title->text();
 		tv->trk()->channel = st->channel->value();
 		tv->trk()->bank = st->bank->value();
 		tv->trk()->patch = st->patch->value();
+		tv->trk()->setTrackMode((TrackMode) st->mode->currentItem());
 
-		tv->trk()->string = st->fret->string();
-		tv->trk()->frets = st->fret->frets();
-		for (int i = 0; i < tv->trk()->string; i++)
-			tv->trk()->tune[i] = st->fret->tune(i);
+		// Fret tab
+		if (st->mode->currentItem() == FretTab) {
+			SetTabFret *fret = (SetTabFret *) st->modespec;
+			tv->trk()->string = fret->string();
+			tv->trk()->frets = fret->frets();
+			for (int i = 0; i < tv->trk()->string; i++)
+				tv->trk()->tune[i] = fret->tune(i);
+		}
+
+		// Drum tab
+		if (st->mode->currentItem() == DrumTab) {
+			SetTabDrum *drum = (SetTabDrum *) st->modespec;
+		}
 	}
 
 	delete st;
