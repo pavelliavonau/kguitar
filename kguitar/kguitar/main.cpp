@@ -18,14 +18,14 @@ int main(int argc, char **argv)
 						 "(C) 2000 by KGuitar Development Team", 0,
 						 "http://kguitar.sourceforge.net");
 
-	aboutData.addAuthor("Mikhail Yakshin AKA GreyCat", I18N_NOOP("Maintainer"),
+	aboutData.addAuthor("Mikhail Yakshin AKA GreyCat", I18N_NOOP("Maintainer and main coder"),
 						"GreyCat@users.sourceforge.net");
-	aboutData.addAuthor("Stephan Borchert", 0, "sborchert@users.sourceforge.net");
 	aboutData.addAuthor("Alex Brand AKA alinx", 0, "alinx@users.sourceforge.net");
-	aboutData.addAuthor("Harri Haataja AKA realblades", 0, "realblades@users.sourceforge.net");
-	aboutData.addAuthor("Matt Malone AKA Marlboro", 0, "Marlboro@users.sourceforge.net");
-	aboutData.addAuthor("Wilane Ousmane", 0, "wilane@users.sourceforge.net");
-	aboutData.addAuthor("Richard G. Roberto", 0, "robertor@users.sourceforge.net");
+	aboutData.addCredit("Stephan Borchert", 0, "sborchert@users.sourceforge.net");
+	aboutData.addCredit("Harri Haataja AKA realblades", 0, "realblades@users.sourceforge.net");
+	aboutData.addCredit("Matt Malone AKA Marlboro", 0, "Marlboro@users.sourceforge.net");
+	aboutData.addCredit("Wilane Ousmane", 0, "wilane@users.sourceforge.net");
+	aboutData.addCredit("Richard G. Roberto", 0, "robertor@users.sourceforge.net");
 
 	KCmdLineArgs::init(argc, argv, &aboutData);
 	KCmdLineArgs::addCmdLineOptions(options);
