@@ -78,6 +78,12 @@ ApplicationWindow::ApplicationWindow(): KTMainWindow()
 			    tv,SLOT(timeSig()),TRUE,i18n("Time signature"));
     toolBar()->insertButton(Icon("arc.xpm"),1,SIGNAL(clicked()),
 			    tv,SLOT(linkPrev()),TRUE,i18n("Link with previous column"));
+    toolBar()->insertButton(Icon("fx-legato.xpm"),1,SIGNAL(clicked()),
+			    tv,SLOT(linkPrev()),TRUE,i18n("Legato (hammer on/pull off)"));
+    toolBar()->insertButton(Icon("fx-harmonic.xpm"),1,SIGNAL(clicked()),
+			    tv,SLOT(linkPrev()),TRUE,i18n("Natural harmonic"));
+    toolBar()->insertButton(Icon("fx-harmonic.xpm"),1,SIGNAL(clicked()),
+			    tv,SLOT(linkPrev()),TRUE,i18n("Artificial harmonic"));
     
     // SET UP MAIN MENU
 
