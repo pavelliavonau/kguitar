@@ -1,3 +1,69 @@
+2005-03-28 Mikhail Yakshin <greycat@users.sourceforge.net>
+
+	* Release 0.5
+
+	* Also a huge milestone release in a very long time. Lots of
+	internal refactoring, fixes after big changes in 0.4.9 and even
+	bigger changes by itself.
+
+	* Build system is refreshed (updated from current KDE SDK),
+	obsolete things removed, should compile smoothly on most
+	boxes. TeTeX support is not installed by default.
+
+	* Huge refactoring work inside KGuitar: greatly improved internal
+	architecture, modularized all import / export procedures, improved
+	options handling.
+
+	* More KDE3 standartization: better and cleaner shell / KPart
+	separation, standartized UI, actions, KDE-based dialogs with
+	standard features and cleaner API, better support for BiDi
+	interfaces, numerous layout fixes in lots of windows.
+
+	* Pretty full-featured Guitar Pro 4 import support. Imports
+	smoothly most of the files I've tested it on, had some known
+	problems with percussion tracks, but generally comprehends almost
+	all difficulties in GP4 files and gracefully ignores them. More
+	testing and patches are welcome!
+
+	* Improved song / track printing / display - now all tabulature /
+	notestaff rendering is maintained in single class and both
+	displaying and printing use the same codebase. It made possible
+	displaying note scores on screen while editing tabs - however, it
+	requires Feta fonts installed, as previously for printing. Check
+	out the documentation for instructions.
+
+	* Chord dialog - added chord finder: you can enter pure text name
+	of chord in top chord name string, push one button and you'll get
+	chord diagrams, fingerings and other info instantly. Chord finder
+	also supplies a "Quick insert by name" button that makes entering
+	something like "Am / C / F / E" chord rhythm a breeze. 
+
+	* Melody editor - got lots of improvements: added scales & modes
+	showing on fretboard, added more inlay/graphics options, working
+	action / advance functions that act as stated in options page
+
+	* Song properties - added simple tempo support in song properties
+	dialog - that "initial tempo" was in file format for ages, but,
+	finally, it's user-editable.
+
+	* MIDI playback improvements - much better monitoring due to
+	absolute time values in MIDI events, fixed stuck notes after song
+	stop, lost patch/bank presets, etc. Added panic (shut down all
+	notes) after stop and tempo track support.
+
+	* Multiple usability fixes: more column duration actions, keyboard
+	combos to move cursor by 1 bar (currently bound to Ctrl+Left /
+	Ctrl+Right), chord dialog - better tab ordering, default
+	pushbutton, accelerators for non-default functions (Ctrl+Enter and
+	Shift+Enter).
+
+	* Lots of other fixes: gcc3.4 compatibility, MusicXML DTD 0.7a
+	support, proper status bar handling, proper updates when pasting /
+	select all / delete track, fixed compile errors without TSE3,
+	selection of negative track bug, lots of display problems with
+	TrackPrint usage, mouse select handling bug, multiple memory leaks
+	and segfaults.
+
 2003-08-27 Mikhail Yakshin <greycat@users.sourceforge.net>
 
 	* Release 0.4.9
