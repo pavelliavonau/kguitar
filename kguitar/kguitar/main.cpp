@@ -46,8 +46,10 @@ int main(int argc, char **argv)
 		KGuitarShell *shell = new KGuitarShell;
 		if (argc > 1) {
 			KCmdLineArgs *args = KCmdLineArgs::parsedArgs();
-			KURL url(QDir::currentDirPath()+"/", args->arg(0));
-			shell->openURL(url);
+			if (args->count()){
+				KURL url(QDir::currentDirPath()+"/", args->arg(0));
+				shell->openURL(url);
+			}
 			args->clear();
 		}
 		shell->show();
