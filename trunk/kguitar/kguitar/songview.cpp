@@ -48,6 +48,7 @@
 #include <tse3/MidiScheduler.h>
 #include <tse3/Transport.h>
 #include <tse3/Error.h>
+#include "playbacktracker.h"
 #endif
 
 // GREYFIX
@@ -60,7 +61,7 @@ SongView::SongView(KXMLGUIClient *_XMLGUIClient, KCommandHistory *_cmdHist,
 				   QWidget *parent, const char *name): QWidget(parent, name)
 {
 	scheduler = 0L;
-	initScheduler();
+	initMidi();
 
 	midiInUse = FALSE;
 	midiStopPlay = FALSE;
@@ -80,8 +81,7 @@ SongView::SongView(KXMLGUIClient *_XMLGUIClient, KCommandHistory *_cmdHist,
 	tl->setSelected(tl->firstChild(), TRUE);
 	tp = new TrackPane(song, tl->header()->height(), tl->firstChild()->height(), splitv);
 
-	me = new MelodyEditor(tv);
-	me->show();
+	me = new MelodyEditor(tv, split);
 
 	connect(tl, SIGNAL(trackChanged(TabTrack *)), tv, SLOT(selectTrack(TabTrack *)));
 	connect(tp, SIGNAL(trackChanged(TabTrack *)), tv, SLOT(selectTrack(TabTrack *)));
@@ -100,6 +100,16 @@ SongView::~SongView()
 {
 	delete song;
 	delete sp;
+
+#ifdef WITH_TSE3
+	if (scheduler) {
+		transport->detachCallback(tracker);
+		delete tracker;
+		delete transport;
+		delete metronome;
+		delete scheduler;
+	}
+#endif
 }
 
 // Refreshes all the views and resets all minor parameters in the
@@ -182,7 +192,6 @@ void SongView::trackBassLine()
 		ChordSelector cs(origtrk);
 
 		int note;
-		bool havenote;
 
 		for (uint i = 0; i < origtrk->c.size(); i++) {
 			for (uint k = 0; k < origtrk->string; k++) {
@@ -190,12 +199,12 @@ void SongView::trackBassLine()
 			}
 
 			cs.detectChord();
-			havenote = ((ChordListItem *) cs.chords->item(0));
 
-			if (havenote) {
+			if ((ChordListItem *) cs.chords->item(0)) {
 				note = ((ChordListItem *) cs.chords->item(0))->tonic();
 				kdDebug() << "Column " << i << ", detected tonic " << note_name(note) << endl;
 			} else {
+				note = -1;
 				kdDebug() << "Column " << i << ", EMPTY " << endl;
 			}
 
@@ -209,7 +218,7 @@ void SongView::trackBassLine()
 
 			// GREYFIX: make a better way of choosing a fret. This way
 			// it can, for example, be over max frets number.
-			if (havenote) {
+			if (note >= 0) {
 				newtrk->c[i].a[0] = note - newtrk->tune[0] % 12;
 				if (newtrk->c[i].a[0] < 0)  newtrk->c[i].a[0] += 12;
 			}
@@ -341,7 +350,8 @@ void SongView::playSong()
 	midiStopPlay = FALSE;
 
 	if (!scheduler) {
-		if (!initScheduler()) {
+		kdDebug() << "SongView::playSong: Scheduler not open from the beginning!" << endl;
+		if (!initMidi()) {
 			KMessageBox::error(this, i18n("Error opening MIDI device!"));
 			midiInUse = FALSE;
 			return;
@@ -349,22 +359,27 @@ void SongView::playSong()
 	}
 
 	// Get song object
-	TSE3::Song *tsong = song->midiSong();
+	TSE3::Song *tsong = song->midiSong(TRUE);
 
-	// Create transport objects
-	TSE3::Metronome metronome;
-	TSE3::Transport transport(&metronome, scheduler);
+	int startclock = tv->trk()->cursortimer;
+
+	// Init cursors
+	for (TabTrack *trk = song->t.first(); trk; trk = song->t.next()) {
+		if (trk->cursortimer < startclock) {
+			trk->x--;
+			trk->updateXB();
+		}
+	}
 
 	// Play and wait for the end
-	transport.play(tsong, 0);
+	transport->play(tsong, startclock);
 
-	while (transport.status() != TSE3::Transport::Resting) {
+	do {
 		kapp->processEvents();
 		if (midiStopPlay)
-			transport.stop();
-		else
-			transport.poll();
-	}
+			transport->stop();
+		transport->poll();
+	} while (transport->status() != TSE3::Transport::Resting);
 
 	delete tsong;
 
@@ -381,7 +396,7 @@ void SongView::stopPlay()
 }
 
 #ifdef WITH_TSE3
-bool SongView::initScheduler()
+bool SongView::initMidi()
 {
 	if (!scheduler) {
 		TSE3::MidiSchedulerFactory factory;
@@ -397,6 +412,11 @@ bool SongView::initScheduler()
 			midiInUse = FALSE;
 			return FALSE;
 		}
+
+		metronome = new TSE3::Metronome;
+		transport = new TSE3::Transport(metronome, scheduler);
+		tracker = new PlaybackTracker(this);
+		transport->attachCallback(tracker);
 	}
 	return TRUE;
 }
@@ -537,4 +557,20 @@ void SongView::insertTabs(TabTrack* trk)
 void SongView::print(KPrinter *printer)
 {
 	sp->printSong(printer, song);
+}
+
+// Advances to the next column to monitor playback when event comes
+// thru PlaybackTracker
+void SongView::playbackNextColumn(int track, int advance)
+{
+ 	TabTrack *trk = song->t.at(track);
+	if (tv->trk() == trk) {
+		for (int i = 0; i < advance; i++)
+			tv->keyRight();
+	} else {
+		if (trk->x == trk->lastColumn(trk->xb))
+			trk->xb++;
+		trk->x += advance;
+	}
+// 	tv->repaintContents();
 }
