@@ -2,25 +2,25 @@
 <kpartgui name="kguitar_part" version="1">
 <MenuBar>
 	<Menu name="file"><text>&amp;File</text>
-		<Action name="file_save"/>
-		<Action name="file_save_as"/>
-		<Action name="file_print"/>
-		<Separator/>
-		<Action name="song_properties"/>
+		<Action name="file_save" group="save_merge"/>
+		<Action name="file_save_as" group="save_merge"/>
+		<Action name="file_print" group="print_merge"/>
+		<Separator group="print_merge"/>
+		<Action name="song_properties" group="print_merge"/>
 	</Menu>
 	<Menu name="edit"><text>&amp;Edit</text>
-		<Action name="edit_undo"/>
-		<Action name="edit_redo"/>
-		<Separator/>
-		<Action name="edit_cut"/>
-		<Action name="edit_copy"/>
-		<Action name="edit_paste"/>
-		<Action name="edit_selectAll"/>
+		<Action name="edit_undo" group="edit_undo_merge"/>
+		<Action name="edit_redo" group="edit_undo_merge"/>
+		<Separator group="edit_undo_merge"/>
+		<Action name="edit_cut" group="edit_paste_merge"/>
+		<Action name="edit_copy" group="edit_paste_merge"/>
+		<Action name="edit_paste" group="edit_paste_merge"/>
+		<Action name="edit_select_all" group="edit_select_merge"/>
 	</Menu>
 	<Menu name="view"><text>&amp;View</text>
-		<Action name="zoom_in"/>
-		<Action name="zoom_out"/>
-		<Action name="zoom_level"/>
+		<Action name="view_zoom_in"/>
+		<Action name="view_zoom_out"/>
+		<Action name="view_zoom"/>
 		<Separator/>
 		<Action name="view_melodyEditor"/>
 		<Action name="view_score"/>
@@ -70,7 +70,7 @@
 		<Action name="midi_stopplay"/>
 	</Menu>
 	<Menu name="settings"><text>&amp;Settings</text>
-		<Action name="pref_options"/>
+		<Action name="options_configure" group="configure_merge" />
 	</Menu>
 </MenuBar>
 
@@ -88,13 +88,12 @@
 	<Action name="track_properties"/>
 </Menu>
 
-<ToolBar name="mainToolBar">
+<ToolBar name="mainToolBar"><text>Main Toolbar</text>
 	<Action name="file_save"/>
 	<Action name="file_print"/>
 	<Separator/>
 	<Action name="edit_undo"/>
 	<Action name="edit_redo"/>
-	<Separator/>
 	<Action name="edit_cut"/>
 	<Action name="edit_copy"/>
 	<Action name="edit_paste"/>
@@ -115,6 +114,8 @@
 	<Action name="set_len32"/>
 	<Separator/>
 	<Action name="time_sig"/>
+	<Action name="key_sig"/>
+	<Separator/>
 	<Action name="link_prev"/>
 	<Action name="fx_legato"/>
 	<Action name="fx_slide"/>
