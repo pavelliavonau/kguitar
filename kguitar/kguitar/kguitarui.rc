@@ -48,6 +48,12 @@
   </Menu>
   <Menu noMerge="1" name="settings" >
    <text>&amp;Settings</text>
+   <Menu name="showtoolbars" >
+    <text>Show Toolbars</text>
+    <Action name="tog_mainTB" />
+    <Action name="tog_editTB" />
+   </Menu>
+   <Separator/>
    <Menu name="notenames" >
     <text>Note Names</text>
     <Action name="us_sharp" />
@@ -62,16 +68,10 @@
     <Action name="jazz_flat" />
     <Action name="jazz_mix" />
    </Menu>
-   <Separator/>
-   <Action name="config_Keys" />
-   <Menu name="showtoolbars" >
-    <text>Show Toolbars</text>
-    <Action name="tog_mainTB" />
-    <Action name="tog_editTB" />
-   </Menu>
-   <Action name="config_Toolbars" />
-   <Separator/>
    <Action name="save_options" />
+   <Separator/>
+   <Action name="config_keys" />
+   <Action name="config_toolbars" />
    <Action name="pref_options" />
   </Menu>
  </MenuBar>
