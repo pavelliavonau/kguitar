@@ -155,7 +155,7 @@ ChordSelector::ChordSelector(TabTrack *p, QWidget *parent=0, const char *name=0)
     connect(fng,SIGNAL(chordChange()),SLOT(detectChord()));
 
     chords = new QListBox(this);
-    chords->setGeometry(400,10,100,150);
+    chords->setGeometry(fng->x()+fng->width()+10,10,120,150);
 
     // CHORD FINDER OUTPUT
 
