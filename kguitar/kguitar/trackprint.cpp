@@ -136,8 +136,7 @@ int TrackPrint::colWidth(int cl, TabTrack *trk)
 		w = (int) (w * 2 / 3);
 	w *= br8w;
 	if (onScreen) {
-		w *= 7;
-		w /= 30;
+		w /= zoomLevel;
 		return w;
 	}
 	w /= 21;
