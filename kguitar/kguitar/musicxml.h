@@ -29,6 +29,23 @@ class QString;
 class TabSong;
 class TabTrack;
 
+
+class MusicXMLParser;
+
+class MusicXMLErrorHandler : public QXmlErrorHandler
+{
+public:
+	MusicXMLErrorHandler();
+	bool warning(const QXmlParseException& exception);
+	bool error(const QXmlParseException& exception);
+	bool fatalError(const QXmlParseException& exception);
+	QString errorString();
+	void setParser(MusicXMLParser * p);
+private:
+	bool fatalReported;
+	MusicXMLParser * parser;
+};
+
 class MusicXMLParser : public QXmlDefaultHandler
 {
 public:
@@ -37,7 +54,9 @@ public:
 	bool startElement(const QString&, const QString&, const QString&,
 	                  const QXmlAttributes&);
 	bool endElement(const QString&, const QString&, const QString&);
-	bool characters(const QString & ch);
+	bool characters(const QString& ch);
+	void reportError(const QString& err);
+	void setDocumentLocator(QXmlLocator * locator);
 
 private:
 	bool addNote();
@@ -45,6 +64,8 @@ private:
 	void initStNote();
 	void initStScorePart();
 	void initStStaffTuning();
+	void reportAll(const QString& lvl, const QString& err);
+	void reportWarning(const QString& err);
 	
 	TabSong * ts;				// pointer to calling tabsong
 	TabTrack * trk;				// pointer to current track
@@ -55,6 +76,7 @@ private:
 	int iDiv;					// divisions
 	int tStartCur;				// start time current note
 	int tEndCur;				// end time current note
+	QXmlLocator * lctr;
 
 	// state variables for parsing
 	// general -- initialized in startDocument()

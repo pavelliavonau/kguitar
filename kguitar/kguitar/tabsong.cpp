@@ -1132,10 +1132,13 @@ bool TabSong::saveToGp3(QString)
 bool TabSong::loadFromXml(QString fileName)
 {
 	MusicXMLParser handler(this);
+	MusicXMLErrorHandler errHndlr;
 	QFile xmlFile(fileName);
 	QXmlInputSource source(xmlFile);
 	QXmlSimpleReader reader;
 	reader.setContentHandler(&handler);
+	reader.setErrorHandler(&errHndlr);
+	errHndlr.setParser(&handler);
 	reader.parse(source);
 
     return TRUE;
