@@ -1,3 +1,51 @@
+2000-08-08  Mikhail Yakshin  <yakshin@glasnet.ru>
+
+	* Release 0.1
+
+	* The first official public version. This one should be announced
+	on Freshmeat and that kind of sites.
+
+	* New basic tabulature editor. It still lacks some extended
+	features like full support of effects, but the basic functionality
+	is here and ready to use. Right now it's controlled only by
+	keyboard, so take a look at the keyboard controls in the README
+	file.
+
+	* Chord finder is optimized much more. On my P200 it works as fast
+	as Guitar Pro's one, but our version has much more features. Chord
+	dialog code was cleanded up a little and new chord inversion
+	control was added - be sure to check it out! Bass note control
+	still isn't here, just because I couldn't find anywhere the
+	accurate music theory definition of alternating bass note chords.
+
+	* Songs could be saved and loaded in KG format (KGuitar native
+	format). This format is pretty extensible and flexible and should
+	be as backward compatible as possible.
+
+	* Songs have the following properties: title, author name,
+	transcriber name, comments.
+
+	* Everything's ready for multiple tracks, though in this release
+	I've not made a multitracking yet. You can edit the properties of
+	each track using Edit/Track dialog, including the number and
+	tuning of strings (be sure to check out the cool string thickness
+	icons), number of frets, etc.
+
+	* Pretty working exporting to ASCII tabs, so you can type in your
+	tabulatures easily in KGuitar and export it to internet text-only
+	form for wide usage. Importing ASCII tabs is on the way.
+
+	* Exporting MIDI code is there, but it has fatal bugs and thereby
+	disabled. If you want to play with it - enable it in sources, but
+	it's broken.
+
+	* Small options dialog just to show what degree of customizability
+	we plan to implement in KGuitar. You can choose what symbols to
+	describe dominant 7th chords you like the most and what symbols
+	should be used for note alteration.
+
+	* Lots of bugfixes, check the CVS logs if you care.
+
 2000-07-15  Mikhail Yakshin  <yakshin@glasnet.ru>
 
 	* Release 0.0.2
