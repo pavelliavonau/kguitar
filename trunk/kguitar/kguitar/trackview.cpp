@@ -44,6 +44,7 @@
 #define HORCELL 8
 #define TIMESIGSIZE 14
 #define HORSCALE 10
+#define ABBRLENGTH 25
 
 #define BOTTOMDUR	VERTSPACE+VERTLINE*(s+1)
 
@@ -69,35 +70,35 @@ TrackView::TrackView(TabSong *s, QWidget *parent = 0, const char *name = 0):
     QString fmPatch, fmPatchDir;
     fmPatch = locate("data", "kmid/fm/std.o3");
 
-    if (!fmPatch.isEmpty()) {
-        QFileInfo *fi = new QFileInfo(fmPatch);
-        fmPatchDir = fi->dirPath().latin1();
-        fmPatchDir += "/";
-        globalHaveMidi = TRUE;
+	if (!fmPatch.isEmpty()) {
+		QFileInfo *fi = new QFileInfo(fmPatch);
+		fmPatchDir = fi->dirPath().latin1();
+		fmPatchDir += "/";
+		globalHaveMidi = TRUE;
 
-        FMOut::setFMPatchesDirectory(fmPatchDir);
+		FMOut::setFMPatchesDirectory(fmPatchDir);
 
-        kdDebug() << "FMPatchesDirectory: " << fmPatchDir << endl;
-    } else {
-        kdDebug() << "Can't find FMPatches from KMid !! ** MIDI not ready !! ***" << endl;
-        globalHaveMidi = FALSE;
-    }
+		kdDebug() << "FMPatchesDirectory: " << fmPatchDir << endl;
+	} else {
+		kdDebug() << "Can't find FMPatches from KMid !! ** MIDI not ready !! ***" << endl;
+		globalHaveMidi = FALSE;
+	}
 
-    midi = new DeviceManager( /*mididev*/ -1);
+	midi = new DeviceManager( /*mididev*/ -1);
 
-    if (midi->initManager() == 0)
-        kdDebug() << "midi->initManager()...  OK" << endl;
+	if (midi->initManager() == 0)
+		kdDebug() << "midi->initManager()...  OK" << endl;
 
-    MidiMapper *map = new MidiMapper(NULL); // alinx - for future option in Optiondialog
-                                                // Maps are stored in:
-                                                // "$DKEDIR/share/apps/kmid/maps/*.map"
-    midi->setMidiMap(map);
+	MidiMapper *map = new MidiMapper(NULL); // alinx - for future option in Optiondialog
+												// Maps are stored in:
+												// "$DKEDIR/share/apps/kmid/maps/*.map"
+	midi->setMidiMap(map);
 
-    midi->openDev();
-    midi->initDev();
+	midi->openDev();
+	midi->initDev();
 
-    midiInUse = FALSE;
-    midiStopPlay = FALSE;
+	midiInUse = FALSE;
+	midiStopPlay = FALSE;
 }
 
 TrackView::~TrackView()
@@ -230,15 +231,30 @@ void TrackView::paintCell(QPainter *p, int row, int col)
 	if (curt->showBarSig(bn)) {
 		p->setFont(QFont("helvetica", TIMESIGSIZE, QFont::Bold));
 		tmp.setNum(curt->b[bn].time1);
-		p->drawText(20, VERTSPACE + VERTLINE * s / 3 - TIMESIGSIZE / 2,
+		p->drawText(20, VERTSPACE + VERTLINE * s / 4 - TIMESIGSIZE / 2,
 					TIMESIGSIZE, TIMESIGSIZE, AlignCenter, tmp);
 		tmp.setNum(curt->b[bn].time2);
-		p->drawText(20, VERTSPACE + VERTLINE * s * 2 / 3 - TIMESIGSIZE / 2,
+		p->drawText(20, VERTSPACE + VERTLINE * s * 3 / 4 - TIMESIGSIZE / 2,
 					 TIMESIGSIZE, TIMESIGSIZE, AlignCenter, tmp);
 	}
 
 	p->setFont(QFont("helvetica", VERTLINE));
 	p->setBrush(KGlobalSettings::baseColor());
+
+	// Drum abbreviations markings
+
+	if (curt->trackMode() == DrumTab) {
+		p->setPen(NoPen);
+		for (i = 0; i <= s; i++) {
+			p->drawRect(xpos, VERTSPACE + (s - i) * VERTLINE - VERTLINE / 2,
+						ABBRLENGTH, VERTLINE + 1);
+			p->drawText(xpos, VERTSPACE + (s - i) * VERTLINE - VERTLINE / 2,
+						ABBRLENGTH, VERTLINE, AlignCenter, drum_abbr[curt->tune[i]]);
+		}		
+		xpos += ABBRLENGTH + 10; lastxpos += ABBRLENGTH + 10;
+		p->setPen(SolidLine);
+	}
+
 	for (uint t = curt->b[bn].start; t <= last; t++) {
 		// Drawing duration marks
 
