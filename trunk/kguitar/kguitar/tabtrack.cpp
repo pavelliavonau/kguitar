@@ -38,6 +38,16 @@ void TabTrack::removeColumn(uint n)
     c.resize(c.size()-1);
 }
 
+void TabTrack::addFX(char fx)
+{
+    if (c[x].a[y]>=0) {
+	if (c[x].e[y] != fx)
+	    c[x].e[y] = fx;
+	else
+	    c[x].e[y] = 0;
+    }
+}
+
 //////////////////////////////////////////////////////////////////////
 //
 // Okay, down below is the probably the *messiest* and the *ugliest*
