@@ -61,15 +61,19 @@ kdelnk_DATA = kguitar.desktop
 
 KDE_ICON = AUTO
 
-EXTRA_DIST = kguitarui.rc
+EXTRA_DIST = kguitarui.rc x-kguitar.desktop
 
 install-data-local:
 	$(mkinstalldirs) $(kde_datadir)
 	$(mkinstalldirs) $(kde_datadir)/kguitar
 	$(INSTALL_DATA) kguitarui.rc $(kde_datadir)/kguitar/kguitarui.rc
+	$(mkinstalldirs) $(kde_mimedir)
+	$(mkinstalldirs) $(kde_mimedir)/application
+	$(INSTALL_DATA) x-kguitar.desktop $(kde_mimedir)/application/x-kguitar.desktop
 
 uninstall-local:
 	-rm -f $(kde_datadir)/kguitar/kguitarui.rc
+	-rm -f $(kde_mimedir)/application/x-kguitar.desktop
 
 # OLD Makefile.am ===========================================================
 
