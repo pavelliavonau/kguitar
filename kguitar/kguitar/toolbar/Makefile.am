@@ -10,6 +10,7 @@ install-data-local:
 	$(INSTALL_DATA) note8.xpm $(kde_datadir)/kguitar/toolbar/note8.xpm
 	$(INSTALL_DATA) note16.xpm $(kde_datadir)/kguitar/toolbar/note16.xpm
 	$(INSTALL_DATA) note32.xpm $(kde_datadir)/kguitar/toolbar/note32.xpm
+	$(INSTALL_DATA) timesig.xpm $(kde_datadir)/kguitar/toolbar/timesig.xpm
 
 uninstall-local:
 	-rm -f $(kde_datadir)/kguitar/toolbar/chord.xpm
@@ -19,3 +20,4 @@ uninstall-local:
 	-rm -f $(kde_datadir)/kguitar/toolbar/note8.xpm
 	-rm -f $(kde_datadir)/kguitar/toolbar/note16.xpm
 	-rm -f $(kde_datadir)/kguitar/toolbar/note32.xpm
+	-rm -f $(kde_datadir)/kguitar/toolbar/timesig.xpm
