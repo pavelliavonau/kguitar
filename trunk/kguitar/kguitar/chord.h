@@ -32,6 +32,8 @@ public:
     void setApp(int x, int fret) { fng->setApp(x, fret); }
 	int  scheme() { return strum_scheme; }
 
+    Fingering *fng;
+
 public slots:
     void detectChord();
     void setStep3();
@@ -42,20 +44,19 @@ public slots:
 	void askStrum();
 	void playMidi();
 
-protected: 
+protected:
     virtual void resizeEvent(QResizeEvent *e);
 
 private:
     TabTrack *parm;
 
-    QLineEdit *chname; 
+    QLineEdit *chname;
     QListBox *tonic, *step3, *stephigh;
     ChordList *chords;
     QComboBox *st[6], *inv, *bassnote;
     QLabel *cnote[7];
     QButtonGroup *complexity;
     QRadioButton *complexer[3];
-    Fingering *fng;
     FingerList *fnglist;
 
 	int strum_scheme;
