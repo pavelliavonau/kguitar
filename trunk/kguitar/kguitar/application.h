@@ -27,6 +27,7 @@ private slots:
     void inschord();
     void songProperties();
     void trackProperties();
+    void options();
 
     void toggleMenuBar();
     void toggleStatusBar();
