@@ -223,27 +223,27 @@ KGuitarPart::KGuitarPart(bool bBrowserView, QWidget *parentWidget,
 
 	// ...FOR CURSOR
 	mainAccel->insertItem(i18n("Move cursor right"), "key_right", "Right");
-	mainAccel->connectItem("key_right", sv->tv, SLOT(keyRight()));
+	mainAccel->connectItem("key_right", sv->tv, SLOT(moveRight()));
 	mainAccel->insertItem(i18n("Move cursor left"), "key_left", "Left");
-	mainAccel->connectItem("key_left", sv->tv, SLOT(keyLeft()));
+	mainAccel->connectItem("key_left", sv->tv, SLOT(moveLeft()));
 	mainAccel->insertItem(i18n("Move cursor up"), "key_up", "Up");
-	mainAccel->connectItem("key_up", sv->tv, SLOT(keyUp()));
+	mainAccel->connectItem("key_up", sv->tv, SLOT(moveUp()));
 	mainAccel->insertItem(i18n("Transpose up"), "key_CtrlUp", "Ctrl+Up");
-	mainAccel->connectItem("key_CtrlUp", sv->tv, SLOT(keyCtrlUp()));
+	mainAccel->connectItem("key_CtrlUp", sv->tv, SLOT(transposeUp()));
 	mainAccel->insertItem(i18n("Move cursor down"), "key_down", "Down");
-	mainAccel->connectItem("key_down", sv->tv, SLOT(keyDown()));
+	mainAccel->connectItem("key_down", sv->tv, SLOT(moveDown()));
 	mainAccel->insertItem(i18n("Transpose down"), "key_CtrlDown", "Ctrl+Down");
-	mainAccel->connectItem("key_CtrlDown", sv->tv, SLOT(keyCtrlDown()));
+	mainAccel->connectItem("key_CtrlDown", sv->tv, SLOT(transposeDown()));
 
     // ...FOR OTHER KEYS
 	mainAccel->insertItem(i18n("Dead note"), "key_x", "X");
 	mainAccel->connectItem("key_x", sv->tv, SLOT(deadNote()));
 	mainAccel->insertItem(i18n("Delete note"), "key_del", "Delete");
-	mainAccel->connectItem("key_del", sv->tv, SLOT(keyDelete()));
+	mainAccel->connectItem("key_del", sv->tv, SLOT(deleteNote()));
 	mainAccel->insertItem(i18n("Delete column"), "key_CtrlDel", "Ctrl+Delete");
-	mainAccel->connectItem("key_CtrlDel", sv->tv, SLOT(keyCtrlDelete()));
-	mainAccel->insertItem(i18n("Insert"), "key_ins", "Insert");
-	mainAccel->connectItem("key_ins", sv->tv, SLOT(keyInsert()));
+	mainAccel->connectItem("key_CtrlDel", sv->tv, SLOT(deleteColumn()));
+	mainAccel->insertItem(i18n("Insert column"), "key_ins", "Insert");
+	mainAccel->connectItem("key_ins", sv->tv, SLOT(insertColumn()));
 // 	mainAccel->insertItem(i18n("Palm muting"), "key_m", "M");
 // 	mainAccel->connectItem("key_m", sv->tv, SLOT(palmMute()));
 	mainAccel->insertItem(i18n("Dotted note"), "key_period", "Period");
