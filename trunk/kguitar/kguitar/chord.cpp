@@ -59,6 +59,7 @@ ChordSelector::ChordSelector(QWidget *parent=0, const char *name=0)
 
     fnglist = new FingerList(this);
     fnglist->setGeometry(10,240,420,100);
+    connect(fnglist,SIGNAL(chordSelected(const int *)),fng,SLOT(setFingering(const int *)));
 
     tonic = new QListBox(this);
     tonic->setAutoUpdate(FALSE);
@@ -202,10 +203,8 @@ void ChordSelector::findChords()
                 }
                 if (!ok)  break;
 	};
-	if ((ok) && (max-min<3)) {
-	  printf("Fingering: %d%d%d%d%d%d\n",app[0],app[1],app[2],app[3],app[4],app[5]);
+	if ((ok) && (max-min<3))
 	  fnglist->addFingering(app);
-	}
       }
     } while (!finished);
 
