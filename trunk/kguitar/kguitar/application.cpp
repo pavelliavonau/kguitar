@@ -307,13 +307,16 @@ void ApplicationWindow::closeDoc()
 
 void ApplicationWindow::inschord()
 {
+	int a[MAX_STRINGS];
+
 	ChordSelector cs(tv->trk());
-	for (int i=0;i<tv->trk()->string;i++)
-		cs.setApp(i,tv->finger(i));
+	for (int i = 0; i < tv->trk()->string; i++)
+		cs.setApp(i, tv->finger(i));
 
 	if (cs.exec()) {
-		for (int i=0;i<tv->trk()->string;i++)
-			tv->setFinger(i,cs.app(i));
+		for (int i = 0; i < tv->trk()->string; i++)
+			a[i] = cs.app(i);
+		tv->trk()->insertStrum(cs.scheme(), a);
 	}
 }
 
