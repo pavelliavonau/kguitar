@@ -69,8 +69,11 @@ private:
 	bool    stCho;				// chord with previous note
 	int     stDts;				// dots (count)
 	QString stFrt;				// fret
+	bool    stGls;				// glissando
+	bool    stHmr;				// hammer-on
 	QString	stNno;				// normal notes
 	QString stOct;				// octave
+	bool    stPlo;				// pull-off
 	bool    stRst;				// rest
 	QString stStp;				// step
 	QString stStr;				// string

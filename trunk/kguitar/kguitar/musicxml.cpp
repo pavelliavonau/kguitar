@@ -19,14 +19,8 @@
  ***************************************************************************/
 
 // LVIFIX missing features:
-// effects
+// harmonics
 // input error reporting
-
-// LVIFIX:
-// slurs work about the same as ties, but:
-// - need to be numbered in case of overlap (?)
-// - only present in <notations>
-// - need to distinguish between slides, hammers and pull-offs
 
 // LVIFIX:
 // add bounds checking on all toInt() results
@@ -224,7 +218,17 @@ bool MusicXMLParser::startElement( const QString&, const QString&,
                                    const QString& qName, 
                                    const QXmlAttributes& attributes)
 {
-	if (qName == "measure") {
+	if (qName == "glissando") {
+		QString tp = attributes.value("type");
+		if (tp == "start") {
+			stGls = TRUE;
+		}
+	} else if (qName == "hammer-on") {
+		QString tp = attributes.value("type");
+		if (tp == "start") {
+			stHmr = TRUE;
+		}
+	} else if (qName == "measure") {
 		// add a bar (measure) to the track
 		// if not first bar: copy attributes from previous bar
 		// note: first bar's default attributes set in TabTrack's constructor
@@ -261,6 +265,11 @@ bool MusicXMLParser::startElement( const QString&, const QString&,
 			bar = 0;
 			ts->t.at(index);
 			trk = ts->t.current();
+		}
+	} else if (qName == "pull-off") {
+		QString tp = attributes.value("type");
+		if (tp == "start") {
+			stPlo = TRUE;
 		}
 	} else if (qName == "score-part") {
 		// start of track definition found
@@ -480,8 +489,19 @@ bool MusicXMLParser::addNote()
 				}
 			}
 		}
+		// set string/fret
 		// LVIFIX: check valid range for frt and str
-		trk->c[x-1].a[mxmlStr2Kg(str, trk->string)] = frt;
+		int kgStr = mxmlStr2Kg(str, trk->string);
+		trk->c[x-1].a[kgStr] = frt;
+		// handle slide, hammer-on and pull-off
+		// last two get higher priority
+		// (EFFECT_LEGATO overwrites EFFECT_SLIDE)
+		if (stGls) {
+			trk->c[x-1].e[kgStr] = EFFECT_SLIDE;
+		}
+		if (stHmr || stPlo) {
+			trk->c[x-1].e[kgStr] = EFFECT_LEGATO;
+		}
 	}
 
 	// handle tie
@@ -530,8 +550,11 @@ void MusicXMLParser::initStNote()
 	stCho = FALSE;
 	stDts = 0;
 	stFrt = "";
+	stGls = FALSE;
+	stHmr = FALSE;
 	stNno = "";
 	stOct = "";
+	stPlo = FALSE;
 	stRst = FALSE;
 	stStp = "";
 	stStr = "";
@@ -575,7 +598,7 @@ void MusicXMLWriter::write(QTextStream& os)
 	os << "<?xml version=\"1.0\" encoding=\"UTF-8\" standalone=\"no\"?>"
 	   << endl;
 	os << "<!DOCTYPE score-partwise PUBLIC" << endl;
-	os << "    \"-//Recordare//DTD MusicXML 0.6 Partwise//EN\"" << endl;
+	os << "    \"-//Recordare//DTD MusicXML 0.7 Partwise//EN\"" << endl;
 	os << "    \"http://www.musicxml.org/dtds/partwise.dtd\">" << endl;
 	os << endl;
 	os << "<score-partwise>\n";
@@ -703,6 +726,18 @@ void MusicXMLWriter::writeAccid(QTextStream& os, int n, QString tabs)
 
 void MusicXMLWriter::writeCol(QTextStream& os, TabTrack * trk, int x, int& trp)
 {
+	// debug: dump this column
+	/*
+	os << "x=" << x;
+	os << " a[i]/e[i]=";
+	for (int i = trk->string - 1; i >= 0 ; i--) {
+		os << " " << (int) trk->c[x].a[i] << "/" << (int) trk->c[x].e[i];
+	}
+	os << " fl=" << (int) trk->c[x].flags;
+	os << endl;
+	*/
+	// end debug: dump this column
+
 	int duration;				// note duration (incl. dot/triplet)
 	int fret;
 	int length;					// note length (excl. dot/triplet)
@@ -761,6 +796,35 @@ void MusicXMLWriter::writeCol(QTextStream& os, TabTrack * trk, int x, int& trp)
 		if (trk->c[xt].a[i] > -1) {
 			nNotes++;
 			fret = trk->c[xt].a[i];
+			// if this note has an effect legato, start slur
+			// if previous note has an effect legato, stop slur
+			// EFFECT_LEGATO means hammer-on/pull-off, depending on
+			// if the next note's pitch is higher or lower than this note's
+			// MusicXML requires both the <hammer-on>/<pull-off> and <slur>
+			// EFFECT_SLIDE is assumed to mean a slide on the fretboard
+			// (not a bottleneck slide). Use a <glissando> in MusicXML.
+			bool legStart = (((unsigned)(x+1) < trk->c.size())
+							  && (trk->c[x].e[i] == EFFECT_LEGATO));
+			bool legStop  = ((x > 0)
+							  && (trk->c[x-1].e[i] == EFFECT_LEGATO));
+			QString legStartType;
+			QString legStopType;
+			if (((unsigned)(x+1) < trk->c.size())
+				&& (trk->c[x].a[i] < trk->c[x+1].a[i])) {
+				legStartType = "hammer-on";
+			} else {
+				legStartType = "pull-off";
+			}
+			if ((x > 0)
+				&& (trk->c[x-1].a[i] < trk->c[x].a[i])) {
+				legStopType = "hammer-on";
+			} else {
+				legStopType = "pull-off";
+			}
+			bool sliStart = (((unsigned)(x+1) < trk->c.size())
+							  && (trk->c[x].e[i] == EFFECT_SLIDE));
+			bool sliStop  = ((x>0)
+							  && (trk->c[x-1].e[i] == EFFECT_SLIDE));
 			os << "\t\t\t<note>\n";
 			if (nNotes > 1) {
 				os << "\t\t\t\t<chord/>\n";
@@ -787,6 +851,19 @@ void MusicXMLWriter::writeCol(QTextStream& os, TabTrack * trk, int x, int& trp)
 			}
 			writeAccid(os, trk->tune[i] + fret, "\t\t\t\t");
 			os << "\t\t\t\t<notations>\n";
+			if (legStop) {
+				os << "\t\t\t\t\t<slur type=\"stop\"/>\n";
+			}
+			if (legStart) {
+				os << "\t\t\t\t\t<slur type=\"start\"/>\n";
+			}
+			if (sliStop) {
+				os << "\t\t\t\t\t<glissando type=\"stop\"/>\n";
+			}
+			if (sliStart) {
+				os << "\t\t\t\t\t<glissando type=\"start\""
+						" line-type=\"solid\"/>\n";
+			}
 			if (tieStart) {
 				os << "\t\t\t\t\t<tied type=\"start\"/>\n";
 			}
@@ -803,6 +880,14 @@ void MusicXMLWriter::writeCol(QTextStream& os, TabTrack * trk, int x, int& trp)
 			os << "\t\t\t\t\t\t<string>" << mxmlStr2Kg(i, trk->string)
 			   << "</string>\n";
 			os << "\t\t\t\t\t\t<fret>" << fret << "</fret>\n";
+			if (legStop) {
+				os << "\t\t\t\t\t\t<" << legStopType
+				   << " type=\"stop\"/>\n";
+			}
+			if (legStart) {
+				os << "\t\t\t\t\t\t<" << legStartType
+				   << " type=\"start\"/>\n";
+			}
 			os << "\t\t\t\t\t</technical>\n";
 			os << "\t\t\t\t</notations>\n";
 			os << "\t\t\t</note>\n";
