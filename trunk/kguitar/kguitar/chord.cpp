@@ -122,6 +122,16 @@ ChordSelector::ChordSelector(TabTrack *p, QWidget *parent=0, const char *name=0)
     st[2]->insertItem("-");
     st[2]->insertItem("+");
 
+    inv = new QComboBox(FALSE,this);
+    inv->insertItem(i18n("Root"));
+    inv->insertItem(i18n("Inv #1"));
+    inv->insertItem(i18n("Inv #2"));
+    inv->insertItem(i18n("Inv #3"));
+    inv->insertItem(i18n("Inv #4"));
+    inv->insertItem(i18n("Inv #5"));
+    inv->setGeometry(70,120,80,20);
+    connect(inv,SIGNAL(activated(int)),SLOT(findChords()));
+
     complexity = new QButtonGroup(this);
     complexity->setGeometry(70,150,80,70);
     complexer[0] = new QRadioButton(i18n("Usual"),complexity);
@@ -430,7 +440,7 @@ void ChordSelector::setHighSteps()
 
 void ChordSelector::findSelection()
 {
-    bool ok;
+    bool ok = TRUE;
 
     switch (st[0]->currentItem()) {
     case 0: step3->clearSelection();break;                 // no3
@@ -440,7 +450,7 @@ void ChordSelector::findSelection()
     case 4: step3->setCurrentItem(3);break;                // Sus4
     }
 
-    for (int j=0;j<stephigh->count();j++) {
+    for (uint j=0;j<stephigh->count();j++) {
 	ok = TRUE;
 	for (int i=0;i<6;i++) {
 	    if ((stemplate[j][i]!=-1) && (stemplate[j][i]!=st[i]->currentItem())) {
@@ -499,6 +509,11 @@ void ChordSelector::findChords()
 	}
     }
 
+    // CHECKING THE INVERSION NUMBER RANGE
+
+    if (inv->currentItem()>=notenum)
+	inv->setCurrentItem(0);
+
     int span=3; // maximal fingerspan
     
     if (complexer[1]->isChecked())
@@ -554,7 +569,7 @@ void ChordSelector::findChords()
 		}
 	    }
 	    
-	    if ((k==notenum) && (max-min<span) && (bass % 12 == need[0])) {
+	    if ((k==notenum) && (max-min<span) && (bass%12==need[inv->currentItem()])) {
 		if (complexer[0]->isChecked()) {
 		    if ((muted==0) ||                                       // No muted strings
 			((muted==1) && (app[0]==-1)) ||                     // Last string muted
