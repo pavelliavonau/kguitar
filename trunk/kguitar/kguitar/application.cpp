@@ -443,8 +443,23 @@ bool KGuitarPart::slotOpenFile(QString fn)
 				ret = TRUE;
 			} else {
 				KMessageBox::sorry(p, i18n("Error happened while reading Guitar Pro file.\n"
-										   "Check if it is really a GTP file, and if it still\n"
-										   "doesn't work, write an email to: greycat@users.sourceforge.net"));
+							"Check if it is really a GTP file, and if it still\n"
+							"doesn't work, write an email to: greycat@users.sourceforge.net"));
+				return FALSE;
+			}
+		}
+
+		if (ext == "GP3") {
+			if (sv->sng()->load_from_gp3(fn)) {
+				sv->sng()->filename = "";
+				setWinCaption(i18n("Unnamed"));
+				sv->refreshView();
+				ret = TRUE;
+			} else {
+				KMessageBox::sorry(p, i18n("Error happened while reading Guitar Pro file.\n"
+							"Check if it is really a GP3 file, and if it still\n"
+							"doesn't work, write an email to: vignsyl@iit.edu\n"
+							"with the file if you can"));
 				return FALSE;
 			}
 		}
@@ -511,6 +526,14 @@ bool KGuitarPart::fileSave(QString fn)
 #endif
 	if (ext == "GTP") {
 		if (sv->sng()->save_to_gtp(fn)) {
+			ret = TRUE;
+		} else {
+			KMessageBox::sorry(p, i18n("Can't export the song!"));
+			return FALSE;
+		}
+	}
+	if (ext == "GP3") {
+		if (sv->sng()->save_to_gp3(fn)) {
 			ret = TRUE;
 		} else {
 			KMessageBox::sorry(p, i18n("Can't export the song!"));

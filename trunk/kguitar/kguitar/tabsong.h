@@ -36,6 +36,8 @@ public:
 	bool save_to_kg(QString fileName);
 	bool load_from_gtp(QString fileName);		// Guitar Pro format
 	bool save_to_gtp(QString fileName);
+	bool load_from_gp3(QString fileName);		// Guitar Pro 3 format
+	bool save_to_gp3(QString fileName);
 	bool load_from_mid(QString fileName);		// MIDI files
 	bool save_to_mid(QString fileName);
 	bool save_to_tse3(QString fileName);        // TSE3MDL files
