@@ -22,6 +22,7 @@
 #include <qpen.h>
 #include <qkeycode.h>
 #include <qcursor.h>
+#include <qstyle.h>
 
 #include "trackprint.h"
 
@@ -30,8 +31,6 @@
 #include <qcheckbox.h>
 
 #include <stdlib.h>		// required for declaration of abs()
-#include <iostream>		// required for cout and friends
-using namespace std;		// required for cout and friends
 
 // LVIFIX: note differences between "old" (in trackview.cpp) and "new" drawing code (in trackprint.cpp):
 // - erase width around tab column numbers is "as tight as possible", while the cursor is a bit wider,
@@ -123,6 +122,9 @@ TrackView::TrackView(TabSong *s, KXMLGUIClient *_XMLGUIClient, KCommandHistory *
 
 	trp = new TrackPrint;
 	trp->setOnScreen();
+	const int lw = 1;
+	trp->pLnBl = QPen(Qt::black, lw);
+	trp->pLnWh = QPen(Qt::white, lw);
 
 	updateRows();		// depends on trp's font metrics
 }
@@ -155,7 +157,7 @@ void TrackView::selectBar(uint n)
 		curt->x = curt->b[n].start;
 		curt->xb = n;
 		ensureCurrentVisible();
-		emit statusBarChanged();
+		emit barChanged();
 		emit columnChanged();
 	}
 	lastnumber = -1;
@@ -195,7 +197,7 @@ void TrackView::zoomLevelDialog()
 
 void TrackView::updateRows()
 {
-	int ch = (int) ((TOPSPTB + curt->string - 1 + BOTSPTB) * trp->ysteptb);
+	int ch = (int) ((TOPSPTB + curt->string + BOTSPTB) * trp->ysteptb);
 #ifdef USE_BOTH_OLD_AND_NEW
 	// note: cannot make row height dependent on viewscore without making too many
 	// changes to the "old" drawing code: use fixed height
@@ -408,12 +410,12 @@ void TrackView::insertChord()
 	// required to detect chord from tabulature
 	cs.detectChord();
 
-    int i;
+	int i;
 
-    // set fingering right if frets > 5
-    for (i = 0; i < curt->string; i++)
-        a[i] = cs.app(i);
-    cs.fng->setFingering(a);
+	// set fingering right if frets > 5
+	for (i = 0; i < curt->string; i++)
+		a[i] = cs.app(i);
+	cs.fng->setFingering(a);
 
 	if (cs.exec()) {
 		for (i = 0; i < curt->string; i++)
@@ -480,9 +482,6 @@ void TrackView::paintCell(QPainter *p, int row, int /*col*/)
 	trp->setPainter(p);
 	// LVIFIX: initmetrics may be expensive but depends on p, init only once ?
 	trp->initMetrics();
-	const int lw = 1;
-	trp->pLnBl = QPen(Qt::black, lw);
-	trp->pLnWh = QPen(Qt::white, lw);
 	// LVIFIX: do following calculations for the current bar only
 	curt->calcVoices();
 	curt->calcStepAltOct();
@@ -491,14 +490,13 @@ void TrackView::paintCell(QPainter *p, int row, int /*col*/)
 	trp->xpos = -1;
 	if (viewscore && fetaFont) {
 		trp->initPrStyle(2);
-		trp->yposst = (int) ((TOPSPST + NLINEST - 1) * trp->ystepst);
+		trp->yposst = (int) ((TOPSPST + NLINEST - 1 + BOTSPST) * trp->ystepst);
 		trp->drawStLns(width());
 	} else {
 		trp->initPrStyle(0);
 	}
-	trp->ypostb = trp->yposst
-	              + (int) (BOTSPST * trp->ystepst)
-	              + (int) ((TOPSPTB + curt->string) * trp->ysteptb);
+ 	trp->ypostb = trp->yposst
+ 	              + (int) ((TOPSPTB + curt->string - 0.5) * trp->ysteptb);
 #ifdef USE_BOTH_OLD_AND_NEW
 	// force new tabbar position close to old one
 	trp->ypostb = (int) ((TOPSPST + NLINEST - 1) * trp->ystepst)
@@ -518,6 +516,14 @@ void TrackView::paintCell(QPainter *p, int row, int /*col*/)
 		p->setPen(trp->pLnBl);
 		p->drawLine(trp->xpos - 1, trp->yposst, trp->xpos - 1, trp->ypostb);
 	}
+
+	// DEBUG: DRAW VARIOUS GUIDE BORDERS
+
+// 	p->setBrush(NoBrush);
+// 	p->setPen(red);
+// 	p->drawRect(cellRect());
+// 	p->setPen(blue);
+// 	p->drawRect(0, TOPSPTB * trp->ysteptb, cellWidth(), curt->string * trp->ysteptb);
 
 	// DRAW SELECTION
 
@@ -889,7 +895,7 @@ void TrackView::paintCell(QPainter *p, int row, int /*col*/)
 void TrackView::resizeEvent(QResizeEvent *e)
 {
 	QGridView::resizeEvent(e); // GREYFIX ? Is it C++-correct?
-	setCellWidth(width() - 2);
+	setCellWidth(width() - 2 - QStyle::PM_ScrollBarExtent);
 }
 
 bool TrackView::moveFinger(int from, int dir)
@@ -928,12 +934,10 @@ void TrackView::keySig()
 		oldsig = 0;
 	}
 
-	SetKeySig *sks = new SetKeySig();
-	sks->sig->setCurrentItem(7 - oldsig);
+	SetKeySig sks(oldsig);
 
-	if (sks->exec()) {
-		int newsig = sks->sig->currentItem();
-		curt->b[0].keysig = (short) (7 - newsig);
+	if (sks.exec()) {
+		curt->b[0].keysig = sks.keySignature();
 		// LVIFIX: undo info
 	}
 
@@ -943,31 +947,15 @@ void TrackView::keySig()
 
 void TrackView::timeSig()
 {
-	SetTimeSig *sts = new SetTimeSig();
+	SetTimeSig sts(curt->b[curt->xb].time1, curt->b[curt->xb].time2);
 
-	sts->time1->setValue(curt->b[curt->xb].time1);
-
-	switch (curt->b[curt->xb].time2) {
-	case 1:	 sts->time2->setCurrentItem(0); break;
-	case 2:	 sts->time2->setCurrentItem(1); break;
-	case 4:	 sts->time2->setCurrentItem(2); break;
-	case 8:	 sts->time2->setCurrentItem(3); break;
-	case 16: sts->time2->setCurrentItem(4); break;
-	case 32: sts->time2->setCurrentItem(5); break;
-	}
-
-	if (sts->exec()) {
-		int time1 = sts->time1->value();
-		int time2 = ((QString) sts->time2->currentText()).toUInt();
-
-		cmdHist->addCommand(new SetTimeSigCommand(this, curt, sts->toend->isChecked(),
-													time1, time2));
-	}
+	if (sts.exec())
+		cmdHist->addCommand(new SetTimeSigCommand(this, curt, sts.toend->isChecked(),
+		                                          sts.time1(), sts.time2()));
 
 	lastnumber = -1;
 }
 
-// Move cursor left one column, breaking selection
 void TrackView::keyLeft()
 {
 	if (curt->sel) {
@@ -978,7 +966,6 @@ void TrackView::keyLeft()
 	}
 }
 
-// Move cursor right one column, breaking selection
 void TrackView::keyRight()
 {
 	if (curt->sel) {
@@ -989,7 +976,26 @@ void TrackView::keyRight()
 	}
 }
 
-// Move cursor to the beginning of bar, breaking selection
+void TrackView::keyLeftBar()
+{
+	if (curt->sel) {
+		curt->sel = FALSE;
+		repaintContents();
+	} else {
+		moveLeftBar();
+	}
+}
+
+void TrackView::keyRightBar()
+{
+	if (curt->sel) {
+		curt->sel = FALSE;
+		repaintContents();
+	} else {
+		moveRightBar();
+	}
+}
+
 void TrackView::keyHome()
 {
 	if (curt->sel) {
@@ -1000,7 +1006,6 @@ void TrackView::keyHome()
 	}
 }
 
-// Move cursor to the ending of bar, breaking selection
 void TrackView::keyEnd()
 {
 	if (curt->sel) {
@@ -1011,7 +1016,6 @@ void TrackView::keyEnd()
 	}
 }
 
-// Move cursor to the very beginning of the song, breaking selection
 void TrackView::keyCtrlHome()
 {
 	if (curt->sel) {
@@ -1022,7 +1026,6 @@ void TrackView::keyCtrlHome()
 	}
 }
 
-// Move cursor to the very end of the song, breaking selection
 void TrackView::keyCtrlEnd()
 {
 	if (curt->sel) {
@@ -1041,7 +1044,7 @@ void TrackView::moveLeft()
 			repaintCurrentCell();
 			curt->xb--;
 			ensureCurrentVisible();
-			emit statusBarChanged();
+			emit barChanged();
 		} else {
 			curt->x--;
 		}
@@ -1065,7 +1068,7 @@ void TrackView::moveRight()
 				repaintCurrentCell();
 				curt->xb++;
 				ensureCurrentVisible();
-				emit statusBarChanged();
+				emit barChanged();
 			} else {
 				curt->x++;
 			}
@@ -1074,6 +1077,28 @@ void TrackView::moveRight()
 		emit columnChanged();
 	}
 	lastnumber = -1;
+}
+
+void TrackView::moveLeftBar()
+{
+	if (curt->x > curt->b[curt->xb].start) {
+		moveHome(); 
+	} else {
+		moveLeft();
+		moveHome();
+	}
+}
+
+void TrackView::moveRightBar()
+{
+	if (curt->x == curt->lastColumn(curt->xb)) {
+		moveRight();
+	} else if (curt->x == curt->b[curt->xb].start) {
+		moveEnd();
+		moveRight();
+	} else {
+		moveEnd();
+	}
 }
 
 void TrackView::moveHome()
@@ -1096,7 +1121,7 @@ void TrackView::moveCtrlHome()
 	curt->xb = 0;
 	ensureCurrentVisible();
 	repaintContents();
-	emit statusBarChanged();
+	emit barChanged();
 	emit columnChanged();
 }
 
@@ -1106,7 +1131,7 @@ void TrackView::moveCtrlEnd()
 	curt->xb = curt->b.size() - 1;
 	ensureCurrentVisible();
 	repaintContents();
-	emit statusBarChanged();
+	emit barChanged();
 	emit columnChanged();
 }
 
@@ -1242,7 +1267,7 @@ void TrackView::arrangeTracks()
 {
 	cmdHist->clear();       // because columns will be changed
 	curt->arrangeBars();
-	emit statusBarChanged();
+	emit barChanged();
 	updateRows();
 	repaintContents();
 
@@ -1273,7 +1298,7 @@ void TrackView::insertTab(int num)
 void TrackView::arrangeBars()
 {
 	song->arrangeBars();
-	emit statusBarChanged();
+	emit barChanged();
 	emit columnChanged();
 	updateRows();
 }
@@ -1343,7 +1368,7 @@ void TrackView::mousePressEvent(QMouseEvent *e)
 				curt->sel = FALSE;
 
 				emit columnChanged();
-				emit statusBarChanged();
+				emit barChanged();
 				found = TRUE;
 				break;
 			}
