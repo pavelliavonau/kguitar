@@ -5,7 +5,7 @@
 msgid ""
 msgstr ""
 "Project-Id-Version: PACKAGE VERSION\n"
-"POT-Creation-Date: 2000-10-14 22:45-0400\n"
+"POT-Creation-Date: 2001-06-28 16:14-0400\n"
 "PO-Revision-Date: 2000-11-10 15:23GMT+3\n"
 "Last-Translator: Mikhail Yakshin <yakshin@online.ru>\n"
 "Language-Team: Russian <ru@li.org>\n"
@@ -14,123 +14,203 @@ msgstr ""
 "Content-Transfer-Encoding: 8bit\n"
 "X-Generator: KBabel 0.7alpha\n"
 
-#: application.cpp:68
-msgid "New document"
-msgstr ""
-
-#: application.cpp:74
-msgid "Insert chord"
-msgstr "Вставить аккорд"
-
-#: application.cpp:76
-msgid "Whole"
-msgstr "Целая"
-
-#: application.cpp:88 timesig.cpp:60
-msgid "Time signature"
-msgstr "Размеp"
-
-#: application.cpp:90
-msgid "Link with previous column"
-msgstr "Лига на предыдущую"
-
-#: application.cpp:92
-msgid "Legato (hammer on/pull off)"
-msgstr "Легато (hammer on/pull off)"
-
-#: application.cpp:94
-msgid "Natural harmonic"
-msgstr "Натуральный флажолет"
-
-#: application.cpp:96
-msgid "Artificial harmonic"
-msgstr "Искусственный флажолет"
-
-#: application.cpp:101
-msgid "&New"
-msgstr ""
-
-#: application.cpp:112
-msgid "&MIDI file..."
-msgstr "&MIDI файл..."
-
-#: application.cpp:113
-msgid "ASCII &tab..."
-msgstr "ASCII &табулатура..."
-
-#: application.cpp:114
-msgid "&MusiXTeX tab..."
-msgstr "&MusiXTeX табулатуpа..."
-
-#: application.cpp:116
-msgid "&Export"
-msgstr "&Экспортировать"
-
-#: application.cpp:119
+#: application.cpp:135
 msgid "P&roperties..."
 msgstr "С&войства..."
 
-#: application.cpp:127
-msgid "&Track..."
-msgstr "&Трек..."
-
-#: application.cpp:131
-msgid "&Chord"
+#: application.cpp:140
+#, fuzzy
+msgid "&Chord..."
 msgstr "&Аккорд"
 
-#: application.cpp:135
-msgid "&General..."
-msgstr "&Общие..."
+#: application.cpp:144
+msgid "&Save Options"
+msgstr ""
 
-#: application.cpp:138
+#: application.cpp:147
+msgid "&Arrange Track"
+msgstr ""
+
+#: application.cpp:151
+msgid "Whole"
+msgstr "Целая"
+
+#: application.cpp:153
+msgid "1/2"
+msgstr ""
+
+#: application.cpp:155
+msgid "1/4"
+msgstr ""
+
+#: application.cpp:157
+msgid "1/8"
+msgstr ""
+
+#: application.cpp:159
+msgid "1/16"
+msgstr ""
+
+#: application.cpp:161
+msgid "1/32"
+msgstr ""
+
+#: application.cpp:165 timesig.cpp:60
+msgid "Time signature"
+msgstr "Размеp"
+
+#: application.cpp:168
+msgid "Link with previous column"
+msgstr "Лига на предыдущую"
+
+#: application.cpp:171
+msgid "Legato (hammer on/pull off)"
+msgstr "Легато (hammer on/pull off)"
+
+#: application.cpp:174
+msgid "Natural harmonic"
+msgstr "Натуральный флажолет"
+
+#: application.cpp:177
+msgid "Artificial harmonic"
+msgstr "Искусственный флажолет"
+
+#: application.cpp:182
 msgid "American, sharps"
 msgstr "Амеpиканские, диезы"
 
-#: application.cpp:139
+#: application.cpp:184
 msgid "American, flats"
 msgstr "Амеpиканские, бемоли"
 
-#: application.cpp:140
+#: application.cpp:186
 msgid "American, mixed"
 msgstr "Амеpиканские, смешанные"
 
-#: application.cpp:142
+#: application.cpp:188
 msgid "European, sharps"
 msgstr "Евpопейские, диезы"
 
-#: application.cpp:143
+#: application.cpp:190
 msgid "European, flats"
 msgstr "Евpопейские, бемоли"
 
-#: application.cpp:144
+#: application.cpp:192
 msgid "European, mixed"
 msgstr "Евpопейские, смешанные"
 
-#: application.cpp:146
+#: application.cpp:194
 msgid "Jazz, sharps"
 msgstr "Джазовые, диезы"
 
-#: application.cpp:147
+#: application.cpp:196
 msgid "Jazz, flats"
 msgstr "Джазовые, бемоли"
 
-#: application.cpp:148
+#: application.cpp:198
 msgid "Jazz, mixed"
 msgstr "Джазовые, смешанные"
 
-#: application.cpp:153
-msgid "&Note names"
-msgstr "&Hазвания нот"
+#: application.cpp:202
+#, fuzzy
+msgid "&Play Track"
+msgstr "&Трек..."
 
-#: application.cpp:158
-msgid "A stringed instrument tabulature editor"
-msgstr "Редактор табулатур струнных инструментов"
+#: application.cpp:205
+msgid "&Stop"
+msgstr ""
 
-#: application.cpp:166 application.cpp:187
-msgid "Bar: "
-msgstr "Такт: "
+#: application.cpp:213
+msgid "Move cursor right"
+msgstr ""
 
-#: application.cpp:194
+#: application.cpp:215
+msgid "Move cursor left"
+msgstr ""
+
+#: application.cpp:217 application.cpp:219
+msgid "Move cursor up"
+msgstr ""
+
+#: application.cpp:221 application.cpp:223
+msgid "Move cursor down"
+msgstr ""
+
+#: application.cpp:227
+msgid "Dead note"
+msgstr ""
+
+#: application.cpp:231
+msgid "Ctrl+Delete"
+msgstr ""
+
+#: application.cpp:235
+msgid "Palm muting"
+msgstr ""
+
+#: application.cpp:237
+msgid "Doted note"
+msgstr ""
+
+#: application.cpp:239
+msgid "Key plus"
+msgstr ""
+
+#: application.cpp:241
+msgid "Key minus"
+msgstr ""
+
+#: application.cpp:245
+msgid "Key 1"
+msgstr ""
+
+#: application.cpp:247
+msgid "Key 2"
+msgstr ""
+
+#: application.cpp:249
+msgid "Key 3"
+msgstr ""
+
+#: application.cpp:251
+msgid "Key 4"
+msgstr ""
+
+#: application.cpp:253
+msgid "Key 5"
+msgstr ""
+
+#: application.cpp:255
+msgid "Key 6"
+msgstr ""
+
+#: application.cpp:257
+msgid "Key 7"
+msgstr ""
+
+#: application.cpp:259
+msgid "Key 8"
+msgstr ""
+
+#: application.cpp:261
+msgid "Key 9"
+msgstr ""
+
+#: application.cpp:263
+msgid "Key 0"
+msgstr ""
+
+#: application.cpp:270
+#, fuzzy
+msgid "Song Properties..."
+msgstr "Свойства композиции"
+
+#: application.cpp:271
+#, fuzzy
+msgid "Track Properties..."
+msgstr "Свойства тpека"
+
+#: application.cpp:306
 msgid ""
 "Jazz note names are very special and should be\n"
 "used only if really know what you do. Usage of jazz\n"
@@ -140,104 +220,408 @@ msgid ""
 "\n"
 "Are you sure you want to use jazz notes?"
 msgstr ""
-"Джазовые названия нот - очень особенные и должны\n"
-"использоваться только если вы точно знаете, что делаете.\n"
-"Бесцельное использование джазовых нот может запутать\n"
+"Джазовые названия нот - очень особенные и "
+"должны\n"
+"использоваться только если вы точно "
+"знаете, что делаете.\n"
+"Бесцельное использование джазовых нот "
+"может запутать\n"
 "тех, кто не знаком с этими названиями.\n"
 "\n"
-"Вы увеpены, что хотите использовать джазовые ноты?"
+"Вы увеpены, что хотите использовать "
+"джазовые ноты?"
 
-#: chord.cpp:164
+#: application.cpp:325 application.cpp:333 application.cpp:373
+#: application.cpp:384 application.cpp:395 kguitar_shell.cpp:83
+msgid "Unnamed"
+msgstr ""
+
+#: application.cpp:344
+msgid "Please select a file."
+msgstr ""
+
+#: application.cpp:348
+msgid "You have no permission to read this file."
+msgstr ""
+
+#: application.cpp:365 application.cpp:376 application.cpp:387
+msgid "Can't load the song!"
+msgstr ""
+
+#: application.cpp:398
+msgid ""
+"This feature is at this time not implemented.\n"
+"If you would help to implement this feature\n"
+"please write an email to: greycat@users.sourceforge.net"
+msgstr ""
+
+#: application.cpp:423
+msgid "Can't save the song!"
+msgstr ""
+
+#: application.cpp:431 application.cpp:439 application.cpp:447
+#: application.cpp:458
+msgid "Can't export the song!"
+msgstr ""
+
+#: application.cpp:468
+msgid ""
+"Printing is at this time not implemented. If you would\n"
+"help to implement this feature in KGuitar please write\n"
+"an email to: greycat@users.sourceforge.net"
+msgstr ""
+
+#: chord.cpp:169
 msgid "Root"
 msgstr "Основной"
 
-#: chord.cpp:165
+#: chord.cpp:170
 msgid "Inv #1"
 msgstr "Обр #1"
 
-#: chord.cpp:166
+#: chord.cpp:171
 msgid "Inv #2"
 msgstr "Обр #2"
 
-#: chord.cpp:167
+#: chord.cpp:172
 msgid "Inv #3"
 msgstr "Обр #3"
 
-#: chord.cpp:168
+#: chord.cpp:173
 msgid "Inv #4"
 msgstr "Обр #4"
 
-#: chord.cpp:169
+#: chord.cpp:174
 msgid "Inv #5"
 msgstr "Обр #5"
 
-#: chord.cpp:170
+#: chord.cpp:175
 msgid "Inv #6"
 msgstr "Обр #6"
 
-#: chord.cpp:175
+#: chord.cpp:180
 msgid "Usual"
 msgstr "Обычные"
 
-#: chord.cpp:177
+#: chord.cpp:182
 msgid "Rare"
 msgstr "Редкие"
 
-#: chord.cpp:179
+#: chord.cpp:184
 msgid "All"
 msgstr "Все"
 
-#: chord.cpp:212
+#: chord.cpp:217
 msgid "&Strum..."
 msgstr "&Ритм..."
 
-#: chord.cpp:284
+#: chord.cpp:223 filebrowser.cpp:115 rc.cpp:8
+msgid "&Play"
+msgstr ""
+
+#: chord.cpp:297
 msgid "Chord constructor"
 msgstr "Конструктор аккордов"
 
-#: setsong.cpp:17
+#: chord.cpp:313 trackview.cpp:712
+msgid ""
+"Can't open /dev/sequenzer !!\n"
+"Probably there is another program using it."
+msgstr ""
+
+#: filebrowser.cpp:103 filebrowser.cpp:289 filebrowser.cpp:306
+#: filebrowser.cpp:317 filebrowser.cpp:333
+msgid "File browser"
+msgstr ""
+
+#: filebrowser.cpp:109
+msgid "&Scan"
+msgstr ""
+
+#: filebrowser.cpp:112
+msgid "Scan Subdirectories"
+msgstr ""
+
+#: filebrowser.cpp:118
+msgid "Play score"
+msgstr ""
+
+#: filebrowser.cpp:124
+msgid "No Jump"
+msgstr ""
+
+#: filebrowser.cpp:125
+msgid "Jump after 1 bar"
+msgstr ""
+
+#: filebrowser.cpp:126
+msgid "Jump after 2 bars"
+msgstr ""
+
+#: filebrowser.cpp:127
+msgid "Jump after 5 bars"
+msgstr ""
+
+#: filebrowser.cpp:128
+msgid "Jump after 10 bars"
+msgstr ""
+
+#: filebrowser.cpp:129
+msgid "Jump after 25 bars"
+msgstr ""
+
+#: filebrowser.cpp:130
+msgid "Jump after the score"
+msgstr ""
+
+#: filebrowser.cpp:135
+msgid "Directories"
+msgstr ""
+
+#: filebrowser.cpp:144
+msgid "Name"
+msgstr ""
+
+#: filebrowser.cpp:145
+#, fuzzy
+msgid "Size"
+msgstr "Размеp табулатуpы"
+
+#: filebrowser.cpp:146
+msgid "Modified"
+msgstr ""
+
+#: filebrowser.cpp:147
+msgid "Directory"
+msgstr ""
+
+#: filebrowser.cpp:156
+#, fuzzy
+msgid "Title:"
+msgstr "&Название:"
+
+#: filebrowser.cpp:161
+#, fuzzy
+msgid "Author:"
+msgstr "&Автор:"
+
+#: filebrowser.cpp:166
+#, fuzzy
+msgid "Transcriber:"
+msgstr "&Запись:"
+
+#: filebrowser.cpp:288
+msgid "Please select a directory!"
+msgstr ""
+
+#: filebrowser.cpp:305 filebrowser.cpp:332
+msgid "You have no permission to read this directory!"
+msgstr ""
+
+#: filebrowser.cpp:317
+msgid "There are no files."
+msgstr ""
+
+#: filebrowser.cpp:361 filebrowser.cpp:371
+msgid "No files"
+msgstr ""
+
+#: kguitar_shell.cpp:32
+msgid "No libkguitar found !"
+msgstr ""
+
+#: kguitar_shell.cpp:52
+msgid "Browser..."
+msgstr ""
+
+#: kguitar_shell.cpp:62 kguitar_shell.cpp:86 rc.cpp:11
+msgid "Edit Toolbar"
+msgstr ""
+
+#: kguitar_shell.cpp:88 kguitar_shell.cpp:258
+msgid "Bar: "
+msgstr "Такт: "
+
+#: kguitar_shell.cpp:126
+msgid ""
+"*.kg|KGuitar files (*.kg)\n"
+"*.tab|ASCII files (*.tab)\n"
+"*.mid|MIDI files (*.mid)\n"
+"*.gtp|Guitar Pro files (*.gtp)\n"
+"*|All files"
+msgstr ""
+
+#: kguitar_shell.cpp:137
+msgid ""
+"*.kg|KGuitar files (*.kg)\n"
+"*.tab|ASCII files (*.tab)\n"
+"*.mid|MIDI files (*.mid)\n"
+"*.gtp|Guitar Pro files (*.gtp)\n"
+"*.tex|MusiXTeX (*.tex)\n"
+"*|All files"
+msgstr ""
+
+#: kguitar_shell.cpp:153
+msgid "This file exists! Do you overwrite this file?"
+msgstr ""
+
+#: kguitar_shell.cpp:157
+msgid "You have no permission to write this file!"
+msgstr ""
+
+#: kguitar_shell.cpp:166
+msgid "Please select a filter or add an extension."
+msgstr ""
+
+#: main.cpp:13
+msgid "File to open."
+msgstr ""
+
+#: main.cpp:17
+msgid "A stringed instrument tabulature editor"
+msgstr ""
+"Редактор табулатур струнных инструментов"
+
+#: main.cpp:22
+msgid "KGuitar"
+msgstr ""
+
+#: main.cpp:27
+msgid "Maintainer and main coder"
+msgstr ""
+
+#: main.cpp:35
+msgid ""
+"Special Thanks to Ronald Gelten who\n"
+"allowed us to make changes to tabdefs.tex"
+msgstr ""
+
+#: options.cpp:23
+msgid "Preferences"
+msgstr ""
+
+#: options.cpp:44
+msgid "Music Theory"
+msgstr ""
+
+#: options.cpp:49
+msgid "Dominant 7th"
+msgstr "Доминант септаккорд"
+
+#: options.cpp:63
+msgid "Alterations"
+msgstr "Альтерации"
+
+#: options.cpp:65
+msgid "-/+ symbols"
+msgstr "Символы -/+"
+
+#: options.cpp:66
+msgid "b/# symbols"
+msgstr "Символы b/#"
+
+#: options.cpp:82
+msgid "MusiXTeX Export"
+msgstr "Экспоpт MusiXTeX"
+
+#: options.cpp:85
+msgid "MusiXTeX Layout"
+msgstr "Вывод MusiXTeX"
+
+#: options.cpp:87
+msgid "Show Barnumber"
+msgstr "Показывать номеp такта"
+
+#: options.cpp:89
+msgid "Show Tuning"
+msgstr "Показывать настpойку"
+
+#: options.cpp:91
+msgid "Show Pagenumber"
+msgstr "Показывать номеp стpаницы"
+
+#: options.cpp:101
+#, fuzzy
+msgid "Export as..."
+msgstr "&Экспортировать"
+
+#: options.cpp:103
+#, fuzzy
+msgid "Tabulature"
+msgstr "Ладовая табулатура"
+
+#: options.cpp:104
+#, fuzzy
+msgid "Notes"
+msgstr "&Hазвания нот"
+
+#: options.cpp:112
+msgid "Tab Size"
+msgstr "Размеp табулатуpы"
+
+#: options.cpp:114
+msgid "Smallest"
+msgstr "Hаименьший"
+
+#: options.cpp:115
+msgid "Small"
+msgstr "Маленький"
+
+#: options.cpp:116
+msgid "Normal"
+msgstr "Hоpмальный"
+
+#: options.cpp:117
+msgid "Big"
+msgstr "Большой"
+
+#: options.cpp:135
+msgid "MIDI Device Support"
+msgstr ""
+
+#: options.cpp:165
+msgid "ALSA"
+msgstr ""
+
+#: options.cpp:170
+msgid "Port"
+msgstr ""
+
+#: options.cpp:171
+msgid "Client Info"
+msgstr ""
+
+#: options.cpp:172
+msgid "Port Info"
+msgstr ""
+
+#: options.cpp:177
+msgid "MIDI &output port"
+msgstr ""
+
+#: options.cpp:180
+msgid "&Refresh"
+msgstr ""
+
+#: setsong.cpp:18
 msgid "&Title:"
 msgstr "&Название:"
 
-#: setsong.cpp:18
+#: setsong.cpp:19
 msgid "&Author:"
 msgstr "&Автор:"
 
-#: setsong.cpp:19
+#: setsong.cpp:20
 msgid "&Transcriber:"
 msgstr "&Запись:"
 
-#: setsong.cpp:20
+#: setsong.cpp:21
 msgid "&Comments:"
 msgstr "&Комментарии:"
 
-#: setsong.cpp:53
+#: setsong.cpp:54
 msgid "Song properties"
 msgstr "Свойства композиции"
-
-#: settrack.cpp:24
-msgid "&Track name:"
-msgstr "&Название:"
-
-#: settrack.cpp:25
-msgid "&Channel:"
-msgstr "&Канал:"
-
-#: settrack.cpp:26
-msgid "&Bank:"
-msgstr "&Банк:"
-
-#: settrack.cpp:27
-msgid "&Patch:"
-msgstr "&Патч:"
-
-#: settrack.cpp:65
-msgid "Track properties"
-msgstr "Свойства тpека"
-
-#: settabfret.cpp:13
-msgid "Fret tabulature"
-msgstr "Ладовая табулатура"
 
 #: settabfret.cpp:23
 msgid "Tuning:"
@@ -251,69 +635,175 @@ msgstr "Струны:"
 msgid "Frets:"
 msgstr "Лады:"
 
-#: options.cpp:18
-msgid "Dominant 7th"
-msgstr "Доминант септаккорд"
+#: settrack.cpp:27
+msgid "Fretted instrument"
+msgstr ""
 
-#: options.cpp:32
-msgid "Alterations"
-msgstr "Альтерации"
+#: settrack.cpp:28
+msgid "Drum track"
+msgstr ""
 
-#: options.cpp:34
-msgid "-/+ symbols"
-msgstr "Символы -/+"
+#: settrack.cpp:30
+msgid "&Track name:"
+msgstr "&Название:"
 
-#: options.cpp:35
-msgid "b/# symbols"
-msgstr "Символы b/#"
+#: settrack.cpp:31
+msgid "&Channel:"
+msgstr "&Канал:"
 
-#: options.cpp:43
-msgid "&Chords"
-msgstr "&Аккорды"
+#: settrack.cpp:32
+msgid "&Bank:"
+msgstr "&Банк:"
 
-#: options.cpp:51
-msgid "MusiXTeX Layout"
-msgstr "Вывод MusiXTeX"
+#: settrack.cpp:33
+msgid "&Patch:"
+msgstr "&Патч:"
 
-#: options.cpp:53
-msgid "Show Barnumber"
-msgstr "Показывать номеp такта"
+#: settrack.cpp:34
+msgid "&Mode:"
+msgstr ""
 
-#: options.cpp:55
-msgid "Show Tuning"
-msgstr "Показывать настpойку"
+#: settrack.cpp:55
+#, fuzzy
+msgid "&General"
+msgstr "&Общие..."
 
-#: options.cpp:57
-msgid "Show Pagenumber"
-msgstr "Показывать номеp стpаницы"
+#: settrack.cpp:62
+msgid "&Mode-specific"
+msgstr ""
 
-#: options.cpp:60
-msgid "Tab Size"
-msgstr "Размеp табулатуpы"
+#: settrack.cpp:67
+msgid "Track properties"
+msgstr "Свойства тpека"
 
-#: options.cpp:62
-msgid "Smallest"
-msgstr "Hаименьший"
+#: strum.h:33
+#, fuzzy
+msgid "Chord"
+msgstr "&Аккорд"
 
-#: options.cpp:63
-msgid "Small"
-msgstr "Маленький"
+#: strum.h:34
+msgid "Plain single chord, all notes sound at the same time."
+msgstr ""
 
-#: options.cpp:64
-msgid "Normal"
-msgstr "Hоpмальный"
+#: strum.h:37
+msgid "6/8 Standard Arpegio"
+msgstr ""
 
-#: options.cpp:65
-msgid "Big"
-msgstr "Большой"
+#: strum.h:38
+msgid ""
+"Classic arpegio, played in 6/8. Makes very good accompaniment for slow, "
+"lyric songs. Used in the raw form (playing open strings) by Metallica in the "
+"song \"Nothing Else Matters\""
+msgstr ""
 
-#: options.cpp:73
-msgid "MusiXTeX Export"
-msgstr "Экспоpт MusiXTeX"
+#: strum.h:43
+msgid "4/4 Short Arpegio"
+msgstr ""
 
-#: options.cpp:83
-msgid "General options"
-msgstr "Общие настройки"
+#: strum.h:44
+msgid ""
+"Shortened variation of classic arpegio, with chord-like two simultaneous "
+"string pick in the middle. A cross between classic arpegio and bass pick "
+"technique."
+msgstr ""
+
+#: strum.h:49
+msgid "8/8 Arpegio 1"
+msgstr ""
+
+#: strum.h:50
+msgid ""
+"Pretty complex arpegio that makes dynamic progressing and continuous rhythm "
+"line. Fits best in medium tempo upbeat songs."
+msgstr ""
+
+#: strum.h:54
+msgid "8/8 Arpegio 2"
+msgstr ""
+
+#: strum.h:55
+msgid ""
+"Variantion of previous arpegio, can spice up sound if used several times "
+"with previous rhythm."
+msgstr ""
+
+#: strum.h:59
+msgid "3/4 Smooth Arpegio With Return"
+msgstr ""
+
+#: strum.h:60
+msgid ""
+"Smooth accelerating and decelarating arpegio. Played mostly with a pick, "
+"strumming relatively slow through the strings. Well-known from a song "
+"\"House of the Rising Sun\", performed by Animals and many others."
+msgstr ""
+
+#: strum.h:66
+msgid "4/4 Rock Ballad Arpegio 1"
+msgstr ""
+
+#: strum.h:67
+msgid ""
+"Most famous rock arpegio. If played in a correct way, could make a smooth "
+"continuous rhythm, good for verses. One of the most well-known songs that "
+"uses such arpegio is \"Don't Cry\" by Guns'n'Roses."
+msgstr ""
+
+#: strum.h:73
+msgid "4/4 Rock Ballad Arpegio 2"
+msgstr ""
+
+#: strum.h:74
+msgid ""
+"Smooth rock ballad arpegio. Picking pattern could seem a bit random-like, "
+"though the whole arpegio makes a pretty smooth rhythm. Good for slow and "
+"lyric ballads. Performed by Smokie in their song \"Living Next Door to "
+"Alice\""
+msgstr ""
+
+#: strum.h:80
+msgid "4/4 Rock Ballad Arpegio 3"
+msgstr ""
+
+#: strum.h:81
+msgid ""
+"Weird, but simple combination of classic arpegios, makes a good continuous "
+"rock lyric arpegio, with a bit of spanish feel. Used in the song of "
+"Scorpions \"Holiday\""
+msgstr ""
+
+#: strum.h:86
+msgid "4/4 Normal Bass Pick"
+msgstr ""
+
+#: strum.h:93
+msgid "3/4 Waltz Bass Pick"
+msgstr ""
+
+#: strum.h:94
+msgid ""
+"Waltz style bass pick. Makes a perfect dance rhythm - played on 3/4, with "
+"the first beat accented by bass note. Could be used in classic guitar "
+"playing experience, for example, in orchestra."
+msgstr ""
+
+#: strum.h:99
+msgid "4/4 Deep Bass Pick"
+msgstr ""
+
+#: strum.h:100
+msgid ""
+"Normal bass pick with a shuffled, bluesey feel, made by delaying bass notes "
+"by an extra 1/8. A good simple rhythm for blues and folk songs."
+msgstr ""
+
+#: strumming.cpp:27
+msgid "Strum &pattern:"
+msgstr "&Рисунок:"
+
+#: strumming.cpp:63
+msgid "Strumming pattern"
+msgstr "Ритмический pисунок"
 
 #: timesig.cpp:25
 msgid "&Beats per measure:"
@@ -327,11 +817,145 @@ msgstr "&Значение доли:"
 msgid "Apply till the &end"
 msgstr "Установить до &конца"
 
-#: strumming.cpp:26
-msgid "Strum &pattern:"
-msgstr "&Рисунок:"
+#: tunings.h:24
+msgid "User defined"
+msgstr ""
 
-#: strumming.cpp:53
-msgid "Strumming pattern"
-msgstr "Ритмический pисунок"
+#: tunings.h:26
+msgid "Guitar (6): standard"
+msgstr ""
 
+#: tunings.h:27
+msgid "Guitar (6): Eb"
+msgstr ""
+
+#: tunings.h:28
+msgid "Guitar (6): D"
+msgstr ""
+
+#: tunings.h:29
+msgid "Guitar (6): drop D"
+msgstr ""
+
+#: tunings.h:30
+msgid "Guitar (6): open C"
+msgstr ""
+
+#: tunings.h:31
+msgid "Guitar (6): open D"
+msgstr ""
+
+#: tunings.h:32
+msgid "Guitar (6): open E"
+msgstr ""
+
+#: tunings.h:34
+msgid "Guitar (7): rock"
+msgstr ""
+
+#: tunings.h:35
+msgid "Guitar (7): traditional"
+msgstr ""
+
+#: tunings.h:37
+msgid "Guitar (8): brahms"
+msgstr ""
+
+#: tunings.h:39
+msgid "Bass (4): standard"
+msgstr ""
+
+#: tunings.h:40
+msgid "Bass (4): drop D"
+msgstr ""
+
+#: tunings.h:42
+msgid "Bass (5): standard"
+msgstr ""
+
+#: tunings.h:44
+msgid "Banjo (5): open G"
+msgstr ""
+
+#: tunings.h:45
+msgid "Banjo (5): drop C"
+msgstr ""
+
+#: tunings.h:46
+msgid "Banjo (5): open D"
+msgstr ""
+
+#: tunings.h:47
+msgid "Banjo (5): G minor"
+msgstr ""
+
+#: tunings.h:48
+msgid "Banjo (5): G modal"
+msgstr ""
+
+#: tunings.h:50
+msgid "Mandolin (4): standard"
+msgstr ""
+
+#: tunings.h:52
+msgid "Ukulele (4): standard"
+msgstr ""
+
+#: rc.cpp:1
+msgid "&KGuitar"
+msgstr ""
+
+#: rc.cpp:3
+#, fuzzy
+msgid "&Track"
+msgstr "&Трек..."
+
+#: rc.cpp:4
+#, fuzzy
+msgid "&Note"
+msgstr "&Hазвания нот"
+
+#: rc.cpp:6
+#, fuzzy
+msgid "&Duration"
+msgstr "Альтерации"
+
+#: rc.cpp:7
+msgid "&Effects"
+msgstr ""
+
+#: rc.cpp:10
+#, fuzzy
+msgid "Note Names"
+msgstr "&Hазвания нот"
+
+#: rc.cpp:14
+msgid "Show Toolbars"
+msgstr ""
+
+#, fuzzy
+#~ msgid "ChordSelector"
+#~ msgstr "Конструктор аккордов"
+
+#, fuzzy
+#~ msgid "ChordList"
+#~ msgstr "&Аккорды"
+
+#, fuzzy
+#~ msgid "Strumming"
+#~ msgstr "Струны:"
+
+#~ msgid "Insert chord"
+#~ msgstr "Вставить аккорд"
+
+#~ msgid "&MIDI file..."
+#~ msgstr "&MIDI файл..."
+
+#~ msgid "ASCII &tab..."
+#~ msgstr "ASCII &табулатура..."
+
+#~ msgid "&MusiXTeX tab..."
+#~ msgstr "&MusiXTeX табулатуpа..."
+
+#~ msgid "General options"
+#~ msgstr "Общие настройки"
