@@ -44,14 +44,33 @@ ApplicationWindow::ApplicationWindow(): KTMainWindow()
     global_maj7=0;
     global_flatplus=0;
 
+    // MAIN WIDGET
+
+    tv = new TrackView(this);
+    setView(tv);
+    tv->setFocus();
+
     // SET UP TOOLBAR
 
-    toolBar()->insertButton(Icon("filenew.xpm"),1,SIGNAL(clicked()),this,SLOT(newDoc()),TRUE,i18n("New"));
-    toolBar()->insertButton(Icon("fileopen.xpm"),1,SIGNAL(clicked()),this,SLOT(load()),TRUE,i18n("Open file"));
-    toolBar()->insertButton(Icon("filefloppy.xpm"),1,SIGNAL(clicked()),this,SLOT(save()),TRUE,i18n("Save file"));
+    toolBar()->insertButton(Icon("filenew.xpm"),1,SIGNAL(clicked()),this,SLOT(newDoc()),TRUE,i18n("New document"));
+    toolBar()->insertButton(Icon("fileopen.xpm"),1,SIGNAL(clicked()),this,SLOT(load()),TRUE,i18n("Open a file"));
+    toolBar()->insertButton(Icon("filefloppy.xpm"),1,SIGNAL(clicked()),this,SLOT(save()),TRUE,i18n("Save a file"));
     toolBar()->insertButton(Icon("fileprint.xpm"),1,SIGNAL(clicked()),this,SLOT(print()),TRUE,i18n("Print"));
     toolBar()->insertSeparator();
-    toolBar()->insertButton(Icon("chord.xpm"),1,SIGNAL(clicked()),this,SLOT(inschord()),TRUE,"Insert chord");
+    toolBar()->insertButton(Icon("chord.xpm"),1,SIGNAL(clicked()),
+			    this,SLOT(inschord()),TRUE,i18n("Insert chord"));
+    toolBar()->insertButton(Icon("note1.xpm"),1,SIGNAL(clicked()),
+			    tv,SLOT(setLength1()),TRUE,i18n("Whole"));
+    toolBar()->insertButton(Icon("note2.xpm"),1,SIGNAL(clicked()),
+			    tv,SLOT(setLength2()),TRUE,"1/2");
+    toolBar()->insertButton(Icon("note4.xpm"),1,SIGNAL(clicked()),
+			    tv,SLOT(setLength4()),TRUE,"1/4");
+    toolBar()->insertButton(Icon("note8.xpm"),1,SIGNAL(clicked()),
+			    tv,SLOT(setLength8()),TRUE,"1/8");
+    toolBar()->insertButton(Icon("note16.xpm"),1,SIGNAL(clicked()),
+			    tv,SLOT(setLength16()),TRUE,"1/16");
+    toolBar()->insertButton(Icon("note32.xpm"),1,SIGNAL(clicked()),
+			    tv,SLOT(setLength32()),TRUE,"1/32");
     
     // SET UP MAIN MENU
 
@@ -70,7 +89,6 @@ ApplicationWindow::ApplicationWindow(): KTMainWindow()
     p->insertSeparator();
     p->insertItem(i18n("P&roperties..."), this, SLOT(songProperties()));
     p->insertItem(i18n("&Print..."), this, SLOT(print()));
-    p->insertItem(i18n("&Options..."), this, SLOT(options()));
     p->insertSeparator();
     p->insertItem(i18n("&Close"), this, SLOT(closeDoc()));
     p->insertItem(i18n("&Quit"), qApp, SLOT(quit()));
@@ -83,6 +101,10 @@ ApplicationWindow::ApplicationWindow(): KTMainWindow()
     p = new QPopupMenu();
     p->insertItem(i18n("&Chord"),this,SLOT(inschord()));
     menuBar()->insertItem(i18n("&Insert"),p);
+
+    p = new QPopupMenu();
+    p->insertItem(i18n("&General..."), this, SLOT(options()));
+    menuBar()->insertItem(i18n("&Options"),p);
 
 //     controls = new QPopupMenu();
 //     menuBar()->insertItem( "&Controls", controls );
@@ -99,17 +121,14 @@ ApplicationWindow::ApplicationWindow(): KTMainWindow()
 //     controls->setItemChecked( tb, TRUE );v
 //     controls->setItemChecked( sb, TRUE );
 
-    p = KApplication::getKApplication()->getHelpMenu(0,i18n("KGuitar " VERSION "\n\n"
-							    "A stringed instrument tabulature editor\n"
-							    "(C) 2000 Mikhail Yakshin AKA GreyCat\n"));
+    QString aboutmess = "KGuitar " VERSION "\n\n";
+    aboutmess = aboutmess + i18n("A stringed instrument tabulature editor");
+    aboutmess = aboutmess + "\n(C) 2000 Mikhail Yakshin AKA GreyCat\n";
+
+    p = KApplication::getKApplication()->getHelpMenu(0,aboutmess);
+    
     menuBar()->insertSeparator();
     menuBar()->insertItem(i18n("&Help"), p);
-
-    // MAIN WIDGET
-
-    tv = new TrackView(this);
-    setView(tv);
-    tv->setFocus();
 
     statusBar()->message( "Ready", 2000 );
 }
@@ -255,6 +274,9 @@ void ApplicationWindow::toggleStatusBar()
 void ApplicationWindow::inschord()
 {
     ChordSelector cs(tv->trk());
+    for (int i=0;i<tv->trk()->string;i++)
+	cs.setApp(i,tv->finger(i));
+
     if (cs.exec()) {
 	for (int i=0;i<tv->trk()->string;i++)
 	    tv->setFinger(i,cs.app(i));
