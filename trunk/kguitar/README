@@ -1,7 +1,8 @@
                                KGuitar
-                       A KDE tabulature editor
+					   A KDE tabulature editor
 
-(C) 2000 by GreyCat <yakshin@glasnet.ru>
+				 (C) 2000 by KGuitar development team
+	Current coordinator - GreyCat <GreyCat@users.sourceforge.net>
 
 KGuitar is basically a guitar tabulature editor for K Desktop
 Environment. It's much more than just a tab editor. It's features are:
