@@ -25,9 +25,9 @@ bin_PROGRAMS = kguitar
 
 # Which sources should be compiled for kguitar.
 kguitar_SOURCES	= application.cpp chord.cpp fingers.cpp fingerlist.cpp \
- main.cpp trackview.cpp setsong.cpp track.cpp settrack.cpp settabfret.cpp \
- radiustuner.cpp notespinbox.cpp options.cpp chordlistitem.cpp chordlist.cpp \
- timesig.cpp \
+ main.cpp trackview.cpp setsong.cpp tabsong.cpp tabtrack.cpp settrack.cpp \
+ settabfret.cpp radiustuner.cpp notespinbox.cpp options.cpp chordlistitem.cpp \
+ chordlist.cpp timesig.cpp \
  application.moc.cpp chord.moc.cpp fingers.moc.cpp fingerlist.moc.cpp \
  trackview.moc.cpp setsong.moc.cpp settrack.moc.cpp settabfret.moc.cpp \
  radiustuner.moc.cpp notespinbox.moc.cpp options.moc.cpp chordlist.moc.cpp \
@@ -42,11 +42,11 @@ kguitar_LDADD  = -lkfm -lkfile -lkdeui -lkdecore -lqt -lX11 -lXext @LIBSOCKET@
 
 # this option you can leave out. Just, if you use "make dist", you need it
 noinst_HEADERS = application.h chord.h fingers.h fingerlist.h trackview.h \
- setsong.h track.h settrack.h settabfret.h radiustuner.h notespinbox.h \
- options.h chordlistitem.h chordlist.h timesig.h
+ setsong.h tabsong.h tabtrack.h settrack.h settabfret.h radiustuner.h \
+ notespinbox.h options.h chordlistitem.h chordlist.h timesig.h
 
 # just to make sure, automake makes them 
-BUILTSOURCES =	application.moc.cpp chord.moc.cpp fingers.moc.cpp \
+BUILTSOURCES = application.moc.cpp chord.moc.cpp fingers.moc.cpp \
  fingerlist.moc.cpp trackview.moc.cpp setsong.moc.cpp settrack.moc.cpp \
  settabfret.moc.cpp radiustuner.moc.cpp notespinbox.moc.cpp options.moc.cpp \
  chordlist.moc.cpp timesig.moc.cpp
