@@ -3,6 +3,7 @@
 
 #include <qdialog.h>
 #include "global.h"
+#include "globaloptions.h"
 
 #include "fingers.h"
 
