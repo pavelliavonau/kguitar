@@ -54,7 +54,7 @@ strummer lib_strum[] = {
 	{ { BS1, TR3, TR2, TR3, TR1, TR2, TR3, TR2 },
 	  { 60,  60,  60,  60,  60,  60,  60,  60, 0 },
 	  i18n("8/8 Arpegio 2"),
-	  i18n("Variantion of previous arpegio, can spice up sound if used "
+	  i18n("Variation of previous arpegio, can spice up sound if used "
 	       "several times with previous rhythm.") },
 	{ { BS1, TR4, TR3, TR2, TR1, TR2, TR3 },
 	  { 60,  30,  30,  60,  60,  60,  60, 0 },

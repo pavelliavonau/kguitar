@@ -310,7 +310,7 @@ void ChordSelector::playMidi()
 //	dm->setDefaultDevice(1);
 
 	if (dm->checkInit() == -1) {
-		KMessageBox::error(this, i18n("Can't open /dev/sequenzer !!\n"
+		KMessageBox::error(this, i18n("Can't open /dev/sequencer !!\n"
 									  "Probably there is another program using it."));
 		return;
 	}
