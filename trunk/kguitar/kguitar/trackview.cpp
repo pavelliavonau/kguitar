@@ -590,7 +590,9 @@ void TrackView::moveUp()
 {
 	if (curt->y+1 < curt->string) {
 		curt->y++;
-		repaintCurrentColumn();
+		if (curt->sel)
+			repaintCurrentCell();
+		else repaintCurrentColumn();
 	}
 	lastnumber = -1;
 }
@@ -607,7 +609,9 @@ void TrackView::moveDown()
 {
 	if (curt->y > 0) {
 		curt->y--;
-		repaintCurrentColumn();
+		if (curt->sel)
+			repaintCurrentCell();
+		else repaintCurrentColumn();
 	}
 	lastnumber = -1;
 }
