@@ -6,7 +6,7 @@
 msgid ""
 msgstr ""
 "Project-Id-Version: PACKAGE VERSION\n"
-"POT-Creation-Date: 2000-10-14 22:45-0400\n"
+"POT-Creation-Date: 2000-11-10 16:19-0500\n"
 "PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
 "Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
 "Language-Team: LANGUAGE <LL@li.org>\n"
@@ -14,123 +14,143 @@ msgstr ""
 "Content-Type: text/plain; charset=CHARSET\n"
 "Content-Transfer-Encoding: ENCODING\n"
 
-#: application.cpp:68
-msgid "New document"
+#: application.cpp:80
+msgid "&Browser..."
 msgstr ""
 
-#: application.cpp:74
+#: application.cpp:94 application.cpp:171
+msgid "&Properties..."
+msgstr ""
+
+#: application.cpp:100
 msgid "Insert chord"
 msgstr ""
 
-#: application.cpp:76
+#: application.cpp:102
 msgid "Whole"
 msgstr ""
 
-#: application.cpp:88 timesig.cpp:60
+#: application.cpp:114 timesig.cpp:60
 msgid "Time signature"
 msgstr ""
 
-#: application.cpp:90
+#: application.cpp:116
 msgid "Link with previous column"
 msgstr ""
 
-#: application.cpp:92
+#: application.cpp:118
 msgid "Legato (hammer on/pull off)"
 msgstr ""
 
-#: application.cpp:94
+#: application.cpp:120
 msgid "Natural harmonic"
 msgstr ""
 
-#: application.cpp:96
+#: application.cpp:122
 msgid "Artificial harmonic"
 msgstr ""
 
-#: application.cpp:101
-msgid "&New"
-msgstr ""
-
-#: application.cpp:112
+#: application.cpp:156
 msgid "&MIDI file..."
 msgstr ""
 
-#: application.cpp:113
+#: application.cpp:157
 msgid "ASCII &tab..."
 msgstr ""
 
-#: application.cpp:114
+#: application.cpp:158
 msgid "&MusiXTeX tab..."
 msgstr ""
 
-#: application.cpp:116
+#: application.cpp:160
 msgid "&Export"
 msgstr ""
 
-#: application.cpp:119
+#: application.cpp:163
 msgid "P&roperties..."
 msgstr ""
 
-#: application.cpp:127
-msgid "&Track..."
+#: application.cpp:168
+msgid "&File"
 msgstr ""
 
-#: application.cpp:131
+#: application.cpp:172
+msgid "&Track"
+msgstr ""
+
+#: application.cpp:175
 msgid "&Chord"
 msgstr ""
 
-#: application.cpp:135
-msgid "&General..."
+#: application.cpp:176
+msgid "&Insert"
 msgstr ""
 
-#: application.cpp:138
+#: application.cpp:181
+msgid "Main Toolbar"
+msgstr ""
+
+#: application.cpp:182
+msgid "Edit Toolbar"
+msgstr ""
+
+#: application.cpp:187
+msgid "Show Toolbars"
+msgstr ""
+
+#: application.cpp:190
 msgid "American, sharps"
 msgstr ""
 
-#: application.cpp:139
+#: application.cpp:191
 msgid "American, flats"
 msgstr ""
 
-#: application.cpp:140
+#: application.cpp:192
 msgid "American, mixed"
 msgstr ""
 
-#: application.cpp:142
+#: application.cpp:194
 msgid "European, sharps"
 msgstr ""
 
-#: application.cpp:143
+#: application.cpp:195
 msgid "European, flats"
 msgstr ""
 
-#: application.cpp:144
+#: application.cpp:196
 msgid "European, mixed"
 msgstr ""
 
-#: application.cpp:146
+#: application.cpp:198
 msgid "Jazz, sharps"
 msgstr ""
 
-#: application.cpp:147
+#: application.cpp:199
 msgid "Jazz, flats"
 msgstr ""
 
-#: application.cpp:148
+#: application.cpp:200
 msgid "Jazz, mixed"
 msgstr ""
 
-#: application.cpp:153
+#: application.cpp:205
 msgid "&Note names"
 msgstr ""
 
-#: application.cpp:158
-msgid "A stringed instrument tabulature editor"
+#: application.cpp:209
+msgid "&Settings"
 msgstr ""
 
-#: application.cpp:166 application.cpp:187
+#: application.cpp:214
+msgid "&Help"
+msgstr ""
+
+#: application.cpp:216 application.cpp:260
 msgid "Bar: "
 msgstr ""
 
-#: application.cpp:194
+#: application.cpp:267
 msgid ""
 "Jazz note names are very special and should be\n"
 "used only if really know what you do. Usage of jazz\n"
@@ -139,6 +159,10 @@ msgid ""
 "of jazz note naming.\n"
 "\n"
 "Are you sure you want to use jazz notes?"
+msgstr ""
+
+#: application.cpp:322 filebrowser.cpp:384
+msgid "Can't load the song!"
 msgstr ""
 
 #: chord.cpp:164
@@ -181,56 +205,86 @@ msgstr ""
 msgid "All"
 msgstr ""
 
+#: chord.cpp:204 setsong.cpp:23 settrack.cpp:64 strumming.cpp:51
+#: timesig.cpp:28
+msgid "OK"
+msgstr ""
+
+#: chord.cpp:208 setsong.cpp:25 settrack.cpp:65 strumming.cpp:53
+#: timesig.cpp:30
+msgid "Cancel"
+msgstr ""
+
 #: chord.cpp:212
 msgid "&Strum..."
 msgstr ""
 
-#: chord.cpp:284
+#: chord.cpp:219 filebrowser.cpp:111
+msgid "&Play"
+msgstr ""
+
+#: chord.cpp:294
 msgid "Chord constructor"
 msgstr ""
 
-#: setsong.cpp:17
+#: setsong.cpp:18
 msgid "&Title:"
 msgstr ""
 
-#: setsong.cpp:18
+#: setsong.cpp:19
 msgid "&Author:"
 msgstr ""
 
-#: setsong.cpp:19
+#: setsong.cpp:20
 msgid "&Transcriber:"
 msgstr ""
 
-#: setsong.cpp:20
+#: setsong.cpp:21
 msgid "&Comments:"
 msgstr ""
 
-#: setsong.cpp:53
+#: setsong.cpp:54
 msgid "Song properties"
 msgstr ""
 
-#: settrack.cpp:24
+#: settrack.cpp:27
+msgid "Fretted instrument"
+msgstr ""
+
+#: settrack.cpp:28
+msgid "Drum track"
+msgstr ""
+
+#: settrack.cpp:30
 msgid "&Track name:"
 msgstr ""
 
-#: settrack.cpp:25
+#: settrack.cpp:31
 msgid "&Channel:"
 msgstr ""
 
-#: settrack.cpp:26
+#: settrack.cpp:32
 msgid "&Bank:"
 msgstr ""
 
-#: settrack.cpp:27
+#: settrack.cpp:33
 msgid "&Patch:"
 msgstr ""
 
-#: settrack.cpp:65
-msgid "Track properties"
+#: settrack.cpp:34
+msgid "&Mode:"
 msgstr ""
 
-#: settabfret.cpp:13
-msgid "Fret tabulature"
+#: settrack.cpp:55
+msgid "&General"
+msgstr ""
+
+#: settrack.cpp:62
+msgid "&Mode-specific"
+msgstr ""
+
+#: settrack.cpp:67
+msgid "Track properties"
 msgstr ""
 
 #: settabfret.cpp:23
@@ -245,68 +299,92 @@ msgstr ""
 msgid "Frets:"
 msgstr ""
 
-#: options.cpp:18
-msgid "Dominant 7th"
-msgstr ""
-
-#: options.cpp:32
-msgid "Alterations"
-msgstr ""
-
-#: options.cpp:34
-msgid "-/+ symbols"
+#: options.cpp:20
+msgid "Preferences"
 msgstr ""
 
 #: options.cpp:35
-msgid "b/# symbols"
+msgid "Music Theory"
 msgstr ""
 
-#: options.cpp:43
-msgid "&Chords"
+#: options.cpp:40
+msgid "Dominant 7th"
 msgstr ""
 
-#: options.cpp:51
-msgid "MusiXTeX Layout"
+#: options.cpp:54
+msgid "Alterations"
 msgstr ""
 
-#: options.cpp:53
-msgid "Show Barnumber"
-msgstr ""
-
-#: options.cpp:55
-msgid "Show Tuning"
+#: options.cpp:56
+msgid "-/+ symbols"
 msgstr ""
 
 #: options.cpp:57
-msgid "Show Pagenumber"
-msgstr ""
-
-#: options.cpp:60
-msgid "Tab Size"
-msgstr ""
-
-#: options.cpp:62
-msgid "Smallest"
-msgstr ""
-
-#: options.cpp:63
-msgid "Small"
-msgstr ""
-
-#: options.cpp:64
-msgid "Normal"
-msgstr ""
-
-#: options.cpp:65
-msgid "Big"
+msgid "b/# symbols"
 msgstr ""
 
 #: options.cpp:73
 msgid "MusiXTeX Export"
 msgstr ""
 
-#: options.cpp:83
-msgid "General options"
+#: options.cpp:76
+msgid "MusiXTeX Layout"
+msgstr ""
+
+#: options.cpp:78
+msgid "Show Barnumber"
+msgstr ""
+
+#: options.cpp:80
+msgid "Show Tuning"
+msgstr ""
+
+#: options.cpp:82
+msgid "Show Pagenumber"
+msgstr ""
+
+#: options.cpp:92
+msgid "Tab Size"
+msgstr ""
+
+#: options.cpp:94
+msgid "Smallest"
+msgstr ""
+
+#: options.cpp:95
+msgid "Small"
+msgstr ""
+
+#: options.cpp:96
+msgid "Normal"
+msgstr ""
+
+#: options.cpp:97
+msgid "Big"
+msgstr ""
+
+#: options.cpp:118
+msgid "ALSA"
+msgstr ""
+
+#: options.cpp:123
+msgid "Port"
+msgstr ""
+
+#: options.cpp:124
+msgid "Client Info"
+msgstr ""
+
+#: options.cpp:125
+msgid "Port Info"
+msgstr ""
+
+#: options.cpp:130
+msgid "MIDI &output port"
+msgstr ""
+
+#: options.cpp:133
+msgid "&Refresh"
 msgstr ""
 
 #: timesig.cpp:25
@@ -321,10 +399,104 @@ msgstr ""
 msgid "Apply till the &end"
 msgstr ""
 
-#: strumming.cpp:26
+#: strumming.cpp:27
 msgid "Strum &pattern:"
 msgstr ""
 
-#: strumming.cpp:53
+#: strumming.cpp:62
 msgid "Strumming pattern"
+msgstr ""
+
+#: filebrowser.cpp:99 filebrowser.cpp:285 filebrowser.cpp:302
+#: filebrowser.cpp:313 filebrowser.cpp:332 filebrowser.cpp:360
+#: filebrowser.cpp:384
+msgid "File browser"
+msgstr ""
+
+#: filebrowser.cpp:101
+msgid "&Close"
+msgstr ""
+
+#: filebrowser.cpp:105
+msgid "&Scan"
+msgstr ""
+
+#: filebrowser.cpp:108
+msgid "Scan Subdirectories"
+msgstr ""
+
+#: filebrowser.cpp:114
+msgid "Play score"
+msgstr ""
+
+#: filebrowser.cpp:120
+msgid "No Jump"
+msgstr ""
+
+#: filebrowser.cpp:121
+msgid "Jump after 1 bar"
+msgstr ""
+
+#: filebrowser.cpp:122
+msgid "Jump after 2 bars"
+msgstr ""
+
+#: filebrowser.cpp:123
+msgid "Jump after 5 bars"
+msgstr ""
+
+#: filebrowser.cpp:124
+msgid "Jump after 10 bars"
+msgstr ""
+
+#: filebrowser.cpp:125
+msgid "Jump after 25 bars"
+msgstr ""
+
+#: filebrowser.cpp:126
+msgid "Jump after the score"
+msgstr ""
+
+#: filebrowser.cpp:131
+msgid "Directories"
+msgstr ""
+
+#: filebrowser.cpp:140
+msgid "Name"
+msgstr ""
+
+#: filebrowser.cpp:141
+msgid "Size"
+msgstr ""
+
+#: filebrowser.cpp:142
+msgid "Modified"
+msgstr ""
+
+#: filebrowser.cpp:143
+msgid "Directory"
+msgstr ""
+
+#: filebrowser.cpp:152
+msgid "Title:"
+msgstr ""
+
+#: filebrowser.cpp:157
+msgid "Author:"
+msgstr ""
+
+#: filebrowser.cpp:162
+msgid "Transcriber:"
+msgstr ""
+
+#: filebrowser.cpp:284
+msgid "Please select a directory!"
+msgstr ""
+
+#: filebrowser.cpp:301 filebrowser.cpp:331
+msgid "You have no permission to read this directory!"
+msgstr ""
+
+#: filebrowser.cpp:313 filebrowser.cpp:360
+msgid "There are no files."
 msgstr ""
