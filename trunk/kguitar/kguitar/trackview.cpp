@@ -29,9 +29,22 @@ TrackView::TrackView(QWidget *parent,const char *name): QTableView(parent,name)
     for (int i=0;i<6;i++)
 	curt->tune[i]=standtune[i];
 
-    curt->c.append(new TabColumn());
+    curt->c.resize(1);
+    curt->b.resize(1);
+
+    for (int i=0;i<MAX_STRINGS;i++)
+	curt->c[0].a[i]=-1;
+    curt->c[0].l=120;
+
+    curt->b[0].start=0;
+    curt->b[0].time1=4;
+    curt->b[0].time2=4;
+    curt->b[0].showsig=TRUE;
+    
     updateRows();
 
+    curt->x=0;
+    curt->xb=0;
     curt->y=0;
     lastnumber=0;
 }
@@ -43,41 +56,56 @@ TrackView::~TrackView()
 
 void TrackView::updateRows()
 {
-    setNumRows((curt->c.count()-1)/8+1);
+    setNumRows(curt->b.size());
 }
 
 void TrackView::setFinger(int num,int fret)
 {
-    curt->c.current()->a[num]=fret;
+    curt->c[curt->x].a[num]=fret;
+}
+
+int TrackView::finger(int num)
+{
+    return curt->c[curt->x].a[num];
+}
+
+void TrackView::setLength(int l)
+{
+    curt->c[curt->x].l=l;
+    repaint();
 }
 
 void TrackView::paintCell(QPainter *p, int row, int col)
 {
-    QListIterator<TabColumn> it(curt->c);
+    int bn = row;                       // Drawing only this bar
 
-    int start = row*8;
+    int last;
+    if (curt->b.size()==bn+1)     // Current bar is the last one
+	last = curt->c.size()-1;        // Draw till the last note
+    else                                // Else draw till the end of this bar
+	last = curt->b[bn+1].start-1;
+
     QString tmp;
 
     int s = curt->string-1;
-    int i,cnt=0;
-
-    for (i=0;i<start;i++)
-	++it;
+    int i;
 
     for (i=0;i<=s;i++)
 	p->drawLine(0,VERTSPACE+(s-i)*VERTLINE,width(),VERTSPACE+(s-i)*VERTLINE);
+
+    if (curt->b[bn].showsig) {
+	// GREYFIX - show time signature here
+    }
 
     p->setFont(QFont("helvetica",VERTLINE));
     p->setBrush(KApplication::getKApplication()->windowColor);
 
     int xpos=10,xdelta;
     
-    for (;(it.current()) && (cnt<8);++it) {
-	TabColumn *tc = it.current();
-
+    for (int t=curt->b[bn].start;t<=last;t++) {
 	// Drawing duration marks
 
-        switch (tc->l) {
+        switch (curt->c[t].l) {
 	case 15:  // 1/32
 	    p->drawLine(xpos+VERTLINE/2,BOTTOMDUR+VERTLINE-4,
 			xpos+VERTLINE/2+HORDUR,BOTTOMDUR+VERTLINE-4);
@@ -88,7 +116,7 @@ void TrackView::paintCell(QPainter *p, int row, int col)
 	    p->drawLine(xpos+VERTLINE/2,BOTTOMDUR+VERTLINE,
 			xpos+VERTLINE/2+HORDUR,BOTTOMDUR+VERTLINE);
 	case 120: // 1/4 - a long vertical line, so we need to find the highest note
-	    for (i=s;((i>=0) && (tc->a[i]==-1));i--);
+	    for (i=s;((i>=0) && (curt->c[t].a[i]==-1));i--);
 
 	    // If it's an empty measure at all - draw the vertical line from bottom
 	    if (i<0)  i=0;
@@ -106,22 +134,22 @@ void TrackView::paintCell(QPainter *p, int row, int col)
 	
 	p->setPen(NoPen);
 	for (i=0;i<=s;i++) {
-	    if ((curt->c.current()==tc) && 
+	    if ((t==curt->x) && 
 		(curt->y==i)) {
 		p->setBrush(KApplication::getKApplication()->selectColor);
 		p->drawRect(xpos,VERTSPACE+(s-i)*VERTLINE-VERTLINE/2,
 			    VERTLINE,VERTLINE+1);
 		p->setBrush(KApplication::getKApplication()->windowColor);
-		if (tc->a[i]!=-1) {
-		    tmp.setNum(tc->a[i]);
+		if (curt->c[t].a[i]!=-1) {
+		    tmp.setNum(curt->c[t].a[i]);
 		    p->setPen(KApplication::getKApplication()->selectTextColor);
 		    p->drawText(xpos,VERTSPACE+(s-i)*VERTLINE-VERTLINE/2,
 				VERTLINE,VERTLINE,AlignCenter,tmp);
 		    p->setPen(NoPen);
 		}
 	    } else {
-		if (tc->a[i]!=-1) {
-		    tmp.setNum(tc->a[i]);
+		if (curt->c[t].a[i]!=-1) {
+		    tmp.setNum(curt->c[t].a[i]);
 		    p->drawRect(xpos,VERTSPACE+(s-i)*VERTLINE-VERTLINE/2,
 				VERTLINE,VERTLINE+1);
 		    p->drawText(xpos,VERTSPACE+(s-i)*VERTLINE-VERTLINE/2,
@@ -133,11 +161,10 @@ void TrackView::paintCell(QPainter *p, int row, int col)
 	p->setPen(SolidLine);
 
 	// Length of interval
-	xdelta=(tc->l)/20*HORCELL;
+	xdelta=(curt->c[t].l)/20*HORCELL;
 	if (xdelta<HORCELL)
 	    xdelta=HORCELL;
 	xpos+=xdelta;
-	cnt++;
     }
 
     p->setBrush(SolidPattern);
@@ -152,7 +179,7 @@ void TrackView::resizeEvent(QResizeEvent *e)
 
 bool TrackView::moveFinger(int from, int dir)
 {
-    int n0=curt->c.current()->a[from];
+    int n0=curt->c[curt->x].a[from];
     int n=n0;
     if (n<0)
 	return FALSE;
@@ -166,13 +193,33 @@ bool TrackView::moveFinger(int from, int dir)
 	n=n0+curt->tune[from]-curt->tune[to];
 	if ((n<0) || (n>curt->frets))
 	    return FALSE;
-    } while (curt->c.current()->a[to]!=-1);
+    } while (curt->c[curt->x].a[to]!=-1);
 
-    curt->c.current()->a[from]=-1;
-    curt->c.current()->a[to]=n;
+    curt->c[curt->x].a[from]=-1;
+    curt->c[curt->x].a[to]=n;
 
     curt->y=to;
     return TRUE;
+}
+
+void TrackView::arrangeBars()
+{
+    int barlen = 480;
+    int barnum = 1;
+    int cbl = 0;                        // Current bar length
+
+    curt->b[0].start=0;
+
+    for (int i=0;i<curt->c.size();i++) {
+	cbl+=curt->c[i].l;
+	if (cbl>barlen) {
+	    curt->b.resize(barnum+1);
+	    curt->b[barnum].start = i;
+	    barnum++;
+	    cbl-=barlen;
+	}
+    }
+    updateRows();
 }
 
 void TrackView::keyPressEvent(QKeyEvent *e)
@@ -197,15 +244,29 @@ void TrackView::keyPressEvent(QKeyEvent *e)
 
     switch (e->key()) {
     case Key_Left:
-	if (curt->c.at()>0)
-	    curt->c.prev();
+	if (curt->x>0) {
+	    if (curt->b[curt->xb].start==curt->x)
+		curt->xb--;
+	    curt->x--;
+	}
 	break;
     case Key_Right:
-	if (curt->c.at()+1==curt->c.count()) {
-	    curt->c.append(new TabColumn());
+	if (curt->x+1==curt->c.size()) {
+	    curt->c.resize(curt->c.size()+1);
+	    curt->x++;
+	    for (int i=0;i<curt->string;i++)
+		curt->c[curt->x].a[i]=-1;
+	    curt->c[curt->x].l=120;
 	    updateRows();
-	} else
-	    curt->c.next();
+	} else {
+	    if (curt->b.size()==curt->xb+1)
+		curt->x++;
+	    else {
+		if (curt->b[curt->xb+1].start==curt->x+1)
+		    curt->xb++;
+		curt->x++;
+	    }
+	}
 	break;
     case Key_Down:
 	if (curt->y>0) {
@@ -239,29 +300,32 @@ void TrackView::keyPressEvent(QKeyEvent *e)
 	if (lastnumber*10+num<=curt->frets)
 	    num=lastnumber*10+num;
 
-	curt->c.current()->a[curt->y]=num;
+	curt->c[curt->x].a[curt->y]=num;
 	lastnumber=num;
 	break;
     case Key_Delete:
 	if (e->state()==ControlButton) {
-	    if (curt->c.count()>1) {
-		curt->c.remove();
-		updateRows();
-	    }
+// 	    if (curt->c.count()>1) {          // GREYFIX - deletion of column
+// 		curt->c.remove();
+// 		updateRows();
+// 	    }
 	} else 
-	    curt->c.current()->a[curt->y]=-1;
+	    curt->c[curt->x].a[curt->y]=-1;
 	break;
     case Key_Insert:
-	curt->c.insert(curt->c.at(),new TabColumn());
+// 	curt->c.insert(curt->c.at(),new TabColumn());
 	break;
     case Key_Plus:
-	if (curt->c.current()->l<480)
-	    curt->c.current()->l*=2;
+	if (curt->c[curt->x].l<480)
+	    curt->c[curt->x].l*=2;
 	break;
     case Key_Minus:
-	if (curt->c.current()->l>15)
-	    curt->c.current()->l/=2;
+	if (curt->c[curt->x].l>15)
+	    curt->c[curt->x].l/=2;
 	break;	
+    case Key_A:
+	arrangeBars();
+	break;
     default:
 	e->ignore();
 	return;

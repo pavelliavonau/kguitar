@@ -14,12 +14,12 @@ TabTrack::TabTrack(TrackMode _tm, QString _name, int _channel,
     patch=_patch;
     string=_string;
     frets=_frets;
-
-    c.setAutoDelete(TRUE);
 };
 
 bool TabSong::load_from_kg(QString fileName)
 {
+    return FALSE;
+/*
     QFile f(fileName);
     if (!f.open(IO_ReadOnly))
 	return FALSE;
@@ -129,10 +129,13 @@ bool TabSong::load_from_kg(QString fileName)
     f.close();
 
     return TRUE;
+*/
 }
 
 bool TabSong::save_to_kg(QString fileName)
 {
+    return FALSE;
+/*
     QFile f(fileName);
     if (!f.open(IO_WriteOnly))
 	return FALSE;
@@ -190,6 +193,7 @@ bool TabSong::save_to_kg(QString fileName)
     f.close();
 
     return TRUE;
+*/
 }
 
 bool TabSong::load_from_gtp(QString fileName)
@@ -213,7 +217,7 @@ bool TabSong::load_from_mid(QString fileName)
 bool TabSong::save_to_mid(QString fileName)
 {
     return FALSE;
-
+/*
     QFile f(fileName);
     if (!f.open(IO_WriteOnly))
 	return FALSE;
@@ -251,6 +255,7 @@ bool TabSong::save_to_mid(QString fileName)
     f.close();
 
     return TRUE;
+*/
 }
 
 //////////////////////////////////////////////////////////////////////
@@ -274,6 +279,8 @@ bool TabSong::load_from_tab(QString fileName)
 
 bool TabSong::save_to_tab(QString fileName)
 {
+    return FALSE;
+/*
     QFile f(fileName);
     if (!f.open(IO_WriteOnly))
 	return FALSE;
@@ -372,4 +379,5 @@ bool TabSong::save_to_tab(QString fileName)
     f.close();
 
     return TRUE;
+*/
 }
