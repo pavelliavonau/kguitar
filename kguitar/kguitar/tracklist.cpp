@@ -34,10 +34,6 @@ TrackList::TrackList(TabSong *s, KXMLGUIClient *_XMLGUIClient, QWidget *parent, 
 	show();
 }
 
-TrackList::~TrackList()
-{
-}
-
 void TrackList::updateList()
 {
 	clear();
@@ -82,5 +78,5 @@ void TrackList::selectNewTrack(QListViewItem *item)
 		return;
 
 	int num = item->text(0).toInt() - 1;
-	emit trackChanged(song->t.at(num));
+	emit trackSelected(song->t.at(num));
 }
