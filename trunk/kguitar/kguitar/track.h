@@ -33,12 +33,12 @@ public:
 class TabTrack
 {
 public:
-    TabTrack(TrackMode _tm, int _bank, uchar _patch, uchar str) { tm=_tm;bank=_bank;patch=_patch;_string=str;c.setAutoDelete(TRUE); };
+    TabTrack(TrackMode _tm, QString _name, int _bank, uchar _patch, uchar str, uchar _frets) { tm=_tm;name=_name;bank=_bank;patch=_patch;string=str;frets=_frets;c.setAutoDelete(TRUE); };
     QList<TabColumn> c;                 // Tab columns
 
-    void setTuning(const uchar t[MAX_STRINGS]) { for (int i=0;i<_string;i++)  _tune[i]=t[i]; };
-    int string() { return _string; }
-    int tune(int x) { return _tune[x]; }
+    uchar string;                       // Number of strings
+    uchar frets;                        // Number of frets
+    uchar tune[MAX_STRINGS] ;           // Tuning, if appicable
 
     TrackMode trackmode() { return tm; }
 
@@ -53,8 +53,6 @@ public:
     int y;                              // Current tab row
 private:
     TrackMode tm;                       // Track mode
-    uchar _string;                      // Number of strings
-    uchar _tune[MAX_STRINGS];           // Tuning, if appicable
 };
 
 class TabSong
