@@ -11,9 +11,6 @@
 #include <qlineedit.h>
 #include <qstring.h>
 
-// GREYFIX
-#include <stdio.h>
-
 // Note names
 QString note_name(int num)
 {
@@ -138,8 +135,6 @@ void ChordSelector::detectChord()
     
     chords->clear();
     
-    printf("=============================\n");
-
     for (i=0;i<12;i++)  if (cn[i]) {
 
 	// Initializing
@@ -191,9 +186,6 @@ void ChordSelector::detectChord()
 	} else if ((cn[(i+6)%12]) && (s5!=6)) {
 	    s11=6;noteok--;
 	}
-
-	printf("%s trying: 3\'=%d 5\'=%d 7\'=%d 9\'=%d 11\'=%d, noteok=%d\n",(const char*) (note_name(i)),
-	       s3,s5,s7,s9,s11,noteok);
 
 	if (noteok==0) {
 	    name=note_name(i);
