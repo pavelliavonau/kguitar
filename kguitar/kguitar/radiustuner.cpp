@@ -10,7 +10,7 @@ RadiusTuner::RadiusTuner(QWidget *parent, const char *name)
 	connect(val, SIGNAL(valueChanged(int)), SLOT(emitValueChanged()));
 }
 
-void RadiusTuner::resizeEvent(QResizeEvent *e)
+void RadiusTuner::resizeEvent(QResizeEvent *)
 {
 	val->setGeometry(0, height() - 20, width(), 20);
 }
@@ -20,7 +20,7 @@ void RadiusTuner::emitValueChanged()
 	emit valueChanged(val->value());
 }
 
-void RadiusTuner::paintEvent(QPaintEvent *p)
+void RadiusTuner::paintEvent(QPaintEvent *)
 {
 	QPainter paint(this);
 
