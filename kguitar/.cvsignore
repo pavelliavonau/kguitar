@@ -15,3 +15,4 @@ acinclude.m4
 subdirs
 libtool
 autom4te.cache
+stamp-h1
