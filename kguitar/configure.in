@@ -1,7 +1,8 @@
 # configure.in
 # Original Author was kalle@kde.org
 # Modified by Stephan Kulow and Janos Farkas
-# Modified by Kurt Granroth (kurt_granroth@pobox.com)
+# Modified by Kurt Granroth <kurt_granroth@pobox.com>
+# Modified by Mikhail Yakshin <GreyCat@users.sourceforge.net>
 
 dnl Process this file with autoconf to produce a configure script.
 
@@ -53,9 +54,12 @@ AC_CHECK_BOOL
 dnl Checks for library functions. MISCOBJS is for kdecore
 AC_CHECK_SETENV
 
+dnl Check for ALSA sequencer library
+AC_CHECK_ALSA
+
 dnl output files
 dnl Add all your Makefiles here. These are created by configure
 AC_OUTPUT(Makefile \
-         kguitar/Makefile \
-	 kguitar/toolbar/Makefile \
-	 po/Makefile )
+          kguitar/Makefile \
+          kguitar/toolbar/Makefile \
+          po/Makefile)

@@ -2356,3 +2356,38 @@ NM="$ac_cv_path_NM"
 AC_MSG_RESULT([$NM])
 AC_SUBST(NM)
 ])
+
+
+dnl Checking all the things for ALSA sequencer library
+dnl Based on code from Christopher Lansdown <lansdoct@cs.alfred.edu>
+dnl Modified for KGuitar by Mikhail Yakshin <GreyCat@users.sourceforge.net>
+
+AC_DEFUN(AC_CHECK_ALSA,
+[
+	dnl Check the configure options
+	AC_ARG_WITH(alsa-libraries,
+		[  --with-alsa-libraries   where ALSA library is installed (optional)],
+		[alsa_dir="$withval"], [alsa_dir=""])
+	AC_ARG_WITH(alsa-includes,
+		[  --with-alsa-includes    where ALSA include files are (optional)],
+		[alsa_includes="$withval"], [alsa_includes=""])
+
+	dnl Add any special include directories
+	if test "$alsa_includes" != "" ; then
+		CFLAGS="$CFLAGS -I$alsa_includes"
+	fi
+
+	dnl add any special lib dirs
+	if test "$alsa_dir" != "" ; then
+		LDFLAGS="$LDFLAGS -L$alsa_dir"
+	fi
+
+	dnl Check for the library
+	AC_CHECK_LIB([asound], [snd_cards],,
+		[AC_MSG_RESULT(not found, ALSA support disabled.)]
+	)
+
+	AC_SUBST(CFLAGS)
+	AC_SUBST(LDFLAGS)
+	AC_SUBST(LIBS)
+])

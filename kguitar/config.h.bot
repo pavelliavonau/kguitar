@@ -1,7 +1,10 @@
-
 #ifndef HAVE_BOOL
 #define HAVE_BOOL
 typedef int bool;
 const bool FALSE = 0;
 const bool TRUE = 1;
+#endif
+
+#ifdef HAVE_LIBASOUND
+#define HAVE_MIDI
 #endif
