@@ -34,7 +34,6 @@
 #include <qradiobutton.h>
 #include <qfileinfo.h>
 
-#include <libkmid/deviceman.h>
 
 // Global variables - real declarations
 
@@ -108,18 +107,18 @@ KGuitarPart::KGuitarPart(bool bBrowserView, KCommandHistory *_cmdHist, QWidget *
 
 	p = parentWidget;
 	isBrowserView = bBrowserView;
-	m_cmdHist = _cmdHist;
+	cmdHist = _cmdHist;
 
-	if (!m_cmdHist) {
+	if (!cmdHist) {
 		// We have no global KCommandHistory e.g. Part is called by Konqueror
 		// so we create one
-		m_cmdHist = new KCommandHistory();
+		cmdHist = new KCommandHistory();
 	}
 
 	setInstance(KGuitarFactory::instance());
 
 	// MAIN WIDGET
-	sv = new SongView(this, m_cmdHist, parentWidget);
+	sv = new SongView(this, cmdHist, parentWidget);
 	setWidget(sv);
 	sv->setFocus();
 
@@ -227,7 +226,7 @@ KGuitarPart::KGuitarPart(bool bBrowserView, KCommandHistory *_cmdHist, QWidget *
 	midiStopPlayAct = new KAction(i18n("&Stop"), "player_stop",
 								  KAccel::stringToKey("Ctrl+Shift+P"), sv, SLOT(stopPlayTrack()),
 								  actionCollection(), "midi_stopplay");
-#ifndef HAVE_MIDI
+#ifndef WITH_TSE3
 	midiPlayTrackAct->setEnabled(FALSE);
 	midiPlaySongAct->setEnabled(FALSE);
 	midiStopPlayAct->setEnabled(FALSE);
@@ -377,7 +376,7 @@ bool KGuitarPart::saveFile()   // KParts
 	bool ret = fileSave(m_file);
 	if (!ret)
 		setWinCaption(i18n("Unnamed"));
-	else m_cmdHist->clear();
+	else cmdHist->clear();
 	return ret;
 }
 
@@ -386,7 +385,7 @@ bool KGuitarPart::openFile()   // KParts
 	bool ret = slotOpenFile(m_file);
 	if (!ret)
 		setWinCaption(i18n("Unnamed"));
-	else m_cmdHist->clear();
+	else cmdHist->clear();
 	return ret;
 }
 

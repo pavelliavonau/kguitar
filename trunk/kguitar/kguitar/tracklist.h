@@ -28,7 +28,7 @@ private slots:
 
 private:
 	TabSong *song;
-    KXMLGUIClient *m_XMLGUIClient;
+    KXMLGUIClient *xmlGUIClient;
 };
 
 #endif

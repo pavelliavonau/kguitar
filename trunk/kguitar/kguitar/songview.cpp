@@ -37,7 +37,7 @@
 #include <qheader.h>
 #include <qdir.h>
 
-#ifdef HAVE_MIDI
+#ifdef WITH_TSE3
 #include <tse3/Song.h>
 #include <tse3/PhraseEdit.h>
 #include <tse3/Part.h>
@@ -50,31 +50,30 @@
 #include <tse3/Error.h>
 #endif
 
-//##>
-// #include <libkmid/deviceman.h>
-// #include <libkmid/midimapper.h>
-// #include <libkmid/fmout.h>
 
-// #include <unistd.h>
-// #include <stdlib.h>
-// #include <stdio.h>
-// #include <sys/types.h>
-// #include <sys/wait.h>
-
-// #include <signal.h>   // kill is declared on signal.h on bsd, not sys/signal.h
-// #include <sys/signal.h>
-//##<
-
-SongView::SongView(KXMLGUIClient *_XMLGUIClient,  KCommandHistory* _cmdHist,
+SongView::SongView(KXMLGUIClient *_XMLGUIClient, KCommandHistory *_cmdHist,
 				   QWidget *parent = 0, const char *name = 0): QWidget(parent, name)
 {
+#ifdef WITH_TSE3
+	scheduler = 0L;
+	initScheduler();
+#endif
+
+	midiInUse = FALSE;
+	midiStopPlay = FALSE;
+
 	song = new TabSong(i18n("Unnamed"), 120);
 	song->t.append(new TabTrack(FretTab, i18n("Guitar"), 1, 0, 25, 6, 24));
 
 	split = new QSplitter(this);
 	split->setOrientation(QSplitter::Vertical);
 
-	tv = new TrackView(song, _XMLGUIClient, _cmdHist, /*midi,*/ split);//##
+#ifdef WITH_TSE3
+	tv = new TrackView(song, _XMLGUIClient, _cmdHist, scheduler, split);
+#else
+	tv = new TrackView(song, _XMLGUIClient, _cmdHist, split);
+#endif
+
 	splitv = new QSplitter(split);
  	splitv->setOrientation(QSplitter::Horizontal);
 
@@ -90,7 +89,7 @@ SongView::SongView(KXMLGUIClient *_XMLGUIClient,  KCommandHistory* _cmdHist,
 	QBoxLayout *l = new QVBoxLayout(this);
 	l->addWidget(split);
 
-	m_cmdHist = _cmdHist;
+	cmdHist = _cmdHist;
 }
 
 SongView::~SongView()
@@ -157,7 +156,7 @@ void SongView::trackDelete()
 
 		//ALINXFIX: until trackDelete will be a command
 		//          do safe things:
-		m_cmdHist->clear();
+		cmdHist->clear();
 	}
 }
 
@@ -175,7 +174,7 @@ void SongView::trackBassLine()
 	if (trackNew()) {
 		TabTrack *newtrk = tv->trk();
 		newtrk->c.resize(origtrk->c.size());
-		ChordSelector cs(/*devMan(),*/ origtrk);
+		ChordSelector cs(origtrk);
 
 		int note;
 		bool havenote;
@@ -251,7 +250,7 @@ bool SongView::trackProperties()
 		if (newtrk->y >= newtrk->string)
 			newtrk->y = newtrk->string - 1;
 
-		m_cmdHist->addCommand(new SetTrackPropCommand(tv, tl, tp, tv->trk(), newtrk));
+		cmdHist->addCommand(new SetTrackPropCommand(tv, tl, tp, tv->trk(), newtrk));
 		res = TRUE;
 	}
 
@@ -315,8 +314,8 @@ void SongView::songProperties()
 	ss->comments->setReadOnly(isBrowserView);
 
 	if (ss->exec()) {
-		m_cmdHist->addCommand(new SetSongPropCommand(song, ss->title->text(), ss->author->text(),
-													 ss->transcriber->text(), ss->comments->text()));
+		cmdHist->addCommand(new SetSongPropCommand(song, ss->title->text(), ss->author->text(),
+												   ss->transcriber->text(), ss->comments->text()));
 	}
 
 	delete ss;
@@ -324,8 +323,8 @@ void SongView::songProperties()
 
 void SongView::playTrack()
 {
-#ifdef HAVE_MIDI
-	kdDebug() << "SongView::playTrack with pid:"/* << getpid()*/ << endl; //##
+#ifdef WITH_TSE3
+	kdDebug() << "SongView::playTrack" << endl;
 
 	if (midiInUse) {
 		kdDebug() << "   ** Sorry you are playing a track/song!!" << endl;
@@ -345,8 +344,8 @@ void SongView::playTrack()
 
 void SongView::playSong()
 {
-#ifdef HAVE_MIDI
-	kdDebug() << "SongView::playSong with pid:" << /*getpid() <<*/ endl; //##
+#ifdef WITH_TSE3
+	kdDebug() << "SongView::playSong" << endl;
 
 	if (midiInUse) {
 		kdDebug() << "   ** Sorry you are playing a track/song!!" << endl;
@@ -370,7 +369,7 @@ void SongView::playSong()
 
 void SongView::stopPlayTrack()
 {
-#ifdef HAVE_MIDI
+#ifdef WITH_TSE3
 	kdDebug() << "SongView::stopPlayTrack" << endl;
 
 	if (midiInUse) midiStopPlay = TRUE;
@@ -379,7 +378,7 @@ void SongView::stopPlayTrack()
 
 void SongView::playMidi(MidiList &ml, bool playSong = TRUE)
 {
-#ifdef HAVE_MIDI
+#ifdef WITH_TSE3
 	kdDebug() << "SongView::playMidi" << endl;
 
 	if (ml.isEmpty()) {
@@ -389,6 +388,15 @@ void SongView::playMidi(MidiList &ml, bool playSong = TRUE)
 		return;
 	}
 
+	if (!scheduler)
+		if (!initScheduler()) {
+			KMessageBox::error(this, i18n("Error opening MIDI device!"));
+			midiInUse = FALSE;
+			return;
+		}
+
+	kdDebug() << "  Scheduler: " << scheduler << endl;
+
 	MidiEvent *e;
 	TSE3::PhraseEdit phraseEdit;
 
@@ -396,85 +404,95 @@ void SongView::playMidi(MidiList &ml, bool playSong = TRUE)
 		QListIterator<TabTrack> it(song->t);
 		for (; it.current(); ++it) {
 			TabTrack *trk = it.current();
-			phraseEdit.insert(TSE3::MidiEvent(TSE3::MidiCommand(TSE3::MidiCommand_ProgramChange, trk->channel - 1,
-																0 /*port*/, trk->patch), 0));
-			//## send chnPatchChange(trk->channel, trk->patch);
+			phraseEdit.insert(TSE3::MidiEvent(TSE3::MidiCommand(TSE3::MidiCommand_ProgramChange,
+																trk->channel - 1, 0 /*port*/,
+																trk->patch), 0));
 			//## and MIDI commands for Volume, Chorus, etc.
 		}
 	} else {
-		phraseEdit.insert(TSE3::MidiEvent(TSE3::MidiCommand(TSE3::MidiCommand_ProgramChange, tv->trk()->channel - 1,
-																0 /*port*/, tv->trk()->patch), 0));
-		//## send chnPatchChange(tv->trk()->channel, tv->trk()->patch);
+		phraseEdit.insert(TSE3::MidiEvent(TSE3::MidiCommand(TSE3::MidiCommand_ProgramChange,
+															tv->trk()->channel - 1, 0 /*port*/,
+															tv->trk()->patch), 0));
 		//## and MIDI commands for Volume, Chorus, etc.
 	}
 
-//##--	TSE3::Clock time = 0;
-//##--	int duration = TSE3::Clock::PPQN;
-
+	long lasttimestamp = 0;
+	int lastduration = 0;
+	Q_UINT8 lastchn = 0;
 
 	for (e = ml.first(); e != 0; e = ml.next()) {
 		phraseEdit.insert(TSE3::MidiEvent(TSE3::MidiCommand(TSE3::MidiCommand_NoteOn, e->chn, 0/*port*/,
 															e->data1/*note*/, e->data2 /*velocity*/),
 										  e->timestamp, 0/*velocity*/, e->timestamp + e->duration));
+		lasttimestamp = e->timestamp;
+		lastduration = e->duration;
+		lastchn = e->chn;
 	}
 
+	lasttimestamp += lastduration;
+	phraseEdit.insert(TSE3::MidiEvent(TSE3::MidiCommand(TSE3::MidiCommand_NoteOn, lastchn, 0/*port*/,
+														0, 0), lasttimestamp, 0, lasttimestamp + lastduration));
+
 	// Now assemble the Song
-	TSE3::Song    m_song(1);
-	TSE3::Phrase *phrase = phraseEdit.createPhrase(m_song.phraseList());
-	TSE3::Part   *part   = new TSE3::Part(0, phraseEdit.lastClock());
+	TSE3::Song _song(1);
+	TSE3::Phrase *phrase = phraseEdit.createPhrase(_song.phraseList());
+	TSE3::Part *part   = new TSE3::Part(0, phraseEdit.lastClock());
 	part->setPhrase(phrase);
-	m_song[0]->insert(part);
+	_song[0]->insert(part);
 
 	// Create transport objects
 	TSE3::Metronome metronome;
-//	metronome.setDuration(4);
 
-	TSE3::Plt::AlsaMidiSchedulerFactory AlsaFactory;
-	TSE3::Plt::OSSMidiSchedulerFactory OSSFactory;
-
-	TSE3::MidiScheduler *scheduler;
-
-	try {
-		scheduler = AlsaFactory.createScheduler();
-		kdDebug() << "TSE3 ALSA MIDI Scheduler created" << endl;
-	}
-	catch (TSE3::MidiSchedulerError e) {
-		kdDebug() << "cannot create an ALSA MIDI Scheduler" << endl;
-	}
-
-	if (!scheduler) {
-		try {
-			scheduler = OSSFactory.createScheduler();
-			kdDebug() << "TSE3 OSS MIDI Scheduler created" << endl;
-		}
-		catch (TSE3::MidiSchedulerError e) {
-			kdDebug() << "cannot create an OSS MIDI Scheduler" << endl;
-		}
-	}
-
-	if (!scheduler) {
-		kdDebug() << "ERROR opening MIDI device / Music can't be played" << endl;
-		KMessageBox::error(this, i18n("Error opening MIDI device!"));
-		midiInUse = FALSE;
-		delete scheduler;
-		return;
-	}
-
-//	TSE3::Plt::OSSMidiScheduler     scheduler;
 	TSE3::Transport transport(&metronome, scheduler);
 
-
     // Play and wait for the end
-	transport.play(&m_song, 0);
-// 	while (transport.status() != TSE3::Transport::Resting)
-// 		transport.poll();
+	transport.play(&_song, 0);
+
+	while (transport.status() != TSE3::Transport::Resting) {
+		kapp->processEvents();
+		if (midiStopPlay)
+			transport.stop();
+		else
+			transport.poll();
+	}
 
 	midiInUse = FALSE;
 	phraseEdit.clearSelection();
 
-	delete scheduler;
 #endif
 }
+
+#ifdef WITH_TSE3
+bool SongView::initScheduler()
+{
+	if (!scheduler) {
+		try {
+			scheduler = AlsaFactory.createScheduler();
+			kdDebug() << "TSE3 ALSA MIDI Scheduler created" << endl;
+		}
+		catch (TSE3::MidiSchedulerError e) {
+			kdDebug() << "cannot create an ALSA MIDI Scheduler" << endl;
+		}
+
+		if (!scheduler) {
+			try {
+				scheduler = OSSFactory.createScheduler();
+				kdDebug() << "TSE3 OSS MIDI Scheduler created" << endl;
+			}
+			catch (TSE3::MidiSchedulerError e) {
+				kdDebug() << "cannot create an OSS MIDI Scheduler" << endl;
+			}
+		}
+
+		if (!scheduler) {
+			kdDebug() << "ERROR opening MIDI device / Music can't be played" << endl;
+			midiInUse = FALSE;
+			return FALSE;
+		}
+	}
+	return TRUE;
+}
+#endif
 
 void SongView::slotCut()
 {
@@ -605,5 +623,5 @@ void SongView::insertTabs(TabTrack* trk)
 		return;
 	}
 
-	m_cmdHist->addCommand(new InsertTabsCommand(tv, tv->trk(), trk));
+	cmdHist->addCommand(new InsertTabsCommand(tv, tv->trk(), trk));
 }

@@ -95,7 +95,7 @@ private:
 
     // parentWidget
     QWidget *p;
-	KCommandHistory* m_cmdHist;
+	KCommandHistory* cmdHist;
 
 protected:
     // reimplemented from ReadWritePart

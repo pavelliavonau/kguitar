@@ -15,7 +15,7 @@ TrackList::TrackList(TabSong *s, KXMLGUIClient *_XMLGUIClient, QWidget *parent =
 	QListView(parent, name)
 {
 	song = s;
-	m_XMLGUIClient = _XMLGUIClient;
+	xmlGUIClient = _XMLGUIClient;
 
 	setFocusPolicy(QWidget::StrongFocus);
 	setAllColumnsShowFocus(TRUE);
@@ -61,7 +61,7 @@ void TrackList::contentsMousePressEvent(QMouseEvent *e)
 
 	if (e->button() == RightButton) {
 		QWidget *tmpWidget = 0;
-		tmpWidget = m_XMLGUIClient->factory()->container("tracklistpopup", m_XMLGUIClient);
+		tmpWidget = xmlGUIClient->factory()->container("tracklistpopup", xmlGUIClient);
 
 		if (!tmpWidget || !tmpWidget->inherits("KPopupMenu")) {
 			kdDebug() << "TrackList::contentsMousePressEvent => wrong container widget" << endl;
