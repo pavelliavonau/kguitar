@@ -23,11 +23,11 @@ int main(int argc, char **argv)
 {
 	KAboutData about("kguitar", "KGuitar",
 	                 VERSION, DESCRIPTION, KAboutData::License_GPL,
-	                 "(C) 2000-2003 by KGuitar Development Team", 0,
+	                 "(C) 2000-2005 by KGuitar Development Team", 0,
 	                 "http://kguitar.sourceforge.net");
 
 	about.addAuthor("Mikhail Yakshin AKA GreyCat", I18N_NOOP("Maintainer and main coder"),
-						"greycat@users.sourceforge.net");
+	                "greycat@users.sourceforge.net");
 	about.addAuthor("Alex Brand AKA alinx", 0, "alinx@users.sourceforge.net");
 	about.addAuthor("Leon Vinken", 0, "lvinken@users.sourceforge.net");
 	about.addAuthor("Matt Malone", 0, "marlboro@users.sourceforge.net");
@@ -49,7 +49,7 @@ int main(int argc, char **argv)
 	if (app.isRestored()) {
 		RESTORE(KGuitar)
 	} else {
-        // no session.. just start up normally
+		// no session.. just start up normally
 		KCmdLineArgs *args = KCmdLineArgs::parsedArgs();
 
 		if (args->count() == 0)  {
