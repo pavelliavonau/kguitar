@@ -8,6 +8,10 @@
 #include "options.h"
 #include "melodyeditor.h"
 #include "trackdrag.h"
+#include "settings.h"
+
+#include "optionsexportascii.h"
+#include "optionsexportmusixtex.h"
 
 // KDE system things
 #include <kparts/genericfactory.h>
@@ -41,25 +45,6 @@ typedef KParts::GenericFactory<KGuitarPart> KGuitarPartFactory;
 K_EXPORT_COMPONENT_FACTORY(libkguitarpart, KGuitarPartFactory);
 
 // Global variables - real declarations
-
-// General
-int globalMaj7;
-int globalFlatPlus;
-int globalNoteNames;
-
-// MusiXTeX
-int globalTabSize;
-bool globalShowBarNumb;
-bool globalShowStr;
-bool globalShowPageNumb;
-int globalTexExpMode;
-
-// MIDI
-int globalMidiPort;
-bool globalHaveMidi;
-
-// Printing
-int globalPrSty;
 
 QString drum_abbr[128];
 
@@ -111,10 +96,7 @@ KGuitarPart::KGuitarPart(QWidget *parentWidget,
 						 const QStringList & /*args*/)
 	: KParts::ReadWritePart(parent, name)
 {
-// 	printer = new QPrinter;
-// 	printer->setMinMax(1,10);
-
-	kdDebug() << "KGuitarPart::KGuitarPart() " << endl;
+	Settings::config = KGuitarPartFactory::instance()->config();
 
 //	p = parentWidget;
 // 	isBrowserView = bBrowserView;
@@ -160,8 +142,6 @@ KGuitarPart::KGuitarPart(QWidget *parentWidget,
 	readOptions();
 
 	readMidiNames();
-
-	updateMenu();
 }
 
 KGuitarPart::~KGuitarPart()
@@ -251,6 +231,38 @@ bool KGuitarPart::openFile()
 	return success;
 }
 
+bool KGuitarPart::exportOptionsDialog(QString ext)
+{
+	// Skip dialog if user set appopriate option
+	if (!Settings::config->readBoolEntry("AlwaysShow", TRUE))
+		return TRUE;
+
+	KDialogBase opDialog(0, 0, TRUE, i18n("Additional Export Options"),
+	                     KDialogBase::Help|KDialogBase::Default|
+						 KDialogBase::Ok|KDialogBase::Cancel, KDialogBase::Ok);
+
+
+    QVBox *box = opDialog.makeVBoxMainWidget();
+
+	OptionsPage *op;
+
+	if (ext == "tab") {
+		op = new OptionsExportAscii(Settings::config, (QFrame *) box);
+	} else if (ext == "tex") {
+		op = new OptionsExportMusixtex(Settings::config, (QFrame *) box);
+	} else {
+		kdWarning() << "Weird exportOptionsDialog() call! Wrong extension " << ext << endl;
+		return FALSE;
+	}
+
+	connect(&opDialog, SIGNAL(defaultClicked()), op, SLOT(defaultBtnClicked()));
+	connect(&opDialog, SIGNAL(okClicked()), op, SLOT(applyBtnClicked()));
+
+	bool res = (opDialog.exec() == QDialog::Accepted);
+	delete op;
+	return res;
+}
+
 // Reimplemented method from KParts to current song to file m_file
 bool KGuitarPart::saveFile()
 {
@@ -274,8 +286,14 @@ bool KGuitarPart::saveFile()
 		sv->tv->arrangeBars(); // GREYFIX !
 		success = sv->sng()->saveToKg(m_file);
 	}
-	if (ext == "tab")
-		success = sv->sng()->saveToTab(m_file);
+	if (ext == "tab") {
+		Settings::config->setGroup("ASCII");
+		if (exportOptionsDialog(ext)) {
+			success = sv->sng()->saveToTab(m_file);
+		} else {
+			return FALSE;
+		}
+	}
 #ifdef WITH_TSE3
 	if (ext == "mid")
 		success = sv->sng()->saveToMid(m_file);
@@ -287,10 +305,14 @@ bool KGuitarPart::saveFile()
 	if (ext == "gp3")
 		success = sv->sng()->saveToGp3(m_file);
 	if (ext == "tex") {
-		switch (globalTexExpMode) {
-		case 0: success = sv->sng()->saveToTexTab(m_file); break;
-		case 1: success = sv->sng()->saveToTexNotes(m_file); break;
-		default: success = FALSE; break;
+		Settings::config->setGroup("MusiXTeX");
+		if (exportOptionsDialog(ext)) {
+			switch (Settings::texExportMode()) {
+			case 0: success = sv->sng()->saveToTexTab(m_file); break;
+			case 1: success = sv->sng()->saveToTexNotes(m_file); break;
+			}
+		} else {
+			return FALSE;
 		}
 	}
 	if (ext == "xml")
@@ -373,30 +395,6 @@ void KGuitarPart::fileSaveAs()
 // 	}
 // }
 
-void KGuitarPart::updateMenu()
-{
-	usSharpAct->setChecked(globalNoteNames == 0);
-	usFlatAct->setChecked(globalNoteNames == 1);
-	usMixAct->setChecked(globalNoteNames == 2);
-	euSharpAct->setChecked(globalNoteNames == 3);
-	euFlatAct->setChecked(globalNoteNames == 4);
-	euMixAct->setChecked(globalNoteNames == 5);
-	jazzSharpAct->setChecked(globalNoteNames == 6);
-	jazzFlatAct->setChecked(globalNoteNames == 7);
-	jazzMixAct->setChecked(globalNoteNames == 8);
-}
-
-bool KGuitarPart::jazzWarning()
-{
-	return KMessageBox::warningYesNo(0,
-									 i18n("Jazz note names are very special and should be\n"
-										  "used only if really know what you do. Usage of jazz\n"
-										  "note names without a purpose would confuse or mislead\n"
-										  "anyone reading the music who did not have a knowledge\n"
-										  "of jazz note naming.\n\n"
-										  "Are you sure you want to use jazz notes?")) == KMessageBox::Yes;
-}
-
 // Updates possibility of actions, depending on freshly selected
 // track. For drum track, lots of actions are unavailable.
 void KGuitarPart::updateToolbars(TabTrack *)
@@ -441,80 +439,22 @@ void KGuitarPart::readOptions()
 {
 	KConfig *config = KGuitarPartFactory::instance()->config();
 
-	config->setGroup("General");
-	globalMaj7 = config->readNumEntry("Maj7", 0);
-	globalFlatPlus = config->readNumEntry("FlatPlus", 0);
-	globalNoteNames = config->readNumEntry("NoteNames", 0);
+// 	config->setGroup("MusiXTeX");
+// 	globalTabSize = config->readNumEntry("TabSize", 2);
+// 	globalShowBarNumb = config->readBoolEntry("ShowBarNumb", TRUE);
+// 	globalShowStr = config->readBoolEntry("ShowStr", TRUE);
+// 	globalShowPageNumb = config->readBoolEntry("ShowPageNumb", TRUE);
+// 	globalTexExpMode = config->readNumEntry("TexExpMode", 0);
 
-	config->setGroup("MusiXTeX");
-	globalTabSize = config->readNumEntry("TabSize", 2);
-	globalShowBarNumb = config->readBoolEntry("ShowBarNumb", TRUE);
-	globalShowStr = config->readBoolEntry("ShowStr", TRUE);
-	globalShowPageNumb = config->readBoolEntry("ShowPageNumb", TRUE);
-	globalTexExpMode = config->readNumEntry("TexExpMode", 0);
-
- 	config->setGroup("TSE3");
- 	globalMidiPort = config->readNumEntry("Port", 64);
-
-	config->setGroup("Printing");
-	globalPrSty = config->readNumEntry("PrSty", 0);
-
-	config->setGroup("MelodyEditor");
  	viewMelodyEditorAct->setChecked(config->readBoolEntry("Visible", TRUE));
 	viewMelodyEditor();
-	globalMelodyEditorInlay = config->readNumEntry("Inlay", 1);
-	globalMelodyEditorWood = config->readNumEntry("Wood",  2);
-	globalMelodyEditorAction[0] = config->readNumEntry("Action0", 1);
-	globalMelodyEditorAdvance[0] = config->readBoolEntry("Advance0", FALSE);
-	globalMelodyEditorAction[1] = config->readNumEntry("Action1", 3);
-	globalMelodyEditorAdvance[1] = config->readBoolEntry("Advance1", TRUE);
-	globalMelodyEditorAction[2] = config->readNumEntry("Action2", 1);
-	globalMelodyEditorAdvance[2] = config->readBoolEntry("Advance2", TRUE);
 }
 
 void KGuitarPart::saveOptions()
 {
-	kdDebug() << "KGuitarPart::saveOptions()" << endl;
-
-// 	if (isBrowserView) {
-// 		kdDebug() << "Nothing to save if loaded in Konqueror" << endl;
-// 		return;
-// 	}
-
-	KConfig *config = KGuitarPartFactory::instance()->config();
-
-	config->setGroup("General");
-	config->writeEntry("Maj7", globalMaj7);
-	config->writeEntry("FlatPlus", globalFlatPlus);
-	config->writeEntry("NoteNames", globalNoteNames);
-
-	config->setGroup("MusiXTeX");
-	config->writeEntry("TabSize", globalTabSize);
-	config->writeEntry("ShowBarNumb", globalShowBarNumb);
-	config->writeEntry("ShowStr", globalShowStr);
-	config->writeEntry("ShowPageNumb", globalShowPageNumb);
-	config->writeEntry("TexExpMode", globalTexExpMode);
-
- 	config->setGroup("TSE3");
- 	config->writeEntry("Port", globalMidiPort);
-
-	config->setGroup("Printing");
-	config->writeEntry("PrSty", globalPrSty);
-
-	config->setGroup("MelodyEditor");
- 	config->writeEntry("Visible", viewMelodyEditorAct->isChecked());
-	config->writeEntry("Inlay", globalMelodyEditorInlay);
-	config->writeEntry("Wood", globalMelodyEditorWood);
-	config->writeEntry("Action0", globalMelodyEditorAction[0]);
-	config->writeEntry("Advance0", globalMelodyEditorAdvance[0]);
-	config->writeEntry("Action1", globalMelodyEditorAction[1]);
-	config->writeEntry("Advance1", globalMelodyEditorAdvance[1]);
-	config->writeEntry("Action2", globalMelodyEditorAction[2]);
-	config->writeEntry("Advance2", globalMelodyEditorAdvance[2]);
-
-	config->sync();
-
-	kdDebug() << "KGuitarPart::saveOptions() => all things saved..." << endl;
+ 	Settings::config->setGroup("MelodyEditor");
+	Settings::config->writeEntry("Visible", viewMelodyEditorAct->isChecked());
+	Settings::config->sync();
 }
 
 void KGuitarPart::readMidiNames()
@@ -670,24 +610,6 @@ void KGuitarPart::setupActions()
 	                          actionCollection(), "fx_palmmute");
 
 	// SET UP 'Note Names'
-	usSharpAct = new KToggleAction(i18n("American, sharps"), 0, this,
-								   SLOT(setUSsharp()), actionCollection(), "us_sharp");
-	usFlatAct = new KToggleAction(i18n("American, flats"), 0, this,
-								  SLOT(setUSflats()), actionCollection(), "us_flat");
-	usMixAct = new KToggleAction(i18n("American, mixed"), 0, this,
-								 SLOT(setUSmixed()), actionCollection(), "us_mix");
-	euSharpAct = new KToggleAction(i18n("European, sharps"), 0, this,
-								   SLOT(setEUsharp()), actionCollection(), "eu_sharp");
-	euFlatAct = new KToggleAction(i18n("European, flats"), 0, this,
-								  SLOT(setEUflats()), actionCollection(), "eu_flat");
-	euMixAct = new KToggleAction(i18n("European, mixed"), 0, this,
-								 SLOT(setEUmixed()), actionCollection(), "eu_mix");
-	jazzSharpAct = new KToggleAction(i18n("Jazz, sharps"), 0, this,
-									 SLOT(setJZsharp()), actionCollection(), "jazz_sharp");
-	jazzFlatAct = new KToggleAction(i18n("Jazz, flats"), 0, this,
-									SLOT(setJZflats()), actionCollection(), "jazz_flat");
-	jazzMixAct = new KToggleAction(i18n("Jazz, mixed"), 0, this,
-								   SLOT(setJZmixed()), actionCollection(), "jazz_mix");
 
     // SET UP MIDI-PLAY
 	midiPlaySongAct = new KAction(i18n("&Play / stop"), "1rightarrow",

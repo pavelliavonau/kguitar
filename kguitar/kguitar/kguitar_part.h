@@ -3,9 +3,7 @@
 
 #include <kparts/part.h>
 
-#include <kio/job.h>
 // #include <kparts/browserextension.h>
-//#include <kparts/factory.h>
 
 #include <kaction.h>
 #include <kcommand.h>
@@ -13,7 +11,6 @@
 #include "songview.h"
 
 #include "global.h"
-#include "globaloptions.h"
 
 class KToolBar;
 class QLabel;
@@ -55,7 +52,7 @@ public:
      */
     virtual void setModified(bool modified);
 
-	/*
+	/**
 	 * Provide "About..." credits data, required by KPart
 	 */
     static KAboutData *createAboutData();
@@ -73,27 +70,16 @@ protected slots:
 	void saveOptions();
 	void updateToolbars(TabTrack *);
 
-	void setUSsharp() { globalNoteNames = 0; updateMenu(); };
-	void setUSflats() { globalNoteNames = 1; updateMenu(); };
-	void setUSmixed() { globalNoteNames = 2; updateMenu(); };
-
-	void setEUsharp() { globalNoteNames = 3; updateMenu(); };
-	void setEUflats() { globalNoteNames = 4; updateMenu(); };
-	void setEUmixed() { globalNoteNames = 5; updateMenu(); };
-
-	void setJZsharp() { if (jazzWarning()) { globalNoteNames = 6; } updateMenu(); };
-	void setJZflats() { if (jazzWarning()) { globalNoteNames = 7; } updateMenu(); };
-	void setJZmixed() { if (jazzWarning()) { globalNoteNames = 8; } updateMenu(); };
-
 private:
 	void setupActions();
 	void setupAccels();
 
 	void updateMenu();
 	void setWinCaption(const QString& caption);
-	bool jazzWarning();
 	void readOptions();
 	void readMidiNames();
+
+	bool exportOptionsDialog(QString ext);
 
 	/**
 	 * Main widget - the song view. Accessible from other places with
@@ -114,23 +100,16 @@ private:
 		*palmMuteAct, *slideAct, *letRingAct, *saveOptionAct, *confKeyAct,
 		*arrTrkAct, *midiPlaySongAct, *midiStopPlayAct, *rhythmerAct,
 		*zoomInAct, *zoomOutAct, *zoomLevelAct, *pasteAct;
-    KToggleAction *showMainTBAct, *showEditTBAct, *usSharpAct, *usFlatAct,
-		*usMixAct, *euSharpAct, *euFlatAct, *euMixAct, *jazzSharpAct,
-		*jazzFlatAct, *jazzMixAct, *viewMelodyEditorAct;
+    KToggleAction *showMainTBAct, *showEditTBAct, *viewMelodyEditorAct;
 
 	KAccel *mainAccel;
 
-    // parentWidget
-//    QWidget *p;
 	KCommandHistory* cmdHist;
 
 protected:
     // reimplemented from ReadWritePart
     virtual bool openFile();
     virtual bool saveFile();
-
-signals:
-    void configToolBars();
 };
 
 //--------------------------------------------------------------------------
