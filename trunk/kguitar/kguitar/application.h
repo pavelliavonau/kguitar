@@ -3,8 +3,6 @@
 
 #include <ktmainwindow.h>
 
-#define VERSION "0.0.2"
-
 class QMultiLineEdit;
 class KToolBar;
 class QPopupMenu;
