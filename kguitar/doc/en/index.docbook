@@ -38,7 +38,7 @@ as Authors, publish date, the abstract, and Keywords -->
 <!-- TRANS:ROLES_OF_TRANSLATORS -->
 
 <copyright>
-<year>2002</year>
+<year>2002-2003</year>
 <holder>Mikhail Yakshin</holder>
 </copyright>
 <!-- Translators: put here the copyright notice of the translation -->
@@ -53,7 +53,7 @@ Please respect the format of the date (DD/MM/YYYY) and of the version
 (V.MM.LL), it could be used by automation scripts.
 Do NOT change these in the translation. -->
 
-<date>30/08/2002</date>
+<date>22/08/2003</date>
 <releaseinfo>1.01.00</releaseinfo>
 
 <!-- Abstract about this handbook -->
@@ -279,6 +279,15 @@ automatically shown in groups of 3 when you'll enter sufficient number
 of them.
 </para>
 
+<para>
+Though such column-oriented approach was critiqued a lot because of
+it's mythical inflexibility, we advocate for such approache because of
+it's natural simplicity in most of frequent situations. Later in this
+documentation, we'll demonstrate how it can be used to <link
+linkend="advanced-transcribing">transcribe even the most complex
+musical figures</link>.
+</para>
+
 </sect1>
 
 <sect1 id="bars-beats-time-signature">
@@ -370,6 +379,62 @@ TODO
 <para>
 TODO
 </para>
+
+</sect1>
+
+<sect1 id="advanced-transcribing">
+<title>Advanced Transcribing</title>
+
+<para>
+Column-based approach to tabulature transcribing may seem inflexible
+for most complex pieces of music, but it's not true. Let's demonstrate
+a few examples of some intonational complexity based of note durations.
+</para>
+
+<para>
+The main principle one should stick to while using column-based approach
+is simple: the tabulature is about <emphasis>how</emphasis> music should
+be played, not <emphasis>what</emphasis> generally should sound. This
+rigidly fixes tabulature on particular instrument, but, nowadays, converting
+from one type of tabulature to another is automated task you can delegate
+to your computer, rather that comprehending it yourself.
+</para>
+
+<sect2 id="example-1">
+<title>Example 1: Mixed duration notes</title>
+
+<para>
+We need to transcribe two notes that start at the same time, but first one
+sounds for 1/8 or a beat and second one lasts for 1/4 (TODO: picture). It seem
+to be impossible to do that it in column-based tabulature, as all notes stacked
+in a column seem to have same duration.
+</para>
+
+<para>
+Remembering the main principle mentioned above, let's think about how such a
+figure would be played, for example, on a guitar. Naturally, strings are all the
+same and we can assume here that they sound infinitely long if not interrupted.
+How can a guitarist interrupt string sound? There are two possibilities:
+</para>
+
+<itemizedlist>
+
+<listitem><para>He can fret some sort of other note on the same
+string, thus ending the tone of previous one;</para></listitem>
+<listitem><para>He can just mute the string with his finger or
+palm;</para></listitem>
+
+</itemizedlist>
+
+<para>
+
+</para>
+
+<para>
+TODO
+</para>
+
+</sect2>
 
 </sect1>
 
@@ -502,8 +567,8 @@ to do it).
 </para>
 
 <para>
-&kguitar; now supports only exporting ASCII tabs. However, if you're
-going to distribute your created tabulature, we recommend you
+&kguitar; now supports only exporting of ASCII tabs. However, if
+you're going to distribute your created tabulature, we recommend you
 <emphasis>not</emphasis> to do it in ASCII TAB legacy format. Due to
 lots of unsaved information, a load of your hard work will be just
 lost without any traces. Use <link
