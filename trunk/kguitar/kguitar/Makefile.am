@@ -20,7 +20,7 @@ SUBDIRS = toolbar pics
 
 ####### This part is very kguitar specific
 # you can add here more. This one gets installed
-bin_PROGRAMS = 	kguitar
+bin_PROGRAMS =     kguitar
 lib_LTLIBRARIES = libkguitar.la
 
 # Which sources should be compiled for kguitar.
@@ -64,13 +64,13 @@ servicesdir = $(kde_servicesdir)
 services_DATA = kguitar_component.desktop
 
 #messages:
-#	$(XGETTEXT) -C -ki18n $(kguitar_SOURCES) -o ../po/kguitar.pot
+#    $(XGETTEXT) -C -ki18n $(kguitar_SOURCES) -o ../po/kguitar.pot
 
-messages: rc.cpp
-	LIST=`find . -name \*.h -o -name \*.hh -o -name \*.H -o -name \*.hxx -o -name \*.hpp -o -name \*.cpp -o -name \*.cc -o -name \*.cxx -o -name \*.ecpp -o -name \*.C`; \
-	if test -n "$$LIST"; then \
-	 $(XGETTEXT) $$LIST -o ../po/kguitar.pot; \
-	fi
+messages:
+    LIST=`find . -name \*.h -o -name \*.cpp`; \
+    if test -n "$$LIST"; then \
+     $(XGETTEXT) -ki18n $$LIST -o ../po/kguitar.pot; \
+    fi
 
 
 KDE_ICON = AUTO
