@@ -21,6 +21,7 @@ private slots:
     void load();
     void save();
     void saveAs();
+    void exportMID();
     void print();
     void closeDoc();
     void inschord();
