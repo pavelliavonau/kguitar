@@ -8,6 +8,9 @@
 #include <qscrollbar.h>
 #include <qstring.h>
 
+// GREYFIX
+#include <stdio.h>
+
 // Note names
 QString note_name(int num)
 {
@@ -46,20 +49,6 @@ ChordSelector::ChordSelector(QWidget *parent=0, const char *name=0)
     chname = new QLineEdit(this);
     chname->setGeometry(10,10,130,20);
 
-    tonic = new QListBox(this);
-    tonic->setAutoUpdate(FALSE);
-    for(int i=0;i<12;i++)
-      tonic->insertItem(note_name(i));
-    tonic->setAutoUpdate(TRUE);
-    tonic->setGeometry(10,40,40,12*tonic->itemHeight()+6);  // GREYFIX
-    
-    step3 = new QListBox(this);
-    step3->insertItem("M");
-    step3->insertItem("m");
-    step3->insertItem("sus2");
-    step3->insertItem("sus4");
-    step3->setGeometry(60,40,50,100);
-
     fng = new Fingering(6,this);
     fng->setGeometry(150,10,100,100);
     connect(fng,SIGNAL(chordChange()),SLOT(detectChord()));
@@ -70,6 +59,21 @@ ChordSelector::ChordSelector(QWidget *parent=0, const char *name=0)
 
     fnglist = new FingerList(this);
     fnglist->setGeometry(10,240,420,100);
+
+    tonic = new QListBox(this);
+    tonic->setAutoUpdate(FALSE);
+    for(int i=0;i<12;i++)
+      tonic->insertItem(note_name(i));
+    tonic->setAutoUpdate(TRUE);
+    tonic->setGeometry(10,40,40,12*tonic->itemHeight()+6);  // GREYFIX
+    connect(tonic,SIGNAL(highlighted(int)),SLOT(findChords()));
+
+    step3 = new QListBox(this);
+    step3->insertItem("M");
+    step3->insertItem("m");
+    step3->insertItem("sus2");
+    step3->insertItem("sus4");
+    step3->setGeometry(60,40,50,100);
 
     setFixedSize(450,350);
 }
@@ -150,49 +154,63 @@ void ChordSelector::detectChord()
   }
 }
 
-/*
-int smth()
+void ChordSelector::findChords()
 {
     int i,j,k,min,max;
-    int need[3]={0,3,7};
-    int app[6]={0,0,0,0,0,0};
+    int app[MAX_STRINGS];
 
     int maxfret=9;
-    int finished=FALSE,ok;
+    bool finished=FALSE,ok;
 
-    printf("Аккорд состоит из нот: ");
-    for (i=0;i<=2;i++) { printf("%s ",note_name(need[i])); }
-    printf("\n\n");
+    // CALCULATION OF REQUIRED NOTES FOR A CHORD FROM USER INPUT
+
+    int need[3]={0,4,7};
+
+    for (i=0;i<3;i++)
+      need[i]=(need[i]+tonic->currentItem())%12;
+
+    // PREPARING FOR FINGERING CALCULATION
+
+    for (i=0;i<MAX_STRINGS;i++)
+      app[i]=0;
+    fnglist->clear();
+
+    // MAIN FINGERING CALCULATION LOOP
 
     do {
-        i=0;
-        do {
-            app[i]++;
-            if (app[i]<=maxfret)  break;
-            app[i]=0;i++;
-            if (i>5) {
-                finished=TRUE;
-                break;
-            }
-        } while (TRUE);
-        if (!finished) {
-            min=maxfret+1;max=0;
-            for (j=0;j<=5;j++) {
-                ok=FALSE;
+      i=0;
+      do {
+	app[i]++;
+	if (app[i]<=maxfret)  break;
+	app[i]=0;i++;
+	if (i>5) {
+	  finished=TRUE;
+	  break;
+	}
+      } while (TRUE);
+      if (!finished) {
+	min=maxfret+1;max=0;
+	for (j=0;j<=5;j++) {
+	  ok=FALSE;
                 if (app[j]!=0) {
-                    if (app[j]<min)  min = app[j];
-                    if (app[j]>max)  max = app[j];
+		  if (app[j]<min)  min = app[j];
+		  if (app[j]>max)  max = app[j];
                 }
                 for (k=0;k<=2;k++) {
-                    if (((app[j]+tune[j]) % 12) == need[k])  { ok = TRUE; }
+		  if (((app[j]+tune[j]) % 12) == need[k])
+		    ok = TRUE;
                 }
                 if (!ok)  break;
-            };
-            if ((ok) && (max-min<3))
-                printf("Аппликатура: %d%d%d%d%d%d\n",app[5],app[4],app[3],app[2],app[1],app[0]);
-        }
+	};
+	if ((ok) && (max-min<3)) {
+	  printf("Fingering: %d%d%d%d%d%d\n",app[0],app[1],app[2],app[3],app[4],app[5]);
+	  fnglist->addFingering(app);
+	}
+      }
     } while (!finished);
 
-    return 0;
+    fnglist->repaint();
 }
-*/
+
+
+
