@@ -3,7 +3,7 @@
 
 #include <qtableview.h>
 
-#define VERTSPACE 25
+#define VERTSPACE 30
 #define VERTLINE 10
 #define HORDUR 4
 #define HORCELL 8
