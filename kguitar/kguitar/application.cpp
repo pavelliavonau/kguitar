@@ -58,9 +58,15 @@ ApplicationWindow::ApplicationWindow(): KTMainWindow()
     QPopupMenu *p = new QPopupMenu();
     p->insertItem(i18n("&New"), this, SLOT(newDoc()));
     p->insertItem(i18n("&Open..."), this, SLOT(load()));
+    p->insertSeparator();
     p->insertItem(i18n("&Save"), this, SLOT(save()));
     p->insertItem(i18n("S&ave as..."), this, SLOT(saveAs()));
-    p->insertItem(i18n("&Export..."), this, SLOT(exportMID()));
+
+    QPopupMenu *exp = new QPopupMenu();
+    exp->insertItem(i18n("&MIDI file..."), this, SLOT(exportMID()));
+    exp->insertItem(i18n("ASCII &tab..."), this, SLOT(exportTAB()));
+    p->insertItem(i18n("&Export"), exp);
+
     p->insertSeparator();
     p->insertItem(i18n("P&roperties..."), this, SLOT(songProperties()));
     p->insertItem(i18n("&Print..."), this, SLOT(print()));
@@ -162,6 +168,13 @@ void ApplicationWindow::exportMID()
     QString fn = KFileDialog::getSaveFileName(0,"*.mid",this);
     if (!fn.isEmpty())
 	tv->sng()->save_to_mid(fn);
+}
+
+void ApplicationWindow::exportTAB()
+{
+    QString fn = KFileDialog::getSaveFileName(0,"*.tab",this);
+    if (!fn.isEmpty())
+	tv->sng()->save_to_tab(fn);
 }
 
 void ApplicationWindow::print()
@@ -270,6 +283,7 @@ void ApplicationWindow::trackProperties()
     SetTrack *st = new SetTrack();
 
     st->title->setText(tv->trk()->name);
+    st->channel->setValue(tv->trk()->channel);
     st->bank->setValue(tv->trk()->bank);
     st->patch->setValue(tv->trk()->patch);
 
@@ -280,6 +294,7 @@ void ApplicationWindow::trackProperties()
 
     if (st->exec()) {
 	tv->trk()->name = st->title->text();
+	tv->trk()->channel = st->channel->value();
 	tv->trk()->bank = st->bank->value();
 	tv->trk()->patch = st->patch->value();
 
