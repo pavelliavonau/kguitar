@@ -105,7 +105,8 @@ ApplicationWindow::ApplicationWindow(): KTMainWindow()
 	QPopupMenu *exp = new QPopupMenu();
 //	  exp->insertItem(i18n("&MIDI file..."), this, SLOT(exportMID()));
 	exp->insertItem(i18n("ASCII &tab..."), this, SLOT(exportTAB()));
-	exp->insertItem(i18n("Musi&XTeX tab..."), this, SLOT(exportTEX()));
+	exp->insertItem(i18n("&MusiXTeX tab..."), this, SLOT(exportTEXTAB()));
+	//exp->insertItem(i18n("Musi&XTeX notes..."), this, SLOT(exportTEXNOTES()));
 	p->insertItem(i18n("&Export"), exp);
 
 	p->insertSeparator();
@@ -249,11 +250,18 @@ void ApplicationWindow::exportTAB()
 		tv->sng()->save_to_tab(fn);
 }
 
-void ApplicationWindow::exportTEX()
+void ApplicationWindow::exportTEXTAB()
 {
 	QString fn = KFileDialog::getSaveFileName(0,"*.tex",this);
 	if (!fn.isEmpty())
-		tv->sng()->save_to_tex(fn);
+		tv->sng()->save_to_tex_tab(fn);
+}
+
+void ApplicationWindow::exportTEXNOTES()
+{
+	QString fn = KFileDialog::getSaveFileName(0,"*.tex",this);
+	if (!fn.isEmpty())
+		tv->sng()->save_to_tex_notes(fn);
 }
 
 void ApplicationWindow::print()
