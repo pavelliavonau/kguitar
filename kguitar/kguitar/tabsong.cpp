@@ -7,6 +7,8 @@
 #include <qfile.h>
 #include <qdatastream.h>
 
+#include <kdebug.h>
+
 TabSong::TabSong(QString _title, int _tempo)
 {
 	tempo = _tempo;
@@ -113,25 +115,25 @@ bool TabSong::load_from_kg(QString fileName)
 	s >> comments;
 	s >> tempo;
 
-	if (tempo<0) {
-		printf("Bad tempo");
+	if (tempo < 0) {
+		kdDebug() << "Bad tempo" << endl;
 		return FALSE;
 	}
 	
-	printf("Read headers...\n");
+	kdDebug() << "Read headers..." << endl;
 	
 	// TRACK DATA
 	int cnt;
 	s >> cnt; // Track count
 	
-	if (cnt<=0) {
-		printf("Bad track count");
+	if (cnt <= 0) {
+		kdDebug() << "Bad track count" << endl;
 		return FALSE;
 	}
 
 	t.clear();
-	
-	printf("Going to read %d track(s)...\n",cnt);
+
+	kdDebug() << "Going to read " << cnt << " track(s)..." << endl;
 	
 	Q_UINT16 i16;
 	Q_UINT8 channel, patch, string, frets, tm, event, elength;
@@ -150,23 +152,24 @@ bool TabSong::load_from_kg(QString fileName)
 		s >> string;
 		s >> frets;
 
-		if (string>MAX_STRINGS)
+		if (string > MAX_STRINGS)
 			return FALSE;
 		
-		printf("Read a track of %d strings, bank=%d, patch=%d...\n",string,i16,patch);
-		
+		kdDebug() << "Read a track of " << string << " strings," << endl;
+		kdDebug() << "       bank = " << i16 << ", patch = " << patch << " ..." << endl;
+
 		t.append(new TabTrack((TrackMode) tm,tn,channel,i16,patch,string,frets));
 		
-		printf("Appended a track...\n");
+		kdDebug() << "Appended a track..." << endl;;
 		
-		for (int j=0;j<string;j++) {
+		for (int j = 0; j < string; j++) {
 			s >> cn;
 			t.current()->tune[j] = cn;
 		}
 		
-		printf("Read the tuning...\n");
+		kdDebug() << "Read the tuning..." << endl;;
 		
-		bool finished=FALSE;
+		bool finished = FALSE;
 		
 		int x = 0, bar = 1;
 // uchar tcsize=t.current()->string+2;
@@ -178,7 +181,7 @@ bool TabSong::load_from_kg(QString fileName)
 		
 		bool dot;
 		int dur;
-		printf("reading events\n");
+		kdDebug() << "reading events" << endl;;
 		do {
 			s >> event;
 			s >> elength;
@@ -194,7 +197,7 @@ bool TabSong::load_from_kg(QString fileName)
 			case 'T':                   // Tab column
 				x++;
 				t.current()->c.resize(x);
-				for (int k=0;k<string;k++) {
+				for (int k = 0; k < string; k++) {
 					s >> cn;
 					t.current()->c[x-1].a[k] = cn;
 					t.current()->c[x-1].e[k] = 0;
@@ -205,11 +208,11 @@ bool TabSong::load_from_kg(QString fileName)
 				t.current()->c[x-1].flags = (dot ? FLAG_DOT : 0);
 				break;
 			case 'E':                   // Effect column
-				if (x==0) {				// Ignore if there were no tab cols
-					printf("Warning: FX column with no tab columns, ignoring...\n");
+				if (x == 0) {			// Ignore if there were no tab cols
+					kdDebug() << "Warning: FX column with no tab columns, ignoring..." << endl;
 					break;
 				}
-				for (int k=0;k<string;k++) {
+				for (int k = 0; k < string; k++) {
 					s >> cn;
 					t.current()->c[x-1].e[k] = cn;
 				}		
@@ -217,7 +220,7 @@ bool TabSong::load_from_kg(QString fileName)
 			case 'L':					// Continuation of previous column
 				x++;
 				t.current()->c.resize(x);
-				for (int k=0;k<string;k++)
+				for (int k = 0; k < string; k++)
 					t.current()->c[x-1].a[k] = -1;
 				s >> i16;
 				len2dot(i16, &dur, &dot);
@@ -229,19 +232,19 @@ bool TabSong::load_from_kg(QString fileName)
 				s >> cn; t.current()->b[bar-1].time2 = cn;
 				break;
 			case 'X':					// End of track
-				finished=TRUE;
+				finished = TRUE;
 				break;
 			default:
-				printf("Warning: unknown event %c. Skipping...\n",event);
-				for (int k=0;k<elength;k++)
+				kdDebug() << "Warning: unknown event " << event << " Skipping..." << endl;
+				for (int k = 0; k < elength; k++)
 					s >> cn;
 				break;
 			}
 		} while ((!finished) && (!s.eof()));
 		
-		t.current()->x=0;
-		t.current()->xb=0;
-		t.current()->y=0;
+		t.current()->x = 0;
+		t.current()->xb = 0;
+		t.current()->y = 0;
 	}
 	
 	f.close();
@@ -307,7 +310,7 @@ bool TabSong::save_to_kg(QString fileName)
 		s << (Q_UINT8) trk->b[0].time1; // Time signature itself
 		s << (Q_UINT8) trk->b[0].time2;
 		
-		for (uint x=0; x<trk->c.size(); x++) {
+		for (uint x = 0; x < trk->c.size(); x++) {
 			if (bar+1 < trk->b.size()) {	// This bar's not last
 				if (trk->b[bar+1].start == x)
 					bar++;				// Time for next bar		
@@ -326,7 +329,7 @@ bool TabSong::save_to_kg(QString fileName)
 				s << (Q_UINT8) 'T';		// Tab column events
 				s << (Q_UINT8) tcsize;	// Size of event
 				needfx = FALSE;
-				for (int i=0;i<trk->string;i++) {
+				for (int i = 0;i < trk->string; i++) {
 					s << (Q_INT8) trk->c[x].a[i];
 					if (trk->c[x].e[i])
 						needfx = TRUE;
@@ -335,7 +338,7 @@ bool TabSong::save_to_kg(QString fileName)
 				if (needfx) {
 					s << (Q_UINT8) 'E'; // Effect event
 					s << (Q_UINT8) trk->string; // Size of event
-					for (int i=0;i<trk->string;i++)
+					for (int i = 0; i < trk->string; i++)
 						s << (Q_UINT8) trk->c[x].e[i];
 				}
 			}
@@ -425,7 +428,7 @@ bool TabSong::load_from_mid(QString fileName)
 			(hdr[2] != 'r') || (hdr[3] != 'k'))
 			return FALSE;
 		s >> tmp32; // length
-		printf("Track length = %d\n", tmp32);
+		kdDebug() << "Track length = " << tmp32 << endl;
 		do {
 			delta = readVarLen(&s);
 			s >> evtype;
@@ -433,9 +436,9 @@ bool TabSong::load_from_mid(QString fileName)
 			// Meta event
 			if (evtype == 0xff) {
 				s >> tmp8; // meta event type
-				printf("Meta event %x, ", tmp8);
 				tmp32 = readVarLen(&s);
-				printf("%d bytes long\n", tmp32);
+
+				kdDebug() << "Meta event " << tmp8 << " bytes long " << tmp32 << endl;
 
 				if (tmp8 == 0x2f)
 					break;
@@ -451,8 +454,10 @@ bool TabSong::load_from_mid(QString fileName)
 			s >> data1;
 			s >> data2;
 
-			printf("Delta=%d. Channel=%d, Event=%x, Data1=%d, Data2=%d\n",
-				   delta, channel, evtype, data1, data2);
+			kdDebug() << "Delta = " << delta << ", Channel = " << channel << endl;
+			kdDebug() << "   Event = " << evtype << ", Data1 = " << data1 << endl;
+			kdDebug() << "   Data2 = " << data2 << endl;
+
 		} while (TRUE);
 	}
 
@@ -747,7 +752,7 @@ bool TabSong::save_to_tab(QString fileName)
 
     QListIterator<TabTrack> it(t);
 
-    int n=1;
+    int n = 1;
 
     QString lin[MAX_STRINGS];
     QString tmp;
@@ -759,67 +764,67 @@ bool TabSong::save_to_tab(QString fileName)
 		
 		// GREYFIX - channel, bank, patch, string, frets data
 		
-		int minstart=1;
-		for (int i=0;i<trk->string;i++)
-			if (note_name(trk->tune[i]%12).length()>1)
-				minstart=2;
+		int minstart = 1;
+		for (int i = 0; i < trk->string; i++)
+			if (note_name(trk->tune[i] % 12).length() > 1)
+				minstart = 2;
 	    
-		for (int i=0;i<trk->string;i++) {
-			lin[i]=note_name(trk->tune[i]%12);
-			if ((lin[i].length()==1) && (minstart>1))
-				lin[i]=lin[i]+' ';
-			lin[i]=lin[i]+" |-";
+		for (int i = 0; i < trk->string; i++) {
+			lin[i] = note_name(trk->tune[i] % 12);
+			if ((lin[i].length() == 1) && (minstart > 1))
+				lin[i] = lin[i]+' ';
+			lin[i] = lin[i] + " |-";
 		}
 		
 		bool lng = FALSE;
 		uint bar = 1;
 		
-		for (uint x=0;x<trk->c.size();x++) {
-			if (bar+1<trk->b.size()) {  // This bar's not last
-				if (trk->b[bar+1].start==x)
+		for (uint x = 0; x < trk->c.size(); x++) {
+			if (bar + 1 < trk->b.size()) {  // This bar's not last
+				if (trk->b[bar+1].start == x)
 					bar++;              // Time for next bar		
 			}
 
-			if (trk->b[bar].start==x)   // Add a bar
-				for (int i=0;i<trk->string;i++)
-					lin[i]=lin[i]+"|";
+			if (trk->b[bar].start == x)   // Add a bar
+				for (int i = 0; i < trk->string; i++)
+					lin[i] = lin[i] + "|";
 
-			lng=FALSE;
+			lng = FALSE;
 			
-			for (int i=0;i<trk->string;i++)
-				if (trk->c[x].a[i]>=10)
-					lng=TRUE;
+			for (int i = 0; i < trk->string; i++)
+				if (trk->c[x].a[i] >= 10)
+					lng = TRUE;
 			
-			for (int i=0;i<trk->string;i++) {
-				if (trk->c[x].a[i]==-1) {
+			for (int i = 0; i < trk->string; i++) {
+				if (trk->c[x].a[i] == -1) {
 					if (lng)
-						lin[i]=lin[i]+"--";
+						lin[i] = lin[i] + "--";
 					else
-						lin[i]=lin[i]+'-';
+						lin[i] = lin[i] + '-';
 				} else {
 					tmp.setNum(trk->c[x].a[i]);
-					if ((lng) && (trk->c[x].a[i]<10))
-						tmp='-'+tmp;
-					lin[i]=lin[i]+tmp;
+					if ((lng) && (trk->c[x].a[i] < 10))
+						tmp = '-' + tmp;
+					lin[i] = lin[i] + tmp;
 				}
-				for (uint j=0;j<(trk->c[x].l/48);j++)
-					lin[i]=lin[i]+'-';
+				for (uint j = 0; j < (trk->c[x].l / 48); j++)
+					lin[i] = lin[i] + '-';
 			}
 			
-			if (lin[0].length()>twidth) {
-				for (int i=trk->string-1;i>=0;i--)
+			if (lin[0].length() > twidth) {
+				for (int i = trk->string-1; i >= 0; i--)
 					s << lin[i] << '\n';
 				s << '\n';
-				for (int i=0;i<trk->string;i++) {
-					lin[i]=note_name(trk->tune[i]%12);
-					if ((lin[i].length()==1) && (minstart>1))
-						lin[i]=lin[i]+' ';
-					lin[i]=lin[i]+" |-";
+				for (int i = 0; i < trk->string; i++) {
+					lin[i] = note_name(trk->tune[i] % 12);
+					if ((lin[i].length() == 1) && (minstart > 1))
+						lin[i] = lin[i] + ' ';
+					lin[i] = lin[i] + " |-";
 				}
 			}
 		}
 		
-		for (int i=trk->string-1;i>=0;i--)
+		for (int i = trk->string-1; i >= 0; i--)
 			s << lin[i] << '\n';
 		s << '\n';
 		
@@ -919,13 +924,13 @@ bool TabSong::save_to_tex_tab(QString fileName)
 	// Stuff if globalShowStr=TRUE
 	
 	flatnote = FALSE;
-	for (int i=0;i<trk->string;i++) {
-		nn[i] = note_name(trk->tune[i]%12);
-		if ((nn[i].contains("#",FALSE)==1) && (nn[i].length()==2)) {
+	for (int i = 0; i < trk->string; i++) {
+		nn[i] = note_name(trk->tune[i] % 12);
+		if ((nn[i].contains("#", FALSE) == 1) && (nn[i].length() == 2)) {
 			nn[i] = nn[i].left(1) + "$\\sharp$";
 			flatnote = TRUE;
 		}
-		if ((nn[i].contains("b",FALSE)==1) && (nn[i].length()==2)) {
+		if ((nn[i].contains("b", FALSE) == 1) && (nn[i].length() == 2)) {
 			nn[i] = nn[i].left(1) + "$\\flat$";
 			flatnote = TRUE;
 		}
@@ -936,39 +941,39 @@ bool TabSong::save_to_tex_tab(QString fileName)
 	tmp += "\\noindent Tuning:\\\\";
 	tmp += "\n";
 
-	if (trk->string==4){
-		tmp += "\\tuning{1}{"+nn[3];
-		tmp += "} \\quad \\tuning{3}{"+nn[1]+"} \\quad \\\\";
+	if (trk->string == 4){
+		tmp += "\\tuning{1}{" + nn[3];
+		tmp += "} \\quad \\tuning{3}{" + nn[1] + "} \\quad \\\\";
 		tmp += "\n";
-		tmp += "\\tuning{2}{"+nn[2];
-		tmp += "} \\quad \\tuning{4}{"+nn[0]+"}"; 
-		tmp += "\n";
-	}
-
-	if (trk->string==5){
-		tmp += "\\tuning{1}{"+nn[4];
-		tmp += "} \\quad \\tuning{4}{"+nn[1]+"} \\quad \\\\";
-		tmp += "\n";
-		tmp += "\\tuning{2}{"+nn[3];
-		tmp += "} \\quad \\tuning{5}{"+nn[0]+"} \\quad \\\\";
-		tmp += "\n";
-		tmp += "\\tuning{3}{"+nn[2]+"}";
+		tmp += "\\tuning{2}{" + nn[2];
+		tmp += "} \\quad \\tuning{4}{" + nn[0] + "}"; 
 		tmp += "\n";
 	}
 
-	if (trk->string==6){
-		tmp += "\\tuning{1}{"+nn[5];
-		tmp += "} \\quad \\tuning{4}{"+nn[2]+"} \\quad \\\\";
+	if (trk->string == 5){
+		tmp += "\\tuning{1}{" + nn[4];
+		tmp += "} \\quad \\tuning{4}{" + nn[1] + "} \\quad \\\\";
 		tmp += "\n";
-		tmp += "\\tuning{2}{"+nn[4];
-		tmp += "} \\quad \\tuning{5}{"+nn[1]+"} \\quad \\\\";
+		tmp += "\\tuning{2}{" + nn[3];
+		tmp += "} \\quad \\tuning{5}{" + nn[0] + "} \\quad \\\\";
 		tmp += "\n";
-		tmp += "\\tuning{3}{"+nn[3];
-		tmp += "} \\quad \\tuning{6}{"+nn[0]+"}";
+		tmp += "\\tuning{3}{" + nn[2] + "}";
 		tmp += "\n";
 	}
 
-	if (trk->string>=7){
+	if (trk->string == 6){
+		tmp += "\\tuning{1}{" + nn[5];
+		tmp += "} \\quad \\tuning{4}{" + nn[2] + "} \\quad \\\\";
+		tmp += "\n";
+		tmp += "\\tuning{2}{" + nn[4];
+		tmp += "} \\quad \\tuning{5}{" + nn[1]+"} \\quad \\\\";
+		tmp += "\n";
+		tmp += "\\tuning{3}{" + nn[3];
+		tmp += "} \\quad \\tuning{6}{" + nn[0]+"}";
+		tmp += "\n";
+	}
+
+	if (trk->string >= 7){
 		s << "Sorry, but MusiXTeX/kgtabs.tex has only 6 tablines" << "\n";
 		s << "\\end" << "\n";
 		f.close();
@@ -978,12 +983,12 @@ bool TabSong::save_to_tex_tab(QString fileName)
 	tmp += "}";
 	tmp += "\n";
 
-	if (trk->string<4)
+	if (trk->string < 4)
 		tmp = "";
 
-	for (int i=(trk->string-1);i>=0;i--){
+	for (int i = (trk->string - 1); i >= 0; i--){
 		showstr += " ";
-		showstr += note_name(trk->tune[i]%12);
+		showstr += note_name(trk->tune[i] % 12);
 	}
 
 	switch (trk->string){
@@ -1095,9 +1100,9 @@ bool TabSong::save_to_tex_tab(QString fileName)
 				if (trk->c[j].a[x]>=0)  cho++;
 
 			for (int x = 0; x < trk->string; x++) {
-				if ((trk->c[j].a[x]>=0) && (cho==1))
+				if ((trk->c[j].a[x] >= 0) && (cho == 1))
 					s << notes << tab(FALSE, trk->string - x, trk->c[j].a[x]);
-				if ((trk->c[j].a[x]>=0) && (cho>1))
+				if ((trk->c[j].a[x] >= 0) && (cho > 1))
 					tmpline += tab(TRUE, trk->string - x, trk->c[j].a[x]);
 			}
 
@@ -1182,7 +1187,7 @@ bool TabSong::save_to_tex_notes(QString fileName)
 	// TRACK DATA
 	int n = 1;       // Trackcounter
 
-	for (;it.current();++it) { // For every track
+	for (; it.current(); ++it) { // For every track
 		TabTrack *trk = it.current();
 		s << "\\generalmeter{\\meterfrac{" << trk->b[0].time1;
 		s << "}{" << trk->b[0].time2 << "}}";

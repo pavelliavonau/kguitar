@@ -9,6 +9,7 @@
 #include <kstdaction.h>
 #include <kedittoolbar.h>
 #include <kaccel.h>
+#include <kdebug.h>
 
 #include <qfileinfo.h>
 
@@ -27,7 +28,8 @@ KGuitarShell::KGuitarShell()
 		m_kgpart = (KGuitarPart *)factory->create(this, "kguitarpart", "KParts::ReadWritePart");
 	}
 	else {
-		KMessageBox::error(this, "No libkguitar found !");
+		kdFatal() << "*** No libkguitar found !" << endl;
+		KMessageBox::error(this, i18n("No libkguitar found !"));
 		exit(1);
 		return;
 	}

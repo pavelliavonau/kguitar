@@ -23,6 +23,7 @@
 #include <knuminput.h>
 #include <kurl.h>
 #include <kkeydialog.h>
+#include <kdebug.h>
 
 #include <qpixmap.h>
 #include <qkeycode.h>
@@ -100,6 +101,8 @@ KGuitarPart::KGuitarPart(bool bBrowserView, QWidget *parentWidget,
 {
 // 	printer = new QPrinter;
 // 	printer->setMinMax(1,10);
+
+	kdDebug() << "KGuitarPart::KGuitarPart()" << endl;
 
 	p = parentWidget;
 	isBrowserView = bBrowserView;
@@ -266,6 +269,8 @@ KGuitarPart::KGuitarPart(bool bBrowserView, QWidget *parentWidget,
 
 KGuitarPart::~KGuitarPart()
 {
+	kdDebug() << "KGuitarPart::~KGuitarPart()" << endl;
+
 //	delete printer;
 	saveOptions();
 }
@@ -629,6 +634,13 @@ void KGuitarPart::readOptions()
 
 void KGuitarPart::saveOptions()
 {
+	kdDebug() << "KGuitarPart::saveOptions()" << endl;
+
+	if (isBrowserView) {
+		kdDebug() << "Nothing to save if loaded in Konqueror" << endl;
+		return;
+	}
+
 	KConfig *config = KGuitarFactory::instance()->config();
 
 	config->setGroup("General");
@@ -646,6 +658,10 @@ void KGuitarPart::saveOptions()
 	config->setGroup("ALSA");
 	config->writeEntry("Client", globalAlsaClient);
 	config->writeEntry("Port", globalAlsaPort);
+
+	config->sync();
+
+	kdDebug() << "KGuitarPart::saveOptions() => all things saved..." << endl;
 }
 
 void KGuitarPart::setWinCaption(const QString& caption)
