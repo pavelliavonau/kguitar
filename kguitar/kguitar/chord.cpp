@@ -63,6 +63,8 @@ ChordSelector::ChordSelector(QWidget *parent=0, const char *name=0)
     stephigh->insertItem("6");
     stephigh->insertItem("aug");
     stephigh->insertItem("dim");
+    stephigh->insertItem("9");
+    stephigh->insertItem("11");
     stephigh->setGeometry(160,40,60,200);
     connect(stephigh,SIGNAL(highlighted(int)),SLOT(findChords()));
 
@@ -114,73 +116,82 @@ int tune[6]={40,45,50,55,59,64};
 // Try to detect some chord forms from a given applicature.
 void ChordSelector::detectChord()
 {
-  bool cn[12];
-  int i,j,numnotes;
-
-  for (i=0;i<12;i++)
-    cn[i]=FALSE;
-  numnotes=0; // number of different notes in a chord
-
-  for (i=0;i<fng->numstrings();i++) {
-    j=fng->app(i);
-    if (j!=-1) {
-      j=(j+tune[i])%12;
-      if (!cn[j]) {
-	cn[j]=TRUE;
-	numnotes++;
-      }
+    bool cn[12];
+    int i,j,numnotes;
+    QString name;
+    
+    for (i=0;i<12;i++)
+	cn[i]=FALSE;
+    numnotes=0; // number of different notes in a chord
+    
+    for (i=0;i<fng->numstrings();i++) {
+	j=fng->app(i);
+	if (j!=-1) {
+	    j=(j+tune[i])%12;
+	    if (!cn[j]) {
+		cn[j]=TRUE;
+		numnotes++;
+	    }
+	}
     }
-  }
-
-  chords->clear();
-
-  // 2 note chord - C5
-  if (numnotes==2) {
-    for (i=0;i<12;i++) {
-      if ((cn[i]) && (cn[(i+7)%12]))
-	chords->insertItem(note_name(i)+"5");
+    
+    chords->clear();
+    
+    // 2 note chord - C5
+    if (numnotes==2) {
+	for (i=0;i<12;i++) {
+	    if ((cn[i]) && (cn[(i+7)%12]))
+		chords->insertItem(note_name(i)+"5");
+	}
     }
-  }
-
-  // 3 note chord - C, Cm, Csus2, Csus4, Caug
-  if (numnotes==3) {
-    for (i=0;i<12;i++) {
-      if ((cn[i]) && (cn[(i+4)%12]) && (cn[(i+7)%12]))
-	chords->insertItem(note_name(i));
-      if ((cn[i]) && (cn[(i+3)%12]) && (cn[(i+7)%12]))
-	chords->insertItem(note_name(i)+"m");
-      if ((cn[i]) && (cn[(i+2)%12]) && (cn[(i+7)%12]))
-	chords->insertItem(note_name(i)+"sus2");
-      if ((cn[i]) && (cn[(i+5)%12]) && (cn[(i+7)%12]))
-	chords->insertItem(note_name(i)+"sus4");
-      if ((cn[i]) && (cn[(i+4)%12]) && (cn[(i+8)%12]))
-	chords->insertItem(note_name(i)+"aug");
+    
+    // 3 note chord - C, Cm, Csus2, Csus4, Caug
+    if (numnotes==3) {
+	for (i=0;i<12;i++)
+	    if ((cn[i]) && (cn[(i+4)%12]) && (cn[(i+7)%12]))
+		chords->insertItem(note_name(i));
+	if ((cn[i]) && (cn[(i+3)%12]) && (cn[(i+7)%12]))
+	    chords->insertItem(note_name(i)+"m");
+	if ((cn[i]) && (cn[(i+2)%12]) && (cn[(i+7)%12]))
+	    chords->insertItem(note_name(i)+"sus2");
+	if ((cn[i]) && (cn[(i+5)%12]) && (cn[(i+7)%12]))
+	    chords->insertItem(note_name(i)+"sus4");
+	if ((cn[i]) && (cn[(i+4)%12]) && (cn[(i+8)%12]))
+	    chords->insertItem(note_name(i)+"aug");
     }
-  }
-
-  // 4 note chord - C7, C7M, C6, Cm7, Cm7M, C7sus2, C7sus4, Cdim
-  if (numnotes==4) {
-    for (i=0;i<12;i++) {
-      if ((cn[i]) && (cn[(i+4)%12]) && (cn[(i+7)%12]) && (cn[(i+9)%12]))
-	chords->insertItem(note_name(i)+"6");
-      if ((cn[i]) && (cn[(i+4)%12]) && (cn[(i+7)%12]) && (cn[(i+10)%12]))
-	chords->insertItem(note_name(i)+"7");
-      if ((cn[i]) && (cn[(i+4)%12]) && (cn[(i+7)%12]) && (cn[(i+11)%12]))
-	chords->insertItem(note_name(i)+"7M");
-      if ((cn[i]) && (cn[(i+3)%12]) && (cn[(i+7)%12]) && (cn[(i+9)%12]))
-	chords->insertItem(note_name(i)+"m6");
-      if ((cn[i]) && (cn[(i+3)%12]) && (cn[(i+7)%12]) && (cn[(i+10)%12]))
-	chords->insertItem(note_name(i)+"m7");
-      if ((cn[i]) && (cn[(i+3)%12]) && (cn[(i+7)%12]) && (cn[(i+11)%12]))
-	chords->insertItem(note_name(i)+"m7M");
-      if ((cn[i]) && (cn[(i+2)%12]) && (cn[(i+7)%12]) && (cn[(i+10)%12]))
-	chords->insertItem(note_name(i)+"7sus2");
-      if ((cn[i]) && (cn[(i+5)%12]) && (cn[(i+7)%12]) && (cn[(i+10)%12]))
-	chords->insertItem(note_name(i)+"7sus4");
-      if ((cn[i]) && (cn[(i+3)%12]) && (cn[(i+6)%12]) && (cn[(i+9)%12]))
-	chords->insertItem(note_name(i)+"dim");
+    
+    // 4 note chord - C7, C7M, C6, Cm7, Cm7M, C7sus2, C7sus4, Cdim
+    if (numnotes==4) {
+	for (i=0;i<12;i++) {
+	    if ((cn[i]) && (cn[(i+4)%12]) && (cn[(i+7)%12]) && (cn[(i+9)%12]))
+		chords->insertItem(note_name(i)+"6");
+	    if ((cn[i]) && (cn[(i+4)%12]) && (cn[(i+7)%12]) && (cn[(i+10)%12]))
+		chords->insertItem(note_name(i)+"7");
+	    if ((cn[i]) && (cn[(i+4)%12]) && (cn[(i+7)%12]) && (cn[(i+11)%12]))
+		chords->insertItem(note_name(i)+"7M");
+	    if ((cn[i]) && (cn[(i+3)%12]) && (cn[(i+7)%12]) && (cn[(i+9)%12]))
+		chords->insertItem(note_name(i)+"m6");
+	    if ((cn[i]) && (cn[(i+3)%12]) && (cn[(i+7)%12]) && (cn[(i+10)%12]))
+		chords->insertItem(note_name(i)+"m7");
+	    if ((cn[i]) && (cn[(i+3)%12]) && (cn[(i+7)%12]) && (cn[(i+11)%12]))
+		chords->insertItem(note_name(i)+"m7M");
+	    if ((cn[i]) && (cn[(i+2)%12]) && (cn[(i+7)%12]) && (cn[(i+10)%12]))
+		chords->insertItem(note_name(i)+"7sus2");
+	    if ((cn[i]) && (cn[(i+5)%12]) && (cn[(i+7)%12]) && (cn[(i+10)%12]))
+		chords->insertItem(note_name(i)+"7sus4");
+	    if ((cn[i]) && (cn[(i+3)%12]) && (cn[(i+6)%12]) && (cn[(i+9)%12]))
+		chords->insertItem(note_name(i)+"dim");
+	}
     }
-  }
+    
+    // 5 note chord
+    if (numnotes==5) {
+	for (i=0;i<12;i++) {
+	    if ((cn[i]) && (cn[(i+4)%12]) && (cn[(i+7)%12]) && (cn[(i+10)%12]) && (cn[(i+2)]%12)) {
+		chords->insertItem(note_name(i)+"9");
+	    }
+	}
+    }
 }
 
 void ChordSelector::findChords()
@@ -209,11 +220,13 @@ void ChordSelector::findChords()
     need[2]=7;
 
     switch (stephigh->currentItem()) {
-    case 1: need[3]=10;notenum=4;break;                      // 7,   C7
-    case 2: need[3]=11;notenum=4;break;                      // 7M,  C7M
-    case 3: need[3]=9; notenum=4;break;                      // 6,   C6
-    case 4: need[2]=8;           break;                      // aug, Caug
-    case 5: need[1]=3;need[2]=6;need[3]=9;notenum=4;break;   // dim, Cdim
+    case 1: need[3]=10;notenum=4;break;                       // 7,   C7
+    case 2: need[3]=11;notenum=4;break;                       // 7M,  C7M
+    case 3: need[3]=9; notenum=4;break;                       // 6,   C6
+    case 4: need[1]=4; need[2]=8;break;                       // aug, Caug
+    case 5: need[1]=3; need[2]=6;need[3]=9;notenum=4;break;   // dim, Cdim
+    case 6: need[3]=10;need[4]=2;notenum=5;break;             // 9,   C9
+    case 7: need[3]=10;need[4]=2;need[5]=5;notenum=6;break;   // 11,  C11
     }
 
     for (i=0;i<notenum;i++)
