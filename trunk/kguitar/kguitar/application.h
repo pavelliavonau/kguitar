@@ -77,10 +77,11 @@ private:
 	QPrinter *printer;
 
 	KAction *newAct, *preferencesAct, *confTBAct, *browserAct, *sngPropAct,
-		*trkNewAct, *trkDeleteAct, *trkPropAct, *insChordAct, *len1Act,
-		*len2Act, *len4Act, *len8Act, *len16Act, *len32Act, *timeSigAct,
-		*arcAct, *legatoAct, *natHarmAct, *artHarmAct, *saveOptionAct,
-		*confKeyAct, *arrTrkAct, *midiPlayTrackAct, *midiStopPlayAct;
+		*trkNewAct, *trkDeleteAct, *trkBassLineAct, *trkPropAct, *insChordAct,
+		*len1Act, *len2Act, *len4Act, *len8Act, *len16Act, *len32Act,
+		*timeSigAct, *arcAct, *legatoAct, *natHarmAct, *artHarmAct,
+		*palmMuteAct, *saveOptionAct, *confKeyAct, *arrTrkAct,
+		*midiPlayTrackAct, *midiStopPlayAct;
     KToggleAction *showMainTBAct, *showEditTBAct, *usSharpAct, *usFlatAct,
                   *usMixAct, *euSharpAct, *euFlatAct, *euMixAct, *jazzSharpAct,
                   *jazzFlatAct, *jazzMixAct;

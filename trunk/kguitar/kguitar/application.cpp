@@ -35,8 +35,6 @@
 
 #include <libkmid/deviceman.h>
 
-#include <stdio.h>
-
 // Global variables - real declarations
 
 // General
@@ -133,6 +131,8 @@ KGuitarPart::KGuitarPart(bool bBrowserView, QWidget *parentWidget,
 							actionCollection(), "track_new");
 	trkDeleteAct = new KAction(i18n("&Delete"), 0, sv, SLOT(trackDelete()),
 							   actionCollection(), "track_delete");
+	trkBassLineAct = new KAction(i18n("&Generate Bass Line"), 0, sv, SLOT(trackBassLine()),
+	                             actionCollection(), "track_bassline");
 	trkPropAct = new KAction(i18n("&Properties..."), 0, sv, SLOT(trackProperties()),
 							 actionCollection(), "track_properties");
 	insChordAct = new KAction(i18n("&Chord..."), "chord", KAccel::stringToKey("Shift+C"),
@@ -177,6 +177,9 @@ KGuitarPart::KGuitarPart(bool bBrowserView, QWidget *parentWidget,
 	artHarmAct = new KAction(i18n("Artificial harmonic"), "fx_harmonic",
 							 KAccel::stringToKey("R"), sv->tv, SLOT(addArtHarm()),
 							 actionCollection(), "fx_art_harm");
+	palmMuteAct = new KAction(i18n("Palm muting"), "fx_palmmute",
+							 KAccel::stringToKey("M"), sv->tv, SLOT(palmMute()),
+							 actionCollection(), "fx_palmmute");
 
 	// SET UP 'Note Names'
 	usSharpAct = new KToggleAction(i18n("American, sharps"), 0, this,
@@ -236,8 +239,8 @@ KGuitarPart::KGuitarPart(bool bBrowserView, QWidget *parentWidget,
 	mainAccel->connectItem("key_CtrlDel", sv->tv, SLOT(keyCtrlDelete()));
 	mainAccel->insertItem(i18n("Insert"), "key_ins", "Insert");
 	mainAccel->connectItem("key_ins", sv->tv, SLOT(keyInsert()));
-	mainAccel->insertItem(i18n("Palm muting"), "key_m", "M");
-	mainAccel->connectItem("key_m", sv->tv, SLOT(keyM()));
+// 	mainAccel->insertItem(i18n("Palm muting"), "key_m", "M");
+// 	mainAccel->connectItem("key_m", sv->tv, SLOT(palmMute()));
 	mainAccel->insertItem(i18n("Dotted note"), "key_period", "Period");
 	mainAccel->connectItem("key_period", sv->tv, SLOT(keyPeriod()));
 	mainAccel->insertItem(i18n("More duration"), "key_plus", "Plus");
