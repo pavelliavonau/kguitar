@@ -12,6 +12,7 @@
 #include "application.h"
 #include "trackview.h"
 #include "tabsong.h"
+#include "globaloptions.h"
 #include "filebrowser.h"
 
 //---------------------------------------------
@@ -49,7 +50,7 @@ void Directory::setOpen(bool o)
 				++it;
 				if (f->fileName() == "." || f->fileName() == "..")
 					; // nothing
-				else 
+				else
 					if (f->isDir())
 						new Directory(this, f->fileName());
 			}
@@ -71,7 +72,7 @@ QString Directory::fullName()
 		s = p->fullName();
 		s.append( f.name() );
 		s.append( "/" );
-	} 
+	}
 	else {
 		s = "/";
 	}
@@ -91,9 +92,12 @@ QString Directory::text(int column) const
 //---------------------------------------------
 
 
-FileBrowser::FileBrowser(QWidget *parent, const char *name) 
+FileBrowser::FileBrowser(QWidget *parent, const char *name)
 	: KDialog(parent, name, TRUE)
 {
+    m_haveMidi = globalHaveMidi;  // ALINXFIX: Will be removed
+    globalHaveMidi = FALSE;       // when Midi is implemented !!
+
 	p = parent;
 
 	setCaption(i18n("File browser"));
@@ -107,30 +111,30 @@ FileBrowser::FileBrowser(QWidget *parent, const char *name)
 	connect(btnscan, SIGNAL(clicked()), SLOT(scanDir()));
 	QToolTip::add(btnscan, i18n("Scan Subdirectories"));
 
-#ifdef HAVE_MIDI
-	btnplay = new QPushButton(i18n("&Play"), this);
-	btnplay->setMinimumSize(75, 24);
-	connect(btnplay, SIGNAL(clicked()), SLOT(playSong()));
-	QToolTip::add(btnplay, i18n("Play score"));
-	btnplay->setToggleButton(TRUE);
+    if (globalHaveMidi) {
+        btnplay = new QPushButton(i18n("&Play"), this);
+        btnplay->setMinimumSize(75, 24);
+        connect(btnplay, SIGNAL(clicked()), SLOT(playSong()));
+        QToolTip::add(btnplay, i18n("Play score"));
+        btnplay->setToggleButton(TRUE);
 
-	jumpcombo = new QComboBox(this);
-	jumpcombo->setMinimumSize(150, 24);
-	jumpcombo->setMaximumSize(150, 24);
-	jumpcombo->insertItem(i18n("No Jump"));
-	jumpcombo->insertItem(i18n("Jump after 1 bar"));
-	jumpcombo->insertItem(i18n("Jump after 2 bars"));
-	jumpcombo->insertItem(i18n("Jump after 5 bars"));
-	jumpcombo->insertItem(i18n("Jump after 10 bars"));
-	jumpcombo->insertItem(i18n("Jump after 25 bars"));
-	jumpcombo->insertItem(i18n("Jump after the score"));
-#endif
+        jumpcombo = new QComboBox(this);
+        jumpcombo->setMinimumSize(150, 24);
+        jumpcombo->setMaximumSize(150, 24);
+        jumpcombo->insertItem(i18n("No Jump"));
+        jumpcombo->insertItem(i18n("Jump after 1 bar"));
+        jumpcombo->insertItem(i18n("Jump after 2 bars"));
+        jumpcombo->insertItem(i18n("Jump after 5 bars"));
+        jumpcombo->insertItem(i18n("Jump after 10 bars"));
+        jumpcombo->insertItem(i18n("Jump after 25 bars"));
+        jumpcombo->insertItem(i18n("Jump after the score"));
+    }
 
 	dirlist = new QListView(this);
 	dirlist->setMinimumSize(200, 340);
 	dirlist->addColumn(i18n("Directories"));
 	dirlist->setFrameStyle(QFrame::Panel | QFrame::Sunken);
-	connect(dirlist, SIGNAL(currentChanged(QListViewItem*)), 
+	connect(dirlist, SIGNAL(currentChanged(QListViewItem*)),
 			this, SLOT(fillFileView(QListViewItem*)));
 	connect(dirlist, SIGNAL(doubleClicked(QListViewItem*)),
 			this, SLOT(fillFileView(QListViewItem*)));
@@ -190,10 +194,10 @@ FileBrowser::FileBrowser(QWidget *parent, const char *name)
 	lright->activate();
 
 	QBoxLayout *lbtn = new QHBoxLayout(this, 5, 5);
-#ifdef HAVE_MIDI
-	lbtn->addWidget(jumpcombo);
-	lbtn->addWidget(btnplay);
-#endif
+    if (globalHaveMidi) {
+        lbtn->addWidget(jumpcombo);
+        lbtn->addWidget(btnplay);
+    }
 	lbtn->addWidget(btnscan);
 	lbtn->addWidget(btnclose);
 	lbtn->activate();
@@ -211,7 +215,7 @@ FileBrowser::FileBrowser(QWidget *parent, const char *name)
 
 FileBrowser::~FileBrowser()
 {
-
+    globalHaveMidi = m_haveMidi;  // ALINXFIX: Will be removed when Midi is implemented !!
 }
 
 void FileBrowser::closeDlg()
@@ -281,15 +285,15 @@ void FileBrowser::scanDir()
 	fileview->clear();
 	lv = dirlist->currentItem();
 	if (lv == 0){
-		KMessageBox::information(this, i18n("Please select a directory!"), 
+		KMessageBox::information(this, i18n("Please select a directory!"),
 								 i18n("File browser"));
 		return;
 	}
 
-#ifdef HAVE_MIDI
-	btnplay->setEnabled(FALSE);
-	jumpcombo->setEnabled(FALSE);
-#endif
+    if (globalHaveMidi) {
+        btnplay->setEnabled(FALSE);
+        jumpcombo->setEnabled(FALSE);
+    }
 	btnclose->setEnabled(FALSE);
 	btnscan->setEnabled(FALSE);
 	qApp->processEvents();
@@ -298,13 +302,13 @@ void FileBrowser::scanDir()
 	if (dir.isReadable())
 		scanSubDirs(getFullPath(lv));
 	else
-		KMessageBox::sorry(this, i18n("You have no permission to read this directory!"), 
+		KMessageBox::sorry(this, i18n("You have no permission to read this directory!"),
 						   i18n("File browser"));
 
-#ifdef HAVE_MIDI
-	btnplay->setEnabled(TRUE);
-	jumpcombo->setEnabled(TRUE)
-#endif
+    if (globalHaveMidi) {
+        btnplay->setEnabled(TRUE);
+        jumpcombo->setEnabled(TRUE);
+    }
 	btnclose->setEnabled(TRUE);
 	btnscan->setEnabled(TRUE);
 	qApp->processEvents();
@@ -315,9 +319,6 @@ void FileBrowser::scanDir()
 
 void FileBrowser::playSong()
 {
-#ifdef HAVE_MIDI
-
-#endif
 }
 
 void FileBrowser::fillFileView(QListViewItem* item)
@@ -328,7 +329,7 @@ void FileBrowser::fillFileView(QListViewItem* item)
 	fileview->clear();
 	QDir dir(getFullPath(item));
 	if (!dir.isReadable()){
-		KMessageBox::sorry(this, i18n("You have no permission to read this directory!"), 
+		KMessageBox::sorry(this, i18n("You have no permission to read this directory!"),
 						   i18n("File browser"));
 		return;
 	}

@@ -39,7 +39,7 @@ private:
 
 class FileBrowser : public KDialog  {
    Q_OBJECT
-public: 
+public:
    FileBrowser(QWidget *parent=0, const char *name=0);
     ~FileBrowser();
 
@@ -70,9 +70,10 @@ protected:
     QLabel *translabel;
     QLabel *messagelabel;
 
-private: 
+private:
     QString getFullPath(QListViewItem* item);
     QWidget *p;
+    bool m_haveMidi;  // ALINXFIX: Will be removed when Midi is implemented !!
 
 signals:
     void loadFile(const KURL& url);
