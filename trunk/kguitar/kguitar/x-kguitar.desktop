@@ -1,8 +1,8 @@
 [Desktop Entry]
-Comment=KGuitar Song
-Comment[de]=KGuitar Song
-DefaultApp=kguitar
-Icon=kguitar
 Type=MimeType
 MimeType=application/x-kguitar
-Patterns=*.kg;*.KG;*.kG;*.Kg;
+Comment=KGuitar tabulature
+Comment[de]=KGuitar Tabulatur
+DefaultApp=kguitar
+Icon=kguitar
+Patterns=*.kg;*.KG;
