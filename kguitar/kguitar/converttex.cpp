@@ -189,10 +189,10 @@ bool ConvertTex::saveToTab(QTextStream &s)
 	if (!Settings::texShowPageNumber())
 		s << "\\nopagenumbers" << "\n";
 
-	s << "\\fulltitle{" << cleanString(song->title) << "}";
+	s << "\\fulltitle{" << cleanString(song->info["TITLE"]) << "}";
 	s << "\n";
-	s << "\\subtitle{\\svtpoint\\bf Author: " << cleanString(song->author) << "}" << "\n";
-	s << "\\author{Transcribed by: " << cleanString(song->transcriber);
+	s << "\\subtitle{\\svtpoint\\bf Author: " << cleanString(song->info["AUTHOR"]) << "}" << "\n";
+	s << "\\author{Transcribed by: " << cleanString(song->info["TRANSCRIBER"]);
 	s << "\\\\%" << "\n";
 	s << "        Tempo: " << song->tempo << "}";
 	s << "\n";

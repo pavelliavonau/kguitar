@@ -112,7 +112,7 @@ SongPrint::~SongPrint()
 void SongPrint::drawPageHdr(int n, TabSong *song)
 {
 	p->setFont(fHdr1);
-	p->drawText(0, hdrh1, song->title + " - " + song->author);
+	p->drawText(0, hdrh1, song->info["TITLE"] + " - " + song->info["ARTIST"]);
 	QString pgNr;
 	pgNr.setNum(n);
 	QFontMetrics fm  = p->fontMetrics();
@@ -120,7 +120,7 @@ void SongPrint::drawPageHdr(int n, TabSong *song)
 	p->setFont(fHdr2);
 	p->drawText(pprw - brnw, hdrh1, pgNr);
 	p->setFont(fHdr3);
-	p->drawText(0, hdrh1 + hdrh2, "Transcribed by " + song->transcriber);
+	p->drawText(0, hdrh1 + hdrh2, "Transcribed by " + song->info["TRANSCRIBER"]);
 	ypostb = hdrh1 + hdrh2 + hdrh3;
 }
 

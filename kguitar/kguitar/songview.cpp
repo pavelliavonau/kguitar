@@ -89,7 +89,7 @@ SongView::SongView(KXMLGUIClient *_XMLGUIClient, KCommandHistory *_cmdHist,
 	connect(tp, SIGNAL(trackSelected(TabTrack *)), tv, SLOT(selectTrack(TabTrack *)));
 	connect(tp, SIGNAL(barSelected(uint)), tv, SLOT(selectBar(uint)));
 	connect(tv, SIGNAL(paneChanged()), tp, SLOT(update()));
-	connect(tv, SIGNAL(barChanged()), tp, SLOT(update()));
+	connect(tv, SIGNAL(barChanged()), tp, SLOT(repaintCurrentTrack()));
 
 	// let higher-level widgets know that we have a changed song if it
 	// was changed in TrackView
@@ -321,32 +321,14 @@ bool SongView::setTrackProperties()
 	return res;
 }
 
-// Dialog to set song's properties
 void SongView::songProperties()
 {
-	SetSong ss;
-	ss.title->setText(m_song->title);
- 	ss.title->setReadOnly(ro);
-	ss.author->setText(m_song->author);
- 	ss.author->setReadOnly(ro);
-	ss.transcriber->setText(m_song->transcriber);
- 	ss.transcriber->setReadOnly(ro);
-	ss.comments->setText(m_song->comments);
- 	ss.comments->setReadOnly(ro);
-	ss.tempo->setValue(m_song->tempo);
-//  	ss.tempo->setReadOnly(ro); // GREYFIX - what the heck about KIntNumInput???
+	SetSong ss(m_song->info, m_song->tempo, ro);
 
-	if (ss.exec()) {
-		cmdHist->addCommand(
-			new SetSongPropCommand(
-				this, ss.title->text(), ss.author->text(),
-				ss.transcriber->text(), ss.comments->text(),
-				ss.tempo->value())
-			);
-	}
+	if (ss.exec())
+		cmdHist->addCommand(new SetSongPropCommand(this, ss.info(), ss.tempo()));
 }
 
-// Start playing the song or stop it if it already plays
 void SongView::playSong()
 {
 #ifdef WITH_TSE3

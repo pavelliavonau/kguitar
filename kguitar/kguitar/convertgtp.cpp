@@ -28,7 +28,7 @@ QString ConvertGtp::readDelphiString()
 	return str;
 }
 
-QString ConvertGtp::readPascalString()
+QString ConvertGtp::readPascalString(int maxlen)
 {
 	QString str;
 	Q_UINT8 l;
@@ -44,6 +44,11 @@ QString ConvertGtp::readPascalString()
 		str = QString::fromLocal8Bit(c);
 		free(c);
 	}
+
+	// Skip garbage after pascal string end
+	c = (char *) malloc(maxlen + 5);
+	stream->readRawBytes(c, maxlen - str.length());
+	free(c);
 
 	return str;
 }
@@ -117,11 +122,8 @@ void ConvertGtp::readChord()
 	(*stream) >> num;
 	if (num != 0)
 		kdWarning() << "Chord BYTE5=" << (int) num << ", not 0\n";
-	text = readPascalString();
+	text = readPascalString(25);
 	kdDebug() << "Chord diagram: " << text << "\n";
-	
-	// Skip garbage after pascal string end
-	stream->readRawBytes(garbage, 25 - text.length());
 	
 	// Chord diagram parameters - for every string
 	for (int i = 0; i < STRING_MAX_NUMBER; i++) {
@@ -137,12 +139,8 @@ void ConvertGtp::readChord()
 
 bool ConvertGtp::readSignature()
 {
-	char garbage[10];
-
-	QString s = readPascalString();          // Format string
+	QString s = readPascalString(30);        // Format string
 	kdDebug() << "GTP format: " << s << "\n";
-
-	stream->readRawBytes(garbage, 6);        // Mysterious bytes
 
 	return TRUE;
 }
@@ -154,38 +152,21 @@ void ConvertGtp::readSongAttributes()
 
 	Q_UINT8 num;
 
-	song->comments = "";
+	song->info["COMMENTS"] = "";
 
-	song->title = readDelphiString();        // Song title
-	kdDebug() << "Title: " << song->title << "\n";
-
-	s = readDelphiString();                  // Song subtitle
- 	if (!s.isEmpty())  song->title += " (" + s + ")";
-	kdDebug() << "Title: " << song->title << "\n";
-
-	song->author = readDelphiString();       // Artist
-	kdDebug() << "Author: " << song->author << "\n";
-
-	s = readDelphiString();                  // Album
- 	if (!s.isEmpty())  song->author += " (" + s + ")";
-	kdDebug() << "Author: " << song->author << "\n";
-
-	s = readDelphiString();                  // Author
- 	if (!s.isEmpty())  song->author += " / " + s;
-	kdDebug() << "Author: " << song->author << "\n";
-
-	s = readDelphiString();                  // Copyright
-	if (!s.isEmpty())  song->comments += "(C) " + s + "\n\n";
-
-	song->transcriber = readDelphiString();  // Tab
-
-	s = readDelphiString();                  // Instructions
-	if (!s.isEmpty())  song->comments += s + "\n\n";
+	song->info["TITLE"] = readDelphiString();
+	song->info["SUBTITLE"] = readDelphiString();
+	song->info["ARTIST"] = readDelphiString();
+	song->info["ALBUM"] = readDelphiString();
+	song->info["COMPOSER"] = readDelphiString();
+	song->info["COPYRIGHT"] = readDelphiString();
+	song->info["TRANSCRIBER"] = readDelphiString();
+	song->info["INSTRUCTIONS"] = readDelphiString();
 
 	// Notice lines
 	int n = readDelphiInteger();
 	for (int i = 0; i < n; i++)
-		song->comments += readDelphiString() + "\n";
+		song->info["COMMENTS"] += readDelphiString() + "\n";
 
 	(*stream) >> num;                        // GREYFIX: Shuffle rhythm feel
 
@@ -271,7 +252,6 @@ void ConvertGtp::readBarProperties()
 void ConvertGtp::readTrackProperties()
 {
 	Q_UINT8 num;
-	char garbage[100];
 
 	kdDebug() << "readTrackProperties(): start\n";
 
@@ -280,10 +260,8 @@ void ConvertGtp::readTrackProperties()
 		TabTrack *trk = song->t.current();
 
 		(*stream) >> num;                    // GREYFIX: simulations bitmask
-		trk->name = readPascalString();      // Track name
+		trk->name = readPascalString(40);    // Track name
 		kdDebug() << "Track: " << trk->name << "\n";
-
-		stream->readRawBytes(garbage, 40 - trk->name.length()); // Padding
 
 		// Tuning information
 

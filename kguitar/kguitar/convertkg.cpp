@@ -65,10 +65,10 @@ bool ConvertKg::save(QString fileName)
 	s << (Q_UINT8) 2;
 
 	// HEADER SONG DATA
-	s << song->title;
-	s << song->author;
-	s << song->transcriber;
-	s << song->comments;
+	s << song->info["TITLE"];
+	s << song->info["ARTIST"];
+	s << song->info["TRANSCRIBER"];
+	s << song->info["COMMENTS"];
 	s << song->tempo;
 
 	// TRACK DATA
@@ -177,10 +177,10 @@ bool ConvertKg::load(QString fileName)
 		return FALSE;
 
 	// HEADER SONG DATA
-	s >> song->title;
-	s >> song->author;
-	s >> song->transcriber;
-	s >> song->comments;
+	s >> song->info["TITLE"];
+	s >> song->info["ARTIST"];
+	s >> song->info["TRANSCRIBER"];
+	s >> song->info["COMMENTS"];
 	s >> song->tempo;
 
 	if (song->tempo < 0) {
