@@ -302,7 +302,7 @@ void SongView::playTrack()
 	kdDebug() << "SongView::playTrack with pid:" << getpid() << endl;
 
 	if (midiInUse) {
-		kdDebug() << "   ** Sorry you are playing a track!!" << endl;
+		kdDebug() << "   ** Sorry you are playing a track/song!!" << endl;
 		return;
 	}
 
@@ -312,6 +312,31 @@ void SongView::playTrack()
 	midiList.clear();
 
 	MidiData::getMidiList(tv->trk(), midiList);
+
+	playMidi(midiList, FALSE);
+#endif
+}
+
+void SongView::playSong()
+{
+#ifdef HAVE_MIDI
+	kdDebug() << "SongView::playSong with pid:" << getpid() << endl;
+
+	if (midiInUse) {
+		kdDebug() << "   ** Sorry you are playing a track/song!!" << endl;
+		return;
+	}
+
+	midiInUse = TRUE;
+	midiStopPlay = FALSE;
+
+	midiList.clear();
+
+	QListIterator<TabTrack> it(song->t);
+	for (; it.current(); ++it) {
+		TabTrack *trk = it.current();
+		MidiData::getMidiList(trk, midiList);//##
+	}
 
 	playMidi(midiList);
 #endif
@@ -326,7 +351,7 @@ void SongView::stopPlayTrack()
 #endif
 }
 
-void SongView::playMidi(MidiList &ml)
+void SongView::playMidi(MidiList &ml, bool playSong = TRUE)
 {
 #ifdef HAVE_MIDI
 	kdDebug() << "SongView::playMidi" << endl;
@@ -415,14 +440,21 @@ void SongView::playMidi(MidiList &ml)
 		long tempo;
 		int tpcn = 4;          // ALINXFIX: TicksPerCuarterNote: make it as option
 
-		c_midi->chnPatchChange(0, tv->trk()->patch);
+		if (playSong) {
+			QListIterator<TabTrack> it(song->t);
+			for (; it.current(); ++it) {
+				TabTrack *trk = it.current();
+				c_midi->chnPatchChange(trk->channel, trk->patch);//##
+			}
+		} else c_midi->chnPatchChange(tv->trk()->channel, tv->trk()->patch);
+
 		c_midi->tmrStart(tpcn);
 
 		for (e = ml.first(); e != 0; e = ml.next()) {
 			tempo = e->timestamp * 2;     // ALINXFIX: make the tempo as option
 
 			c_midi->wait(tempo);
-			c_midi->noteOn(0, e->data1, e->data2);
+			c_midi->noteOn(e->chn, e->data1, e->data2);
 		}
 		c_midi->wait(0);
 		c_midi->sync();

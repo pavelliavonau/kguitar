@@ -41,6 +41,7 @@
   <Menu noMerge="1" name="play" >
    <text>&amp;Play</text>
     <Action name="midi_playtrack" />
+    <Action name="midi_playsong" />
     <Action name="midi_stopplay" />
   </Menu>
   <Menu noMerge="1" name="settings" >

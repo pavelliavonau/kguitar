@@ -8,8 +8,6 @@
 #include "options.h"
 #include "global.h"
 
-//#include <qpopupmenu.h>
-
 #include <kapp.h>
 #include <kmenubar.h>
 #include <ktoolbar.h>
@@ -207,15 +205,19 @@ KGuitarPart::KGuitarPart(bool bBrowserView, QWidget *parentWidget,
 								   SLOT(setJZmixed()), actionCollection(), "jazz_mix");
 
     // SET UP MIDI-PLAY
-    midiPlayTrackAct = new KAction(i18n("&Play Track"), "1rightarrow",
-                                   KAccel::stringToKey("Shift+P"), sv, SLOT(playTrack()),
-                                   actionCollection(), "midi_playtrack");
-    midiStopPlayAct = new KAction(i18n("&Stop"), "player_stop",
-                                  KAccel::stringToKey("Ctrl+Shift+P"), sv, SLOT(stopPlayTrack()),
-                                  actionCollection(), "midi_stopplay");
+	midiPlayTrackAct = new KAction(i18n("&Play Track"), "1rightarrow",
+								   KAccel::stringToKey("Shift+P"), sv, SLOT(playTrack()),
+								   actionCollection(), "midi_playtrack");
+	midiPlaySongAct = new KAction(i18n("P&lay Song"), "1rightarrow",
+								   KAccel::stringToKey("Shift+S"), sv, SLOT(playSong()),
+								   actionCollection(), "midi_playsong");
+	midiStopPlayAct = new KAction(i18n("&Stop"), "player_stop",
+								  KAccel::stringToKey("Ctrl+Shift+P"), sv, SLOT(stopPlayTrack()),
+								  actionCollection(), "midi_stopplay");
 #ifndef HAVE_MIDI
-    midiPlayTrackAct->setEnabled(FALSE);
-    midiStopPlayAct->setEnabled(FALSE);
+	midiPlayTrackAct->setEnabled(FALSE);
+	midiPlaySongAct->setEnabled(FALSE);
+	midiStopPlayAct->setEnabled(FALSE);
 #endif
 
 	// SET UP ACCEL...
