@@ -25,7 +25,7 @@ bin_PROGRAMS = kguitar
 
 # Which sources should be compiled for kguitar.
 kguitar_SOURCES	= application.cpp chord.cpp fingers.cpp fingerlist.cpp \
- main.cpp trackview.cpp setsong.cpp \
+ main.cpp trackview.cpp setsong.cpp track.cpp \
  application.moc.cpp chord.moc.cpp fingers.moc.cpp fingerlist.moc.cpp \
  trackview.moc.cpp setsong.moc.cpp
 
@@ -34,11 +34,11 @@ kguitar_LDFLAGS = @all_libraries@ @KDE_RPATH@
 
 # the libraries to link against. Be aware of the order. First the libraries,
 # that depend on the following ones.
-kguitar_LDADD  = -lkdeui -lkdecore -lqt -lX11 -lXext @LIBSOCKET@
+kguitar_LDADD  = -lkfm -lkfile -lkdeui -lkdecore -lqt -lX11 -lXext @LIBSOCKET@
 
 # this option you can leave out. Just, if you use "make dist", you need it
 noinst_HEADERS = application.h chord.h fingers.h fingerlist.h trackview.h \
- setsong.h
+ setsong.h track.h
 
 # just to make sure, automake makes them 
 BUILTSOURCES =	application.moc.cpp chord.moc.cpp fingers.moc.cpp \
