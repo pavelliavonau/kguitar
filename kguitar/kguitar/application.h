@@ -3,7 +3,6 @@
 
 #include <ktmainwindow.h>
 
-class QMultiLineEdit;
 class KToolBar;
 class QPopupMenu;
 
@@ -26,6 +25,7 @@ private slots:
     void closeDoc();
     void inschord();
     void songProperties();
+    void trackProperties();
 
     void toggleMenuBar();
     void toggleStatusBar();
