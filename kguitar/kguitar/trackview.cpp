@@ -1,5 +1,6 @@
 #include "trackview.h"
 #include "tabsong.h"
+#include "chord.h"
 
 #include "timesig.h"
 
@@ -709,6 +710,9 @@ void TrackView::mousePressEvent(QMouseEvent *e)
 
 void TrackView::selectTrack(QListViewItem *item)
 {
+    if (!item)
+        return;
+
 	int num = item->text(0).toInt();
 
 	QListIterator<TabTrack> it(song->t);
