@@ -28,16 +28,12 @@ TrackView::TrackView(QWidget *parent,const char *name): QTableView(parent,name)
 
     curt->setTuning(standtune);
     curt->x=0;
-    curt->y=4;
+    curt->y=0;
 
     curt->c.append(new TabColumn());
-    curt->c.last()->a[4]=2;
     curt->c.append(new TabColumn());
-    curt->c.last()->a[3]=4;
     curt->c.append(new TabColumn());
-    curt->c.last()->a[4]=2;
     curt->c.append(new TabColumn());
-    curt->c.last()->a[3]=0;
 }
 
 TrackView::~TrackView()
@@ -47,44 +43,59 @@ TrackView::~TrackView()
 
 void TrackView::paintCell(QPainter *p, int row, int col)
 {
-    for (int i=0;i<6;i++)
-	p->drawLine(0,VERTSPACE+i*VERTLINE,width(),VERTSPACE+i*VERTLINE);
-    
     TabColumn *tc;
     QString tmp;
 
+    int s = curt->string()-1;
+
+    for (int i=0;i<curt->string();i++)
+	p->drawLine(0,VERTSPACE+(s-i)*VERTLINE,width(),VERTSPACE+(s-i)*VERTLINE);
+
     p->setFont(QFont("helvetica",VERTLINE));
     p->setBrush(KApplication::getKApplication()->windowColor);
-    p->setPen(NoPen);
 
     int xpos=10;
 
     for (tc=curt->c.first();tc!=0;tc=song->t.getFirst()->c.next()) {
+	p->setPen(NoPen);
 	for (int i=0;i<curt->string();i++) {
 	    if ((curt->c.at()==curt->x) && 
 		(curt->y==i)) {
 		p->setBrush(KApplication::getKApplication()->selectColor);
-		p->drawRect(xpos,VERTSPACE+i*VERTLINE-VERTLINE/2,VERTLINE,VERTLINE);
+		p->drawRect(xpos,VERTSPACE+(s-i)*VERTLINE-VERTLINE/2,VERTLINE,VERTLINE);
 		p->setBrush(KApplication::getKApplication()->windowColor);
 		if (tc->a[i]!=-1) {
 		    tmp.setNum(tc->a[i]);
 		    p->setPen(KApplication::getKApplication()->selectTextColor);
-		    p->drawText(xpos,VERTSPACE+i*VERTLINE-VERTLINE/2,VERTLINE,VERTLINE,AlignCenter,tmp);
+		    p->drawText(xpos,VERTSPACE+(s-i)*VERTLINE-VERTLINE/2,VERTLINE,VERTLINE,AlignCenter,tmp);
 		    p->setPen(NoPen);
 		}
 	    } else {
 		if (tc->a[i]!=-1) {
 		    tmp.setNum(tc->a[i]);
-		    p->drawRect(xpos,VERTSPACE+i*VERTLINE-VERTLINE/2,VERTLINE,VERTLINE);
-		    p->drawText(xpos,VERTSPACE+i*VERTLINE-VERTLINE/2,VERTLINE,VERTLINE,AlignCenter,tmp);
+		    p->drawRect(xpos,VERTSPACE+(s-i)*VERTLINE-VERTLINE/2,VERTLINE,VERTLINE);
+		    p->drawText(xpos,VERTSPACE+(s-i)*VERTLINE-VERTLINE/2,VERTLINE,VERTLINE,AlignCenter,tmp);
 		}
 	    }
+	}
+	p->setPen(SolidLine);
+        switch (tc->l) {
+	case 60:  // 1/8
+	    p->drawLine(xpos+VERTLINE/2,BOTTOMDUR+VERTLINE,
+			xpos+VERTLINE/2+HORDUR,BOTTOMDUR+VERTLINE);
+	case 120: // 1/4
+	    p->drawLine(xpos+VERTLINE/2,BOTTOMDUR,
+			xpos+VERTLINE/2,BOTTOMDUR+VERTLINE);
+	case 240: // 1/2
+	    p->drawLine(xpos+VERTLINE/2,BOTTOMDUR+3,
+			xpos+VERTLINE/2,BOTTOMDUR+VERTLINE);
+	case 480: // whole
+	    break;
 	}
 	xpos+=VERTLINE+VERTLINE/2;
     }
 
     p->setBrush(SolidPattern);
-    p->setPen(SolidLine);
 }
 
 void TrackView::resizeEvent(QResizeEvent *e)
@@ -94,20 +105,46 @@ void TrackView::resizeEvent(QResizeEvent *e)
     setCellHeight(VERTSPACE*2+VERTLINE*(curt->string()-1));
 }
 
+bool TrackView::moveFinger(int from, int to)
+{
+    int n=curt->c.at(curt->x)->a[from];
+    if (n<0)
+	return FALSE;
+    n=n+curt->tune(from)-curt->tune(to);
+    if (n<0)
+	return FALSE;
+    curt->c.at(curt->x)->a[from]=-1;
+    curt->c.at(curt->x)->a[to]=n;
+    return TRUE;
+}
+
 void TrackView::keyPressEvent(QKeyEvent *e)
 {
     int num = e->ascii();
 
     switch (e->key()) {
-    case Key_Left:  curt->x--;break;
-    case Key_Right: curt->x++;break;
-    case Key_Up:
-	if (curt->y>0)
-	    curt->y--;
+    case Key_Left:
+	if (curt->x>0)
+	    curt->x--;
+	break;
+    case Key_Right:
+	if (curt->x+1==curt->c.count())
+	    curt->c.append(new TabColumn());
+	curt->x++;
 	break;
     case Key_Down:
-	if (curt->y<curt->string()-1)
+	if (curt->y>0) {
+	    if ((e->state()==ControlButton) && (moveFinger(curt->y,curt->y-1)) ||
+		(e->state()!=ControlButton)) 
+		curt->y--;
+	}
+	break;
+    case Key_Up:
+	if (curt->y<curt->string()-1) {
+	    if ((e->state()==ControlButton) && (moveFinger(curt->y,curt->y+1)) ||
+		(e->state()!=ControlButton)) 
 	    curt->y++;
+	}
 	break;
     case Key_1:
     case Key_2:
@@ -125,6 +162,12 @@ void TrackView::keyPressEvent(QKeyEvent *e)
     case Key_Delete:
 	curt->c.at(curt->x)->a[curt->y]=-1;
 	break;
+    case Key_Plus:
+	curt->c.at(curt->x)->l*=2;
+	break;
+    case Key_Minus:
+	curt->c.at(curt->x)->l/=2;
+	break;	
     default:
 	e->ignore();
 	return;
