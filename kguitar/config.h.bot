@@ -5,6 +5,6 @@ const bool FALSE = 0;
 const bool TRUE = 1;
 #endif
 
-#ifdef WITH_MIDISUPPORT
+#ifdef WITH_TSE3
 #define HAVE_MIDI
 #endif
