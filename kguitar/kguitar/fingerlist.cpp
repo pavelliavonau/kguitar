@@ -36,7 +36,7 @@ FingerList::FingerList(TabTrack *p, QWidget *parent, const char *name)
 		fretNumberFont->setPointSizeFloat(fretNumberFont->pointSizeFloat() * FRET_NUMBER_FONT_FACTOR);
 	}
 
-    repaint();
+	repaint();
 }
 
 FingerList::~FingerList()
@@ -55,17 +55,17 @@ void FingerList::beginSession()
 // columns / rows, updating it, etc.
 void FingerList::endSession()
 {
-    // num is overral number of chord fingerings. If it's 0 - then there are no
-    // fingerings. In the appl array, indexes should be ranged from 0 to (num-1)
-    setNumRows((num - 1) / perRow + 1);
+	// num is overral number of chord fingerings. If it's 0 - then there are no
+	// fingerings. In the appl array, indexes should be ranged from 0 to (num-1)
+	setNumRows((num - 1) / perRow + 1);
 	repaintContents();
 }
 
 void FingerList::clear()
 {
-    appl.resize(0);
-    num = 0; curSel = -1;
-    oldCol = 0; oldRow = 0;
+	appl.resize(0);
+	num = 0; curSel = -1;
+	oldCol = 0; oldRow = 0;
 }
 
 void FingerList::addFingering(const int a[MAX_STRINGS])
@@ -105,7 +105,7 @@ void FingerList::mousePressEvent(QMouseEvent *e)
 
 void FingerList::selectFirst()
 {
-    emit chordSelected(appl[0].f);
+	emit chordSelected(appl[0].f);
 }
 
 void FingerList::paintCell(QPainter *p, int row, int col)
