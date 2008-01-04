@@ -164,7 +164,7 @@ bool ConvertTex::saveToTab(QTextStream &s)
 	s << "%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%" << "\n";
 	s << "%" << "\n";
 	s << "% This MusiXTex File was created with KGuitar " << VERSION << "\n";
-	s << "% $Id$" << "\n";
+	s << "% $Id: converttex.cpp 882 2005-04-02 00:01:38Z greycat $" << "\n";
     s << "%" << "\n";
 	s << "% You can download the latest version at:" << "\n";
 	s << "%      http://kguitar.sourceforge.net" << "\n";
@@ -298,7 +298,7 @@ bool ConvertTex::saveToNotes(QTextStream &s)
 	s << "%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%" << "\n";
 	s << "%" << "\n";
 	s << "% This MusiXTex File was created with KGuitar " << VERSION << "\n";
-    s << "% $Id$ " << "\n";
+    s << "% $Id: converttex.cpp 882 2005-04-02 00:01:38Z greycat $ " << "\n";
 	s << "%" << "\n";
 	s << "% You can download the latest version at:" << "\n";
 	s << "%          http://kguitar.sourceforge.net" << "\n";
