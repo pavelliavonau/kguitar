@@ -14,7 +14,7 @@
 #include <qapplication.h>
 
 MelodyEditor::MelodyEditor(TrackView *_tv, QWidget *parent, const char *name)
-	:QWidget(parent, name)
+	: QWidget(parent, name)
 // 			 WType_TopLevel | WStyle_Customize |
 // 	         WStyle_StaysOnTop | WStyle_NormalBorder |
 // 	         WStyle_Title | WStyle_MinMax | WStyle_SysMenu)
@@ -78,7 +78,7 @@ MelodyEditor::MelodyEditor(TrackView *_tv, QWidget *parent, const char *name)
 
 void MelodyEditor::drawBackground()
 {
-    fb->drawBackground();
+	fb->drawBackground();
 }
 
 void MelodyEditor::optionsDialog()
@@ -86,7 +86,7 @@ void MelodyEditor::optionsDialog()
 	KDialogBase opDialog(0, 0, TRUE, i18n("Melody Constructor"),
 	                     KDialogBase::Help|KDialogBase::Default|KDialogBase::Ok|
 	                     KDialogBase::Apply|KDialogBase::Cancel, KDialogBase::Ok);
-    QVBox *box = opDialog.makeVBoxMainWidget();
+	QVBox *box = opDialog.makeVBoxMainWidget();
 	OptionsMelodyEditor op(Settings::config, (QFrame *) box);
 	connect(&opDialog, SIGNAL(defaultClicked()), &op, SLOT(defaultBtnClicked()));
 	connect(&opDialog, SIGNAL(okClicked()), &op, SLOT(applyBtnClicked()));

@@ -10,7 +10,7 @@
 SongView::SetSongPropCommand::SetSongPropCommand(SongView *_sv, QMap<QString, QString> _info, int _tempo)
 	: KNamedCommand(i18n("Set song properties"))
 {
-    sv       = _sv;
+	sv       = _sv;
 	info     = _info;
 	tempo    = _tempo;
 

@@ -20,7 +20,7 @@ OptionsMusicTheory::OptionsMusicTheory(KConfig *conf, QWidget *parent, const cha
 	maj7[1] = new QRadioButton("maj7", maj7Group);
 	maj7[2] = new QRadioButton("dom7", maj7Group);
 
-    // Chord step alterations selection group
+	// Chord step alterations selection group
 
 	flatGroup = new QVButtonGroup(i18n("Alterations"), this);
 	flat[0] = new QRadioButton(i18n("-/+ symbols"), flatGroup);
