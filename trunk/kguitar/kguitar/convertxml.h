@@ -3,7 +3,7 @@
 
 #include "convertbase.h"
 #include <qxml.h>
-#include <qvector.h>
+#include <qptrvector.h>
 #include "accidentals.h"
 
 class TabSong;
@@ -82,7 +82,7 @@ private:
 	void reportWarning(const QString& err);
 
 	TabTrack * trk;				// pointer to current track
-	QVector<QString> partIds;	// part (track) id's
+	QPtrVector<QString> partIds;	// part (track) id's
 	int x;						// current column
 	int bar;					// current bar
 	int iDiv;					// divisions
