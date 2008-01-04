@@ -9,7 +9,7 @@
 #include <knuminput.h>
 
 class QLineEdit;
-class QMultiLineEdit;
+class QTextEdit;
 class KIntNumInput;
 
 /**
@@ -27,7 +27,7 @@ public:
 
 private:
 	QLineEdit *title, *author, *transcriber;
-	QMultiLineEdit *comments;
+	QTextEdit *comments;
 	KIntNumInput *m_tempo;
 
 	QMap<QString, QString> m_info;

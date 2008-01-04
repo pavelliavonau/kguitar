@@ -21,7 +21,6 @@
 #ifndef MUSICXML_H
 #define MUSICXML_H
 
-#include <qvector.h>
 #include <qxml.h>
 #include "accidentals.h"
 

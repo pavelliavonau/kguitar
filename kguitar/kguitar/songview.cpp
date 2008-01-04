@@ -35,7 +35,7 @@
 #include <qlayout.h>
 #include <qlineedit.h>
 #include <qcombobox.h>
-#include <qmultilinedit.h>
+#include <qtextedit.h>
 #include <qdir.h>
 
 #ifdef WITH_TSE3

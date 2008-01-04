@@ -3,7 +3,7 @@
 
 #include "global.h"
 
-#include <qlist.h>
+#include <qptrlist.h>
 #include <qstring.h>
 #include <qtextstream.h>
 #include <qmap.h>
@@ -28,7 +28,7 @@ public:
 	/**
 	 * Holds a list of tracks that the song consists of.
 	 */
-	QList<TabTrack> t;
+	QPtrList<TabTrack> t;
 
 	/**
 	 * Map of metainformation. Can hold lots of strings, referenced by

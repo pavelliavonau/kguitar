@@ -3,7 +3,7 @@
 #include <klocale.h>
 
 #include <qlineedit.h>
-#include <qmultilinedit.h>
+#include <qtextedit.h>
 #include <qlabel.h>
 #include <qlayout.h>
 
@@ -17,7 +17,7 @@ SetSong::SetSong(QMap<QString, QString> info, int tempo_, bool ro, QWidget *pare
 	title = new QLineEdit(page1);
 	author = new QLineEdit(page1);
 	transcriber = new QLineEdit(page1);
-	comments = new QMultiLineEdit(page1);
+	comments = new QTextEdit(page1);
 	m_tempo = new KIntNumInput(page1);
 
 	QLabel *title_l = new QLabel(title, i18n("&Title:"), page1);
