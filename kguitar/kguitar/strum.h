@@ -128,7 +128,7 @@ strummer lib_strum[] = {
 	       "bass notes by an extra 1/8. A good simple rhythm for blues and "
 	       "folk songs.") },
 	{ { 0,    TR1, 0,    TR1, 0 },
-      { -120, -60, -120, -60, -120, 0 },
+	{ -120, -60, -120, -60, -120, 0 },
 	  I18N_NOOP("4/4 Strumming 1"),
 	  I18N_NOOP("Shuffle-feeled strumming.") },
 

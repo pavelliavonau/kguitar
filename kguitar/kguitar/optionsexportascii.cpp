@@ -29,7 +29,7 @@ OptionsExportAscii::OptionsExportAscii(KConfig *conf, QWidget *parent, const cha
 
 	// Set widget layout
 
-    QVBoxLayout *box = new QVBoxLayout(this);
+	QVBoxLayout *box = new QVBoxLayout(this);
 	box->addWidget(durationGroup);
 
 	QHBoxLayout *pageWidthBox = new QHBoxLayout(box);
