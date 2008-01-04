@@ -11,10 +11,10 @@
 Strumming::Strumming(int default_scheme, QWidget *parent, const char *name)
 	: QDialog(parent, name, TRUE)
 {
-    QVBoxLayout *l = new QVBoxLayout(this, 10);
+	QVBoxLayout *l = new QVBoxLayout(this, 10);
 
-    QGridLayout *g = new QGridLayout(1, 2, 10);
-    l->addLayout(g);
+	QGridLayout *g = new QGridLayout(1, 2, 10);
+	l->addLayout(g);
 
 	// STRUMMING OPTIONS CONTROLS
 
@@ -31,9 +31,9 @@ Strumming::Strumming(int default_scheme, QWidget *parent, const char *name)
 
 	g->addRowSpacing(0, 30);
 
-    g->addColSpacing(0, 80);
-    g->addColSpacing(1, 200);
-    g->setColStretch(1, 1);
+	g->addColSpacing(0, 80);
+	g->addColSpacing(1, 200);
+	g->setColStretch(1, 1);
 
 	// COMMENT BOX
 
@@ -44,23 +44,23 @@ Strumming::Strumming(int default_scheme, QWidget *parent, const char *name)
 	updateComment(0);
 	l->addWidget(comment);
 
-    // DIALOG BUTTONS
+	// DIALOG BUTTONS
 
-    QHBoxLayout *butt = new QHBoxLayout();
-    l->addLayout(butt);
+	QHBoxLayout *butt = new QHBoxLayout();
+	l->addLayout(butt);
 
-    QPushButton *ok = new QPushButton(i18n("OK"), this);
-    connect(ok,SIGNAL(clicked()),SLOT(accept()));
-    QPushButton *cancel = new QPushButton(i18n("Cancel"), this);
-    connect(cancel, SIGNAL(clicked()), SLOT(reject()));
+	QPushButton *ok = new QPushButton(i18n("OK"), this);
+	connect(ok,SIGNAL(clicked()),SLOT(accept()));
+	QPushButton *cancel = new QPushButton(i18n("Cancel"), this);
+	connect(cancel, SIGNAL(clicked()), SLOT(reject()));
 
-    butt->addWidget(ok);
-    butt->addWidget(cancel);
-    butt->addStrut(30);
+	butt->addWidget(ok);
+	butt->addWidget(cancel);
+	butt->addStrut(30);
 
-    l->activate();
+	l->activate();
 
-    setCaption(i18n("Strumming pattern"));
+	setCaption(i18n("Strumming pattern"));
 	resize(0, 0);
 }
 
