@@ -4,7 +4,10 @@
 #include <qfile.h>
 #include <qdatastream.h>
 
-ConvertGtp::ConvertGtp(TabSong *song): ConvertBase(song) {}
+ConvertGtp::ConvertGtp(TabSong *song): ConvertBase(song)
+{
+	strongChecks = TRUE;
+}
 
 QString ConvertGtp::readDelphiString()
 {
@@ -292,8 +295,10 @@ void ConvertGtp::readBarProperties()
 			(*stream) >> num;                // GREYFIX: alterations_number
 			(*stream) >> num;                // GREYFIX: minor
 		}
-		if (bar_bitmask & 0x80)
+		if (bar_bitmask & 0x80) {
 			kdWarning() << "0x80 in bar properties!\n";
+			throw QString("0x80 in bar properties!");
+		}
 	}
 	kdDebug() << "readBarProperties(): end\n";
 }
@@ -356,7 +361,9 @@ void ConvertGtp::readTabs()
 		TabTrack *trk = song->t.first();
 		for (int tr = 0; tr < numTracks; tr++) {
 			int numBeats = readDelphiInteger();
-			kdDebug() << "TRACK " << tr << ", BAR " << j << " (position: " << stream->device()->at() << ")\n";
+			kdDebug() << "TRACK " << tr << ", BAR " << j << ", numBeats " << numBeats << " (position: " << stream->device()->at() << ")\n";
+
+			if (strongChecks && numBeats > 128)  throw QString("Track %1, bar %2, insane number of beats: %3").arg(tr).arg(j).arg(numBeats);
 
 			x = trk->c.size();
 			trk->c.resize(trk->c.size() + numBeats);
@@ -389,7 +396,9 @@ void ConvertGtp::readTabs()
 				trk->c[x].l = (1 << (3 - length)) * 15;
 
 				if (beat_bitmask & 0x20) {
-					readDelphiInteger();     // GREYFIX: t for tuples
+					int tuple = readDelphiInteger();
+					kdDebug() << "Tuple: " << tuple << "\n"; // GREYFIX: t for tuples
+					if (!(tuple == 3 || (tuple >= 5 && tuple <= 7) || (tuple >= 9 && tuple <= 13)))  throw QString("Insane tuple t: %1").arg(tuple);
 				}
 				
 				if (beat_bitmask & 0x02)     // Chord diagram

@@ -169,7 +169,13 @@ bool KGuitarPart::openFile()
 		if (converter)  success = converter->load(m_file);
 	} catch (QString msg) {
 		kdDebug() << "Converter failed with message \"" << msg << "\"\n";
-		KMessageBox::sorry(0, msg);
+		KMessageBox::sorry(0, msg, i18n("Loading failed"));
+
+		sv->song()->t.clear();
+		sv->song()->t.append(new TabTrack(TabTrack::FretTab, i18n("Guitar"), 1, 0, 25, 6, 24));
+		sv->refreshView();
+		cmdHist->clear();
+
 		return FALSE;
 	}
 
