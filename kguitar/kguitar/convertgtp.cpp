@@ -1,5 +1,6 @@
 #include "convertgtp.h"
 
+#include <klocale.h>
 #include <qfile.h>
 #include <qdatastream.h>
 
@@ -12,11 +13,16 @@ QString ConvertGtp::readDelphiString()
 	char *c;
 
 	int maxl = readDelphiInteger();
+	if (stream->device()->atEnd())  throw QString("readDelphiString: EOF");
 	(*stream) >> l;
 
-	if (maxl != l + 1)  kdWarning() << "readDelphiString - first word doesn't match second byte\n";
+	if (maxl != l + 1)  throw QString("readDelphiString: first word doesn't match second byte");
 
 	c = (char *) malloc(l + 5);
+
+	if (stream->device()->size() - stream->device()->at() < l) {
+		throw QString("readDelphiString: not enough bytes to read %1 byte string").arg(l);
+	}
 
 	if (c) {
 		stream->readRawBytes(c, l);
@@ -76,9 +82,13 @@ int ConvertGtp::readDelphiInteger()
 {
 	Q_UINT8 x;
 	int r;
+	if (stream->device()->atEnd())  throw QString("readDelphiInteger: EOF");
 	(*stream) >> x; r = x;
+	if (stream->device()->atEnd())  throw QString("readDelphiInteger: EOF");
 	(*stream) >> x; r += x << 8;
+	if (stream->device()->atEnd())  throw QString("readDelphiInteger: EOF");
 	(*stream) >> x; r += x << 16;
+	if (stream->device()->atEnd())  throw QString("readDelphiInteger: EOF");
 	(*stream) >> x; r += x << 24;
 	return r;
 }
@@ -137,12 +147,39 @@ void ConvertGtp::readChord()
 	kdDebug() << "after chord, position: " << stream->device()->at() << "\n";
 }
 
-bool ConvertGtp::readSignature()
+void ConvertGtp::readSignature()
 {
-	QString s = readPascalString(30);        // Format string
-	kdDebug() << "GTP format: " << s << "\n";
+	currentStage = QString("readSignature");
 
-	return TRUE;
+	QString s = readPascalString(30);        // Format string
+	kdDebug() << "GTP format: \"" << s << "\"\n";
+
+	// Parse version string
+	if (s == "FICHIER GUITARE PRO v1") {
+		versionMajor = 1; versionMinor = 0;
+	} else if (s == "FICHIER GUITARE PRO v1.01") {
+		versionMajor = 1; versionMinor = 1;
+	} else if (s == "FICHIER GUITARE PRO v1.02") {
+		versionMajor = 1; versionMinor = 2;
+	} else if (s == "FICHIER GUITARE PRO v1.03") {
+		versionMajor = 1; versionMinor = 3;
+	} else if (s == "FICHIER GUITARE PRO v1.04") {
+		versionMajor = 1; versionMinor = 4;
+	} else if (s == "FICHIER GUITAR PRO v2.20") {
+		versionMajor = 2; versionMinor = 20;
+	} else if (s == "FICHIER GUITAR PRO v2.21") {
+		versionMajor = 2; versionMinor = 21;
+	} else if (s == "FICHIER GUITAR PRO v3.00") {
+		versionMajor = 3; versionMinor = 0;
+	} else if (s == "FICHIER GUITAR PRO v4.00") {
+		versionMajor = 4; versionMinor = 0;
+	} else if (s == "FICHIER GUITAR PRO v4.06") {
+		versionMajor = 4; versionMinor = 6;
+	} else if (s == "FICHIER GUITAR PRO L4.06") {
+		versionMajor = 4; versionMinor = 6;
+	} else {
+		throw i18n("Invalid file format: \"%1\"").arg(s);
+	}
 }
 
 void ConvertGtp::readSongAttributes()
@@ -152,7 +189,7 @@ void ConvertGtp::readSongAttributes()
 
 	Q_UINT8 num;
 
-	song->info["COMMENTS"] = "";
+	currentStage = QString("readSongAttributes: song->info");
 
 	song->info["TITLE"] = readDelphiString();
 	song->info["SUBTITLE"] = readDelphiString();
@@ -164,12 +201,16 @@ void ConvertGtp::readSongAttributes()
 	song->info["INSTRUCTIONS"] = readDelphiString();
 
 	// Notice lines
+	currentStage = QString("readSongAttributes: notice lines");
+	song->info["COMMENTS"] = "";
 	int n = readDelphiInteger();
 	for (int i = 0; i < n; i++)
 		song->info["COMMENTS"] += readDelphiString() + "\n";
 
+	currentStage = QString("readSongAttributes: shuffle rhythm feel");
 	(*stream) >> num;                        // GREYFIX: Shuffle rhythm feel
 
+	currentStage = QString("readSongAttributes: lyrics");
 	// Lyrics
 	readDelphiInteger();                     // GREYFIX: Lyric track number start
 	for (int i = 0; i < LYRIC_LINES_MAX_NUMBER; i++) {
@@ -177,13 +218,16 @@ void ConvertGtp::readSongAttributes()
 		readWordPascalString();              // GREYFIX: Lyric line
 	}
 
+	currentStage = QString("readSongAttributes: tempo");
 	song->tempo = readDelphiInteger();       // Tempo
+
 	stream->readRawBytes(garbage, 5);        // Mysterious bytes
 }
 
 void ConvertGtp::readTrackDefaults()
 {
 	Q_UINT8 num;
+	currentStage = QString("readTrackDefaults");
 
 	for (int i = 0; i < TRACK_MAX_NUMBER * 2; i++) {
 		trackPatch[i] = readDelphiInteger(); // MIDI Patch
@@ -193,8 +237,11 @@ void ConvertGtp::readTrackDefaults()
 		(*stream) >> num;                    // GREYFIX: reverb
 		(*stream) >> num;                    // GREYFIX: phase
 		(*stream) >> num;                    // GREYFIX: tremolo
+
 		(*stream) >> num;                    // 2 byte padding: must be 00 00
+		if (num != 0)  throw QString("1 of 2 byte padding: there is %1, must be 0").arg(num);
 		(*stream) >> num;
+		if (num != 0)  throw QString("2 of 2 byte padding: there is %1, must be 0").arg(num);
 	}
 }
 
@@ -205,7 +252,9 @@ void ConvertGtp::readBarProperties()
 	int time1 = 4;
 	int time2 = 4;
 
+	currentStage = QString("readBarProperties");
 	kdDebug() << "readBarProperties(): start\n";
+
 	for (int i = 0; i < numBars; i++) {
 		(*stream) >> bar_bitmask;                    // bar property bitmask
 		if (bar_bitmask != 0)
@@ -493,45 +542,52 @@ bool ConvertGtp::load(QString fileName)
 {
 	QFile f(fileName);
 	if (!f.open(IO_ReadOnly))
-		return FALSE;
+		throw i18n("Unable to open file for reading");
 
 	QDataStream s(&f);
 	stream = &s;
 
-	if (!readSignature())
-		return FALSE;
+	try {
+//		song = new TabSong();
 
-	// Cleanup
-	song->t.clear();
+		readSignature();
+		readSongAttributes();
+	 	readTrackDefaults();
 
-	readSongAttributes();
- 	readTrackDefaults();
+	 	numBars = readDelphiInteger();           // Number of bars
+	 	numTracks = readDelphiInteger();         // Number of tracks
 
- 	numBars = readDelphiInteger();           // Number of bars
- 	numTracks = readDelphiInteger();         // Number of tracks
+		kdDebug() << "Bars: " << numBars << "\n";
+		kdDebug() << "Tracks: " << numTracks << "\n";
 
-	kdDebug() << "Bars: " << numBars << "\n";
-	kdDebug() << "Tracks: " << numTracks << "\n";
+		// Mysterious padding: must be 43 04 04 00 (for 4.00 format)
+		int pad = readDelphiInteger();
+		kdDebug() << "PAD: " << pad << " (must be 263235)\n";
+		if (pad != 263235)  throw QString("PAD: %1, must be 263235").arg(pad);
 
-	// Mysterious padding: must be 43 04 04 00 (for 4.00 format)
-	kdDebug() << "PAD: " << readDelphiInteger() << " (must be 263235)\n";
+	 	readBarProperties();
+	 	readTrackProperties();
+	 	readTabs();
 
- 	readBarProperties();
- 	readTrackProperties();
- 	readTabs();
-
-	int ex = readDelphiInteger();            // Exit code: 00 00 00 00
-	if (ex != 0)
-		kdWarning() << "File not ended with 00 00 00 00\n";
-	if (!f.atEnd())
-		kdWarning() << "File not ended - there's more data!\n";
+		int ex = readDelphiInteger();            // Exit code: 00 00 00 00
+		if (ex != 0)
+			kdWarning() << "File not ended with 00 00 00 00\n";
+		if (!f.atEnd())
+			kdWarning() << "File not ended - there's more data!\n";
+	} catch (QString msg) {
+		throw
+			i18n("Guitar Pro import error:") + QString("\n") +
+			msg + QString("\n") +
+			i18n("Stage: %1").arg(currentStage) + QString("\n") +
+			i18n("File position: %1/%2").arg(f.at()).arg(f.size());
+	}
 
 	f.close();
 
-    return TRUE;
+	return song;
 }
 
 bool ConvertGtp::save(QString)
 {
-    return FALSE;
+	throw i18n("Not implemented");
 }

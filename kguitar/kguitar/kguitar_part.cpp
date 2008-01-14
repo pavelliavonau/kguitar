@@ -164,8 +164,14 @@ bool KGuitarPart::openFile()
 	if (ext == "gp4")  converter = new ConvertGtp(sv->song());
 	if (ext == "gp3")  converter = new ConvertGp3(sv->song());
 	if (ext == "xml")  converter = new ConvertXml(sv->song());
-	
-	if (converter)  success = converter->load(m_file);
+
+	try {
+		if (converter)  success = converter->load(m_file);
+	} catch (QString msg) {
+		kdDebug() << "Converter failed with message \"" << msg << "\"\n";
+		KMessageBox::sorry(0, msg);
+		return FALSE;
+	}
 
 	if (success) {
 		sv->refreshView();
