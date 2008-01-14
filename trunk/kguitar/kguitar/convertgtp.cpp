@@ -574,11 +574,6 @@ bool ConvertGtp::load(QString fileName)
 		kdDebug() << "Bars: " << numBars << "\n";
 		kdDebug() << "Tracks: " << numTracks << "\n";
 
-		// Mysterious padding: must be 43 04 04 00 (for 4.00 format)
-		int pad = readDelphiInteger();
-		kdDebug() << "PAD: " << pad << " (must be 263235)\n";
-		if (pad != 263235)  throw QString("PAD: %1, must be 263235").arg(pad);
-
 	 	readBarProperties();
 	 	readTrackProperties();
 	 	readTabs();
