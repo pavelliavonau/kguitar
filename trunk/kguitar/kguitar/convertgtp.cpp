@@ -56,7 +56,7 @@ QString ConvertGtp::readPascalString(int maxlen)
 
 	// Skip garbage after pascal string end
 	c = (char *) malloc(maxlen + 5);
-	stream->readRawBytes(c, maxlen - str.length());
+	stream->readRawBytes(c, maxlen - l);
 	free(c);
 
 	return str;
@@ -254,6 +254,9 @@ void ConvertGtp::readBarProperties()
 
 	int time1 = 4;
 	int time2 = 4;
+	int keysig = 0;
+
+	bars.resize(numBars);
 
 	currentStage = QString("readBarProperties");
 	kdDebug() << "readBarProperties(): start\n";
@@ -274,7 +277,7 @@ void ConvertGtp::readBarProperties()
 			time2 = num;
 			kdDebug() << "new time2 signature: " << time1 << ":" << time2 << "\n";
 		}
-		// GREYFIX: new_time_denominator
+		// GREYFIX: begin repeat
 		if (bar_bitmask & 0x04) {
 			kdDebug() << "begin repeat\n";
 		}
@@ -295,14 +298,19 @@ void ConvertGtp::readBarProperties()
 			kdDebug() << "new section: " << text << "\n";
 		}
 		if (bar_bitmask & 0x40) {
-			kdDebug() << "new key signature\n";
 			(*stream) >> num;                // GREYFIX: alterations_number
+			keysig = num;
 			(*stream) >> num;                // GREYFIX: minor
+			kdDebug() << "new key signature (" << keysig << ", " << num << ")\n";
 		}
+		// GREYFIX: double bar
 		if (bar_bitmask & 0x80) {
-			kdWarning() << "0x80 in bar properties!\n";
-			throw QString("0x80 in bar properties!");
+			kdDebug() << "double bar\n";
 		}
+
+		bars[i].time1 = time1;
+		bars[i].time2 = time1;
+		bars[i].keysig = keysig;
 	}
 	kdDebug() << "readBarProperties(): end\n";
 }
@@ -310,11 +318,14 @@ void ConvertGtp::readBarProperties()
 void ConvertGtp::readTrackProperties()
 {
 	Q_UINT8 num;
+	int strings, midiChannel2, capo, color;
 
+	currentStage = QString("readTrackProperties");
 	kdDebug() << "readTrackProperties(): start\n";
 
 	for (int i = 0; i < numTracks; i++) {
 		(*stream) >> num;                    // GREYFIX: simulations bitmask
+		kdDebug() << "Simulations: " << num << "\n";
 
 		song->t.append(new TabTrack(TabTrack::FretTab, 0, 0, 0, 0, 6, 24));
 		TabTrack *trk = song->t.current();
@@ -324,11 +335,17 @@ void ConvertGtp::readTrackProperties()
 
 		// Tuning information
 
-		trk->string = readDelphiInteger();
+		kdDebug() << "pos: " << stream->device()->at() << "\n";
+
+		strings = readDelphiInteger();
+		if (strings <= 0 || strings > STRING_MAX_NUMBER)  throw QString("Track %1: insane # of strings (%2)\n").arg(i).arg(strings);
+		trk->string = strings;
 
 		// Parse [0..string-1] with real string tune data in reverse order
-		for (int j = trk->string - 1; j >= 0; j--)
+		for (int j = trk->string - 1; j >= 0; j--) {
 			trk->tune[j] = readDelphiInteger();
+			if (trk->tune[j] > 127)  throw QString("Track %1: insane tuning on string %2 = %3\n").arg(i).arg(j).arg(trk->tune[j]);
+		}
 
 		// Throw out the other useless garbage in [string..MAX-1] range
 		for (int j = trk->string; j < STRING_MAX_NUMBER; j++)
@@ -338,10 +355,20 @@ void ConvertGtp::readTrackProperties()
 
 		readDelphiInteger();                 // GREYFIX: MIDI port
 		trk->channel = readDelphiInteger();  // MIDI channel 1
-		readDelphiInteger();                 // GREYFIX: MIDI channel 2
+		midiChannel2 = readDelphiInteger();  // GREYFIX: MIDI channel 2
 		trk->frets = readDelphiInteger();    // Frets
-		readDelphiInteger();                 // GREYFIX: Capo
-		readDelphiInteger();                 // GREYFIX: Color
+		capo = readDelphiInteger();          // GREYFIX: Capo
+		color = readDelphiInteger();         // GREYFIX: Color
+
+		kdDebug() <<
+			"MIDI #" << trk->channel << "/" << midiChannel2 << ", " <<
+			trk->string << " strings, " <<
+			trk->frets << " frets, capo " <<
+			capo << "\n";
+
+		if (trk->frets <= 0 || (strongChecks && trk->frets > 100))  throw QString("Track %1: insane number of frets (%2)\n").arg(i).arg(trk->frets);
+		if (trk->channel < 0 || trk->channel > 16)  throw QString("Track %1: insane MIDI channel 1 (%2)\n").arg(i).arg(trk->channel);
+		if (midiChannel2 < 0 || midiChannel2 > 16)  throw QString("Track %1: insane MIDI channel 2 (%2)\n").arg(i).arg(midiChannel2);
 
 		// Fill remembered values from defaults
 		trk->patch = trackPatch[i];
@@ -354,6 +381,8 @@ void ConvertGtp::readTabs()
 	Q_UINT8 beat_bitmask, stroke_bitmask1, stroke_bitmask2, strings, num;
 	Q_INT8 length, volume, pan, chorus, reverb, phase, tremolo;
 	int x;
+
+	currentStage = QString("readTabs");
 
 	TabTrack *trk = song->t.first();
 	for (int tr = 0; tr < numTracks; tr++) {
@@ -368,11 +397,13 @@ void ConvertGtp::readTabs()
 			int numBeats = readDelphiInteger();
 			kdDebug() << "TRACK " << tr << ", BAR " << j << ", numBeats " << numBeats << " (position: " << stream->device()->at() << ")\n";
 
-			if (strongChecks && numBeats > 128)  throw QString("Track %1, bar %2, insane number of beats: %3").arg(tr).arg(j).arg(numBeats);
+			if (numBeats < 0 || (strongChecks && numBeats > 128))  throw QString("Track %1, bar %2, insane number of beats: %3").arg(tr).arg(j).arg(numBeats);
 
 			x = trk->c.size();
 			trk->c.resize(trk->c.size() + numBeats);
-			trk->b[j].time1 = trk->b[j].time2 = 4; // GREYFIX: fixed 4:4 time signature
+			trk->b[j].time1 = bars[j].time1;
+			trk->b[j].time2 = bars[j].time2;
+			trk->b[j].keysig = bars[j].keysig;
 			trk->b[j].start = x;
 
 			for (int k = 0; k < numBeats; k++) {
@@ -386,7 +417,7 @@ void ConvertGtp::readTabs()
 				if (beat_bitmask & 0x40) {
 					(*stream) >> num;        // GREYFIX: pause_kind
 				}
-				
+
 				// Guitar Pro 4 beat lengths are as following:
 				// -2 = 1    => 480     3-l = 5  2^(3-l)*15
 				// -1 = 1/2  => 240           4
@@ -579,11 +610,14 @@ bool ConvertGtp::load(QString fileName)
 	 	readTrackProperties();
 	 	readTabs();
 
-		int ex = readDelphiInteger();            // Exit code: 00 00 00 00
-		if (ex != 0)
-			kdWarning() << "File not ended with 00 00 00 00\n";
-		if (!f.atEnd())
-			kdWarning() << "File not ended - there's more data!\n";
+		currentStage = QString("Exit code");
+		if (!f.atEnd()) {
+			int ex = readDelphiInteger();            // Exit code: 00 00 00 00
+			if (ex != 0)
+				kdWarning() << "File not ended with 00 00 00 00\n";
+			if (!f.atEnd())
+				kdWarning() << "File not ended - there's more data!\n";
+		}
 	} catch (QString msg) {
 		throw
 			i18n("Guitar Pro import error:") + QString("\n") +

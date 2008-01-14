@@ -80,6 +80,11 @@ private:
 	int numBars, numTracks;
 
 	int trackPatch[TRACK_MAX_NUMBER * 2];
+	/**
+	 * Temporary variable to remember bar data, to propagate it on
+	 * all tracks later. GREYFIX: this won't be needed later.
+	 */
+	QMemArray<TabBar> bars;
 
 	QDataStream *stream;
 
