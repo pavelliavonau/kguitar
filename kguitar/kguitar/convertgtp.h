@@ -89,6 +89,13 @@ private:
 	 * messages.
 	 */
 	QString currentStage;
+
+	/**
+	 * Strong sanity checks, enabled by default. Looks for most
+	 * values to lie in reasonable range. Can break loading of very
+	 * specific files, thus it should be possible to turn it off.
+	 */
+	bool strongChecks;
 };
 
 #endif
