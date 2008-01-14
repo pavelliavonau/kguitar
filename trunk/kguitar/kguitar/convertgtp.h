@@ -7,32 +7,32 @@
 class TabSong;
 
 /**
- * Converter to/from Guitar Pro 4 files.
+ * Converter to/from Guitar Pro files.
  *
  * Manages conversions of tabulatures between internal KGuitar
- * structures and GP4 files.
+ * structures and Guitar Pro files.
  */
 class ConvertGtp: public ConvertBase {
 public:
 	/**
 	 * Prepares converter to work, reads all the options, etc.
 	 */
-	ConvertGtp(TabSong *);
+	ConvertGtp(TabSong *song);
 
 	/**
-	 * Called to save current data from TabSong into GP4 tabulature
-	 * format file named fileName.
+	 * Called to save current data from TabSong into Guitar Pro
+	 * tabulature format file named fileName.
 	 */
 	virtual bool save(QString fileName);
 
 	/**
-	 * Called to load data from GP4 tabulature format file named
-	 * fileName into TabSong.
+	 * Called to load data from Guitar Pro tabulature format
+	 * file named fileName into TabSong.
 	 */
 	virtual bool load(QString fileName);
 
 private:
-	bool readSignature();
+	void readSignature();
 	void readSongAttributes();
 	void readTrackDefaults();
 	void readBarProperties();
@@ -66,6 +66,11 @@ private:
 	 */
 	int readDelphiInteger();
 
+	/**
+	 * Version of Guitar Pro file
+	 */
+	int versionMajor, versionMinor;
+
 	enum {
 		TRACK_MAX_NUMBER = 32,
 		LYRIC_LINES_MAX_NUMBER = 5,
@@ -77,6 +82,13 @@ private:
 	int trackPatch[TRACK_MAX_NUMBER * 2];
 
 	QDataStream *stream;
+
+	/**
+	 * Human-readable name of current stage of parsing. Should be
+	 * set by stage starting functions. Used for debugging / error
+	 * messages.
+	 */
+	QString currentStage;
 };
 
 #endif

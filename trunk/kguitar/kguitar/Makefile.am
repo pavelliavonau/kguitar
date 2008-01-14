@@ -1,3 +1,5 @@
+KDE_CXXFLAGS = $(USE_EXCEPTIONS)
+
 # this 10 paths are KDE specific. Use them:
 # kde_htmldir       Where your docs should go to. (contains lang subdirs)
 # kde_appsdir       Where your application file (.kdelnk) should go to.
