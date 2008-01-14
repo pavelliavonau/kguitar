@@ -274,10 +274,14 @@ void ConvertGtp::readBarProperties()
 			time2 = num;
 			kdDebug() << "new time2 signature: " << time1 << ":" << time2 << "\n";
 		}
+		// GREYFIX: new_time_denominator
+		if (bar_bitmask & 0x04) {
+			kdDebug() << "begin repeat\n";
+		}
 		// GREYFIX: number_of_repeats
 		if (bar_bitmask & 0x08) {
 			(*stream) >> num;
-			kdDebug() << "repeat " << (int) num << "x\n";
+			kdDebug() << "end repeat " << (int) num << "x\n";
 		}
 		// GREYFIX: alternative_ending_to
 		if (bar_bitmask & 0x10) {
@@ -310,10 +314,11 @@ void ConvertGtp::readTrackProperties()
 	kdDebug() << "readTrackProperties(): start\n";
 
 	for (int i = 0; i < numTracks; i++) {
+		(*stream) >> num;                    // GREYFIX: simulations bitmask
+
 		song->t.append(new TabTrack(TabTrack::FretTab, 0, 0, 0, 0, 6, 24));
 		TabTrack *trk = song->t.current();
 
-		(*stream) >> num;                    // GREYFIX: simulations bitmask
 		trk->name = readPascalString(40);    // Track name
 		kdDebug() << "Track: " << trk->name << "\n";
 
