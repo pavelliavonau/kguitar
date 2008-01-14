@@ -565,6 +565,7 @@ bool ConvertGtp::load(QString fileName)
 //		song = new TabSong();
 
 		readSignature();
+		song->t.clear();
 		readSongAttributes();
 	 	readTrackDefaults();
 
