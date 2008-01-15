@@ -90,7 +90,7 @@ int TrackPrint::barWidth(int bn, TabTrack *trk)
 {
 	if (onScreen)
 		return 480 * br8w * trk->b[bn].time1 / trk->b[bn].time2 / zoomLevel +
-			tsgfw + nt0fw + ntlfw + (int) (2.5 * br8w);
+			tsgfw + nt0fw + ntlfw + (int) (5.5 * br8w);
 
 	int w = 0;
 	for (uint t = trk->b[bn].start; ((int) t) <= trk->lastColumn(bn); t++)
