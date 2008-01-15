@@ -7,6 +7,7 @@
 #include <qsizepolicy.h>
 #include <qpixmap.h>
 #include <qimage.h>
+#include <qpointarray.h>
 
 #include <kstandarddirs.h>
 
@@ -219,9 +220,32 @@ void Fretboard::drawBackground()
 			}
 			break;
 		case 3: // blocks
-			int h = height() * ((marks[i] == 1) ? 7 : 9) / 10;
-			p.drawRect((int) ((4 * fr[i - 1] + fr[i]) / 5),
-			           (height() - h) / 2, (int) (3 * (fr[i] - fr[i - 1]) / 5), h);
+			{
+				int h = height() * ((marks[i] == 1) ? 7 : 9) / 10;
+				p.drawRect((int) ((4 * fr[i - 1] + fr[i]) / 5),
+				           (height() - h) / 2, (int) (3 * (fr[i] - fr[i - 1]) / 5), h);
+			}
+			break;
+		case 4: // trapezoids
+			{
+				QPointArray ar(4);
+				int h1, h2;
+				if (marks[i] == 1) {
+					h1 = height() * 2 / 3;
+					h2 = height() * 7 / 10;
+				} else {
+					h1 = height() * 8 / 10;
+					h2 = height() * 9 / 10;
+				}
+				int x1 = (int) (1 * (fr[i] - fr[i - 1]) / 5 + fr[i - 1]);
+				int x2 = (int) (4 * (fr[i] - fr[i - 1]) / 5 + fr[i - 1]);
+				ar.putPoints(0, 4, x1, h1, x2, h2, x2, height() - h2, x1, height() - h1);
+				p.drawPolygon(ar);
+			}
+			break;
+		case 5: // shark fins
+			QPointArray ar(3);
+			p.drawPolygon(ar);
 			break;
 		}
 	}
