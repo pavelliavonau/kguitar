@@ -40,6 +40,7 @@ OptionsMelodyEditor::OptionsMelodyEditor(KConfig *conf, QWidget *parent, const c
 	inlay[2] = new QRadioButton(i18n("Side dots"), inlayGroup);
 	inlay[3] = new QRadioButton(i18n("Blocks"), inlayGroup);
 	inlay[4] = new QRadioButton(i18n("Trapezoid"), inlayGroup);
+	inlay[5] = new QRadioButton(i18n("Shark fin"), inlayGroup);
 
 	inlayGroup->setButton(Settings::melodyEditorInlay());
 

@@ -244,8 +244,13 @@ void Fretboard::drawBackground()
 			}
 			break;
 		case 5: // shark fins
-			QPointArray ar(3);
-			p.drawPolygon(ar);
+			{
+				QPointArray ar(3);
+				int x1 = (int) (1 * (fr[i] - fr[i - 1]) / 8 + fr[i - 1]);
+				int x2 = (int) (7 * (fr[i] - fr[i - 1]) / 8 + fr[i - 1]);
+				ar.putPoints(0, 3, x1, height() / 8, x2, height() / 8, x1, height() * 7 / 8);
+				p.drawPolygon(ar);
+			}
 			break;
 		}
 	}

@@ -20,7 +20,7 @@ public slots:
 
 private:
 	QButtonGroup *inlayGroup, *woodGroup;
-	QRadioButton *inlay[5], *wood[4];
+	QRadioButton *inlay[6], *wood[4];
 	QComboBox *mouseAction[3];
 	QCheckBox *mouseAdvance[3];
 };
