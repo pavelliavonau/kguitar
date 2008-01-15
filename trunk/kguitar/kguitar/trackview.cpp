@@ -482,10 +482,7 @@ void TrackView::paintCell(QPainter *p, int r, int c)
 	int selx2coord = -1;
 	selxcoord = -1;
 	
-	if (bn >= curt->b.size()) {
-		kdDebug() << "Drawing the bar out of limits!" << endl;
-		return;
-	}
+	if (bn >= curt->b.size())  return;
 
 	trp->setPainter(p);
 	// LVIFIX: initmetrics may be expensive but depends on p, init only once ?
@@ -527,11 +524,11 @@ void TrackView::paintCell(QPainter *p, int r, int c)
 
 	// DEBUG: DRAW VARIOUS GUIDE BORDERS
 
-// 	p->setBrush(NoBrush);
-// 	p->setPen(red);
-// 	p->drawRect(cellRect());
-// 	p->setPen(blue);
-// 	p->drawRect(0, TOPSPTB * trp->ysteptb, cellWidth(), curt->string * trp->ysteptb);
+//	p->setBrush(NoBrush);
+//	p->setPen(red);
+//	p->drawRect(cellRect());
+//	p->setPen(blue);
+//	p->drawRect(0, TOPSPTB * trp->ysteptb, cellWidth(), curt->string * trp->ysteptb);
 
 	// DRAW SELECTION
 
