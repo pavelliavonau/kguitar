@@ -714,6 +714,10 @@ void TrackPrint::drawBar(int bn, TabTrack *trk, int es, int& sx, int& sx2)
 	// space after last note
 	if (! onScreen) {
 		xpos += ntlfw;
+	} else {
+		int bw = barWidth(bn, trk);
+		if (xpos >= bw)
+			xpos = bw - 1;
 	}
 
 	// end bar
@@ -746,8 +750,10 @@ void TrackPrint::drawBarLns(int w, TabTrack *trk)
 	const int lstStr = trk->string - 1;
 	// vertical lines at xpos and xpos+w-1
 	p->setPen(pLnBl);
-	p->drawLine(xpos, ypostb, xpos, ypostb - lstStr * ysteptb);
-	p->drawLine(xpos + w - 1, ypostb, xpos + w - 1, ypostb - lstStr * ysteptb);
+	if (!onScreen) {
+		p->drawLine(xpos, ypostb, xpos, ypostb - lstStr * ysteptb);
+		p->drawLine(xpos + w - 1, ypostb, xpos + w - 1, ypostb - lstStr * ysteptb);
+	}
 	// horizontal lines from xpos to xpos+w-1
 	for (int i = 0; i < lstStr+1; i++) {
 		p->drawLine(xpos, ypostb - i * ysteptb,
