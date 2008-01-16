@@ -27,21 +27,21 @@ Remember, the tags look like "rel0-1".
 	configure.in.in
 	VERSION
 
+* Generate a cvslog file to help with ChangeLog writing
+
+	svn log -r{lastrelease}:HEAD >cvslog
+
+* Make a ChangeLog release entry, based on result cvslog file.
+
 * Commit everything to CVS repository
 
 * Tag everything in CVS with a new release tag
 
-	cvs tag -R rel{version}-{number} .
-
-* Generate a cvslog file to help with ChangeLog writing
-
-	cvs log -r{lastrelease}:{currentrelease} >cvslog
-
-* Make a ChangeLog release entry, based on result cvslog file.
+	svn copy -m "Released {major}.{minor}" https://kguitar.svn.sourceforge.net/svnroot/kguitar/trunk https://kguitar.svn.sourceforge.net/svnroot/kguitar/tags/rel{major}-{minor}
 
 * Export everything from CVS, add the new ChangeLog
 
-	cvs -z9 -d username@cvs.sourceforge.net:/cvsroot/kguitar export -r rel{version}-{number} kguitar
+	svn export https://kguitar.svn.sourceforge.net/svnroot/kguitar/tags/rel{major}-{minor}
 
 * Clean up CVS files and prepare a distribution:
 
