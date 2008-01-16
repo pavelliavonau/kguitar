@@ -1,3 +1,36 @@
+2008-01-06 Mikhail Yakshin <greycat@users.sourceforge.net>
+
+	* Release 0.5.1
+
+	* A mostly major bug-fix release since the last time.
+	
+	* Compatiblity fixes: added support for autoconf 2.61, automake
+	1.10, gcc 4.2. Removed last bits of qt2->qt3 transition
+	deprecations. Internal structures refactoring.
+
+	* Added zoom level (Ctrl Minus, Ctrl Plus), introducing multiple
+	bars per row, automatically tuning to available window width;
+
+	* Finally introduced new exception-based framework for converters
+	load/save. Makes converters much more bullet-proof and easier to
+	write and debug.
+
+	* Guitar Pro import undergone major rewrite. Now it properly loads
+	all gp4 files I have. Guitar Pro v3 and v5 formats are coming
+	next. Anyway, Guitar Pro loader is now much more helpful about
+	what errors it gets and less crash-prone. It detects and helps
+	debug problems it encounters.
+
+	* Lots of displaying, mouse and keyboard control, printing fixes
+	and prettifying. Track pane now has a header and it's synchronized
+	with track list. Melody editor now has trapezoid and shark fin
+	inlays.
+
+	* New QMap-based API for song metainformation - stores not a fixed
+	number of fields, but key=value pairs.
+
+	* Misc things: project transitioned to Subversion.
+
 2005-03-28 Mikhail Yakshin <greycat@users.sourceforge.net>
 
 	* Release 0.5
