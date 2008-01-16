@@ -1,0 +1,10 @@
+<!DOCTYPE kpartgui SYSTEM "kpartgui.dtd">
+<kpartgui name="kguitar_shell" version="1">
+<MenuBar>
+	<Merge/>
+</MenuBar>
+<ToolBar noMerge="1" name="mainToolBar"><text>Main Toolbar</text>
+	<Action name="file_new"/>
+	<Action name="file_open" />
+</ToolBar>
+</kpartgui>
