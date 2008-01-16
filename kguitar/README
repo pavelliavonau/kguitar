@@ -1,7 +1,7 @@
                                KGuitar
                        A KDE tabulature editor
 
-              (C) 2001-2003 by KGuitar development team
+              (C) 2000-2008 by KGuitar development team
      Current maintainer - GreyCat <greycat@users.sourceforge.net>
 
 KGuitar is basically a guitar tabulature editor for K Desktop
@@ -27,10 +27,10 @@ programs' format, such as Guitar Pro's or TablEdit;
 lyrics and other MIDI events.
 
 
-Well, right now KGuitar is in very alpha state and doesn't support
+Well, right now KGuitar is in development state and doesn't support
 everything stated. However, it already features a nice tabulature
-editor, though not ultimately powerful, loading/saving its own format (kg
-files) and all the chord construction tools.
+editor, though not ultimately powerful, loading/saving its own format
+(kg files) and all the chord construction tools.
 
 As the KDE style docs are still not available, I'd try to give some
 directions on usage of KGuitar here:
