@@ -126,6 +126,7 @@ TrackView::TrackView(TabSong *s, KXMLGUIClient *_XMLGUIClient, KCommandHistory *
 	trp->pLnWh = QPen(Qt::white, lw);
 	trp->zoomLevel = 10;
 
+
 	updateRows();		// depends on trp's font metrics
 }
 
@@ -139,9 +140,14 @@ TrackView::~TrackView()
 
 void TrackView::initFonts(QFont *f4, QFont *f5)
 {
+	kdDebug() << "TrackView::initFonts\n";
 	fetaFont   = f4;
 	fetaNrFont = f5;
 	trp->initFonts(normalFont, smallCaptionFont, timeSigFont, fetaFont, fetaNrFont);
+
+	QPainter paint(this);
+	trp->setPainter(&paint);
+	trp->initMetrics();
 }
 
 int TrackView::rowBar(int bar)
@@ -486,7 +492,7 @@ void TrackView::paintCell(QPainter *p, int r, int c)
 
 	trp->setPainter(p);
 	// LVIFIX: initmetrics may be expensive but depends on p, init only once ?
-	trp->initMetrics();
+//	trp->initMetrics();
 	// LVIFIX: do following calculations for the current bar only
 	curt->calcVoices();
 	curt->calcStepAltOct();
@@ -1287,7 +1293,7 @@ void TrackView::insertTab(int num)
 	if (curt->c[curt->x].flags & FLAG_ARC)
 		curt->c[curt->x].flags -= FLAG_ARC;
 
-    // Allow making two-digit fret numbers pressing two keys sequentally
+	// Allow making two-digit fret numbers pressing two keys sequentally
 	if ((lastnumber != -1) && (lastnumber * 10 + num <= curt->frets)) {
 		totab = lastnumber * 10 + num;
 		lastnumber = -1;
@@ -1407,10 +1413,10 @@ void TrackView::setX(int x)
 
 void TrackView::setPlaybackCursor(bool pc)
 {
-    playbackCursor = pc;
+	playbackCursor = pc;
 	repaintContents();
 }
-	
+
 void TrackView::viewScore(bool on)
 {
 //	cout << "TrackView::viewScore(on=" << on << ")" << endl;
