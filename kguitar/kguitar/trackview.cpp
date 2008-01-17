@@ -1396,6 +1396,8 @@ void TrackView::mousePressEvent(QMouseEvent *e)
 
 void TrackView::setX(int x)
 {
+	if (curt->x == x)  return;
+
 	if (x < (int) curt->c.size()) {
 		curt->x = x;
 		int oldxb = curt->xb;
