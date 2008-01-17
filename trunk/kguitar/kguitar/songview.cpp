@@ -585,6 +585,6 @@ void SongView::print(KPrinter *printer)
 void SongView::playbackColumn(int track, int x)
 {
  	TabTrack *trk = m_song->t.at(track);
-	if (tv->trk() == trk)
+	if (tv->trk() == trk && trk->x != x)
 		tv->setX(x);
 }

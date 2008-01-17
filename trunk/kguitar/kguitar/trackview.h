@@ -200,7 +200,7 @@ private:
 	void setLength(int l);
 	int horizDelta(uint n);
 	void insertTab(int num);
-    void melodyEditorAction(int num, int fret, int action);
+	void melodyEditorAction(int num, int fret, int action);
 
 	void moveLeft();
 	void moveRight();
