@@ -12,6 +12,7 @@ class KToggleAction;
 class KCommandHistory;
 class KAccel;
 class KAboutData;
+class ConvertBase;
 
 /**
  * KGuitar KPart - main class of application, uses everything else.
@@ -73,6 +74,12 @@ private:
 	void readMidiNames();
 
 	bool exportOptionsDialog(QString ext);
+
+	/**
+	 * Instantiate appropriate converter for file, determining type
+	 * by extension.
+	 */
+	ConvertBase* converterForExtension(QString ext, TabSong *song);
 
 	/**
 	 * Main widget - the song view. Accessible from other places with

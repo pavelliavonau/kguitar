@@ -154,16 +154,7 @@ bool KGuitarPart::openFile()
 	QString ext = fi.extension();
 	ext = ext.lower();
 
-	ConvertBase *converter = NULL;
-
-	if (ext == "kg")   converter = new ConvertKg(sv->song());
-	if (ext == "tab")  converter = new ConvertAscii(sv->song());
-#ifdef WITH_TSE3
-	if (ext == "mid")  converter = new ConvertMidi(sv->song());
-#endif
-	if (ext == "gp4")  converter = new ConvertGtp(sv->song());
-	if (ext == "gp3")  converter = new ConvertGp3(sv->song());
-	if (ext == "xml")  converter = new ConvertXml(sv->song());
+	ConvertBase *converter = converterForExtension(ext, sv->song());
 
 	try {
 		if (converter)  success = converter->load(m_file);
@@ -224,10 +215,29 @@ bool KGuitarPart::exportOptionsDialog(QString ext)
 	return res;
 }
 
+ConvertBase* KGuitarPart::converterForExtension(QString ext, TabSong *song)
+{
+	ConvertBase *converter = NULL;
+
+	if (ext == "kg")   converter = new ConvertKg(song);
+	if (ext == "tab")  converter = new ConvertAscii(song);
+#ifdef WITH_TSE3
+	if (ext == "mid")  converter = new ConvertMidi(song);
+#endif
+	if (ext == "gtp" || ext == "gp3" || ext == "gp4" || ext == "gp5")  converter = new ConvertGtp(song);
+	if (ext == "xml")  converter = new ConvertXml(song);
+
+	if (converter) {
+		return converter;
+	} else {
+		throw i18n("Unable to handle file type \"%1\"").arg(ext);
+	}
+}
+
 // Reimplemented method from KParts to current song to file m_file
 bool KGuitarPart::saveFile()
 {
-    // if we aren't read-write, return immediately
+	// if we aren't read-write, return immediately
 	if (isReadWrite() == false)
 		return false;
 
