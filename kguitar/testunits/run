@@ -1,0 +1,35 @@
+#!/bin/sh
+
+test_files()
+{
+	echo "======== Testing: $SUBDIR"
+	mkdir -p "$SUBDIR/answer" "$SUBDIR/benchmark" "$SUBDIR/reference" "$SUBDIR/log"
+
+	for ORIGINAL in $SUBDIR/original/*; do
+		[ ! -r "$ORIGINAL" ] && continue
+
+		TN=`basename "$ORIGINAL" | sed 's/\..*//'`
+		OUT="$SUBDIR/answer/$TN.kg"
+		REFERENCE="$SUBDIR/reference/$TN.kg"
+#		echo $ORIGINAL:$OUT:$REFERENCE
+
+		printf '%-40s' "$TN"
+		time -v -o "$SUBDIR/benchmark/$TN" kguitar "$ORIGINAL" --save-as "$OUT" >"$SUBDIR/log/$TN" 2>&1
+
+		# No reference yet
+		if [ ! -r "$REFERENCE" ]; then
+			echo 'N/A'
+			continue
+		fi
+
+		if diff "$OUT" "$REFERENCE"; then
+			echo -n 'OK	'
+		else
+			echo -n 'FAILED	'
+		fi
+		sed -ne '/Elapsed/ { s/^.*: //; p }' <"$SUBDIR/benchmark/$TN"
+	done
+}
+
+SUBDIR=gp4 test_files
+SUBDIR=gp3 test_files
