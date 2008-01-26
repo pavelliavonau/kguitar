@@ -186,25 +186,25 @@ bool KGuitarPart::openFile()
 
 bool KGuitarPart::exportOptionsDialog(QString ext)
 {
-	// Skip dialog if user set appropriate option
-	if (!Settings::config->readBoolEntry("AlwaysShow", TRUE))
-		return TRUE;
-
+	OptionsPage *op;
 	KDialogBase opDialog(0, 0, TRUE, i18n("Additional Export Options"),
 	                     KDialogBase::Help|KDialogBase::Default|
 	                     KDialogBase::Ok|KDialogBase::Cancel, KDialogBase::Ok);
 
 	QVBox *box = opDialog.makeVBoxMainWidget();
 
-	OptionsPage *op;
-
 	if (ext == "tab") {
 		op = new OptionsExportAscii(Settings::config, (QFrame *) box);
 	} else if (ext == "tex") {
 		op = new OptionsExportMusixtex(Settings::config, (QFrame *) box);
 	} else {
-		kdWarning() << "Weird exportOptionsDialog() call! Wrong extension " << ext << endl;
-		return FALSE;
+		return TRUE;
+	}
+
+	// Skip the dialog if a user has set the appropriate option
+	if (!Settings::config->readBoolEntry("AlwaysShow", TRUE)) {
+		delete op;
+		return TRUE;
 	}
 
 	connect(&opDialog, SIGNAL(defaultClicked()), op, SLOT(defaultBtnClicked()));
@@ -223,10 +223,11 @@ ConvertBase* KGuitarPart::converterForExtension(QString ext, TabSong *song)
 	if (ext == "tab")  converter = new ConvertAscii(song);
 #ifdef WITH_TSE3
 	if (ext == "mid")  converter = new ConvertMidi(song);
+	if (ext == "tse3")  converter = new ConvertTse3(song);
 #endif
 	if (ext == "gtp" || ext == "gp3" || ext == "gp4" || ext == "gp5")  converter = new ConvertGtp(song);
 	if (ext == "xml")  converter = new ConvertXml(song);
-
+	if (ext == "tex")  converter = new ConvertTex(song);
 	if (converter) {
 		return converter;
 	} else {
@@ -253,49 +254,23 @@ bool KGuitarPart::saveFile()
 
 	bool success = FALSE;
 
-	if (ext == "kg") {
-		sv->tv->arrangeBars(); // GREYFIX !
-		ConvertKg converter(sv->song());
-		success = converter.save(m_file);
-	}
-	if (ext == "tab") {
-		Settings::config->setGroup("ASCII");
+	try {
 		if (exportOptionsDialog(ext)) {
-			ConvertAscii converter(sv->song());
-			success = converter.save(m_file);
+			ConvertBase *converter = converterForExtension(ext, sv->song());
+			if (converter)  success = converter->save(m_file);
 		} else {
 			return FALSE;
 		}
-	}
-#ifdef WITH_TSE3
-	if (ext == "mid") {
-		ConvertMidi converter(sv->song());
-		success = converter.save(m_file);
-	}
-	if (ext == "tse3") {
-		ConvertTse3 converter(sv->song());
-		success = converter.save(m_file);
-	}
-#endif
-	if (ext == "gp4") {
-		ConvertGtp converter(sv->song());
-		success = converter.save(m_file);
-	}
-	if (ext == "gp3") {
-		ConvertGp3 converter(sv->song());
-		success = converter.save(m_file);
-	}
-	if (ext == "tex") {
-		if (exportOptionsDialog(ext)) {
-			ConvertTex converter(sv->song());
-			success = converter.save(m_file);
-		} else {
-			return FALSE;
-		}
-	}
-	if (ext == "xml") {
-		ConvertXml converter(sv->song());
-		success = converter.save(m_file);
+	} catch (QString msg) {
+		kdDebug() << "Converter failed with message \"" << msg << "\"\n";
+		KMessageBox::sorry(0, msg, i18n("Loading failed"));
+
+		sv->song()->t.clear();
+		sv->song()->t.append(new TabTrack(TabTrack::FretTab, i18n("Guitar"), 1, 0, 25, 6, 24));
+		sv->refreshView();
+		cmdHist->clear();
+
+		return FALSE;
 	}
 
 	if (success) {
