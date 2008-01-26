@@ -213,38 +213,53 @@ void ConvertGtp::readSongAttributes()
 	currentStage = QString("readSongAttributes: shuffle rhythm feel");
 	(*stream) >> num;                        // GREYFIX: Shuffle rhythm feel
 
-	currentStage = QString("readSongAttributes: lyrics");
-	// Lyrics
-	readDelphiInteger();                     // GREYFIX: Lyric track number start
-	for (int i = 0; i < LYRIC_LINES_MAX_NUMBER; i++) {
-		readDelphiInteger();                 // GREYFIX: Start from bar
-		readWordPascalString();              // GREYFIX: Lyric line
+	if (versionMajor >= 4) {
+		currentStage = QString("readSongAttributes: lyrics");
+		// Lyrics
+		readDelphiInteger();                     // GREYFIX: Lyric track number start
+		for (int i = 0; i < LYRIC_LINES_MAX_NUMBER; i++) {
+			readDelphiInteger();                 // GREYFIX: Start from bar
+			readWordPascalString();              // GREYFIX: Lyric line
+		}
 	}
 
 	currentStage = QString("readSongAttributes: tempo");
 	song->tempo = readDelphiInteger();       // Tempo
+	kdDebug() << "tempo: " << song->tempo << "\n";
 
-	stream->readRawBytes(garbage, 5);        // Mysterious bytes
+	if (versionMajor >= 4) {
+		(*stream) >> num;                // GREYFIX: key
+		readDelphiInteger();             // GREYFIX: octave
+	} else {
+		readDelphiInteger();             // GREYFIX: key
+	}
 }
 
 void ConvertGtp::readTrackDefaults()
 {
-	Q_UINT8 num;
+	Q_UINT8 num, volume, pan, chorus, reverb, phase, tremolo;
 	currentStage = QString("readTrackDefaults");
 
 	for (int i = 0; i < TRACK_MAX_NUMBER * 2; i++) {
 		trackPatch[i] = readDelphiInteger(); // MIDI Patch
-		(*stream) >> num;                    // GREYFIX: volume
-		(*stream) >> num;                    // GREYFIX: pan
-		(*stream) >> num;                    // GREYFIX: chorus
-		(*stream) >> num;                    // GREYFIX: reverb
-		(*stream) >> num;                    // GREYFIX: phase
-		(*stream) >> num;                    // GREYFIX: tremolo
+		(*stream) >> volume;                 // GREYFIX: volume
+		(*stream) >> pan;                    // GREYFIX: pan
+		(*stream) >> chorus;                 // GREYFIX: chorus
+		(*stream) >> reverb;                 // GREYFIX: reverb
+		(*stream) >> phase;                  // GREYFIX: phase
+		(*stream) >> tremolo;                // GREYFIX: tremolo
+		kdDebug() << "=== TrackDefaults: " << i <<
+			" (patch=" << trackPatch[i] <<
+			" vol=" << (int) volume <<
+			" p=" << (int) pan <<
+			" c=" << (int) chorus <<
+			" ph=" << (int) phase <<
+			" tr=" << (int) tremolo << "\n";
 
 		(*stream) >> num;                    // 2 byte padding: must be 00 00
-		if (num != 0)  throw QString("1 of 2 byte padding: there is %1, must be 0").arg(num);
+		if (num != 0)  kdDebug() << QString("1 of 2 byte padding: there is %1, must be 0\n").arg(num);
 		(*stream) >> num;
-		if (num != 0)  throw QString("2 of 2 byte padding: there is %1, must be 0").arg(num);
+		if (num != 0)  kdDebug() << QString("2 of 2 byte padding: there is %1, must be 0\n").arg(num);
 	}
 }
 
@@ -361,13 +376,13 @@ void ConvertGtp::readTrackProperties()
 		color = readDelphiInteger();         // GREYFIX: Color
 
 		kdDebug() <<
-			"MIDI #" << trk->channel << "/" << midiChannel2 << ", " <<
-			trk->string << " strings, " <<
-			trk->frets << " frets, capo " <<
+			"MIDI #" << trk->channel << "/" << (int) midiChannel2 << ", " <<
+			(int) trk->string << " strings, " <<
+			(int) trk->frets << " frets, capo " <<
 			capo << "\n";
 
 		if (trk->frets <= 0 || (strongChecks && trk->frets > 100))  throw QString("Track %1: insane number of frets (%2)\n").arg(i).arg(trk->frets);
-		if (trk->channel < 0 || trk->channel > 16)  throw QString("Track %1: insane MIDI channel 1 (%2)\n").arg(i).arg(trk->channel);
+		if (trk->channel > 16)  throw QString("Track %1: insane MIDI channel 1 (%2)\n").arg(i).arg(trk->channel);
 		if (midiChannel2 < 0 || midiChannel2 > 16)  throw QString("Track %1: insane MIDI channel 2 (%2)\n").arg(i).arg(midiChannel2);
 
 		// Fill remembered values from defaults
@@ -601,9 +616,11 @@ bool ConvertGtp::load(QString fileName)
 	 	readTrackDefaults();
 
 	 	numBars = readDelphiInteger();           // Number of bars
-	 	numTracks = readDelphiInteger();         // Number of tracks
-
+		if (numBars <= 0 || (strongChecks && numBars > 16384))  throw QString("Insane number of bars: %1").arg(numBars);
 		kdDebug() << "Bars: " << numBars << "\n";
+
+	 	numTracks = readDelphiInteger();         // Number of tracks
+		if (numTracks <= 0 || (strongChecks && numTracks > 32))  throw QString("Insane number of tracks: %1").arg(numTracks);
 		kdDebug() << "Tracks: " << numTracks << "\n";
 
 	 	readBarProperties();
