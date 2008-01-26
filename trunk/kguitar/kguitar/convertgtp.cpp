@@ -475,7 +475,7 @@ void ConvertGtp::readTabs()
 						(*stream) >> num;      // GREYFIX: stroke pick direction
 					}
 				}
-				
+
 				if (beat_bitmask & 0x10) {     // mixer variations
 					(*stream) >> num;          // GREYFIX: new MIDI patch
 					(*stream) >> volume;       // GREYFIX: new
@@ -494,9 +494,11 @@ void ConvertGtp::readTabs()
 					if (tremolo != -1)  (*stream) >> num;
 					if (tempo != -1)    (*stream) >> num;
 
-					(*stream) >> num;          // padding
+					if (versionMajor >= 4) {
+						(*stream) >> num;          // bitmask: what should be applied to all tracks
+					}
 				}
-				
+
 				(*stream) >> strings;          // used strings mask
 				
 				for (int y = STRING_MAX_NUMBER - 1; y >= 0; y--) {
