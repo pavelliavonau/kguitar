@@ -1,0 +1,28 @@
+This is directory contains a tiny test unit system for KGuitar, used to
+test file open/save converters. It's mostly interesting for developers,
+not for end-users.
+
+The basic idea is take a lot of original files in various foreign
+formats (.gtp, .gp3, .gp4, .gp5, .ptb, etc), open them in KGuitar,
+re-save as KGuitar original format (.kg) and compare the result with the
+reference .kg file.
+
+== Structure ==
+
+Test units have the following structure. Every directory corresponds to
+test unit (a group of tests, usually grouped by particular file format
+to test one particular converter). Every directory of test unit includes
+subdirectories:
+
+* original - a place for original files (for example, .gp4)
+* reference - a place for reference .kg files
+* answer - a place that will be populated by results of conversion
+* benchmark - a place for benchmarks of conversion process
+* log - a place for logs of conversion
+
+Everything except "original" and "reference" would be created
+automatically in test run.
+
+== Running ==
+
+The simplest part. Just run shell script named "run".
