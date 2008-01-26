@@ -7,9 +7,11 @@
 #include <kaboutdata.h>
 #include <kcmdlineargs.h>
 #include <klocale.h>
+#include <kdebug.h>
 
 static KCmdLineOptions options[] = {
 	{ "+[URL]", I18N_NOOP("Document to open."), 0 },
+	{ "save-as <URL>", I18N_NOOP("Save document to a file (possibly converting) and quit immediately."), 0 },
 	KCmdLineLastOption
 };
 
@@ -45,6 +47,8 @@ int main(int argc, char **argv)
 
 	KApplication app;
 
+	QCString saveFile = 0;
+
 	// see if we are starting with session management
 	if (app.isRestored()) {
 		RESTORE(KGuitar)
@@ -52,18 +56,32 @@ int main(int argc, char **argv)
 		// no session.. just start up normally
 		KCmdLineArgs *args = KCmdLineArgs::parsedArgs();
 
+		// handle conversion
+		saveFile = args->getOption("save-as");
+
 		if (args->count() == 0)  {
 			KGuitar *widget = new KGuitar;
 			widget->show();
 		} else {
 			for (int i = 0; i < args->count(); i++) {
 				KGuitar *widget = new KGuitar;
-				widget->show();
 				widget->load(args->url(i));
+
+				if (saveFile) {
+					kdDebug() << "Saving as " << saveFile << "...\n";
+					widget->saveURL(args->makeURL(saveFile));
+				} else {
+					widget->show();
+				}
 			}
 		}
 		args->clear();
 	}
 
-	return app.exec();
+	// quit if called just for conversion
+	if (saveFile) {
+		return 0;
+	} else {
+		return app.exec();
+	}
 }
