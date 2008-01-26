@@ -188,7 +188,6 @@ void ConvertGtp::readSignature()
 void ConvertGtp::readSongAttributes()
 {
 	QString s;
-	char garbage[10];
 
 	Q_UINT8 num;
 
@@ -565,7 +564,12 @@ void ConvertGtp::readNote(TabTrack *trk, int x, int y)
 
 	if (note_bitmask & 0x08) {
 		(*stream) >> mod_mask1;
-		(*stream) >> mod_mask2;
+		if (versionMajor >= 4) {
+			(*stream) >> mod_mask2;
+			kdDebug() << "note mod: mask1=" << mod_mask1 << " mask2=" << mod_mask2 << "\n";
+		} else {
+			kdDebug() << "note mod: mask1=" << mod_mask1 << "\n";
+		}
 		if (mod_mask1 & 0x01) {
 			readChromaticGraph();            // GREYFIX: bend graph
 		}
@@ -579,23 +583,25 @@ void ConvertGtp::readNote(TabTrack *trk, int x, int y)
 			(*stream) >> num;                // GREYFIX: grace transition
 			(*stream) >> num;                // GREYFIX: grace length
 		}
-		if (mod_mask2 & 0x01)                // staccato - we do palm mute
-			trk->c[x].flags |= FLAG_PM;
-		if (mod_mask2 & 0x02)                // palm mute - we mute the whole column
-			trk->c[x].flags |= FLAG_PM;
-		if (mod_mask2 & 0x04) {              // GREYFIX: tremolo
-			(*stream) >> num;                // GREYFIX: tremolo picking length
-		}
-		if (mod_mask2 & 0x08) {              // slide
-			trk->c[x].e[y] |= EFFECT_SLIDE;
-			(*stream) >> num;                // GREYFIX: slide kind
-		}
-		if (mod_mask2 & 0x10) {              // GREYFIX: harmonic
-			(*stream) >> num;                // GREYFIX: harmonic kind
-		}
-		if (mod_mask2 & 0x20) {              // GREYFIX: trill
-			(*stream) >> num;                // GREYFIX: trill fret
-			(*stream) >> num;                // GREYFIX: trill length
+		if (versionMajor >= 4) {
+			if (mod_mask2 & 0x01)                // staccato - we do palm mute
+				trk->c[x].flags |= FLAG_PM;
+			if (mod_mask2 & 0x02)                // palm mute - we mute the whole column
+				trk->c[x].flags |= FLAG_PM;
+			if (mod_mask2 & 0x04) {              // GREYFIX: tremolo
+				(*stream) >> num;                // GREYFIX: tremolo picking length
+			}
+			if (mod_mask2 & 0x08) {              // slide
+				trk->c[x].e[y] |= EFFECT_SLIDE;
+				(*stream) >> num;                // GREYFIX: slide kind
+			}
+			if (mod_mask2 & 0x10) {              // GREYFIX: harmonic
+				(*stream) >> num;                // GREYFIX: harmonic kind
+			}
+			if (mod_mask2 & 0x20) {              // GREYFIX: trill
+				(*stream) >> num;                // GREYFIX: trill fret
+				(*stream) >> num;                // GREYFIX: trill length
+			}
 		}
 	}
 }
