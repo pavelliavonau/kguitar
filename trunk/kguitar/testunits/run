@@ -13,8 +13,8 @@ test_files()
 		REFERENCE="$SUBDIR/reference/$TN.kg"
 #		echo $ORIGINAL:$OUT:$REFERENCE
 
-		printf '%-40s' "$TN"
-		time -v -o "$SUBDIR/benchmark/$TN" kguitar "$ORIGINAL" --save-as "$OUT" >"$SUBDIR/log/$TN" 2>&1
+		printf '%-64s' "$TN"
+		time -v -o "$SUBDIR/benchmark/$TN" kguitar --nocrashhandler "$ORIGINAL" --save-as "$OUT" >"$SUBDIR/log/$TN" 2>&1
 
 		# No reference yet
 		if [ ! -r "$REFERENCE" ]; then
