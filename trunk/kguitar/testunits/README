@@ -25,4 +25,6 @@ automatically in test run.
 
 == Running ==
 
-The simplest part. Just run shell script named "run".
+The simplest part. Just run shell script named "run" to run all tests,
+or pass a list of test units as command-line arguments to run specific
+units.
