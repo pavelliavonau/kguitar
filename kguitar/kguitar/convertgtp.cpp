@@ -528,16 +528,16 @@ void ConvertGtp::readColumnEffects(TabTrack *trk, int x)
 		(*stream) >> num;
 		switch (num) {
 		case 0:                    // GREYFIX: tremolo bar
-			readDelphiInteger();
+			if (versionMajor < 4)  readDelphiInteger();
 			break;
 		case 1:                    // GREYFIX: tapping
-			readDelphiInteger(); // ?
+			if (versionMajor < 4)  readDelphiInteger(); // ?
 			break;
 		case 2:                    // GREYFIX: slapping
-			readDelphiInteger(); // ?
+			if (versionMajor < 4)  readDelphiInteger(); // ?
 			break;
 		case 3:                    // GREYFIX: popping
-			readDelphiInteger(); // ?
+			if (versionMajor < 4)  readDelphiInteger(); // ?
 			break;
 		default:
 			throw QString("Unknown string torture effect: %1").arg(num);
