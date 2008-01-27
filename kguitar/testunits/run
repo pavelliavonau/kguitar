@@ -31,5 +31,12 @@ test_files()
 	done
 }
 
-SUBDIR=gp4 test_files
-SUBDIR=gp3 test_files
+if [ -n "$1" ]; then
+	while [ -n "$1" ]; do
+		SUBDIR=$1 test_files
+		shift
+	done
+else
+	SUBDIR=gp4 test_files
+	SUBDIR=gp3 test_files
+fi
