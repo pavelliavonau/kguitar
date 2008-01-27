@@ -392,7 +392,7 @@ void ConvertGtp::readTrackProperties()
 
 void ConvertGtp::readTabs()
 {
-	Q_UINT8 beat_bitmask, stroke_bitmask1, stroke_bitmask2, strings, num;
+	Q_UINT8 beat_bitmask, strings, num;
 	Q_INT8 length, volume, pan, chorus, reverb, phase, tremolo;
 	int x;
 
@@ -458,22 +458,9 @@ void ConvertGtp::readTabs()
 					kdDebug() << "Text: " << readDelphiString() << "\n"; // GREYFIX: text with a beat
 				}
 				
-				// GREYFIX: stroke bitmasks
-				if (beat_bitmask & 0x08) {
-					(*stream) >> stroke_bitmask1;
-					(*stream) >> stroke_bitmask2;
-					if (stroke_bitmask1 & 0x20)
-						(*stream) >> num;      // GREYFIX: string torture
-					if (stroke_bitmask2 & 0x04)
-						readChromaticGraph();  // GREYFIX: tremolo graph
-					if (stroke_bitmask1 & 0x40) {
-						(*stream) >> num;      // GREYFIX: down stroke length
-						(*stream) >> num;      // GREYFIX: up stroke length
-					}
-					if (stroke_bitmask2 & 0x02) {
-						(*stream) >> num;      // GREYFIX: stroke pick direction
-					}
-				}
+				// GREYFIX: column-wide effects
+				if (beat_bitmask & 0x08)
+					readColumnEffects(trk, x);
 
 				if (beat_bitmask & 0x10) {     // mixer variations
 					(*stream) >> num;          // GREYFIX: new MIDI patch
@@ -525,12 +512,72 @@ void ConvertGtp::readTabs()
 	}
 }
 
+void ConvertGtp::readColumnEffects(TabTrack *trk, int x)
+{
+	Q_UINT8 fx_bitmask1 = 0, fx_bitmask2 = 0, num;
+
+	(*stream) >> fx_bitmask1;
+	if (versionMajor >= 4) {
+		(*stream) >> fx_bitmask2;
+		kdDebug() << "column-wide fx: " << (int) fx_bitmask1 << "/" << (int) fx_bitmask2 << "\n";
+	} else {
+		kdDebug() << "column-wide fx: " << (int) fx_bitmask1 << "\n";
+	}
+
+	if (fx_bitmask1 & 0x20) {      // GREYFIX: string torture
+		(*stream) >> num;
+		switch (num) {
+		case 0:                    // GREYFIX: tremolo bar
+			readDelphiInteger();
+			break;
+		case 1:                    // GREYFIX: tapping
+			readDelphiInteger(); // ?
+			break;
+		case 2:                    // GREYFIX: slapping
+			readDelphiInteger(); // ?
+			break;
+		case 3:                    // GREYFIX: popping
+			readDelphiInteger(); // ?
+			break;
+		default:
+			throw QString("Unknown string torture effect: %1").arg(num);
+		}
+	}
+	if (fx_bitmask1 & 0x04) {      // GP3 column-wide natural harmonic
+		kdDebug() << "GP3 column-wide natural harmonic\n";
+		for (int y = 0; y < trk->string; y++)
+			trk->c[x].e[y] |= EFFECT_HARMONIC;
+	}
+	if (fx_bitmask1 & 0x08) {      // GP3 column-wide artificial harmonic
+		kdDebug() << "GP3 column-wide artificial harmonic\n";
+		for (int y = 0; y < trk->string; y++)
+			trk->c[x].e[y] |= EFFECT_ARTHARM;
+        }
+	if (fx_bitmask2 & 0x04)
+		readChromaticGraph();  // GREYFIX: tremolo graph
+	if (fx_bitmask1 & 0x40) {
+		(*stream) >> num;      // GREYFIX: down stroke length
+		(*stream) >> num;      // GREYFIX: up stroke length
+	}
+	if (fx_bitmask2 & 0x02) {
+		(*stream) >> num;      // GREYFIX: stroke pick direction
+	}
+	if (fx_bitmask1 & 0x01) {      // GREYFIX: GP3 column-wide vibrato
+	}
+	if (fx_bitmask1 & 0x02) {      // GREYFIX: GP3 column-wide wide vibrato (="tremolo" in GP3)
+	}
+}
+
 void ConvertGtp::readNote(TabTrack *trk, int x, int y)
 {
 	Q_UINT8 note_bitmask, variant, num, mod_mask1, mod_mask2;
 
 	(*stream) >> note_bitmask;               // note bitmask
 	(*stream) >> variant;                    // variant
+
+	if (note_bitmask) {
+		kdDebug() << "note_bitmask: " << (int) note_bitmask << "\n";
+	}
 
 	if (note_bitmask & 0x01) {               // GREYFIX: note != beat
 		(*stream) >> num;                    // length
