@@ -45,7 +45,7 @@ optionsmelodyeditor.cpp optionsexportmusixtex.cpp optionsmidi.cpp     \
 optionsprinting.cpp playbacktracker.cpp chordanalyzer.cpp	      \
 optionsexportascii.cpp settings.cpp convertascii.cpp convertxml.cpp   \
 convertkg.cpp convertmidi.cpp converttse3.cpp converttex.cpp	      \
-convertgp3.cpp convertgtp.cpp kgfontmap.cpp
+convertgtp.cpp kgfontmap.cpp
 
 libkguitarpart_la_LDFLAGS = -module $(KDE_PLUGIN) $(all_libraries)
 libkguitarpart_la_LIBADD  = $(LIB_KPARTS) $(LIB_KFILE) $(LIBTSE3) -lkdeprint
@@ -72,7 +72,7 @@ optionspage.h optionsmelodyeditor.h optionsmusictheory.h	    \
 optionsexportmusixtex.h optionsmidi.h optionsprinting.h		    \
 playbacktracker.h chordanalyzer.h optionsexportascii.h settings.h   \
 convertbase.h convertascii.h convertxml.h convertkg.h convertmidi.h \
-converttse3.h converttex.h convertgp3.h convertgtp.h kgfontmap.h
+converttse3.h converttex.h convertgtp.h kgfontmap.h
 
 #rc_DATA = kguitar_shell.rc kguitar_part.rc kguitar_konq.rc
 
