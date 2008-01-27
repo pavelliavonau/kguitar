@@ -531,7 +531,7 @@ void KGuitarPart::setupActions()
 
 	// SET UP 'Note Names'
 
-    // SET UP MIDI-PLAY
+	// SET UP MIDI-PLAY
 	midiPlaySongAct = new KAction(i18n("&Play / stop"), "1rightarrow", Key_Space,
 	                              sv, SLOT(playSong()), actionCollection(), "midi_playsong");
 	midiStopPlayAct = new KAction(i18n("&Stop"), "player_stop", CTRL + SHIFT + Key_P,
