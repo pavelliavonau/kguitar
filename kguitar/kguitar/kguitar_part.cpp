@@ -20,7 +20,6 @@
 #include "converttse3.h"
 #include "converttex.h"
 #include "convertgtp.h"
-#include "convertgp3.h"
 
 #include "optionsexportascii.h"
 #include "optionsexportmusixtex.h"
