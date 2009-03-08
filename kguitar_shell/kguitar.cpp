@@ -1,24 +1,26 @@
 #include "kguitar.h"
+#include "kguitar.moc"
 
-#include <kiconloader.h>
-#include <kstddirs.h>
-#include <kapp.h>
 #include <kaction.h>
-#include <klocale.h>
-#include <kfiledialog.h>
-#include <kmessagebox.h>
-#include <klibloader.h>
-#include <kstdaction.h>
+#include <kactioncollection.h>
+#include <kconfig.h>
 #include <kedittoolbar.h>
-#include <kaccel.h>
-#include <kdebug.h>
-#include <kcommand.h>
+#include <kfiledialog.h>
+#include <kshortcutsdialog.h>
+#include <klibloader.h>
+#include <kmessagebox.h>
+#include <kstandardaction.h>
 #include <kstatusbar.h>
-#include <kkeydialog.h>
+#include <kurl.h>
+#include <klocale.h>
+#include <krecentfilesaction.h>
+#include <k3command.h>
+#include <ktoolbar.h>
+#include <ktoggleaction.h>
 
-#include <qfileinfo.h>
+#include <QApplication>
 
-KGuitar::KGuitar(): KParts::MainWindow(0L, "KGuitar")
+KGuitar::KGuitar(): KParts::MainWindow()
 {
 	// set the shell's ui resource file
 	setXMLFile("kguitar_shell.rc");
@@ -27,23 +29,30 @@ KGuitar::KGuitar(): KParts::MainWindow(0L, "KGuitar")
 	setupActions();
 
 	// and a status bar
-	statusBar()->message(QString(i18n("Bar: ")) + "1", 1);
+	statusBar()->showMessage(QString(i18n("Bar: ")) + "1");
 
-	// this routine will find and load KGuitar KPart.
+	// this routine will find and load our Part.  it finds the Part by
+	// name which is a bad idea usually.. but it's alright in this
+	// case since our Part is made for this Shell
 	KLibFactory *factory = KLibLoader::self()->factory("libkguitarpart");
 	if (factory) {
 		// now that the Part is loaded, we cast it to a Part to get
 		// our hands on it
-		kgpart = static_cast<KParts::ReadWritePart *>(
-			factory->create(this, "kguitar_part",
-			                "KParts::ReadWritePart")
-			);
+		kgpart = static_cast<KParts::ReadWritePart *>(factory->create(this, "KGuitarPart"));
+
+		if (kgpart) {
+			// tell the KParts::MainWindow that this is indeed the main widget
+			setCentralWidget(kgpart->widget());
+
+			// and integrate the part's GUI with the shell's
+			setupGUI();
+		}
 	} else {
 		// if we couldn't find our Part, we exit since the Shell by
 		// itself can't do anything useful
-		KMessageBox::error(this, i18n("Could not find KGuitar KPart! Check your installation!"));
-		kapp->quit();
-		// we return here, cause kapp->quit() only means "exit the
+		KMessageBox::error(this, i18n("Could not find our Part!"));
+		qApp->quit();
+		// we return here, cause qApp->quit() only means "exit the
 		// next time we enter the event loop...
 		return;
 	}
@@ -51,19 +60,20 @@ KGuitar::KGuitar(): KParts::MainWindow(0L, "KGuitar")
 	// Alternative method of loading KGuitarPart when we do static linking
  	// kgpart = new KGuitarPart(this, "kguitarpart", this, "kguitarpart", NULL);
 
-	setCentralWidget(kgpart->widget());
-	createGUI(kgpart);
-
 	// undo / redo
-	cmdHistory = new KCommandHistory(actionCollection());
+	cmdHistory = new K3CommandHistory(actionCollection());
 
 	setCaption(i18n("Unnamed"));
 
-	toolBar("mainToolBar")->setText(i18n("Main Toolbar"));
-	toolBar("editToolBar")->setText(i18n("Edit Toolbar"));
+//	toolBar("mainToolBar")->setText(i18n("Main Toolbar"));
+//	toolBar("editToolBar")->setText(i18n("Edit Toolbar"));
 
+	// apply the saved mainwindow settings, if any, and ask the mainwindow
+	// to automatically save settings if changed: window size, toolbar
+	// position, icon size, etc.
 	setAutoSaveSettings();
 }
+
 
 KGuitar::~KGuitar()
 {
@@ -71,36 +81,35 @@ KGuitar::~KGuitar()
 
 void KGuitar::setupActions()
 {
-	(void) KStdAction::openNew(this, SLOT(fileNew()), actionCollection());
-	(void) KStdAction::open(this, SLOT(fileOpen()), actionCollection());
+	KStandardAction::openNew(this, SLOT(fileNew()), actionCollection());
+	KStandardAction::open(this, SLOT(fileOpen()), actionCollection());
 
-	openRecentAct = KStdAction::openRecent(this, SLOT(load(const KURL&)), actionCollection());
+	openRecentAct = KStandardAction::openRecent(this, SLOT(load(const KUrl&)), actionCollection());
 	openRecentAct->setMaxItems(5);
 
-	(void) KStdAction::quit(kapp, SLOT(quit()), actionCollection(), "file_quit");
+	KStandardAction::quit(qApp, SLOT(closeAllWindows()), actionCollection());
 
 	setStandardToolBarMenuEnabled(TRUE);
-	KStdAction::configureToolbars(this, SLOT(configureToolbars()), actionCollection());
-	
+	KStandardAction::configureToolbars(this, SLOT(configureToolbars()), actionCollection());
+
 	createStandardStatusBarAction();
 
-	KStdAction::keyBindings(this, SLOT(optionsConfigureKeys()), actionCollection());
-	KStdAction::configureToolbars(this, SLOT(optionsConfigureToolbars()), actionCollection());
+	KStandardAction::keyBindings(this, SLOT(optionsConfigureKeys()), actionCollection());
 }
 
 // Call KPart's URL opening and maintain recent files list
-void KGuitar::load(const KURL& url)
+void KGuitar::load(const KUrl& url)
 {
-	bool ret = kgpart->openURL(url);
+	bool ret = kgpart->openUrl(url);
 	if (ret)
-		openRecentAct->addURL(url);
+		openRecentAct->addUrl(url);
 }
 
 // Call KPart's saving URL and maintain recent files list
-void KGuitar::saveURL(const KURL& url)
+void KGuitar::saveURL(const KUrl& url)
 {
 	if (kgpart->saveAs(url))
-		openRecentAct->addURL(url);
+		openRecentAct->addUrl(url);
 }
 
 void KGuitar::fileNew()
@@ -111,16 +120,17 @@ void KGuitar::fileNew()
 
 void KGuitar::fileOpen()
 {
-	KURL url =
-		KFileDialog::getOpenURL(0,
-		                        "*.kg *.gp4 *.gp3 *.mid *.tab *.xml|" + i18n("All music files") + "\n"
-		                        "*.kg|" + i18n("KGuitar files") + " (*.kg)\n"
-		                        "*.tab|" + i18n("ASCII files") + " (*.tab)\n"
-		                        "*.mid|" + i18n("MIDI files") + " (*.mid)\n"
-		                        "*.gp4|" + i18n("Guitar Pro 4 files") + " (*.gp4)\n"
-		                        "*.gp3|" + i18n("Guitar Pro 3 files") + " (*.gp3)\n"
-		                        "*.xml|" + i18n("MusicXML files") + " (*.xml)\n"
-		                        "*|" + i18n("All files"), this);
+	KUrl url = KFileDialog::getOpenUrl(KUrl(),
+		"*.kg *.gp4 *.gp3 *.mid *.tab *.xml|" + i18n("All music files") + "\n"
+		"*.kg|" + i18n("KGuitar files") + " (*.kg)\n"
+		"*.tab|" + i18n("ASCII files") + " (*.tab)\n"
+		"*.mid|" + i18n("MIDI files") + " (*.mid)\n"
+		"*.gp4|" + i18n("Guitar Pro 4 files") + " (*.gp4)\n"
+		"*.gp3|" + i18n("Guitar Pro 3 files") + " (*.gp3)\n"
+		"*.xml|" + i18n("MusicXML files") + " (*.xml)\n"
+		"*|" + i18n("All files"),
+		this
+	);
 
 	if (url.isEmpty() == false) {
 		// if the document is not in its initial state, we open a new window
@@ -136,14 +146,14 @@ void KGuitar::fileOpen()
 	}
 }
 
-void KGuitar::saveProperties(KConfig* /*config*/)
+void KGuitar::saveProperties(KConfigGroup & /*config*/)
 {
 	// the 'config' object points to the session managed
 	// config file.	 anything you write here will be available
 	// later when this app is restored
 }
 
-void KGuitar::readProperties(KConfig* /*config*/)
+void KGuitar::readProperties(const KConfigGroup & /*config*/)
 {
 	// the 'config' object points to the session managed
 	// config file.	 this function is automatically called whenever
@@ -153,7 +163,7 @@ void KGuitar::readProperties(KConfig* /*config*/)
 
 void KGuitar::slotToggleMainTB()
 {
-	KToolBar *bar = toolBar("mainToolBar");
+	QToolBar *bar = toolBar("mainToolBar");
 
 	if (bar!=0L) {
 		if (showMainTBAct->isChecked())
@@ -165,7 +175,7 @@ void KGuitar::slotToggleMainTB()
 
 void KGuitar::slotToggleEditTB()
 {
-	KToolBar *bar = toolBar("editToolBar");
+	QToolBar *bar = toolBar("editToolBar");
 
 	if (bar!=0L) {
 		if (showEditTBAct->isChecked())
@@ -177,24 +187,13 @@ void KGuitar::slotToggleEditTB()
 
 void KGuitar::optionsConfigureKeys()
 {
-	KKeyDialog dlg(TRUE, this);
-	dlg.insert(actionCollection(), "kguitar_shell.rc");
-	dlg.insert(kgpart->actionCollection(), "kguitar_part.rc");
-	(void) dlg.configure(TRUE);
-}
-
-void KGuitar::optionsConfigureToolbars()
-{
-	saveMainWindowSettings(KGlobal::config(), autoSaveGroup());
-
-	// use the standard toolbar editor
-	KEditToolbar dlg(factory());
-	connect(&dlg, SIGNAL(newToolbarConfig()),
-	        this, SLOT(applyNewToolbarConfig()));
-	dlg.exec();
+	KShortcutsDialog dlg(KShortcutsEditor::AllActions, KShortcutsEditor::LetterShortcutsAllowed, this);
+	dlg.addCollection(actionCollection(), "kguitar_shell.rc");
+	dlg.addCollection(kgpart->actionCollection(), "kguitar_part.rc");
+	(void) dlg.configure(true);
 }
 
 void KGuitar::applyNewToolbarConfig()
 {
-	applyMainWindowSettings(KGlobal::config(), autoSaveGroup());
+	applyMainWindowSettings(autoSaveConfigGroup());
 }

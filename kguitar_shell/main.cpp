@@ -1,35 +1,32 @@
-#include "kguitar.h"
 #include "config.h"
-
-#include <qdir.h>
-
-#include <kapp.h>
+#include "kguitar.h"
+#include <kapplication.h>
 #include <kaboutdata.h>
 #include <kcmdlineargs.h>
 #include <klocale.h>
-#include <kdebug.h>
+#include "kguitar.h"
 
-static KCmdLineOptions options[] = {
-	{ "+[URL]", I18N_NOOP("Document to open."), 0 },
-	{ "save-as <URL>", I18N_NOOP("Save document to a file (possibly converting) and quit immediately."), 0 },
-	KCmdLineLastOption
-};
+#include <Q3CString>
 
 #ifdef WITH_TSE3
-static const char *DESCRIPTION = I18N_NOOP("A stringed instrument tabulature editor (with MIDI support via TSE3)");
+static const char description[] = I18N_NOOP("A stringed instrument tabulature editor (with MIDI support via TSE3)");
 #else
-static const char *DESCRIPTION = I18N_NOOP("A stringed instrument tabulature editor");
+static const char description[] = I18N_NOOP("A stringed instrument tabulature editor");
 #endif
+
+static const char version[] = VERSION;
 
 int main(int argc, char **argv)
 {
-	KAboutData about("kguitar", "KGuitar",
-	                 VERSION, DESCRIPTION, KAboutData::License_GPL,
-	                 "(C) 2000-2008 by KGuitar Development Team", 0,
-	                 "http://kguitar.sourceforge.net");
+	KAboutData about(
+		"kguitar", 0, ki18n("KGuitar"), version,
+		ki18n(description), KAboutData::License_GPL,
+		ki18n("(C) 2000-2008 by KGuitar Development Team"),
+		KLocalizedString(), 0, "http://kguitar.sourceforge.net"
+	);
 
-	about.addAuthor("Mikhail Yakshin AKA GreyCat", I18N_NOOP("Maintainer and main coder"),
-	                "greycat@users.sourceforge.net");
+	about.addAuthor(ki18n("Mikhail Yakshin AKA GreyCat"), ki18n("Maintainer and main coder"), "greycat@users.sourceforge.net");
+/*
 	about.addAuthor("Alex Brand AKA alinx", 0, "alinx@users.sourceforge.net");
 	about.addAuthor("Leon Vinken", 0, "lvinken@users.sourceforge.net");
 	about.addAuthor("Matt Malone", 0, "marlboro@users.sourceforge.net");
@@ -41,16 +38,20 @@ int main(int argc, char **argv)
 	about.addCredit("Riccardo Vitelli AKA feac", 0, "feac@users.sourceforge.net");
 	about.addCredit(0, I18N_NOOP("Special Thanks to Ronald Gelten who\n"
 	                "allowed us to make changes to tabdefs.tex"), 0);
-
+*/
 	KCmdLineArgs::init(argc, argv, &about);
+
+	KCmdLineOptions options;
+	options.add("+[URL]", ki18n("Document to open"));
+	options.add("save-as <URL>", ki18n("Save document to a file (possibly converting) and quit immediately."));
 	KCmdLineArgs::addCmdLineOptions(options);
 
 	KApplication app;
 
-	QCString saveFile = 0;
+	QString saveFile = NULL;
 
 	// see if we are starting with session management
-	if (app.isRestored()) {
+	if (app.isSessionRestored()) {
 		RESTORE(KGuitar)
 	} else {
 		// no session.. just start up normally
@@ -67,9 +68,9 @@ int main(int argc, char **argv)
 				KGuitar *widget = new KGuitar;
 				widget->load(args->url(i));
 
-				if (saveFile) {
-					kdDebug() << "Saving as " << saveFile << "...\n";
-					widget->saveURL(args->makeURL(saveFile));
+				if (saveFile != NULL) {
+//					kdDebug() << "Saving as " << saveFile << "...\n";
+					widget->saveURL(args->url(i));
 				} else {
 					widget->show();
 				}
@@ -79,7 +80,7 @@ int main(int argc, char **argv)
 	}
 
 	// quit if called just for conversion
-	if (saveFile) {
+	if (saveFile != NULL) {
 		return 0;
 	} else {
 		return app.exec();
