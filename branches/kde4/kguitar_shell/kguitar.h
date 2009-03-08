@@ -7,7 +7,7 @@ class KRecentFilesAction;
 class KToggleAction;
 class KAction;
 class KActionCollection;
-class KCommandHistory;
+class K3CommandHistory;
 
 /**
  * This is the KGuitar application "Shell". It has a menubar, toolbar,
@@ -22,8 +22,8 @@ public:
 	virtual ~KGuitar();
 
 public slots:
-	void saveURL(const KURL& url);
-	void load(const KURL& url);
+	void saveURL(const KUrl& url);
+	void load(const KUrl& url);
 
 protected slots:
 	void fileNew();
@@ -32,7 +32,6 @@ protected slots:
 	void slotToggleEditTB();
 
 	void optionsConfigureKeys();
-	void optionsConfigureToolbars();
 	void applyNewToolbarConfig();
 
 protected:
@@ -40,14 +39,14 @@ protected:
 	 * This method is called when it is time for the app to save its
 	 * properties for session management purposes.
 	 */
-	void saveProperties(KConfig *);
+	void saveProperties(KConfigGroup &);
 
 	/**
 	 * This method is called when this app is restored.  The KConfig
 	 * object points to the session management config file that was saved
 	 * with @ref saveProperties
 	 */
-	void readProperties(KConfig *);
+	void readProperties(const KConfigGroup &);
 
 private:
 	void setupActions();
@@ -55,7 +54,7 @@ private:
 	KParts::ReadWritePart *kgpart;
 	KRecentFilesAction *openRecentAct;
 	KToggleAction *showMainTBAct, *showEditTBAct, *showStatusbarAct;
-	KCommandHistory *cmdHistory;
+	K3CommandHistory *cmdHistory;
 };
 
 #endif

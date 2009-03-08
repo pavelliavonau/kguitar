@@ -5,7 +5,7 @@ set(kguitar_SRCS
 
 kde4_add_executable(kguitar ${kguitar_SRCS})
 
-target_link_libraries(kguitar ${KDE4_KDEUI_LIBS} ${KDE4_KPARTS_LIBS})
+target_link_libraries(kguitar ${KDE4_KDEUI_LIBS} ${KDE4_KPARTS_LIBS} ${KDE4_KDE3SUPPORT_LIBS})
 
 ########### install files ###############
 install(TARGETS kguitar ${INSTALL_TARGETS_DEFAULT_ARGS})
