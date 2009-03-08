@@ -1,0 +1,1198 @@
+# SOME DESCRIPTIVE TITLE.
+# Copyright (C) YEAR THE PACKAGE'S COPYRIGHT HOLDER
+# This file is distributed under the same license as the PACKAGE package.
+# FIRST AUTHOR <EMAIL@ADDRESS>, YEAR.
+#
+#, fuzzy
+msgid ""
+msgstr ""
+"Project-Id-Version: PACKAGE VERSION\n"
+"Report-Msgid-Bugs-To: \n"
+"POT-Creation-Date: 2005-03-28 01:16+0400\n"
+"PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
+"Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
+"Language-Team: LANGUAGE <LL@li.org>\n"
+"MIME-Version: 1.0\n"
+"Content-Type: text/plain; charset=UTF-8\n"
+"Content-Transfer-Encoding: 8bit\n"
+
+#: _translatorinfo.cpp:1
+msgid ""
+"_: NAME OF TRANSLATORS\n"
+"Your names"
+msgstr ""
+
+#: _translatorinfo.cpp:3
+msgid ""
+"_: EMAIL OF TRANSLATORS\n"
+"Your emails"
+msgstr ""
+
+#: chord.cpp:169
+msgid "Root"
+msgstr ""
+
+#: chord.cpp:170
+msgid "Inv #1"
+msgstr ""
+
+#: chord.cpp:171
+msgid "Inv #2"
+msgstr ""
+
+#: chord.cpp:172
+msgid "Inv #3"
+msgstr ""
+
+#: chord.cpp:173
+msgid "Inv #4"
+msgstr ""
+
+#: chord.cpp:174
+msgid "Inv #5"
+msgstr ""
+
+#: chord.cpp:175
+msgid "Inv #6"
+msgstr ""
+
+#: chord.cpp:179
+msgid "Usual"
+msgstr ""
+
+#: chord.cpp:180
+msgid "Rare"
+msgstr ""
+
+#: chord.cpp:181
+msgid "All"
+msgstr ""
+
+#: chord.cpp:204
+msgid "&Analyze"
+msgstr ""
+
+#: chord.cpp:208
+msgid "&Quick Insert"
+msgstr ""
+
+#: chord.cpp:212
+msgid "&Strum..."
+msgstr ""
+
+#: chord.cpp:215 rc.cpp:18
+#, no-c-format
+msgid "&Play"
+msgstr ""
+
+#: chord.cpp:294
+msgid "Chord Constructor"
+msgstr ""
+
+#: chord.cpp:765
+msgid "Unable to understand chord name"
+msgstr ""
+
+#: chordanalyzer.cpp:35
+msgid "Can't understand tonic from given chord name"
+msgstr ""
+
+#: chordanalyzer.cpp:152
+msgid "Can't understand notation: \"%1\""
+msgstr ""
+
+#: chordanalyzer.cpp:176
+msgid ""
+"Modifier \"%1\" can't be used here because of previous symbols in chord name"
+msgstr ""
+
+#: keysig.cpp:33 kguitar_part.cpp:564
+msgid "Key signature"
+msgstr ""
+
+#: keysig.cpp:41
+msgid "7 sharps"
+msgstr ""
+
+#: keysig.cpp:42
+msgid "6 sharps"
+msgstr ""
+
+#: keysig.cpp:43
+msgid "5 sharps"
+msgstr ""
+
+#: keysig.cpp:44
+msgid "4 sharps"
+msgstr ""
+
+#: keysig.cpp:45
+msgid "3 sharps"
+msgstr ""
+
+#: keysig.cpp:46
+msgid "2 sharps"
+msgstr ""
+
+#: keysig.cpp:47
+msgid "1 sharp"
+msgstr ""
+
+#: keysig.cpp:48
+msgid "none"
+msgstr ""
+
+#: keysig.cpp:49
+msgid "1 flat"
+msgstr ""
+
+#: keysig.cpp:50
+msgid "2 flats"
+msgstr ""
+
+#: keysig.cpp:51
+msgid "3 flats"
+msgstr ""
+
+#: keysig.cpp:52
+msgid "4 flats"
+msgstr ""
+
+#: keysig.cpp:53
+msgid "5 flats"
+msgstr ""
+
+#: keysig.cpp:54
+msgid "6 flats"
+msgstr ""
+
+#: keysig.cpp:55
+msgid "7 flats"
+msgstr ""
+
+#: keysig.cpp:63
+msgid "Flats / sharps:"
+msgstr ""
+
+#: kguitar_part.cpp:133
+msgid "KGuitarPart"
+msgstr ""
+
+#: kguitar_part.cpp:144
+msgid "No file specified, please select a file."
+msgstr ""
+
+#: kguitar_part.cpp:148
+msgid "You have no permission to read this file."
+msgstr ""
+
+#: kguitar_part.cpp:174 songview.cpp:67 kguitar.cpp:60
+msgid "Unnamed"
+msgstr ""
+
+#: kguitar_part.cpp:175
+msgid ""
+"Can't load or import song!It may be a damaged/wrong file format or, if "
+"you're trying experimental importers it may be a flaw with the import code."
+msgstr ""
+
+#: kguitar_part.cpp:190
+msgid "Additional Export Options"
+msgstr ""
+
+#: kguitar_part.cpp:283
+msgid "Can't save song in %1 format"
+msgstr ""
+
+#: kguitar_part.cpp:292 kguitar.cpp:117
+msgid "KGuitar files"
+msgstr ""
+
+#: kguitar_part.cpp:293 kguitar.cpp:118
+msgid "ASCII files"
+msgstr ""
+
+#: kguitar_part.cpp:294 kguitar.cpp:119
+msgid "MIDI files"
+msgstr ""
+
+#: kguitar_part.cpp:295
+msgid "TSE3MDL files"
+msgstr ""
+
+#: kguitar_part.cpp:296 kguitar.cpp:120
+msgid "Guitar Pro 4 files"
+msgstr ""
+
+#: kguitar_part.cpp:297 kguitar.cpp:121
+msgid "Guitar Pro 3 files"
+msgstr ""
+
+#: kguitar_part.cpp:298 kguitar.cpp:122
+msgid "MusicXML files"
+msgstr ""
+
+#: kguitar_part.cpp:299 options.cpp:32
+msgid "MusiXTeX"
+msgstr ""
+
+#: kguitar_part.cpp:300 kguitar.cpp:123
+msgid "All files"
+msgstr ""
+
+#: kguitar_part.cpp:493 kguitar_part.cpp:522
+msgid "P&roperties..."
+msgstr ""
+
+#: kguitar_part.cpp:508
+msgid "Show Melody Editor"
+msgstr ""
+
+#: kguitar_part.cpp:511
+msgid "Show Score"
+msgstr ""
+
+#: kguitar_part.cpp:516
+msgid "&New..."
+msgstr ""
+
+#: kguitar_part.cpp:520
+msgid "&Generate Bass Line"
+msgstr ""
+
+#: kguitar_part.cpp:524
+msgid "&Rhythm..."
+msgstr ""
+
+#: kguitar_part.cpp:526
+msgid "&Chord..."
+msgstr ""
+
+#: kguitar_part.cpp:529
+msgid "&Save Options"
+msgstr ""
+
+#: kguitar_part.cpp:532
+msgid "&Arrange Track"
+msgstr ""
+
+#: kguitar_part.cpp:536 trackviewcommands.cpp:128
+msgid "Transpose up"
+msgstr ""
+
+#: kguitar_part.cpp:538 trackviewcommands.cpp:126
+msgid "Transpose down"
+msgstr ""
+
+#: kguitar_part.cpp:542
+msgid "Whole"
+msgstr ""
+
+#: kguitar_part.cpp:554 trackviewcommands.cpp:237
+msgid "Dotted note"
+msgstr ""
+
+#: kguitar_part.cpp:556
+msgid "Triplet note"
+msgstr ""
+
+#: kguitar_part.cpp:558
+msgid "More duration"
+msgstr ""
+
+#: kguitar_part.cpp:560
+msgid "Less duration"
+msgstr ""
+
+#: kguitar_part.cpp:566 timesig.cpp:12
+msgid "Time signature"
+msgstr ""
+
+#: kguitar_part.cpp:568 trackviewcommands.cpp:239
+msgid "Link with previous column"
+msgstr ""
+
+#: kguitar_part.cpp:570
+msgid "Legato (hammer on/pull off)"
+msgstr ""
+
+#: kguitar_part.cpp:572
+msgid "Slide"
+msgstr ""
+
+#: kguitar_part.cpp:574
+msgid "Let Ring"
+msgstr ""
+
+#: kguitar_part.cpp:576
+msgid "Natural harmonic"
+msgstr ""
+
+#: kguitar_part.cpp:578
+msgid "Artificial harmonic"
+msgstr ""
+
+#: kguitar_part.cpp:580 trackviewcommands.cpp:235
+msgid "Palm muting"
+msgstr ""
+
+#: kguitar_part.cpp:582 trackviewcommands.cpp:245
+msgid "Dead note"
+msgstr ""
+
+#: kguitar_part.cpp:588
+msgid "&Play / stop"
+msgstr ""
+
+#: kguitar_part.cpp:590
+msgid "&Stop"
+msgstr ""
+
+#: kguitar_part.cpp:604
+msgid "Move cursor left"
+msgstr ""
+
+#: kguitar_part.cpp:606
+msgid "Move cursor right"
+msgstr ""
+
+#: kguitar_part.cpp:608
+msgid "Move cursor to the beginning of bar"
+msgstr ""
+
+#: kguitar_part.cpp:610
+msgid "Move cursor to the end of bar"
+msgstr ""
+
+#: kguitar_part.cpp:612
+msgid "Move cursor to the previous bar"
+msgstr ""
+
+#: kguitar_part.cpp:614
+msgid "Move cursor to the next bar"
+msgstr ""
+
+#: kguitar_part.cpp:616
+msgid "Move cursor to the beginning of track"
+msgstr ""
+
+#: kguitar_part.cpp:618
+msgid "Move cursor to the end of track"
+msgstr ""
+
+#: kguitar_part.cpp:620
+msgid "Move and select left"
+msgstr ""
+
+#: kguitar_part.cpp:622
+msgid "Move and select right"
+msgstr ""
+
+#: kguitar_part.cpp:624
+msgid "Move cursor up"
+msgstr ""
+
+#: kguitar_part.cpp:626
+msgid "Move cursor down"
+msgstr ""
+
+#: kguitar_part.cpp:630 optionsmelodyeditor.cpp:71 trackviewcommands.cpp:301
+msgid "Delete note"
+msgstr ""
+
+#: kguitar_part.cpp:632 trackviewcommands.cpp:394
+msgid "Delete column"
+msgstr ""
+
+#: kguitar_part.cpp:634 trackviewcommands.cpp:646
+msgid "Insert column"
+msgstr ""
+
+#: kguitar_part.cpp:638
+msgid "Key 1"
+msgstr ""
+
+#: kguitar_part.cpp:639
+msgid "Key 2"
+msgstr ""
+
+#: kguitar_part.cpp:640
+msgid "Key 3"
+msgstr ""
+
+#: kguitar_part.cpp:641
+msgid "Key 4"
+msgstr ""
+
+#: kguitar_part.cpp:642
+msgid "Key 5"
+msgstr ""
+
+#: kguitar_part.cpp:643
+msgid "Key 6"
+msgstr ""
+
+#: kguitar_part.cpp:644
+msgid "Key 7"
+msgstr ""
+
+#: kguitar_part.cpp:645
+msgid "Key 8"
+msgstr ""
+
+#: kguitar_part.cpp:646
+msgid "Key 9"
+msgstr ""
+
+#: kguitar_part.cpp:647
+msgid "Key 0"
+msgstr ""
+
+#: kguitar_part.cpp:662 kguitar.cpp:30
+msgid "Bar: "
+msgstr ""
+
+#: melodyeditor.cpp:31
+msgid "<no mode>"
+msgstr ""
+
+#: melodyeditor.cpp:32
+msgid "Pentatonic"
+msgstr ""
+
+#: melodyeditor.cpp:33
+msgid "Natural Major"
+msgstr ""
+
+#: melodyeditor.cpp:34
+msgid "Natural Minor"
+msgstr ""
+
+#: melodyeditor.cpp:35
+msgid "Harmonic Major"
+msgstr ""
+
+#: melodyeditor.cpp:36
+msgid "Harmonic Minor"
+msgstr ""
+
+#: melodyeditor.cpp:37
+msgid "Melodic Major"
+msgstr ""
+
+#: melodyeditor.cpp:38
+msgid "Melodic Minor"
+msgstr ""
+
+#: melodyeditor.cpp:39
+msgid "Mixolydian"
+msgstr ""
+
+#: melodyeditor.cpp:40
+msgid "Lydian"
+msgstr ""
+
+#: melodyeditor.cpp:41
+msgid "Dorian"
+msgstr ""
+
+#: melodyeditor.cpp:42
+msgid "Phrygian"
+msgstr ""
+
+#: melodyeditor.cpp:43
+msgid "Locrian"
+msgstr ""
+
+#: melodyeditor.cpp:45
+msgid "Options..."
+msgstr ""
+
+#: melodyeditor.cpp:47
+msgid "&Tonic:"
+msgstr ""
+
+#: melodyeditor.cpp:48 settrack.cpp:36
+msgid "&Mode:"
+msgstr ""
+
+#: melodyeditor.cpp:76 melodyeditor.cpp:86 options.cpp:31
+msgid "Melody Constructor"
+msgstr ""
+
+#: options.cpp:30
+msgid "Music Theory"
+msgstr ""
+
+#: options.cpp:35
+msgid "MIDI Devices"
+msgstr ""
+
+#: options.cpp:37
+msgid "Printing"
+msgstr ""
+
+#: options.cpp:38
+msgid "ASCII"
+msgstr ""
+
+#: optionsexportascii.cpp:18
+msgid "&Duration Display"
+msgstr ""
+
+#: optionsexportascii.cpp:19
+msgid "Fixed one blank"
+msgstr ""
+
+#: optionsexportascii.cpp:20 optionsexportascii.cpp:21
+#: optionsexportascii.cpp:22 optionsexportascii.cpp:23
+msgid "One blank"
+msgstr ""
+
+#: optionsexportascii.cpp:26
+msgid "Page &width:"
+msgstr ""
+
+#: optionsexportascii.cpp:28 optionsexportmusixtex.cpp:32
+msgid "Always show this dialog on export"
+msgstr ""
+
+#: optionsexportmusixtex.cpp:17
+msgid "MusiXTeX Layout"
+msgstr ""
+
+#: optionsexportmusixtex.cpp:18
+msgid "Show Bar Number"
+msgstr ""
+
+#: optionsexportmusixtex.cpp:19
+msgid "Show Tuning"
+msgstr ""
+
+#: optionsexportmusixtex.cpp:20
+msgid "Show Page Number"
+msgstr ""
+
+#: optionsexportmusixtex.cpp:22
+msgid "Export as..."
+msgstr ""
+
+#: optionsexportmusixtex.cpp:23 optionsprinting.cpp:17
+msgid "Tabulature"
+msgstr ""
+
+#: optionsexportmusixtex.cpp:24 optionsprinting.cpp:18
+msgid "Notes"
+msgstr ""
+
+#: optionsexportmusixtex.cpp:26
+msgid "Tab Size"
+msgstr ""
+
+#: optionsexportmusixtex.cpp:27
+msgid "Smallest"
+msgstr ""
+
+#: optionsexportmusixtex.cpp:28
+msgid "Small"
+msgstr ""
+
+#: optionsexportmusixtex.cpp:29
+msgid "Normal"
+msgstr ""
+
+#: optionsexportmusixtex.cpp:30
+msgid "Big"
+msgstr ""
+
+#: optionsmelodyeditor.cpp:35
+msgid "Design"
+msgstr ""
+
+#: optionsmelodyeditor.cpp:37
+msgid "Inlays"
+msgstr ""
+
+#: optionsmelodyeditor.cpp:38
+msgid "None"
+msgstr ""
+
+#: optionsmelodyeditor.cpp:39
+msgid "Center dots"
+msgstr ""
+
+#: optionsmelodyeditor.cpp:40
+msgid "Side dots"
+msgstr ""
+
+#: optionsmelodyeditor.cpp:41
+msgid "Blocks"
+msgstr ""
+
+#: optionsmelodyeditor.cpp:42
+msgid "Trapezoid"
+msgstr ""
+
+#: optionsmelodyeditor.cpp:46
+msgid "Texture"
+msgstr ""
+
+#: optionsmelodyeditor.cpp:47
+msgid "Schematic"
+msgstr ""
+
+#: optionsmelodyeditor.cpp:48
+msgid "Maple"
+msgstr ""
+
+#: optionsmelodyeditor.cpp:49
+msgid "Rosewood"
+msgstr ""
+
+#: optionsmelodyeditor.cpp:50
+msgid "Ebony"
+msgstr ""
+
+#: optionsmelodyeditor.cpp:56
+msgid "Mouse button actions"
+msgstr ""
+
+#: optionsmelodyeditor.cpp:59
+msgid "Left:"
+msgstr ""
+
+#: optionsmelodyeditor.cpp:59
+msgid "Middle:"
+msgstr ""
+
+#: optionsmelodyeditor.cpp:59
+msgid "Right:"
+msgstr ""
+
+#: optionsmelodyeditor.cpp:65
+msgid "No action"
+msgstr ""
+
+#: optionsmelodyeditor.cpp:66
+msgid "Set note"
+msgstr ""
+
+#: optionsmelodyeditor.cpp:67
+msgid "Set 02 power chord"
+msgstr ""
+
+#: optionsmelodyeditor.cpp:68
+msgid "Set 022 power chord"
+msgstr ""
+
+#: optionsmelodyeditor.cpp:69
+msgid "Set 00 power chord"
+msgstr ""
+
+#: optionsmelodyeditor.cpp:70
+msgid "Set 0022 power chord"
+msgstr ""
+
+#: optionsmelodyeditor.cpp:75
+msgid "Advance to next column"
+msgstr ""
+
+#: optionsmidi.cpp:28
+msgid "Port"
+msgstr ""
+
+#: optionsmidi.cpp:29
+msgid "Info"
+msgstr ""
+
+#: optionsmidi.cpp:33
+msgid "MIDI &output port"
+msgstr ""
+
+#: optionsmidi.cpp:35
+msgid "&Refresh"
+msgstr ""
+
+#: optionsmusictheory.cpp:18
+msgid "Dominant 7th"
+msgstr ""
+
+#: optionsmusictheory.cpp:25
+msgid "Alterations"
+msgstr ""
+
+#: optionsmusictheory.cpp:26
+msgid "-/+ symbols"
+msgstr ""
+
+#: optionsmusictheory.cpp:27
+msgid "b/# symbols"
+msgstr ""
+
+#: optionsmusictheory.cpp:31
+msgid "Note naming"
+msgstr ""
+
+#: optionsmusictheory.cpp:32
+msgid "American, sharps"
+msgstr ""
+
+#: optionsmusictheory.cpp:33
+msgid "American, flats"
+msgstr ""
+
+#: optionsmusictheory.cpp:34
+msgid "American, mixed"
+msgstr ""
+
+#: optionsmusictheory.cpp:35
+msgid "European, sharps"
+msgstr ""
+
+#: optionsmusictheory.cpp:36
+msgid "European, flats"
+msgstr ""
+
+#: optionsmusictheory.cpp:37
+msgid "European, mixed"
+msgstr ""
+
+#: optionsmusictheory.cpp:38
+msgid "Jazz, sharps"
+msgstr ""
+
+#: optionsmusictheory.cpp:39
+msgid "Jazz, flats"
+msgstr ""
+
+#: optionsmusictheory.cpp:40
+msgid "Jazz, mixed"
+msgstr ""
+
+#: optionsmusictheory.cpp:82
+msgid ""
+"Jazz note names are very special and should be used only if really know what "
+"you do. Usage of jazz note names without a purpose would confuse or mislead "
+"anyone reading the music who did not have a knowledge of jazz note naming.\n"
+"\n"
+"Are you sure you want to use jazz notes?"
+msgstr ""
+
+#: optionsprinting.cpp:16
+msgid "Style"
+msgstr ""
+
+#: optionsprinting.cpp:19
+msgid "Tabulature (full) and notes"
+msgstr ""
+
+#: optionsprinting.cpp:20
+msgid "Tabulature (minimum) and notes (not implemented)"
+msgstr ""
+
+#: rc.cpp:8
+#, no-c-format
+msgid "&Track"
+msgstr ""
+
+#: rc.cpp:10
+#, no-c-format
+msgid "&Note"
+msgstr ""
+
+#: rc.cpp:14
+#, no-c-format
+msgid "&Duration"
+msgstr ""
+
+#: rc.cpp:16
+#, no-c-format
+msgid "&Effects"
+msgstr ""
+
+#: rc.cpp:24 kguitar.cpp:63
+#, no-c-format
+msgid "Edit Toolbar"
+msgstr ""
+
+#: rc.cpp:26 settabmidibase.cpp:146
+#, no-c-format
+msgid "SetTabMidi"
+msgstr ""
+
+#: rc.cpp:28 settabmidibase.cpp:147
+#, no-c-format
+msgid "Transpose:"
+msgstr ""
+
+#: rc.cpp:30 settabmidibase.cpp:148
+#, no-c-format
+msgid "Chorus:"
+msgstr ""
+
+#: rc.cpp:32 settabmidibase.cpp:149
+#, no-c-format
+msgid "Volume:"
+msgstr ""
+
+#: rc.cpp:34 settabmidibase.cpp:150
+#, no-c-format
+msgid "Pan:"
+msgstr ""
+
+#: rc.cpp:36 settabmidibase.cpp:151
+#, no-c-format
+msgid "Reverb:"
+msgstr ""
+
+#: rhythmer.cpp:25
+msgid "&Original taps:"
+msgstr ""
+
+#: rhythmer.cpp:26
+msgid "Q&uantized rhythm:"
+msgstr ""
+
+#: rhythmer.cpp:28
+msgid "&Tap"
+msgstr ""
+
+#: rhythmer.cpp:31
+msgid "&Reset"
+msgstr ""
+
+#: rhythmer.cpp:34
+msgid "&Quantize"
+msgstr ""
+
+#: rhythmer.cpp:38 setsong.cpp:24
+msgid "T&empo:"
+msgstr ""
+
+#: rhythmer.cpp:40
+msgid "&Determine automatically"
+msgstr ""
+
+#: rhythmer.cpp:44
+msgid "Detect d&otted"
+msgstr ""
+
+#: rhythmer.cpp:47
+msgid "Detect t&riplets"
+msgstr ""
+
+#: rhythmer.cpp:95
+msgid "Rhythm Constructor"
+msgstr ""
+
+#: rhythmer.cpp:108 rhythmer.cpp:142
+msgid "< STARTED >"
+msgstr ""
+
+#: setsong.cpp:20
+msgid "&Title:"
+msgstr ""
+
+#: setsong.cpp:21
+msgid "&Author:"
+msgstr ""
+
+#: setsong.cpp:22
+msgid "&Transcriber:"
+msgstr ""
+
+#: setsong.cpp:23
+msgid "&Comments:"
+msgstr ""
+
+#: setsong.cpp:59
+msgid "Song properties"
+msgstr ""
+
+#: settabdrum.cpp:15
+msgid "Drums:"
+msgstr ""
+
+#: settabfret.cpp:40
+msgid "Tuning:"
+msgstr ""
+
+#: settabfret.cpp:48
+msgid "Strings:"
+msgstr ""
+
+#: settabfret.cpp:54
+msgid "Frets:"
+msgstr ""
+
+#: settings.cpp:24
+msgid "Unknown"
+msgstr ""
+
+#: settrack.cpp:29
+msgid "Fretted instrument"
+msgstr ""
+
+#: settrack.cpp:30
+msgid "Drum track"
+msgstr ""
+
+#: settrack.cpp:32
+msgid "&Track name:"
+msgstr ""
+
+#: settrack.cpp:33
+msgid "&Channel:"
+msgstr ""
+
+#: settrack.cpp:34
+msgid "&Bank:"
+msgstr ""
+
+#: settrack.cpp:35
+msgid "&Patch:"
+msgstr ""
+
+#: settrack.cpp:73
+msgid "&General"
+msgstr ""
+
+#: settrack.cpp:80
+msgid "MIDI &effects"
+msgstr ""
+
+#: settrack.cpp:94 settrack.cpp:119 settrack.cpp:133
+msgid "&Mode-specific"
+msgstr ""
+
+#: settrack.cpp:104
+msgid "Track properties"
+msgstr ""
+
+#: songview.cpp:68
+msgid "Guitar"
+msgstr ""
+
+#: songview.cpp:191
+msgid "Can't generate a bass line from drum track"
+msgstr ""
+
+#: songview.cpp:366
+msgid "Error opening MIDI device!"
+msgstr ""
+
+#: songview.cpp:463 songview.cpp:474
+msgid "There is no selection!"
+msgstr ""
+
+#: songview.cpp:468
+msgid "Cut to clipboard"
+msgstr ""
+
+#: songview.cpp:555
+msgid ""
+"There are some problems:\n"
+"\n"
+msgstr ""
+
+#: songview.cpp:560
+msgid "The clipboard data hasn't the same track mode.\n"
+msgstr ""
+
+#: songview.cpp:564
+msgid "The clipboard data hasn't the same number of strings.\n"
+msgstr ""
+
+#: songview.cpp:573
+msgid "The clipboard data hasn't the same tuneing.\n"
+msgstr ""
+
+#: songview.cpp:578
+msgid "The clipboard data hasn't the same number of frets.\n"
+msgstr ""
+
+#: songview.cpp:584
+msgid ""
+"\n"
+"\n"
+"I'll improve this code. So some of these problems\n"
+msgstr ""
+
+#: songview.cpp:585
+msgid "will be solved in the future."
+msgstr ""
+
+#: songviewcommands.cpp:16
+msgid "Set song properties"
+msgstr ""
+
+#: songviewcommands.cpp:54
+msgid "Set track properties"
+msgstr ""
+
+#: songviewcommands.cpp:141
+msgid "Insert from clipboard"
+msgstr ""
+
+#: strumming.cpp:27
+msgid "Strum &pattern:"
+msgstr ""
+
+#: strumming.cpp:63
+msgid "Strumming pattern"
+msgstr ""
+
+#: timesig.cpp:39
+msgid "&Beats per measure:"
+msgstr ""
+
+#: timesig.cpp:40
+msgid "Beat &value:"
+msgstr ""
+
+#: timesig.cpp:42
+msgid "Apply till the &end"
+msgstr ""
+
+#: tracklist.cpp:25
+msgid "Title"
+msgstr ""
+
+#: tracklist.cpp:26
+msgid "Chn"
+msgstr ""
+
+#: tracklist.cpp:27
+msgid "Bank"
+msgstr ""
+
+#: tracklist.cpp:28
+msgid "Patch"
+msgstr ""
+
+#: trackviewcommands.cpp:14
+msgid "Set duration"
+msgstr ""
+
+#: trackviewcommands.cpp:16
+msgid "Set duration to %1"
+msgstr ""
+
+#: trackviewcommands.cpp:36
+msgid "whole"
+msgstr ""
+
+#: trackviewcommands.cpp:75
+msgid "Insert tab"
+msgstr ""
+
+#: trackviewcommands.cpp:77
+msgid "Insert tab %1"
+msgstr ""
+
+#: trackviewcommands.cpp:112
+msgid "Transpose"
+msgstr ""
+
+#: trackviewcommands.cpp:167
+msgid "Add effect"
+msgstr ""
+
+#: trackviewcommands.cpp:177
+msgid "Add %1 effect"
+msgstr ""
+
+#: trackviewcommands.cpp:181
+msgid "nat. harmonic"
+msgstr ""
+
+#: trackviewcommands.cpp:183
+msgid "art. harmonic"
+msgstr ""
+
+#: trackviewcommands.cpp:185
+msgid "legato"
+msgstr ""
+
+#: trackviewcommands.cpp:187
+msgid "slide"
+msgstr ""
+
+#: trackviewcommands.cpp:189
+msgid "let ring"
+msgstr ""
+
+#: trackviewcommands.cpp:191
+msgid "stop ring"
+msgstr ""
+
+#: trackviewcommands.cpp:221 trackviewcommands.cpp:232
+msgid "Set flag"
+msgstr ""
+
+#: trackviewcommands.cpp:248
+msgid "Triplet"
+msgstr ""
+
+#: trackviewcommands.cpp:312
+msgid "Delete note %1"
+msgstr ""
+
+#: trackviewcommands.cpp:338
+msgid "Add column"
+msgstr ""
+
+#: trackviewcommands.cpp:420
+msgid "Delete %1 columns"
+msgstr ""
+
+#: trackviewcommands.cpp:592
+msgid "Set time signature"
+msgstr ""
+
+#: trackviewcommands.cpp:680
+msgid "Insert strum"
+msgstr ""
+
+#: trackviewcommands.cpp:707
+msgid "Insert Chord"
+msgstr ""
+
+#: trackviewcommands.cpp:814
+msgid "Insert rhythm"
+msgstr ""
+
+#: kguitar.cpp:44
+msgid "Could not find KGuitar KPart! Check your installation!"
+msgstr ""
+
+#: kguitar.cpp:116
+msgid "All music files"
+msgstr ""
+
+#: main.cpp:12
+msgid "Document to open."
+msgstr ""
+
+#: main.cpp:17
+msgid "A stringed instrument tabulature editor (with MIDI support via TSE3)"
+msgstr ""
+
+#: main.cpp:19
+msgid "A stringed instrument tabulature editor"
+msgstr ""
+
+#: main.cpp:29
+msgid "Maintainer and main coder"
+msgstr ""
+
+#: main.cpp:40
+msgid ""
+"Special Thanks to Ronald Gelten who\n"
+"allowed us to make changes to tabdefs.tex"
+msgstr ""
+
+#: rc.cpp:2
+#, no-c-format
+msgid "&KGuitar"
+msgstr ""

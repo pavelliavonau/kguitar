@@ -1,0 +1,182 @@
+CODING STANDARDS
+
+Here's the basic coding standards you should use when hacking
+something in KGuitar. Please respect them, if you won't do that, we'll
+end up with totally unreadable and unbearable code. I don't like
+standartizing this thing much, but I have to, because it's the only
+way to keep the project well-maintanable. Thus, I won't argue about
+what's better, I'll just set some general standards. If you are
+*really* unsatisfied with them and propose something better, then
+mail me and we'll try to improve it.
+
+1) Basic formatting style is K&R, not GNU, not Whitestone, not
+anything else.
+
+It means formatting like this:
+
+	for (int i = 0; i < 10; i++) {
+		something_is_executed_here();
+	}
+
+*not* that:
+
+	for (int i = 0; i < 10; i++)
+	  {
+		something_is_executed_here();
+	  }
+
+More examples to clarify the idea (make sure you understand the
+general feel about spaces, commas, etc):
+
+	tv = new TrackView(this);
+	p->insertItem(i18n("&Save"), this, SLOT(save()));
+	a = (b + 3) / 5; c = a;
+	s << "some text" << "some more text";
+
+	if ((num < 0) || (num > 11)) {
+		doSomethingToo();
+		somethingElse();
+	} else {
+		somethingVeryCool();
+	}
+
+	if (a < 0)  k = TRUE;                          // Note _2_ spaces
+
+	if (a > 0)
+		z = FALSE;
+	else
+		somethingHere();
+
+Examples of declarations:
+
+	class MyCoolClass: public Ancestor {
+		Q_OBJECT
+	public:
+		Something(QWidget *parent = 0, const char *name = 0);
+
+		void method();
+		void methodDeclaredInHeader() { somethingHere(); }
+
+	public slots:
+		void slot();
+
+	private:
+		virtual void privateMethod();
+		
+		QWidget *member1;
+		int member2;
+	}
+
+Functions are special case (they cannot be nested), thus it's also a
+special case for braces positioning. Here we use such formatting:
+
+	void MyCoolClass::method()
+	{
+		somethingHere();
+	}
+
+Emtpy lines should be used to show various sections of code. Really
+big and important sections should be signified as:
+
+	partOneOfCodeHere();
+	morePartOneCode();
+
+	// PART 2
+
+	partTwoCode();
+	morePartTwoCode();
+
+Special case is a switch statement:
+
+	switch (step3->currentItem()) {
+	case 0: st[0]->setCurrentItem(3); break;
+	case 1: st[0]->setCurrentItem(2); break;
+	case 2: st[0]->setCurrentItem(1); break;
+	case 3:
+		st[0]->setCurrentItem(4);
+		somethingElse();
+		break;
+	}
+
+"case" should be lined up with "switch". Short case-expressions should
+be written up on one line, with following "break". Longer ones should
+start with single indent on next line and would make multiple lines.
+
+2) Indenting is hard tabs, preferably 4 spaces
+
+Be sure that your editor of choice inserts one real tab (0x9) symbol,
+not 4 spaces (0x20). No half-size tabs for GNU formatting style.
+
+3) Long lines
+
+You should maintain 80 symbols standard ANSI screen width. Ideally,
+not line in the whole program should be more than 80 characters
+long. However, it's permitted to break this rule rarely if it doesn't
+hurt much code readablity.
+
+Long lines should be split like:
+
+	toolBar()->insertButton(Icon("fx-harmonic.xpm"), 1, SIGNAL(clicked()),
+	                        tv, SLOT(addArtHarm()), TRUE);
+	^^^^^^^^^^^^^^^^^^^^^^^^
+This indenting up to the opening bracket should be done in spaces, *not*
+hard tabs preferably.
+
+If a line split occurs in non-bracketed experssion, just indent the
+next line. For inheriting methods, please use the following scheme
+(i. e. writing the ancestor method on the next line after ":" and
+space):
+
+ChordSelector::ChordSelector(TabTrack *p, QWidget *parent = 0)
+	: QDialog(parent, name, TRUE)
+
+3) All comments are C++ style //
+
+C /* */ syntax is used for commenting out code for debugging,
+etc. C++ comments should be used even when comments are big and span
+multiple lines. If you editor makes inserting such comments a pure
+pain (making you type // yourself in the beginning of each line) then
+trash such editor and find a better one.
+
+4) Qt-like naming scheme
+
+As we use Qt, we must use its naming scheme to avoid messing up the
+code (I'd like to say that I hate it myself, IMHO "all lowercase plus
+spaces to underscores" practice is loads better, but...). So, all
+identifiers should be named:
+
+	a) if it is one word long - just the name lowercase
+
+	b) if it's more than one word long - first word lowercase, second
+	and more - starting the uppercased letter, rest lowercased.
+
+Examples: identifier, myGreatIdentifier, exportMid
+
+Global variables (use only if you really need them), should be
+declared with "global" prefix. All global variables should be declared
+as "extern" in globaloptions.h and declared normally in the related
+cpp file.
+
+Example: globalNoteNames
+
+Class names are special case. C++ classes should be named all words
+starting with uppercase, and then lowercased.
+
+Example: MyVeryCoolWidget.
+
+5) TODO fixes
+
+If you write a code that you know it's a *bad* temporarily code that
+needs to be fixed - make sure you write a good bold fix comment near
+it.
+
+Preferably, fixme comments should contain your nick (login, id, etc)
+and FIX word all uppercased. For example:
+
+	// GREYFIX: fix this thing
+
+This way you can then search for "GREYFIX:" substring later and fix
+all the places that need fixing.
+
+You you do a fix that makes such comment obsolete (no matter if it's
+your comment or somebody else's), don't forget to delete it.

@@ -1,0 +1,1222 @@
+<?xml version="1.0" ?>
+<!DOCTYPE book PUBLIC "-//KDE//DTD DocBook XML V4.1-Based Variant V1.0//EN" "dtd/kdex.dtd" [
+  <!ENTITY kguitar '<application>KGuitar</application>'>
+  <!ENTITY kapp "&kguitar;">
+  <!ENTITY % addindex "IGNORE">
+  <!ENTITY % English "INCLUDE"><!-- change language only here -->
+  
+  
+  <!-- Do not define any other entities; instead, use the entities
+       from kde-genent.entities and $LANG/user.entities. -->
+]>
+<!-- kdoctemplate v0.8 October 1 1999 
+     Minor update to "Credits and Licenses" section on August 24, 2000
+     Removed "Revision history" section on 22 January 2001   -->
+
+<!-- ................................................................ -->
+
+<!-- The language must NOT be changed here. -->
+
+<book lang="&language;">
+
+<!-- This header contains all of the meta-information for the document such
+as Authors, publish date, the abstract, and Keywords -->
+
+<bookinfo>
+<title>The &kguitar; Handbook</title>
+
+<authorgroup>
+<author>
+<firstname>Mikhail</firstname>
+<surname>Yakshin</surname>
+<affiliation>
+<address><email>greycat@users.sourceforge.net</email></address>
+</affiliation>
+</author>
+</authorgroup>
+
+<!-- TRANS:ROLES_OF_TRANSLATORS -->
+
+<copyright>
+<year>2002-2003</year>
+<holder>Mikhail Yakshin</holder>
+</copyright>
+<!-- Translators: put here the copyright notice of the translation -->
+<!-- Put here the FDL notice.  Read the explanation in fdl-notice.docbook 
+     and in the FDL itself on how to use it. -->
+<legalnotice>&FDLNotice;</legalnotice>
+
+<!-- Date and version information of the documentation
+Don't forget to include this last date and this last revision number, we
+need them for translation coordination !
+Please respect the format of the date (DD/MM/YYYY) and of the version
+(V.MM.LL), it could be used by automation scripts.
+Do NOT change these in the translation. -->
+
+<date>22/08/2003</date>
+<releaseinfo>1.01.00</releaseinfo>
+
+<!-- Abstract about this handbook -->
+
+<abstract>
+<para>
+&kguitar; is KDE guitarist tabulature environment.
+</para>
+</abstract>
+
+<!-- This is a set of Keywords for indexing by search engines.
+Please at least include KDE, the KDE package it is in, the name
+ of your application, and a few relevant keywords. -->
+
+<keywordset>
+<keyword>KDE</keyword>
+<keyword>kguitar</keyword>
+<keyword>guitar</keyword>
+<keyword>tabulature</keyword>
+<keyword>tab</keyword>
+<keyword>chord</keyword>
+<keyword>editor</keyword>
+<keyword>MIDI</keyword>
+<keyword>MusicXML</keyword>
+</keywordset>
+
+</bookinfo>
+
+<!-- The contents of the documentation begin here.  Label
+each chapter so with the id attribute. This is necessary for two reasons: it
+allows you to easily reference the chapter from other chapters of your
+document, and if there is no ID, the name of the generated HTML files will vary
+from time to time making it hard to manage for maintainers and for the CVS
+system. Any chapter labelled (OPTIONAL) may be left out at the author's
+discretion. Other chapters should not be left out in order to maintain a
+consistent documentation style across all KDE apps. -->
+
+<chapter id="introduction">
+<title>Introduction</title>
+
+<para>
+&kguitar; is basically a guitar tabulature editor for K Desktop
+Environment. It's much more than just a tab editor. It's features are:
+</para>
+
+<itemizedlist>
+
+<listitem><para>Free GPLed program;</para></listitem>
+
+<listitem><para>K Desktop Environment GUI;</para></listitem>
+
+<listitem><para>Powerful and convenient tabulature editing, including
+many effects and classical note score editing for classic instrument
+players;</para></listitem>
+
+<listitem><para>Full and very customizable MIDI to tabulature import
+and export;</para></listitem>
+
+<listitem><para>Support of extra data formats, such as ASCII
+tabulatures, MusicXML or popular programs' format, such as Guitar
+Pro's or TablEdit;</para></listitem>
+
+<listitem><para>Chord fingering construction tools - chord finder
+&amp; chord analyzer;</para></listitem>
+
+<listitem><para>Many additional facilities to ease tabbing work,
+including rhythm and lead construction tools;</para></listitem>
+
+<listitem><para>Highly customizable to suit a lot of possible
+instruments (not only 6-string guitars, and even not only guitars),
+including drum tracks, lyrics and other MIDI events.</para></listitem>
+
+</itemizedlist>
+
+<para>
+You may always report bugs to &kguitar; developers, using either
+SourceForge.net bug tracking services, complaining in one of &kguitar;
+maillists on SourceForge, or just directly mailing one of the
+developers.
+</para>
+
+<sect1 id="what-kguitar-is">
+<title>What &kguitar; is</title>
+
+<para>
+As any sufficiently complex thing, &kguitar; is not for everyone. It
+wasn't designed to meet up everyone's tastes - there are already few
+examples of &quot;one-size-fits-all&quot; in commercial software
+world - and, in fact, the result is really ugly.
+</para>
+
+<para>
+&kguitar; is still in development, and every developing process should
+have it's ultimate mission. &kguitar;'s <emphasis>mission
+statement</emphasis> is the following.
+</para>
+
+<para>
+&kguitar; is a MIDI-enabled music editor that makes it possible to
+write down a whole multi-track song to get an approximate (may be
+pretty close) play in terms of MIDI. Basically, &kguitar; tries to
+help the following process, familiar to most of modern musicians:
+</para>
+
+<itemizedlist>
+
+<listitem><para>Music pieces are <emphasis>composed by a
+composer</emphasis>. This process involves creative construction of
+melodies / harmonies / rhythms, and writing it down quickly and
+correctly.</para></listitem>
+
+<listitem><para>Pre-composed music pieces are sometimes
+<emphasis>transcribed</emphasis> by ear or some other means by a
+<emphasis>transcriber</emphasis>. This process involves continuous
+writing down guesses, re-playing what you've just guessed and
+comparing with original sound.</para></listitem>
+
+<listitem><para>Basic harmonies and rhythms need to be
+<emphasis>arranged</emphasis> (or re-arranged), giving them a complex,
+full and interesting texture, unique sounding that will please an ear
+of final listener. Approximate arrangements are done in MIDI. This
+usually involves lots of song structure, texture and layering editing
+and an ability to hear every change instantly helps a big deal to
+estimate a final result.</para></listitem>
+
+<listitem><para>Approximate MIDI rendering of the song is helpful for
+<emphasis>rehearsals</emphasis> of live-performing artists. &kguitar;
+may be help rehearsing without gathering all the band: one musician
+may jam live against a full backup rendering without his
+track.</para></listitem>
+
+</itemizedlist>
+
+<para>
+After that, &kguitar;'s role diminishes. There are several more steps
+in sound production, where &kguitar; can't really help directly, but
+all these steps can use songs done in &kguitar; as a source:
+</para>
+
+<itemizedlist>
+
+<listitem><para>Approximate arrangement in MIDI is <emphasis>played
+and recorded</emphasis> (or re-recorded) as live audio tracks by a
+<emphasis>performing musicians</emphasis>. &kguitar; can't help here
+directly, but it is able to export nicely rendered MIDI version of a
+song.</para></listitem>
+
+<listitem><para>Recored audio is <emphasis>mixed down and
+mastered</emphasis> by various <emphasis>sound
+engineers</emphasis>. Later, these songs / music may be played live by
+a live band, this process also involes lots of sound engineering and
+audio processing / mixing magic. &kguitar; can't help you
+here.</para></listitem>
+
+<listitem><para>Written down form of music is going through a
+professional typesetting system to publish note scores / orchestral
+scores / various other sheet music. &kguitar; can help you here a bit:
+it involves approximate printing (your mileage may vary a lot - it may
+be okay for your personal needs, but these printouts are certainly no
+match for a high-quality hand-tuned music engravements). Also,
+&kguitar; is going to be able to export data into some popular
+professional music engravement system formats, such as MusiXTeX or
+LilyPond.</para></listitem>
+
+</itemizedlist>
+
+<para>
+So, basically, you can think of &kguitar; as of RAD IDE (Rapid
+Application Development suite for Intergrated Development
+Environment), but for music, not for computer programs. It allows you
+to quickly plan, write down tunes and make acceptable prototypes, that
+can be greatly improved later in sound production process.
+</para>
+
+</sect1>
+
+<sect1 id="what-kguitar-isnt">
+<title>What &kguitar; isn't</title>
+
+<para>Let me illustrate a few cases when using &kguitar; is
+suboptimal. It's by no means an excessive list, but it should give you
+some ideas when solving your tasks with some other tools would yield
+you better results.</para>
+
+<itemizedlist>
+
+<listitem><para>&kguitar; is not a <emphasis>music typesetting
+system</emphasis>, and, particularly, isn't a guitar tabulature
+typesetting system. Sure, &kguitar; is able to produce print-outs,
+able to save tunes in various typesetting system formats, but
+&kguitar; shouldn't be viewed as a standalone professional music
+typesttting system. Professional typesetting is complex and tedious
+manual task, which involves lots of manual hinting to reach best
+looks, placement of various helper symbols on the tabulature, etc,
+etc. This is why professional scores are done in specialized systems,
+such as <ulink
+url="http://freshmeat.net/projects/noteedit/">NoteEdit</ulink>. In
+guitar tabulature world, there <ulink
+url="http://www.solutionm.com/gnometab/gnometab.html">GnomeTab</ulink>
+that produces heavily annonated printed tabulatures.</para></listitem>
+
+<listitem><para>&kguitar; is not a <emphasis>MIDI
+sequencer</emphasis>. &kguitar; is able to convert its tabulatures
+into form of MIDI events stream, but generally, you don't have much
+direct access to modify it. You can't manually fiddle some of SysEx
+control events for your great MIDI sampler, you can't directly and
+independently of tabulature change settings of most controllers, you
+even can't directly use "pitch wheel". Most importantly, MIDI event
+stream consists of various MIDI events which can have very irregular
+timing - it isn't the case for &kguitar;. &kguitar; is closer to
+infamous tracker software in terms of representation of score data:
+there are fixed pattern array where various notes can be placed in,
+deviations from this time grid are possible, but should be done with
+<link linkend="tab-effects">tabulature effects</link>. If you require
+a full-blown MIDI sequencer for your work, try using <ulink
+url="http://www.rosegardenmusic.com/">RoseGarden</ulink> or <ulink
+url="http://muse.serverkommune.de/">MusE</ulink>.</para></listitem>
+
+<listitem><para>&kguitar; is not a <emphasis>hard disc audio recording
+system</emphasis>. &kguitar; does not support audio tracks, editing,
+mixing, looping, mastering, pitch-shifting, applying any effects to
+audio in real-time or destructively and probably would never be. Audio
+recording, editing and mastering is a whole another land, where you
+should use some audio-processing tools, such as <ulink
+url="http://jackit.sourceforge.net">Jack audio server</ulink>, <ulink
+url="http://www.eca.cx/">EcaSound multitrack audio processing
+tool</ulink>, already mentioned <ulink
+url="http://www.rosegardenmusic.com/">RoseGarden</ulink> and <ulink
+url="http://muse.serverkommune.de/">MusE</ulink> with their
+audio-related capabilities. Also, due to the fact that &kguitar; does
+not process audio, it doesn't bundle any fancy feature like guitar
+tuners or stuff like that. You can have decent guitar tuners for free
+as separate applications, there is no need to include them in
+&kguitar;.</para></listitem>
+
+</itemizedlist>
+
+</sect1>
+ 
+</chapter>
+
+<chapter id="using-kguitar">
+<title>Using &kguitar;</title>
+
+<!-- This chapter should tell the user how to use your app. You should use as
+many sections (Chapter, Sect1, Sect3, etc...) as is necessary to fully document
+your application. -->
+
+<para>
+&kguitar; is a pretty complex software, but if you'll ever used any
+musical notation editors, it won't be hard for you to learn &kguitar;.
+</para>
+
+<sect1 id="what-is-tab">
+<title>What is a tabulature?</title>
+
+<para>
+If you're a professional guitarist who uses tabulatures in everyday's
+work, then you may skip this section and head straight to <link
+linkend="basic-tab-edit">tabulature editing</link>. However, if you've
+never used tabulatures before, you should read this section.
+</para>
+
+<para>
+Tabulatures are pretty ancient form of writing down musical
+patterns. The name &quot;tabulature&quot; originates from ancient
+latin &quot;tabula&quot;, a word that means &quot;a board for writing
+down things&quot; (that's why the <emphasis>right</emphasis> form of
+this word is <emphasis>tabulature</emphasis>, not tablature, as most
+of modern sources think).
+</para>
+
+<para>
+Basically, tabulature is a form of music notation for a
+specific instrument which tells the performer not what to play
+generally, but how to play it just right. That's the biggest
+difference between standard note scores and tabulatures. In all other
+aspects, they're more or less compatible and comparable.
+</para>
+
+<para>
+In particular, when tabulature is written down for guitar or similar
+fretted instruments (we'll refer to all them as &quot;guitar&quot; and
+we'll refer to a human being that plays these instruments as
+&quot;guitarists&quot; below), tabulature contains data on what fret
+should be touched with one hand and what strings should be picked with
+the other.
+</para>
+
+</sect1>
+
+<sect1 id="basic-tab-edit">
+<title>Basic tabulature editing</title>
+
+<para>
+Tabulature editor is a central part of &kguitar; application and
+everything else seems to revolve around it.
+</para>
+
+<screenshot>
+<screeninfo>A screenshot of song view</screeninfo>
+	<mediaobject>
+		<imageobject>
+			<imagedata fileref="songview.png" format="PNG"/>
+		</imageobject>
+		<textobject>
+			<phrase>Screenshot</phrase>
+		</textobject>
+	</mediaobject>
+</screenshot>
+
+<para>
+Song view consists of several parts: top part with the tabulature
+editor itself, and the bottom part with a track manager and
+editor. Track manager allows you to create multi-track songs and its
+<link linkend="track-edit">track editing</link> functions would be
+explained in detail later and this section will concentrate on
+features of tabulature editor.
+</para>
+
+<para>
+In &kguitar; tabulature editor, the most basic unit of a song is a
+single column. Column is a group of notes (or rests) that begin at the
+same time (well, almost, there's an exception to this rule if
+tabulature effects are used) and have same duration (there're also
+some exceptions). Such notes (and corresponding fret numbers for them)
+are vertically aligned and form a single column of tabulature.
+</para>
+
+<para>
+Your cursor is shown as an inverted square in tabulature editor. You
+can move it inside tabulature column (using <keycap>Up Arrow</keycap>
+and <keycap>Down Arrow</keycap> keys) and put fret number in the
+column with digit keys <keycap>0</keycap>-<keycap>9</keycap>. To put a
+two-digit fret number (for example, 12), just press <keycap>1</keycap>
+and then press <keycap>2</keycap> - &kguitar; will detect this and
+you'll get that 12 eventually. Use <keycap>Delete</keycap> to delete
+entered fret numbers and make rest instead of it in this place on
+selected string.
+</para>
+
+<para>
+One of the very convenient features of &kguitar; is easy
+transposing. For example, if you think that playing a note on 2nd
+string is not convenient and 3rd string will be a better choice, just
+use this function to automatically &quot;pull&quot; fret number from
+2nd string to the 3rd and it will get updated accordingly to maintain
+the original note pitch. Use key combos
+<keycombo><keycap>Ctrl</keycap><keycap>Up Arrow</keycap></keycombo>
+and <keycombo><keycap>Ctrl</keycap><keycap>Down
+Arrow</keycap></keycombo> to shift fret numbers like that while moving
+cursor up or down a string.
+</para>
+
+</sect1>
+
+<sect1 id="note-durations">
+<title>Note durations</title>
+
+<para>
+When transcribing a piece of music, it's essential to be able to
+specify durations of notes, i.e. intervals of time they sound.
+</para>
+
+<para>
+In &kguitar; every column has a duration (that's one of the major
+advantages of &kguitar; over ASCII tabulatures, which provide no
+rhythmic information), which are notated in normal musical form
+relative to current tempo, i.e. 1/1, 1/2, 1/4, etc. You can see
+current column's duration as a shape of downward stem and change
+either using toolbar's duration buttons or with keys
+<keycap>-</keycap> and <keycap>=</keycap> (<keycap>+</keycap>) to
+halve or double current duration accordingly.
+</para>
+
+<para>
+You can also use so-called &quot;dotted&quot; note durations (when
+note durations have extra one half of original duration added, thus,
+for example, for 1/2, making 1/2+1/4=3/4) and triplets (when note
+durations are 2/3 from original, thus it's possible to fit three
+triplet columns where there were only two original ones). Use key
+<keycap>.</keycap> to toggle dot status of a note and use
+<keycap>t</keycap> to toggle triplet status. Triplets would be
+automatically shown in groups of 3 when you'll enter sufficient number
+of them.
+</para>
+
+<para>
+Though such column-oriented approach was critiqued a lot because of
+it's mythical inflexibility, we advocate for such approache because of
+it's natural simplicity in most of frequent situations. Later in this
+documentation, we'll demonstrate how it can be used to <link
+linkend="advanced-transcribing">transcribe even the most complex
+musical figures</link>.
+</para>
+
+</sect1>
+
+<sect1 id="bars-beats-time-signature">
+<title>Bars, beats, time and key signature</title>
+
+<para>
+Most often, music fits some sort of rhythmic mode. Thus, for
+convenience, similar musical phrases that are marked by beats are
+separated with bars in musical score. Bars are supported in &kguitar;
+automatically. Just fit enough note durations to fill one bar and
+&kguitar; will automatically goes to the next. If you're automatical
+barring will screw (if you'll delete some column in the middle of the
+song, for example), use rearrange bars function, available via
+<menuchoice>
+<shortcut>
+<keycombo><keycap>Shift</keycap><keycap>a</keycap></keycombo>
+</shortcut>
+<guimenu>Track</guimenu>
+<guimenuitem>Arrange Bars</guimenuitem>
+</menuchoice>
+</para>
+
+<para>
+Quantity of beats per bar and value of one beat is called a time
+signature. &kguitar; lets you set time signature using 
+<menuchoice>
+<shortcut>
+<keycombo><keycap>Shift</keycap><keycap>t</keycap></keycombo>
+</shortcut>
+<guimenu>Track</guimenu>
+<guimenuitem>Time Signature</guimenuitem>
+</menuchoice>.
+
+In the dialog, you'll be presented with an option either to set time
+signature for current bar only or to set it from current bar to the
+end of song. If you want to reset the time signature for the whole
+song, remember to go to the very first bar and use this command with
+&quot;to the end&quot; checkbox enabled.
+</para>
+
+<para>
+Another essential property of a bar is a key signature that determines
+number of signs of alteration (sharps or flats) that act in this
+bar. &kguitar; lets you set key signature using
+<menuchoice>
+<shortcut>
+<keycombo><keycap>Shift</keycap><keycap>k</keycap></keycombo>
+</shortcut>
+<guimenu>Track</guimenu>
+<guimenuitem>Key Signature</guimenuitem>
+</menuchoice>.
+
+This is a very simple dialog where you can select one of key
+signatures from 7 sharps to 7 flats.
+</para>
+
+</sect1>
+
+<sect1 id="tab-effects">
+<title>Tabulature Effects</title>
+
+<para>
+Tabulature can contain various guitar-specific (and not only guitar)
+effects. All these things have special symbols assigned to them. You
+can add effects via either pressing a hotkey or clicking on a toolbar
+item.
+</para>
+
+<para>
+Supported effects so far:
+</para>
+
+<itemizedlist>
+
+<listitem><para><keycap>h</keycap> - Natural harmonic</para></listitem>
+<listitem><para><keycap>r</keycap> - Artifical Harmonic</para></listitem>
+<listitem><para><keycap>p</keycap> - Legato (hammer on/pull off)</para></listitem>
+
+</itemizedlist>
+
+</sect1>
+
+<sect1 id="using-clipboard">
+<title>Using Clipboard</title>
+
+<para>
+You can use all familiar clipboard operations in &kguitar;-edited
+tabulature.
+</para>
+
+</sect1>
+
+<sect1 id="chord-constructor">
+<title>Chord Constructor</title>
+
+<para>
+TODO
+</para>
+
+</sect1>
+
+<sect1 id="rhythm-constructor">
+<title>Rhythm Constructor</title>
+
+<para>
+TODO
+</para>
+
+</sect1>
+
+<sect1 id="melody-editor">
+<title>Melody Editor</title>
+
+<para>
+Melody editor is a tool that helps entering tabulature with mouse. It
+somewhat loosely resembles Cakewalk's tab staff fretboard or
+TablEdit's fretboard, but much more useful and flexible. Melody editor
+lets you easily and quickly enter harmonized solos, fills and etc, by
+just clicking every note on the fretboard in order of playing.
+</para>
+
+<sect2>
+<title>Basic usage</title>
+
+<para>
+Editor looks like fretboard photo from the same point of view as you
+read tabulature from. By default, you can click any place on that
+fretboard and some sort of action will be executes, depending on what
+button you have pressed:
+</para>
+
+<itemizedlist>
+
+<listitem><para><keycap>Left mouse button</keycap> - set note on
+clicked fret and string.</para></listitem>
+
+<listitem><para><keycap>Middle mouse button</keycap> - set 022-type power
+chord on clicked fret and string.</para></listitem>
+
+<listitem><para><keycap>Right mouse button</keycap> - set note on
+clicked fret and string, and on release of mouse button, track cursor
+advances to the next column - ideal for entering mono-voiced
+soloes.</para></listitem>
+
+</itemizedlist>
+
+</sect2>
+
+<sect2>
+<title>Setting actions</title>
+
+<para>
+TODO
+</para>
+
+</sect2>
+
+<sect2>
+<title>Customizing Melody Editor</title>
+
+<para>
+Fully customizable, now supports several inlay types. Work in
+progress, so more to come.
+TODO
+</para>
+
+</sect2>
+
+</sect1>
+
+<sect1 id="advanced-transcribing">
+<title>Advanced Transcribing</title>
+
+<para>
+Column-based approach to tabulature transcribing may seem inflexible
+for most complex pieces of music, but it's not true. Let's demonstrate
+a few examples of some intonational complexity based of note durations.
+</para>
+
+<para>
+The main principle one should stick to while using column-based approach
+is simple: the tabulature is about <emphasis>how</emphasis> music should
+be played, not <emphasis>what</emphasis> generally should sound. This
+rigidly fixes tabulature on particular instrument, but, nowadays, converting
+from one type of tabulature to another is automated task you can delegate
+to your computer, rather that comprehending it yourself.
+</para>
+
+<sect2 id="advanced-example-1">
+<title>Example 1: Mixed duration notes</title>
+
+<para>
+We need to transcribe two notes that start at the same time, but first
+one sounds for 1/4 or a beat and second one lasts for 1/2. This is how
+it looks in classic note staff (screenshot of a Rosegarden sequencer's
+note editor):
+</para>
+
+<screenshot>
+<screeninfo>Mixed duration notes on a classic note staff</screeninfo>
+	<mediaobject>
+		<imageobject>
+			<imagedata fileref="multi-duration-staff.png" format="PNG"/>
+		</imageobject>
+	</mediaobject>
+</screenshot>
+
+<para>
+It seems to be impossible to do that it in column-based tabulature, as
+all notes stacked in a column seem to have same duration.
+</para>
+
+<para>
+Remembering the main principle mentioned above, let's think about how
+such a figure would be played, for example, on a guitar. Naturally,
+strings are all the same and we can assume here that they sound
+infinitely long if not interrupted.  How can a guitarist interrupt
+string sound? There are three possibilities:
+</para>
+
+<itemizedlist>
+
+<listitem><para>He can fret some sort of other note on the same
+string, thus ending the tone of previous one;</para></listitem>
+
+<listitem><para>He can mute the string with his finger or palm with
+audible muting click (so called &quot;dead
+note&quot;);</para></listitem>
+
+<listitem><para>He can just mute the string with his finger or palm
+silently;</para></listitem>
+
+</itemizedlist>
+
+<para>
+You can implement it all three ways in KGuitar tabulatures. Let's see
+how to do that. In all cases, we'll use note &quot;let ring&quot; tool
+to transcribe long notes. Let ring is a property of every single fret
+number in a tab. Use the &quot;let ring&quot; tool to toggle that
+property: either the fret will let ring or not.
+</para>
+
+<sect3>
+<title>Ending sound with some other note</title>
+
+<screenshot>
+<screeninfo>Ending sound with some other note</screeninfo>
+	<mediaobject>
+		<imageobject>
+			<imagedata fileref="let-ring-other.png" format="PNG"/>
+		</imageobject>
+	</mediaobject>
+</screenshot>
+
+<para>
+This is how it will look like. Fifth string "2" fret number has a let
+ring option, so it will ring for as long as bar lasts or anything will
+interrupt it. Note that horizontal line that normally represent a
+string became an arrow that represents how long the note sounds - note
+starts on the digit and ends on the arrowhead, i.e. 1/4 (full length
+of bar). Fourth string "2" sounds only 1/8 as it's superseeded by "5",
+picked on a same string.
+</para>
+
+<para>
+In complex cases, "2" on fourth string can have let ring options
+turned on too to achieve even more sophisticated timings.
+</para>
+
+</sect3>
+
+<sect3>
+<title>Ending sound with audible muting (dead note)</title>
+
+<screenshot>
+<screeninfo>Ending sound with audible muting (dead note)</screeninfo>
+	<mediaobject>
+		<imageobject>
+			<imagedata fileref="let-ring-dead.png" format="PNG"/>
+		</imageobject>
+	</mediaobject>
+</screenshot>
+
+<para>
+This one is just like the first one, but with real note ("5") replaced
+to dead note ("X"). Dead note means that guitarist will mute the
+string in some sort of way (for example, with a direct pick strike)
+that it will produce a loud audible click and stop
+sounding. Transcribing technique used is just the same.
+</para>
+
+</sect3>
+
+<sect3>
+<title>Muting string silently</title>
+
+<para>
+It was mentioned above that "let ring" options is toggleable for every
+fret number in the track. That's more than it. You can turn "let ring"
+on for empty space (i.e. nothing played) to produce some sort of
+anti-"let ring". Such empty space with anti-"let ring" will stop
+previously ringing string.
+</para>
+
+<screenshot>
+<screeninfo>Muting string silently</screeninfo>
+	<mediaobject>
+		<imageobject>
+			<imagedata fileref="let-ring-null.png" format="PNG"/>
+		</imageobject>
+	</mediaobject>
+</screenshot>
+
+<para>
+This technique is demonstrated on the this tabulature. Both 2 notes
+from the beginning have a "let ring" on them. However, in second
+column on the fourth string there is empty space with anti-"let ring"
+that signals guitarist to mute the string without making any more
+noises. Fifth string continues to ring to the end of bar. Arrows show
+for how long each note will sound.
+</para>
+
+</sect3>
+
+</sect2>
+
+</sect1>
+
+<sect1 id="track-edit">
+<title>Track Editing</title>
+
+<para>
+TODO
+</para>
+
+<para>
+The Squiggle Tool <guiicon><inlinemediaobject>
+	  <imageobject>
+	    <imagedata fileref="squiggle.png" format="PNG"/>
+	  </imageobject>
+	  <imageobject>
+	    <imagedata fileref="squiggle.eps" format="EPS"/>
+	  </imageobject>
+	  <textobject>
+	    <phrase>Squiggle</phrase>
+	  </textobject>
+</inlinemediaobject></guiicon> is used to draw squiggly lines all over
+the &kguitar; main window. It's not a bug, it's a feature!
+</para>
+
+</sect1>
+</chapter>
+
+<chapter id="supported-formats">
+<title>Supported Formats</title>
+
+<para>
+&kguitar; supports multiple tabulature storage formats and various
+options for importing/exporting. Don't seek a separate import/export
+menu items, all such operations are done from normal
+<menuchoice><guimenu>File</guimenu><guimenuitem>Open</guimenuitem></menuchoice>
+and
+<menuchoice><guimenu>File</guimenu><guimenuitem>Save</guimenuitem></menuchoice>
+menus - just select the file format you want. If conversion requires
+special options, you'll be presented with a separate conversion
+dialog. This is exactly the same dialog as the one that appears in
+&kguitar; settings menu
+(<menuchoice><guimenu>Settings</guimenu><guimenuitem>Configure
+KGuitar</guimenuitem></menuchoice>). If you don't want this dialog to
+appear every time and just want to accept default values (which are
+saved, by the way), you can uncheck the <guilabel>Show this dialog in
+conversion process</guilabel>. Then, if you'll ever need to change it,
+it will be accessible in
+<menuchoice><guimenu>Settings</guimenu><guimenuitem>Configure
+KGuitar</guimenuitem></menuchoice> dialog.
+</para>
+
+<sect1 id="format-kg">
+<title>KG format</title>
+
+<para>
+KG is a native &kguitar; format that saves absolutely anything you can
+have in the song. Nothing much to tell about. It's a best format if
+you just want to use &kguitar; and nothing else.
+</para>
+
+</sect1>
+
+<sect1 id="format-mid">
+<title>MID format</title>
+
+<para>
+MID (MIDI file) format is currently supported for export only. MIDI
+file is a file that basically contains MIDI events, i.e. directions
+for a synthesizer on which notes to play, how long they should sound,
+what effects and instruments should be used, etc.
+</para>
+
+<para>
+Exporting to MIDI is an excelllent opportunity if you want to show the
+tabulature you've created in its sounding form to anyone. Also every
+computer now with a sound card has a MIDI synthesizer (or at least
+there's a couple of software MIDI synths available), so good chances
+are that most of the people would be able to listen to your
+transcribed song. However, keep in mind that MIDI doesn't contain
+tabulature information at all, i.e. no instrument tuning information
+are stored, no fret numbers, nothing like that. Effects and various
+guitar techniques are only approximated via special controllers to
+sound similar to natural performance.
+</para>
+
+<para>
+&kguitar; is able only to export MIDI files for now, but MIDI import
+with automatic tabulature generation is planned to be added.
+</para>
+
+</sect1>
+
+<sect1 id="format-xml">
+<title>MusicXML format</title>
+
+<para>
+This is a relatively new format, specified by <ulink
+url="http://www.recordare.com/">Recordare</ulink> and encouraged to be
+used in all music-related programs. This format is based on widely
+acclaimed XML and seems to be a new standard for music scores
+interchange.
+</para>
+
+<para>
+MusicXML is recommended if you want to share your tabulature with the
+rest of the world. Most of the guitar-specific tabulature information
+is preserved in MusicXML. &kguitar; is able to both import and export
+MusicXML.
+</para>
+
+</sect1>
+
+<sect1 id="format-tab">
+<title>ASCII TAB format</title>
+
+<para>
+ASCII TAB is the most widely used tabulature format in the Internet,
+there are numerous archives that host tabulatures in this format. It
+consists of a plain text file in which the tabulature is depicted
+using staves (with minus characters), numbers (digit characters) and
+effects (with various letters). Among them there could be occasional
+texts, playing directions, etc. There's no single standard for ASCII
+tabs, so sometimes it may be a hell amount of work to comprehend a
+screwed tabulature. Lots of information is often missing from ASCII
+tabs, most often - the rhythm and note durations information, that
+makes plainly impossible to play that tabulature if you've never heard
+the song before (and even if you did, it isn't always very clear how
+to do it).
+</para>
+
+<para>
+&kguitar; now supports only exporting of ASCII tabs. However, if
+you're going to distribute your created tabulature, we recommend you
+<emphasis>not</emphasis> to do it in ASCII TAB legacy format. Due to
+lots of unsaved information, a load of your hard work will be just
+lost without any traces. Use <link
+linkend="format-xml">MusicXML</link> for tabulature distribution, if
+at all possible.
+</para>
+
+</sect1>
+
+<sect1 id="format-guitar-pro">
+<title>Guitar Pro 4 format</title>
+
+<para>
+Guitar Pro is a popular commercial guitar tabulature editor for
+Windows and, sadly, it's proprietary format is widely used on the
+Internet tabulature sharing resources, such as <ulink
+url="http://www.mysongbook.com/">MySongBook</ulink>. There was a pity
+to ignore such a huge source of tabulatures and &kguitar; has an
+import support for Guitar Pro format.
+</para>
+
+<para>
+Guitar Pro has at least 3 major formats: GTP (version 2), GP3 (version
+3) and GP4 (version 4). &kguitar; officially supports only GP4
+(version 4) format. All older formats can be easily converted to GP4
+with Guitar Pro itself, and. currently, we have no plans to support
+older format revisions in &kguitar;.
+</para>
+
+<para>
+As Guitar Pro is a closed format and it's specs are available only
+through trial-and-error determining process, bugs and glitches in
+Guitar Pro import code are imminent. If you'll encounter a file that
+latest version of Guitar Pro loads correctly and &kguitar; does not -
+you're welcome to contact &kguitar; development team and report it.
+</para>
+
+</sect1>
+
+</chapter>
+
+<chapter id="commands">
+<title>Command Reference</title>
+
+<!-- (OPTIONAL, BUT RECOMMENDED) This chapter should list all of the
+application windows and their menubar and toolbar commands for easy reference.
+Also include any keys that have a special function but have no equivalent in the
+menus or toolbars. This may not be necessary for small apps or apps with no tool
+or menu bars. -->
+
+<sect1 id="kguitar-mainwindow">
+<title>The main &kguitar; window</title>
+<para></para>
+
+<sect2>
+<title>The File Menu</title>
+<para>
+<variablelist>
+<varlistentry>
+<term><menuchoice>
+<shortcut>
+<keycombo><keycap>Ctrl</keycap><keycap>n</keycap></keycombo>
+</shortcut>
+<guimenu>File</guimenu>
+<guimenuitem>New</guimenuitem>
+</menuchoice></term>
+<listitem><para><action>Creates a new document</action></para></listitem>
+</varlistentry>
+<varlistentry>
+<term><menuchoice>
+<shortcut>
+<keycombo><keycap>Ctrl</keycap><keycap>s</keycap></keycombo>
+</shortcut>
+<guimenu>File</guimenu>
+<guimenuitem>Save</guimenuitem>
+</menuchoice></term>
+<listitem><para><action>Saves the document</action></para></listitem>
+</varlistentry>
+<varlistentry>
+<term><menuchoice>
+<shortcut>
+<keycombo><keycap>Ctrl</keycap><keycap>q</keycap></keycombo>
+</shortcut>
+<guimenu>File</guimenu>
+<guimenuitem>Quit</guimenuitem>
+</menuchoice></term>
+<listitem><para><action>Quits</action> &kguitar;</para></listitem>
+</varlistentry>
+</variablelist>
+</para>
+
+</sect2>
+
+</sect1>
+</chapter>
+
+<chapter id="faq">
+<title>Questions and Answers</title>
+
+<!-- (OPTIONAL but recommended) This chapter should include all of the silly
+(and not-so-silly) newbie questions that fill up your mailbox. This chapter
+should be reserved for BRIEF questions and answers! If one question uses more
+than a page or so then it should probably be part of the
+"Using this Application" chapter instead. You should use links to
+cross-reference questions to the parts of your documentation that answer them.
+This is also a great place to provide pointers to other FAQ's if your users
+must do some complicated configuration on other programs in order for your
+application work. -->
+
+&reporting.bugs;
+&updating.documentation;
+
+<qandaset id="faqlist">
+<qandaentry>
+<question>
+<para>My Mouse doesn't work. How do I quit &kguitar;?</para>
+</question>
+<answer>
+<para>You silly goose! Check out the <link linkend="commands">Commands
+Section</link> for the answer.</para>
+</answer>
+</qandaentry>
+<qandaentry>
+<question>
+<para>Why can't I twiddle my documents?</para>
+</question>
+<answer>
+<para>You can only twiddle your documents if you have the foobar.lib
+installed.</para>
+</answer>
+</qandaentry>
+</qandaset>
+</chapter>
+
+<chapter id="credits">
+
+<title>Credits and License</title>
+
+<para>
+KGuitar team includes developers:
+
+<itemizedlist>
+<listitem><para>Mikhail Yakshin AKA GreyCat <email>greycat@users.sourceforge.net</email>
+</para></listitem>
+<listitem><para>Alexander Brand AKA alinx <email>alinx@users.sourceforge.net</email>
+</para></listitem>
+<listitem><para>Leon Vinken <email>lvinken@users.sourceforge.net</email>
+</para></listitem>
+<listitem><para>Matt Malone <email>Marlboro@users.sourceforge.net</email>
+</para></listitem>
+</itemizedlist>
+</para>
+
+<para>
+Documentation copyright 2002 Mikhail Yakshin <email>greycat@users.sourceforge.net</email>
+</para>
+
+<para>
+Translation is done by:
+
+<itemizedlist>
+<listitem><para>Wilane Ousmane <email>wilane@users.sourceforge.net</email>
+</para></listitem>
+<listitem><para>Harri Haataja <email>realblades@users.sourceforge.net</email>
+</para></listitem>
+<listitem><para>Stephan Borchert <email>sborchert@users.sourceforge.net</email>
+</para></listitem>
+<listitem><para>Richard G. Roberto <email>robertor@users.sourceforge.net</email>
+</para></listitem>
+<listitem><para>Riccardo &quot;FeAC&quot; Vitelli <email>feac@users.sourceforge.net</email>
+</para></listitem>
+</itemizedlist>
+
+</para>
+
+&underFDL;
+&underGPL;
+
+</chapter>
+
+<appendix id="installation">
+<title>Installation</title>
+
+<sect1 id="getting-kguitar">
+<title>How to obtain &kguitar;</title>
+
+<para>
+Latest version of &kguitar;, as well as the latest development news
+and information can always be obtained from <ulink
+url="http://kguitar.sourceforge.net/">&kguitar;'s homepage</ulink>. Or
+look for kguitar or similar package in your favorite distribution.
+</para>
+
+</sect1>
+
+<sect1 id="requirements">
+<title>Requirements</title>
+
+<para>
+In order to successfully use &kguitar;, you need KDE 3.x. TSE3 (Trax
+Sequencer Engine 3) library is very recommended for all MIDI-related
+capabilities of &kguitar;. There are no special hardware requirements,
+though having MIDI synthesizer (either full-blown external keyboard or
+an internal one, integrated on your sound-card) is a big plus that
+will let you use all MIDI features.
+</para>
+
+<para>
+TSE3 library can be found at <ulink
+url="http://tse3.sourceforge.net/">TSE3 home page</ulink>.
+</para>
+
+</sect1>
+
+<sect1 id="compilation">
+<title>Compilation and Installation</title>
+
+<para>
+In order to compile and install &kguitar; on your system, type the
+following in the base directory of the &kguitar; distribution:
+<screen width="40">
+<prompt>%</prompt> <userinput>./configure</userinput>
+<prompt>%</prompt> <userinput>make</userinput>
+<prompt>%</prompt> <userinput>make install</userinput>
+</screen>
+</para>
+
+<para>
+Since &kguitar; uses autoconf and automake you should have not trouble
+compiling it. Should you run into problems please report them to
+&kguitar; team.
+</para>
+
+</sect1>
+
+<sect1 id="configuration">
+<title>Configuration</title>
+
+<para>
+Advanced printing and track displaying features, such as note scores
+in classical notation, require special Feta fonts to be installed. If
+you had &kguitar; from some sort of pre-built package, chances are
+you've already got this font in your system, but if you're building
+from source, you'll need following instructions.
+</para>
+
+<para>
+&kguitar; uses 2 Feta fonts: Lilypond's Feta font and Feta nummer
+font. Type1 versions of them are available in <ulink
+url="http://ftp.cs.uu.nl/pub/GNU/LilyPond">Lilypond packages</ulink>.
+</para>
+
+<para>
+Prepare at least files "feta20.pfa" and "feta-nummer10.pfa" from
+Lilypond distribution. This assumes that these files are available in
+the current directory:
+</para>
+
+<screen width="40">
+<prompt>%</prompt> <userinput>cp *.pfa /usr/X11R6/lib/X11/fonts/local</userinput>
+<prompt>%</prompt> <userinput>cd /usr/X11R6/lib/X11/fonts/local</userinput>
+<prompt>%</prompt> <userinput>ls -x *.pfa | make-font-dir.py > fonts.scale</userinput>
+<prompt>%</prompt> <userinput>mkfontdir</userinput>
+</screen>
+
+<para>
+These steps copy the font files and create two files "fonts.dir" and
+"fonts.scale" with lines, describing these fonts.
+</para>
+
+<para>
+Note: make-font-dir can be found in lilypond-1.6.5.tar.gz.
+</para>
+
+<para>
+Next, you'll have to update your configuration files:
+</para>
+
+<itemizedlist>
+
+<listitem><para>Add a line "/usr/X11R6/lib/X11/fonts/local" to the
+catalogue section in /etc/X11/fs/config</para></listitem>
+
+<listitem><para>Add a line
+"&lt;dir&gt;/usr/X11R6/lib/X11/fonts/local&lt;/dir&gt;" to the font
+directory list in /etc/fonts/fonts.conf</para></listitem>
+
+</itemizedlist>
+
+<para>
+After the first step, the Feta fonts become available to X11
+applications and can be viewed in "xfontsel". After the second step,
+the font will also be found by KDE/Qt applications, such as
+KCharSelect or KWord.
+</para>
+
+</sect1>
+
+</appendix>
+
+&documentation.index;
+</book>
+<!--
+Local Variables:
+mode: sgml
+sgml-minimize-attributes:nil
+sgml-general-insert-case:lower
+sgml-indent-step:0
+sgml-indent-data:nil
+End:
+-->

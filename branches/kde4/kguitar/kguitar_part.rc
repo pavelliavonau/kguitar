@@ -1,0 +1,128 @@
+<!DOCTYPE kpartgui SYSTEM "kpartgui.dtd">
+<kpartgui name="kguitar_part" version="1">
+<MenuBar>
+	<Menu name="file"><text>&amp;File</text>
+		<Action name="file_save" group="save_merge"/>
+		<Action name="file_save_as" group="save_merge"/>
+		<Action name="file_print" group="print_merge"/>
+		<Separator group="print_merge"/>
+		<Action name="song_properties" group="print_merge"/>
+	</Menu>
+	<Menu name="edit"><text>&amp;Edit</text>
+		<Action name="edit_undo" group="edit_undo_merge"/>
+		<Action name="edit_redo" group="edit_undo_merge"/>
+		<Separator group="edit_undo_merge"/>
+		<Action name="edit_cut" group="edit_paste_merge"/>
+		<Action name="edit_copy" group="edit_paste_merge"/>
+		<Action name="edit_paste" group="edit_paste_merge"/>
+		<Action name="edit_select_all" group="edit_select_merge"/>
+	</Menu>
+	<Menu name="view"><text>&amp;View</text>
+		<Action name="view_zoom_in"/>
+		<Action name="view_zoom_out"/>
+		<Action name="view_zoom"/>
+		<Separator/>
+		<Action name="view_melodyEditor"/>
+		<Action name="view_score"/>
+	</Menu>
+	<Menu noMerge="1" name="track"><text>&amp;Track</text>
+		<Action name="key_sig"/>
+		<Action name="time_sig"/>
+		<Action name="arrange_trk"/>
+		<Separator/>
+		<Action name="track_new"/>
+		<Action name="track_delete"/>
+		<Action name="track_bassline"/>
+		<Separator/>
+		<Action name="track_properties"/>
+	</Menu>
+	<Menu noMerge="1" name="note"><text>&amp;Note</text>
+		<Menu name="insert"><text>&amp;Insert</text>
+			<Action name="insert_chord"/>
+			<Action name="rhythmer"/>
+		</Menu>
+		<Menu name="duration"><text>&amp;Duration</text>
+			<Action name="set_len1"/>
+			<Action name="set_len2"/>
+			<Action name="set_len4"/>
+			<Action name="set_len8"/>
+			<Action name="set_len16"/>
+			<Action name="set_len32"/>
+			<Separator/>
+			<Action name="dotted_note"/>
+			<Action name="triplet"/>
+			<Separator/>
+			<Action name="more_duration"/>
+			<Action name="less_duration"/>
+		</Menu>
+		<Menu name="effects"><text>&amp;Effects</text>
+			<Action name="fx_legato"/>
+			<Action name="fx_slide"/>
+			<Action name="fx_nat_harm"/>
+			<Action name="fx_art_harm"/>
+			<Action name="fx_let_ring"/>
+			<Separator/>
+			<Action name="fx_palmmute"/>
+		</Menu>
+	</Menu>
+	<Menu noMerge="1" name="play"><text>&amp;Play</text>
+		<Action name="midi_playsong"/>
+		<Action name="midi_stopplay"/>
+	</Menu>
+	<Menu name="settings"><text>&amp;Settings</text>
+		<Action name="options_configure" group="configure_merge" />
+	</Menu>
+</MenuBar>
+
+<Menu name="tracklistpopup"><Title>Track List</Title>
+	<Action name="track_new"/>
+	<Action name="track_delete"/>
+	<Separator/>
+	<Action name="track_properties"/>
+</Menu>
+
+<Menu name="trackviewpopup"><Title>Track View</Title>
+	<Action name="midi_playtrack"/>
+	<Action name="midi_stopplay"/>
+	<Separator/>
+	<Action name="track_properties"/>
+</Menu>
+
+<ToolBar name="mainToolBar"><text>Main Toolbar</text>
+	<Action name="file_save"/>
+	<Action name="file_print"/>
+	<Separator/>
+	<Action name="edit_undo"/>
+	<Action name="edit_redo"/>
+	<Action name="edit_cut"/>
+	<Action name="edit_copy"/>
+	<Action name="edit_paste"/>
+	<Separator/>
+	<Action name="view_melodyEditor"/>
+	<Action name="view_score"/>
+</ToolBar>
+
+<ToolBar name="editToolBar"><text>Edit Toolbar</text>
+	<Action name="insert_chord"/>
+	<Action name="rhythmer"/>
+	<Separator/>
+	<Action name="set_len1"/>
+	<Action name="set_len2"/>
+	<Action name="set_len4"/>
+	<Action name="set_len8"/>
+	<Action name="set_len16"/>
+	<Action name="set_len32"/>
+	<Separator/>
+	<Action name="time_sig"/>
+	<Action name="key_sig"/>
+	<Separator/>
+	<Action name="link_prev"/>
+	<Action name="fx_legato"/>
+	<Action name="fx_slide"/>
+	<Action name="fx_nat_harm"/>
+	<Action name="fx_art_harm"/>
+	<Action name="fx_let_ring"/>
+	<Action name="fx_palmmute"/>
+</ToolBar>
+
+</kpartgui>

@@ -1,0 +1,10 @@
+<!DOCTYPE kpartgui><kpartgui name="kguitar_konq" version="1">
+<MenuBar>
+  <Menu noMerge="1" name="kguitar" >
+   <text>&amp;KGuitar</text>
+   <Action name="song_properties" />
+   <Action name="track_properties" />
+  </Menu>
+ </MenuBar>
+</kpartgui>
+

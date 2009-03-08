@@ -1,0 +1,10 @@
+[Desktop Entry]
+Encoding=UTF-8
+Name=Embedded KGuitar editor
+Name[ru]=Встраиваемый редактор KGuitar
+
+X-KDE-Library=libkguitarpart
+Icon=kguitar
+MimeType=application/x-kguitar
+ServiceTypes=KParts/ReadOnlyPart,KParts/ReadWritePart,Browser/View
+Type=Service
