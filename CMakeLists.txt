@@ -9,3 +9,6 @@ add_subdirectory(doc)
 add_subdirectory(kguitar)
 add_subdirectory(kguitar_shell)
 add_subdirectory(icons)
+
+CONFIGURE_FILE(config.h.in kguitar/config.h)
+CONFIGURE_FILE(config.h.in kguitar_shell/config.h)
