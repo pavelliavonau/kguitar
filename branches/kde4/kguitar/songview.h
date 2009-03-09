@@ -14,7 +14,7 @@ class TabSong;
 class QSplitter;
 class KXMLGUIClient;
 class K3CommandHistory;
-class KPrinter;
+class QPrinter;
 class SongPrint;
 class TabTrack;
 class MelodyEditor;
@@ -33,7 +33,7 @@ public:
 	         QWidget *parent = 0, const char *name = 0);
 	~SongView();
 	void refreshView();
-	void print(KPrinter *printer);
+	void print(QPrinter *printer);
 
 	SongPrint *sp;
 	TrackView *tv;

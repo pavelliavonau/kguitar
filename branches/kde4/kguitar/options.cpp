@@ -24,7 +24,7 @@ Options::Options(
 #ifdef WITH_TSE3
                  TSE3::MidiScheduler *sch,
 #endif
-                 KConfig *config, QWidget *parent, char *name, bool modal)
+                 KSharedConfigPtr &config, QWidget *parent = 0, char *name = 0, bool modal = true)
 	: KDialogBase(i18n("Configure"), Help|Default|Ok|Apply|Cancel,
 	              Ok, parent, name, modal, TRUE)
 {

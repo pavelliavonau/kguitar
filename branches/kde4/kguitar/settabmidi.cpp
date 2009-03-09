@@ -3,9 +3,12 @@
 #include <qslider.h>
 
 
-SetTabMidi::SetTabMidi(QWidget* parent, const char* name)
-	: SetTabMidiBase(parent, name)
+SetTabMidi::SetTabMidi(QWidget* parent)
+	: KDialog(parent)
 {
+	QWidget *widget = new QWidget(this);
+	ui.setupUi(widget);
+	setMainWidget(widget);
 }
 
 SetTabMidi::~SetTabMidi()

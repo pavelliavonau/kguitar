@@ -10,7 +10,6 @@
 class KAction;
 class KToggleAction;
 class K3CommandHistory;
-class KAccel;
 class KAboutData;
 class ConvertBase;
 
@@ -24,9 +23,7 @@ class ConvertBase;
 class KGuitarPart: public KParts::ReadWritePart {
 	Q_OBJECT
 public:
-	KGuitarPart(QWidget *parentWidget,
-	            const char * /*widgetName*/, QObject *parent, const char *name,
-	            const QStringList & /*args*/);
+	KGuitarPart(QWidget *parentWidget,QObject *parent, const QStringList &);
 	virtual ~KGuitarPart();
 
 	/**
@@ -66,7 +63,6 @@ protected slots:
 
 private:
 	void setupActions();
-	void setupAccels();
 
 	void updateMenu();
 	void setWinCaption(const QString& caption);
@@ -98,13 +94,13 @@ private:
 		*arrTrkAct, *midiPlaySongAct, *midiStopPlayAct, *rhythmerAct;
 	KToggleAction *showMainTBAct, *showEditTBAct, *viewMelodyEditorAct, *viewScoreAct;
 
-	KAccel *mainAccel;
-
 	K3CommandHistory* cmdHist;
 
 protected:
 	virtual bool openFile();
 	virtual bool saveFile();
+	KAction *save;
+	KAction *paste;
 };
 
 #endif
