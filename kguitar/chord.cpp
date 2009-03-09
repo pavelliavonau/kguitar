@@ -12,10 +12,8 @@
 
 #include <klocale.h>
 #include <kmessagebox.h>
-#include <kapp.h>
 
 #include <qpushbutton.h>
-#include <qvbuttongroup.h>
 #include <qradiobutton.h>
 #include <q3listbox.h>
 #include <qlineedit.h>
@@ -28,6 +26,7 @@
 #include <Q3BoxLayout>
 #include <Q3GridLayout>
 #include <Q3VBoxLayout>
+#include <Q3ButtonGroup>
 
 #ifdef WITH_TSE3
 #include <tse3/Song.h>
@@ -139,26 +138,26 @@ void ChordSelector::initChordSelector(TabTrack *p)
 		tmp.setNum(i * 2 + 1);
 		tmp = tmp + "\'";
 		stlabel[i] = new QLabel(tmp, this);
-		stlabel[i]->setAlignment(AlignCenter);
+		stlabel[i]->setAlignment(Qt::AlignCenter);
 
 		cnote[i] = new QLabel(this);
-		cnote[i]->setAlignment(AlignCenter);
+		cnote[i]->setAlignment(Qt::AlignCenter);
 
-        st[i] = new QComboBox(FALSE, this);
-        if (i > 0)
-        	st[i]->insertItem("x");
-        if ((i == 2) || (i >= 4)) {
+		st[i] = new QComboBox(FALSE, this);
+		if (i > 0)
+			st[i]->insertItem("x");
+		if ((i == 2) || (i >= 4)) {
 			st[i]->insertItem(Settings::flatName());
 			st[i]->insertItem("0");
 			st[i]->insertItem(Settings::sharpName());
-        }
-        if (i > 0)  {
+		}
+		if (i > 0)  {
 			connect(st[i], SIGNAL(activated(int)), SLOT(findSelection()));
 			connect(st[i], SIGNAL(activated(int)), SLOT(findChords()));
-        } else {
+		} else {
 			st[i]->insertItem("0");
 			st[i]->setEnabled(FALSE);
-        }
+		}
 	}
 
 	st[1]->insertItem("2");
@@ -763,7 +762,7 @@ void ChordSelector::analyzeChordName()
 	if (ca.analyze()) {
 		tonic->setCurrentItem(ca.tonic);
 		for (int i = 0; i < 6; i++)
-			st[i + 1]->setCurrentItem(ca.step[i]);
+			st[i + 1]->setCurrentIndex(ca.step[i]);
 		findSelection();
 		findChords();
 	} else {
