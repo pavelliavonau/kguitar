@@ -8,8 +8,8 @@
 //Added by qt3to4:
 #include <QResizeEvent>
 #include <QMouseEvent>
-
-#include <kglobalsettings.h>
+#include <QPalette>
+#include <QStyleOptionFocusRect>
 
 #define FRET_NUMBER_FONT_FACTOR 0.7
 
@@ -22,8 +22,8 @@ FingerList::FingerList(TabTrack *p, QWidget *parent, const char *name)
 	setHScrollBarMode(AlwaysOff);
 
 	setFrameStyle(Panel | Sunken);
-	setBackgroundMode(PaletteBase);
-	setFocusPolicy(StrongFocus);
+	setBackgroundMode(Qt::PaletteBase);
+	setFocusPolicy(Qt::StrongFocus);
 	num = 0; curSel = -1; oldCol = 0; oldRow = 0;
 
 	setCellWidth(ICONCHORD);
@@ -32,7 +32,7 @@ FingerList::FingerList(TabTrack *p, QWidget *parent, const char *name)
 	setMinimumSize(ICONCHORD + 2, ICONCHORD + 2);
 	resize(width(), 3 * ICONCHORD + 2);
 
-	fretNumberFont = new QFont(KGlobalSettings::generalFont());
+	fretNumberFont = new QFont(font());
 	if (fretNumberFont->pointSize() == -1) {
 		fretNumberFont->setPixelSize((int) ((double) fretNumberFont->pixelSize() * FRET_NUMBER_FONT_FACTOR));
 	} else {
@@ -117,14 +117,14 @@ void FingerList::paintCell(QPainter *p, int row, int col)
 
 	if (n < num) {
 		int barre, eff;
-		QColor back = KGlobalSettings::baseColor();
-		QColor fore = KGlobalSettings::textColor();
+		QColor back = palette().color(QPalette::Base);
+		QColor fore = palette().color(QPalette::Text);
 
 		// Selection painting
 
 		if (curSel == n) {
-			back = KGlobalSettings::highlightColor();
-			fore = KGlobalSettings::highlightedTextColor();
+			back = palette().color(QPalette::Highlight);
+			fore = palette().color(QPalette::HighlightedText);
 
 			p->setBrush(back);
 			p->setPen(Qt::NoPen);
@@ -133,7 +133,13 @@ void FingerList::paintCell(QPainter *p, int row, int col)
 			if (hasFocus()) {
 				p->setBrush(Qt::NoBrush);
 				p->setPen(fore);
-				style().drawPrimitive(QStyle::PE_FocusRect, p, QRect(0, 0, ICONCHORD - 1, ICONCHORD - 1), colorGroup());
+				QStyleOptionFocusRect option;
+				option.initFrom(this);
+				option.backgroundColor = palette().color(QPalette::Highlight);
+				style()->drawPrimitive(QStyle::PE_FrameFocusRect, &option, p, this);
+				// GREYTODO: port these rects?
+// 				                       QRect(0, 0, ICONCHORD - 1, ICONCHORD - 1),
+// 				                       colorGroup());
 			}
 		}
 
