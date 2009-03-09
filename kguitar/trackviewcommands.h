@@ -9,7 +9,7 @@
 #include <Q3MemArray>
 
 // Set the duration for the notes
-class TrackView::SetLengthCommand: public KNamedCommand {
+class TrackView::SetLengthCommand: public K3NamedCommand {
 public:
 	SetLengthCommand(TrackView *_tv, TabTrack *&_trk, int l);
 	virtual ~SetLengthCommand() {};
@@ -26,7 +26,7 @@ private:
 };
 
 // Insert tabs from keyboard
-class TrackView::InsertTabCommand: public KNamedCommand {
+class TrackView::InsertTabCommand: public K3NamedCommand {
 public:
 	InsertTabCommand(TrackView *_tv, TabTrack *&_trk, int t);
 	virtual ~InsertTabCommand() {};
@@ -43,7 +43,7 @@ private:
 };
 
 // Moves the finger
-class TrackView::MoveFingerCommand: public KNamedCommand {
+class TrackView::MoveFingerCommand: public K3NamedCommand {
 public:
 	MoveFingerCommand(TrackView *_tv, TabTrack *&_trk, int _from, int _to, int _tune);
 	virtual ~MoveFingerCommand() {};
@@ -59,7 +59,7 @@ private:
 };
 
 // Add FX
-class TrackView::AddFXCommand: public KNamedCommand {
+class TrackView::AddFXCommand: public K3NamedCommand {
 public:
 	AddFXCommand(TrackView *_tv, TabTrack *&_trk, char _fx);
 	virtual ~AddFXCommand() {};
@@ -76,7 +76,7 @@ private:
 };
 
 // Set a flag
-class TrackView::SetFlagCommand: public KNamedCommand {
+class TrackView::SetFlagCommand: public K3NamedCommand {
 public:
 	SetFlagCommand(TrackView *_tv, TabTrack *&_trk, int _flag);
 	virtual ~SetFlagCommand() {};
@@ -95,7 +95,7 @@ private:
 };
 
 // Delete Note
-class TrackView::DeleteNoteCommand : public KNamedCommand {
+class TrackView::DeleteNoteCommand : public K3NamedCommand {
 public:
 	DeleteNoteCommand(TrackView *_tv, TabTrack *&_trk);
 	virtual ~DeleteNoteCommand() {};
@@ -113,7 +113,7 @@ private:
 };
 
 // Add a column at end of track
-class TrackView::AddColumnCommand: public KNamedCommand {
+class TrackView::AddColumnCommand: public K3NamedCommand {
 public:
 	AddColumnCommand(TrackView *_tv, TabTrack *&_trk);
 	virtual ~AddColumnCommand() {};
@@ -130,7 +130,7 @@ private:
 };
 
 // Delete column
-class TrackView::DeleteColumnCommand: public KNamedCommand {
+class TrackView::DeleteColumnCommand: public K3NamedCommand {
 public:
 	DeleteColumnCommand(TrackView *_tv, TabTrack *&_trk);
 	DeleteColumnCommand(QString name, TrackView *_tv, TabTrack *&_trk);
@@ -149,7 +149,7 @@ private:
 };
 
 // Set time sig
-class TrackView::SetTimeSigCommand : public KNamedCommand {
+class TrackView::SetTimeSigCommand : public K3NamedCommand {
 public:
 	SetTimeSigCommand(TrackView *_tv, TabTrack *&_trk, bool _toend, int _time1, int _time2);
 	virtual ~SetTimeSigCommand() {};
@@ -166,7 +166,7 @@ private:
 };
 
 // Insert a column at cursor pos
-class TrackView::InsertColumnCommand: public KNamedCommand {
+class TrackView::InsertColumnCommand: public K3NamedCommand {
 public:
 	InsertColumnCommand(TrackView *_tv, TabTrack *&_trk);
 	virtual ~InsertColumnCommand() {};
@@ -182,7 +182,7 @@ private:
 };
 
 // Insert strum
-class TrackView::InsertStrumCommand: public KNamedCommand {
+class TrackView::InsertStrumCommand: public K3NamedCommand {
 public:
 	InsertStrumCommand(TrackView *_tv, TabTrack *&_trk, int _sch, int *_chord);
 	virtual ~InsertStrumCommand() {};
@@ -202,7 +202,7 @@ private:
 class Q3ListBox;
 
 // Insert rhythm from rhythmer
-class TrackView::InsertRhythm: public KNamedCommand {
+class TrackView::InsertRhythm: public K3NamedCommand {
 public:
 	InsertRhythm(TrackView *_tv, TabTrack *&_trk, Q3ListBox *quantized);
 
