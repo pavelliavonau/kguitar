@@ -28,7 +28,7 @@
 #include <kxmlguiclient.h>
 #include <knuminput.h>
 #include <kmessagebox.h>
-#include <kcommand.h>
+#include <k3command.h>
 
 #include <qclipboard.h>
 #include <qsplitter.h>
