@@ -20,11 +20,8 @@
 #include "songprint.h"
 #include "melodyeditor.h"
 
-#include <kapp.h>
-#include <kstddirs.h>
 #include <klocale.h>
 #include <kdebug.h>
-#include <kxmlgui.h>
 #include <kxmlguiclient.h>
 #include <knuminput.h>
 #include <kmessagebox.h>
@@ -40,6 +37,7 @@
 //Added by qt3to4:
 #include <Q3BoxLayout>
 #include <Q3VBoxLayout>
+#include <QApplication>
 
 #ifdef WITH_TSE3
 #include <tse3/MidiScheduler.h>
@@ -71,7 +69,7 @@ SongView::SongView(KXMLGUIClient *_XMLGUIClient, K3CommandHistory *_cmdHist,
 	m_song->t.append(new TabTrack(TabTrack::FretTab, i18n("Guitar"), 1, 0, 25, 6, 24));
 
 	split = new QSplitter(this);
-	split->setOrientation(QSplitter::Vertical);
+	split->setOrientation(Qt::Vertical);
 
 #ifdef WITH_TSE3
 	tv = new TrackView(m_song, _XMLGUIClient, _cmdHist, scheduler, split);
@@ -80,7 +78,7 @@ SongView::SongView(KXMLGUIClient *_XMLGUIClient, K3CommandHistory *_cmdHist,
 #endif
 
 	splitv = new QSplitter(split);
- 	splitv->setOrientation(QSplitter::Horizontal);
+ 	splitv->setOrientation(Qt::Horizontal);
 
 	tl = new TrackList(m_song, _XMLGUIClient, splitv);
 	tl->setSelected(tl->firstChild(), TRUE);
@@ -578,7 +576,7 @@ void SongView::insertTabs(TabTrack* trk)
 	cmdHist->addCommand(new InsertTabsCommand(tv, tv->trk(), trk));
 }
 
-void SongView::print(KPrinter *printer)
+void SongView::print(QPrinter *printer)
 {
 	sp->printSong(printer, m_song);
 }

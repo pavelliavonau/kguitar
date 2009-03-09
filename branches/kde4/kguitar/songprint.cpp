@@ -318,18 +318,18 @@ void SongPrint::initPrStyle()
 	}
 }
 
-// print TabSong song on KPrinter printer
+// print TabSong song on QPrinter printer
 
-void SongPrint::printSong(KPrinter *printer, TabSong *song)
+void SongPrint::printSong(QPrinter *printer, TabSong *song)
 {
 //	cout << "SongPrint::printSong(" << printer << ", " << song << ")" << endl;
 
 // LVIFIX: sometimes KGuitar crashes when print preview pops up.
 // check if using QPrinter instead fixes the crashes,
-// which would suggest that KPrinter is the cause.
+// which would suggest that QPrinter is the cause.
 
 // choose either KPrinter
-	KPrinter * prntr = printer;
+	QPrinter * prntr = printer;
 // or choose QPrinter
 //	QPrinter * prntr = new QPrinter(QPrinter::HighResolution);
 //	if (!prntr->setup())

@@ -41,7 +41,7 @@ class SongPrint {
 public:
 	SongPrint();
 	~SongPrint();
-	void printSong(KPrinter *printer, TabSong *song);
+	void printSong(QPrinter *printer, TabSong *song);
 	// Fonts used
 	bool fFetaFnd;				// true if feta fonts found
 	QFont *fFeta;				// used for notes on the staff
