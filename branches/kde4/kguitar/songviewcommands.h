@@ -18,7 +18,7 @@ class SongView;
 /**
  * Undo/redo command to set song properties
  */
-class SongView::SetSongPropCommand: public KNamedCommand {
+class SongView::SetSongPropCommand: public K3NamedCommand {
 public:
 	SetSongPropCommand(SongView *_song, QMap<QString, QString> _info, int _tempo);
 	virtual ~SetSongPropCommand() {};
@@ -35,7 +35,7 @@ private:
 /**
  * Undo/redo command to set track properties
  */
-class SongView::SetTrackPropCommand: public KNamedCommand {
+class SongView::SetTrackPropCommand: public K3NamedCommand {
 public:
 	SetTrackPropCommand(TrackView *_tv, TrackList *_tl, TrackPane *_tp,
 						TabTrack *_trk, TabTrack *_newtrk);
@@ -62,7 +62,7 @@ private:
 /**
  * Undo/redo command to insert tabs
  */
-class SongView::InsertTabsCommand: public KNamedCommand {
+class SongView::InsertTabsCommand: public K3NamedCommand {
 public:
 	InsertTabsCommand(TrackView *_tv, TabTrack *_trk, TabTrack *_tabs);
 	virtual ~InsertTabsCommand() {};
