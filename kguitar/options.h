@@ -5,10 +5,10 @@
 #include "global.h"
 
 class KConfig;
-class QButtonGroup;
+class Q3ButtonGroup;
 class QRadioButton;
-class QListView;
-class QListBox;
+class Q3ListView;
+class Q3ListBox;
 class QSlider;
 class QCheckBox;
 class OptionsPage;

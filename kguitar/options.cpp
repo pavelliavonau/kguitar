@@ -13,9 +13,12 @@
 #include <kiconloader.h>
 
 #include <qlayout.h>
-#include <qbuttongroup.h>
+#include <q3buttongroup.h>
 #include <qradiobutton.h>
 #include <qcheckbox.h>
+//Added by qt3to4:
+#include <Q3VBoxLayout>
+#include <Q3Frame>
 
 Options::Options(
 #ifdef WITH_TSE3
@@ -25,7 +28,7 @@ Options::Options(
 	: KDialogBase(TreeList, i18n("Configure"), Help|Default|Ok|Apply|Cancel,
 	              Ok, parent, name, modal, TRUE)
 {
-	QFrame *optPage[OPTIONS_PAGES_NUM];
+	Q3Frame *optPage[OPTIONS_PAGES_NUM];
 
 	optPage[0] = addPage(i18n("Music Theory"), 0, SmallIcon("lookandfeel"));
 	optPage[1] = addPage(i18n("Melody Constructor"), 0, SmallIcon("melodyeditor"));
@@ -50,7 +53,7 @@ Options::Options(
 	// Special weird layout stuff to pack everything
 	for (int i = 0; i < OPTIONS_PAGES_NUM; i++) {
 		if (optWidget[i]) {
-			QVBoxLayout *l = new QVBoxLayout(optPage[i]);
+			Q3VBoxLayout *l = new Q3VBoxLayout(optPage[i]);
 			l->addWidget(optWidget[i]);
 		}
 	}

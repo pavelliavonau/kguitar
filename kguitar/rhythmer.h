@@ -10,7 +10,7 @@
 #include <tse3/MidiScheduler.h>
 #endif
 
-class QListBox;
+class Q3ListBox;
 class QPushButton;
 class QSpinBox;
 class QCheckBox;
@@ -24,7 +24,7 @@ public:
 #endif
 			 QWidget *parent = 0, const char *name = 0);
 
-	QListBox *quantized;
+	Q3ListBox *quantized;
 
 public slots:
     void tap();
@@ -33,7 +33,7 @@ public slots:
 	void tempoState(bool state);
 
 private:
-	QListBox *original;
+	Q3ListBox *original;
 	QSpinBox *tempo;
 	QCheckBox *temponew, *dotted, *triplet;
 

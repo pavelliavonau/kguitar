@@ -1,8 +1,7 @@
 #ifndef SETTABMIDI_H
 #define SETTABMIDI_H
 
-#include "settabmidibase.h"
-
+#include "ui_settabmidibase.h"
 
 class SetTabMidi: public SetTabMidiBase {
 	Q_OBJECT

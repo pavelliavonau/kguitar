@@ -1,6 +1,9 @@
 #include "radiustuner.h"
 
 #include <qpainter.h>
+//Added by qt3to4:
+#include <QPaintEvent>
+#include <QResizeEvent>
 
 RadiusTuner::RadiusTuner(QWidget *parent, const char *name)
 	: QWidget(parent, name)

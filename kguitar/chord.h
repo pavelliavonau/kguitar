@@ -8,6 +8,8 @@
 
 #include <qcombobox.h>
 #include <qdialog.h>
+//Added by qt3to4:
+#include <QLabel>
 
 #ifdef WITH_TSE3
 #include <tse3/MidiScheduler.h>
@@ -16,9 +18,9 @@
 #define STEPSIZE     40
 
 class QLineEdit;
-class QListBox;
+class Q3ListBox;
 class QPushButton;
-class QButtonGroup;
+class Q3ButtonGroup;
 class QRadioButton;
 class QComboBox;
 class QLabel;
@@ -64,10 +66,10 @@ private:
 	TabTrack *parm;
 
 	QLineEdit *chordName;
-	QListBox *tonic, *step3, *stephigh;
+	Q3ListBox *tonic, *step3, *stephigh;
 	QComboBox *st[7], *inv, *bassnote;
 	QLabel *cnote[7];
-	QButtonGroup *complexity;
+	Q3ButtonGroup *complexity;
 	QRadioButton *complexer[3];
 	QPushButton *play;
 	FingerList *fnglist;

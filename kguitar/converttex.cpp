@@ -3,7 +3,7 @@
 
 #include <kconfig.h>
 #include <qfile.h>
-#include <qtextstream.h>
+#include <q3textstream.h>
 
 //////////////////////////////////////////////////////////////////////
 //
@@ -24,10 +24,10 @@ bool ConvertTex::save(QString fileName)
 	bool success = FALSE;
 
 	QFile f(fileName);
-    if (!f.open(IO_WriteOnly))
+    if (!f.open(QIODevice::WriteOnly))
 		return FALSE;
 
-	QTextStream s(&f);
+	Q3TextStream s(&f);
 
 	switch (Settings::texExportMode()) {
 	case 0: success = saveToTab(s); break;
@@ -44,7 +44,7 @@ bool ConvertTex::load(QString)
 	return FALSE;
 }
 
-bool ConvertTex::saveToTab(QTextStream &s)
+bool ConvertTex::saveToTab(Q3TextStream &s)
 {
 	QString nn[MAX_STRINGS];
 	QString tmp;
@@ -288,7 +288,7 @@ bool ConvertTex::saveToTab(QTextStream &s)
 	return TRUE;
 }
 
-bool ConvertTex::saveToNotes(QTextStream &s)
+bool ConvertTex::saveToNotes(Q3TextStream &s)
 { 
 	return FALSE; //ALINXFIX: disabled
 

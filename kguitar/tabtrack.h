@@ -3,7 +3,7 @@
 
 #include "global.h"
 
-#include <qmemarray.h>
+#include <q3memarray.h>
 #include <qrect.h>
 
 #ifdef WITH_TSE3
@@ -46,12 +46,12 @@ public:
 	/**
 	 * Array of columns.
 	 */
-	QMemArray<TabColumn> c;
+	Q3MemArray<TabColumn> c;
 
 	/**
 	 * Array of bars.
 	 */
-	QMemArray<TabBar> b;
+	Q3MemArray<TabBar> b;
 
 	/**
 	 * Number of strings

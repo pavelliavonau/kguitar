@@ -4,6 +4,8 @@
 #include <qvbuttongroup.h>
 #include <qradiobutton.h>
 #include <qlayout.h>
+//Added by qt3to4:
+#include <Q3HBoxLayout>
 
 #include <klocale.h>
 #include <kconfig.h>
@@ -13,7 +15,7 @@ OptionsPrinting::OptionsPrinting(KConfig *conf, QWidget *parent, const char *nam
 {
 	// Create option widgets
 
-	styleGroup = new QVButtonGroup(i18n("Style"), this);
+	styleGroup = new Q3VButtonGroup(i18n("Style"), this);
 	style[0] = new QRadioButton(i18n("Tabulature"), styleGroup);
 	style[1] = new QRadioButton(i18n("Notes"), styleGroup);
 	style[2] = new QRadioButton(i18n("Tabulature (full) and notes"), styleGroup);
@@ -21,7 +23,7 @@ OptionsPrinting::OptionsPrinting(KConfig *conf, QWidget *parent, const char *nam
 
 	// Set widget layout
 
-    QHBoxLayout *box = new QHBoxLayout(this);
+    Q3HBoxLayout *box = new Q3HBoxLayout(this);
 	box->addWidget(styleGroup);
 	box->activate();
 

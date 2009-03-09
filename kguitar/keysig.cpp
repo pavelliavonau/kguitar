@@ -28,6 +28,8 @@
 #include <qcombobox.h>
 #include <qlabel.h>
 #include <qlayout.h>
+//Added by qt3to4:
+#include <Q3HBoxLayout>
 
 SetKeySig::SetKeySig(int keySig, QWidget *parent, const char *name)
 	: KDialogBase(parent, name, TRUE, i18n("Key signature"),
@@ -62,7 +64,7 @@ SetKeySig::SetKeySig(int keySig, QWidget *parent, const char *name)
 
 	QLabel *sig_l = new QLabel(sig, i18n("Flats / sharps:"), page);
 
-	QHBoxLayout *l = new QHBoxLayout(page, 0, spacingHint());
+	Q3HBoxLayout *l = new Q3HBoxLayout(page, 0, spacingHint());
     l->addWidget(sig_l);
 	l->addWidget(sig);
     l->activate();

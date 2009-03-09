@@ -3,9 +3,11 @@
 
 #include "global.h"
 #include "convertbase.h"
+//Added by qt3to4:
+#include <Q3TextStream>
 
 class TabSong;
-class QTextStream;
+class Q3TextStream;
 
 /**
  * Converter to/from standard TSE3 files.

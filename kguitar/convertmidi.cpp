@@ -3,7 +3,7 @@
 
 #include <kconfig.h>
 #include <qfile.h>
-#include <qtextstream.h>
+#include <q3textstream.h>
 
 #ifdef WITH_TSE3
 #include <tse3/Track.h>

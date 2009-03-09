@@ -4,7 +4,7 @@
 #include "optionspage.h"
 #include "global.h"
 
-class QButtonGroup;
+class Q3ButtonGroup;
 class QRadioButton;
 
 class OptionsPrinting: public OptionsPage {
@@ -15,7 +15,7 @@ public:
 	virtual void defaultBtnClicked();
 
 private:
-    QButtonGroup *styleGroup;
+    Q3ButtonGroup *styleGroup;
     QRadioButton *style[4];
 };
 

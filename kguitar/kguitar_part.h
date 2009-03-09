@@ -9,7 +9,7 @@
 
 class KAction;
 class KToggleAction;
-class KCommandHistory;
+class K3CommandHistory;
 class KAccel;
 class KAboutData;
 class ConvertBase;
@@ -100,7 +100,7 @@ private:
 
 	KAccel *mainAccel;
 
-	KCommandHistory* cmdHist;
+	K3CommandHistory* cmdHist;
 
 protected:
 	virtual bool openFile();

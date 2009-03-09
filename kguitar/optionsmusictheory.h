@@ -4,7 +4,7 @@
 #include "optionspage.h"
 #include "global.h"
 
-class QButtonGroup;
+class Q3ButtonGroup;
 class QRadioButton;
 
 class OptionsMusicTheory: public OptionsPage {
@@ -18,7 +18,7 @@ private slots:
 	bool jazzWarning();
 
 private:
-	QButtonGroup *maj7Group, *flatGroup, *noteNameGroup;
+	Q3ButtonGroup *maj7Group, *flatGroup, *noteNameGroup;
 	QRadioButton *maj7[3], *flat[2], *noteName[9];
 };
 

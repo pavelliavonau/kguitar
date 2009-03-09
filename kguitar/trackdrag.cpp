@@ -3,20 +3,20 @@
 
 #include <kdebug.h>
 
-#include <qdragobject.h>
+#include <q3dragobject.h>
 #include <qbuffer.h>
 //#include <qdatastream.h>
 
 
 TrackDrag::TrackDrag(TabTrack *trk, QWidget *dragSource, const char *name) :
-	QStoredDrag("application/x-kguitar-snippet", dragSource, name)
+	Q3StoredDrag("application/x-kguitar-snippet", dragSource, name)
 {
 	setTrack(trk);
 }
 
 
 TrackDrag::TrackDrag(QWidget *dragSource, const char *name) :
-	QStoredDrag("application/x-kguitar-snippet", dragSource, name)
+	Q3StoredDrag("application/x-kguitar-snippet", dragSource, name)
 {
 }
 
@@ -33,7 +33,7 @@ void TrackDrag::setTrack(TabTrack *trk)
 
 	// Save to buffer
 	QBuffer buffer;
-	buffer.open(IO_WriteOnly);
+	buffer.open(QIODevice::WriteOnly);
 
 	QDataStream s(&buffer);
 
@@ -128,7 +128,7 @@ bool TrackDrag::decode(const QMimeSource *e, TabTrack *&trk)
 		return FALSE;
 
 	QBuffer buffer(b);
-	buffer.open(IO_ReadOnly);
+	buffer.open(QIODevice::ReadOnly);
 
 	QDataStream s(&buffer);
 

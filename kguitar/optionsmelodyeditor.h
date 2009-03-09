@@ -4,7 +4,7 @@
 #include "optionspage.h"
 #include "global.h"
 
-class QButtonGroup;
+class Q3ButtonGroup;
 class QRadioButton;
 class QComboBox;
 class QCheckBox;
@@ -19,7 +19,7 @@ public slots:
 	virtual void defaultBtnClicked();
 
 private:
-	QButtonGroup *inlayGroup, *woodGroup;
+	Q3ButtonGroup *inlayGroup, *woodGroup;
 	QRadioButton *inlay[6], *wood[4];
 	QComboBox *mouseAction[3];
 	QCheckBox *mouseAdvance[3];

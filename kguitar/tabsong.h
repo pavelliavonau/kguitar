@@ -3,9 +3,9 @@
 
 #include "global.h"
 
-#include <qptrlist.h>
+#include <q3ptrlist.h>
 #include <qstring.h>
-#include <qtextstream.h>
+#include <q3textstream.h>
 #include <qmap.h>
 
 #ifdef WITH_TSE3
@@ -28,7 +28,7 @@ public:
 	/**
 	 * Holds a list of tracks that the song consists of.
 	 */
-	QPtrList<TabTrack> t;
+	Q3PtrList<TabTrack> t;
 
 	/**
 	 * Map of metainformation. Can hold lots of strings, referenced by

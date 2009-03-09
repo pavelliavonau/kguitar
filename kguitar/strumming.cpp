@@ -7,13 +7,18 @@
 #include <qlabel.h>
 #include <qpushbutton.h>
 #include <qcombobox.h>
+//Added by qt3to4:
+#include <Q3VBoxLayout>
+#include <Q3Frame>
+#include <Q3GridLayout>
+#include <Q3HBoxLayout>
 
 Strumming::Strumming(int default_scheme, QWidget *parent, const char *name)
 	: QDialog(parent, name, TRUE)
 {
-	QVBoxLayout *l = new QVBoxLayout(this, 10);
+	Q3VBoxLayout *l = new Q3VBoxLayout(this, 10);
 
-	QGridLayout *g = new QGridLayout(1, 2, 10);
+	Q3GridLayout *g = new Q3GridLayout(1, 2, 10);
 	l->addLayout(g);
 
 	// STRUMMING OPTIONS CONTROLS
@@ -38,7 +43,7 @@ Strumming::Strumming(int default_scheme, QWidget *parent, const char *name)
 	// COMMENT BOX
 
 	comment = new QLabel(this);
-	comment->setFrameStyle(QFrame::Box | QFrame::Sunken);
+	comment->setFrameStyle(Q3Frame::Box | Q3Frame::Sunken);
 	comment->setAlignment(Qt::WordBreak);
 	comment->setMinimumSize(150, 85);
 	updateComment(0);
@@ -46,7 +51,7 @@ Strumming::Strumming(int default_scheme, QWidget *parent, const char *name)
 
 	// DIALOG BUTTONS
 
-	QHBoxLayout *butt = new QHBoxLayout();
+	Q3HBoxLayout *butt = new Q3HBoxLayout();
 	l->addLayout(butt);
 
 	QPushButton *ok = new QPushButton(i18n("OK"), this);

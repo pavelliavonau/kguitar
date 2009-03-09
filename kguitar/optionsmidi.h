@@ -4,7 +4,7 @@
 #include "optionspage.h"
 #include "global.h"
 
-class QListView;
+class Q3ListView;
 
 #ifdef WITH_TSE3
 #include <tse3/MidiScheduler.h>
@@ -25,7 +25,7 @@ protected slots:
 	void fillMidiBox();
 
 private:
-	QListView *midiport;
+	Q3ListView *midiport;
 #ifdef WITH_TSE3
 	TSE3::MidiScheduler *sch;
 #endif

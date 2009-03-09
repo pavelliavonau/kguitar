@@ -656,7 +656,7 @@ void ConvertGtp::readNote(TabTrack *trk, int x, int y)
 bool ConvertGtp::load(QString fileName)
 {
 	QFile f(fileName);
-	if (!f.open(IO_ReadOnly))
+	if (!f.open(QIODevice::ReadOnly))
 		throw i18n("Unable to open file for reading");
 
 	QDataStream s(&f);

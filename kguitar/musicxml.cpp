@@ -89,7 +89,7 @@
 #include <iostream>		// for cout and friends
 using namespace std;		// for cout and friends
 #include <qstring.h>
-#include <qvaluelist.h>
+#include <q3valuelist.h>
 
 #include "convertxml.h"
 

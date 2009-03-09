@@ -1,7 +1,7 @@
 #ifndef SETTRACK_H
 #define SETTRACK_H
 
-#include <qtabdialog.h>
+#include <q3tabdialog.h>
 #include "global.h"
 #include "tabtrack.h"
 
@@ -13,7 +13,7 @@ class SetTabDrum;
 class SetTabMidi;
 class TabTrack;
 
-class SetTrack: public QTabDialog {
+class SetTrack: public Q3TabDialog {
     Q_OBJECT
 public:
     SetTrack(TabTrack *trk, QWidget *parent = 0, const char *name = 0);

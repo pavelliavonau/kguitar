@@ -7,7 +7,11 @@
 #include <qsizepolicy.h>
 #include <qpixmap.h>
 #include <qimage.h>
-#include <qpointarray.h>
+#include <q3pointarray.h>
+//Added by qt3to4:
+#include <QResizeEvent>
+#include <QMouseEvent>
+#include <QPaintEvent>
 
 #include <kstandarddirs.h>
 
@@ -68,7 +72,7 @@ Fretboard::Fretboard(TabTrack *_trk, QWidget *parent, const char *name)
 	zeroFret = new QImage(locate("data", "kguitar/pics/zerofret.png"));
 	drawBackground();
 
-	setFocusPolicy(WheelFocus); // the strongest focus gainer
+	setFocusPolicy(Qt::WheelFocus); // the strongest focus gainer
 }
 
 Fretboard::~Fretboard()
@@ -228,7 +232,7 @@ void Fretboard::drawBackground()
 			break;
 		case 4: // trapezoids
 			{
-				QPointArray ar(4);
+				Q3PointArray ar(4);
 				int h1, h2;
 				if (marks[i] == 1) {
 					h1 = height() * 2 / 3;
@@ -245,7 +249,7 @@ void Fretboard::drawBackground()
 			break;
 		case 5: // shark fins
 			{
-				QPointArray ar(3);
+				Q3PointArray ar(3);
 				int x1 = (int) (1 * (fr[i] - fr[i - 1]) / 8 + fr[i - 1]);
 				int x2 = (int) (7 * (fr[i] - fr[i - 1]) / 8 + fr[i - 1]);
 				ar.putPoints(0, 3, x1, height() / 8, x2, height() / 8, x1, height() * 7 / 8);

@@ -6,12 +6,14 @@
 #include <klocale.h>
 #include <qlayout.h>
 #include <qlineedit.h>
+//Added by qt3to4:
+#include <Q3GridLayout>
 #include <knuminput.h>
 #include <qcombobox.h>
 #include <qlabel.h>
 
 SetTrack::SetTrack(TabTrack *trk, QWidget *parent, const char *name)
-	: QTabDialog(parent, name, TRUE)
+	: Q3TabDialog(parent, name, TRUE)
 {
     //////////////////////////////////////////////////////////////////
     // GENERAL CONTROLS TAB
@@ -19,7 +21,7 @@ SetTrack::SetTrack(TabTrack *trk, QWidget *parent, const char *name)
 
 	QWidget *gen = new QWidget(this);
 
-    QGridLayout *g = new QGridLayout(gen, 5, 2, 10);
+    Q3GridLayout *g = new Q3GridLayout(gen, 5, 2, 10);
 
     title = new QLineEdit(gen);
     channel = new KIntNumInput(gen);

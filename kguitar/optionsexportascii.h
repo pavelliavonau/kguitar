@@ -5,7 +5,7 @@
 #include "global.h"
 
 class KConfig;
-class QVButtonGroup;
+class Q3VButtonGroup;
 class QRadioButton;
 class QSpinBox;
 class QCheckBox;
@@ -24,7 +24,7 @@ public:
 	virtual void defaultBtnClicked();
 
 private:
-	QVButtonGroup *durationGroup;
+	Q3VButtonGroup *durationGroup;
 	QRadioButton *duration[5];
 	QSpinBox *pageWidth;
 	QCheckBox *always;

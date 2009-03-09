@@ -4,8 +4,8 @@
 #include "musicxml.h"
 
 #include <qfile.h>
-#include <qtextstream.h>
-#include <qvaluelist.h>
+#include <q3textstream.h>
+#include <q3valuelist.h>
 
 ConvertXml::ConvertXml(TabSong *song): ConvertBase(song), QXmlDefaultHandler()
 {
@@ -15,9 +15,9 @@ bool ConvertXml::save(QString fileName)
 {
 	// Initialize output stream
 	QFile f(fileName);
-	if (!f.open(IO_WriteOnly))
+	if (!f.open(QIODevice::WriteOnly))
 		return FALSE;
-	QTextStream s(&f);
+	Q3TextStream s(&f);
 	write(s);
 
 	f.close();
@@ -159,7 +159,7 @@ static bool allocStrFrt(int pitch, TabTrack * trk, int col,
 
 // helpers for NMusicXMLExport::calcDivisions
 
-typedef QValueList<int> IntVector;
+typedef Q3ValueList<int> IntVector;
 static IntVector integers;
 static IntVector primes;
 
@@ -253,7 +253,7 @@ void ConvertXml::calcDivisions() {
 							<< " tr=" << tr
 							<< endl;
 */
-						QTextStream dummy;
+						Q3TextStream dummy;
 						x += writeCol(dummy, trk, x, i, false);
 					} // end for (uint x = 0; ....
 				} // end if ((i == 1) || ...
@@ -277,7 +277,7 @@ void ConvertXml::calcDivisions() {
 
 // write tabsong to QTextStream os
 
-void ConvertXml::write(QTextStream& os)
+void ConvertXml::write(Q3TextStream& os)
 {
 	calcDivisions();
 	os << "<?xml version=\"1.0\" encoding=\"UTF-8\" standalone=\"no\"?>"
@@ -418,7 +418,7 @@ QString ConvertXml::strAccid(Accidentals::Accid acc)
 
 // write beam bm at level l to QTextStream os
 
-static void writeBeam(QTextStream& os, int l, char bm)
+static void writeBeam(Q3TextStream& os, int l, char bm)
 {
 	if (bm == 'n') {
 		return;
@@ -438,7 +438,7 @@ static void writeBeam(QTextStream& os, int l, char bm)
 
 // write beams of voice v of column x of TabTrack trk to QTextStream os
 
-void ConvertXml::writeBeams(QTextStream& os, TabTrack * trk, int x, int v)
+void ConvertXml::writeBeams(Q3TextStream& os, TabTrack * trk, int x, int v)
 {
 	StemInfo * stxt = 0;
 	if (v == 0) {
@@ -469,7 +469,7 @@ void ConvertXml::writeBeams(QTextStream& os, TabTrack * trk, int x, int v)
 // LVIFIX: cause of this is that in a single voice track all notes
 // are allocated to voice 1 to force stem up when printing
 
-int ConvertXml::writeCol(QTextStream& os, TabTrack * trk, int x, int v, bool wrt)
+int ConvertXml::writeCol(Q3TextStream& os, TabTrack * trk, int x, int v, bool wrt)
 {
 	// debug: dump this column
 	/*
@@ -806,7 +806,7 @@ int ConvertXml::writeCol(QTextStream& os, TabTrack * trk, int x, int v, bool wrt
 
 // write midi note number as step/alter/octave to QTextStream os
 
-void ConvertXml::writePitch(QTextStream& os,
+void ConvertXml::writePitch(Q3TextStream& os,
                                 int n, QString tabs, QString prfx)
 {
 	int alt = 0;
@@ -827,7 +827,7 @@ void ConvertXml::writePitch(QTextStream& os,
 
 // write staff details of TabTrack trk to QTextStream os
 
-void ConvertXml::writeStaffDetails(QTextStream& os, TabTrack * trk)
+void ConvertXml::writeStaffDetails(Q3TextStream& os, TabTrack * trk)
 {
 	// note: writePitch uses accSt, which has to be initialized first
 	// Initialize the accidentals
@@ -852,7 +852,7 @@ void ConvertXml::writeStaffDetails(QTextStream& os, TabTrack * trk)
 
 // write time signature to QTextStream os
 
-void ConvertXml::writeTime(QTextStream& os, int bts, int btt)
+void ConvertXml::writeTime(Q3TextStream& os, int bts, int btt)
 {
 	os << "\t\t\t\t<time>\n";
 	os << "\t\t\t\t\t<beats>" << bts << "</beats>\n";

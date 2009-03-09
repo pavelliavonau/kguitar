@@ -5,15 +5,17 @@
 #include <qpainter.h>
 #include <qdrawutil.h>
 #include <qstyle.h>
+//Added by qt3to4:
+#include <QMouseEvent>
 
 TrackPane::TrackPane(TabSong *s, int hh, int cs, QWidget *parent, const char *name)
-	: QScrollView(parent, name)
+	: Q3ScrollView(parent, name)
 {
 	song = s;
 
 //	setTableFlags(Tbl_autoHScrollBar | Tbl_smoothScrolling);
 	setFrameStyle(Panel | Sunken);
-	setBackgroundMode(PaletteBase);
+	setBackgroundMode(Qt::PaletteBase);
 
 	//	setFocusPolicy(QWidget::StrongFocus);
 
