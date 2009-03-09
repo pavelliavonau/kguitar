@@ -2,6 +2,8 @@
 
 #include <klocale.h>
 #include <qlabel.h>
+//Added by qt3to4:
+#include <QResizeEvent>
 
 SetTabDrum::SetTabDrum(QWidget *parent, const char *name)
 	: QWidget(parent, name)

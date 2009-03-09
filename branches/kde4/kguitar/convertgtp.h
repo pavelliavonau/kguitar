@@ -3,6 +3,8 @@
 
 #include "global.h"
 #include "convertbase.h"
+//Added by qt3to4:
+#include <Q3MemArray>
 
 class TabSong;
 
@@ -85,7 +87,7 @@ private:
 	 * Temporary variable to remember bar data, to propagate it on
 	 * all tracks later. GREYFIX: this won't be needed later.
 	 */
-	QMemArray<TabBar> bars;
+	Q3MemArray<TabBar> bars;
 
 	QDataStream *stream;
 

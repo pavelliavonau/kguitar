@@ -10,6 +10,11 @@
 #include <qpushbutton.h>
 #include <qlabel.h>
 #include <qlayout.h>
+//Added by qt3to4:
+#include <Q3BoxLayout>
+#include <Q3HBoxLayout>
+#include <Q3VBoxLayout>
+#include <Q3Frame>
 #include <klocale.h>
 #include <qapplication.h>
 
@@ -48,10 +53,10 @@ MelodyEditor::MelodyEditor(TrackView *_tv, QWidget *parent, const char *name)
 	QLabel *mode_l = new QLabel(mode, i18n("&Mode:"), this);
 
 	// Full layout
-	QBoxLayout *l = new QVBoxLayout(this);
+	Q3BoxLayout *l = new Q3VBoxLayout(this);
 
 	// Settings box
-	QBoxLayout *lsettings = new QHBoxLayout(l, 5);
+	Q3BoxLayout *lsettings = new Q3HBoxLayout(l, 5);
 	lsettings->addWidget(tonic_l);
 	lsettings->addWidget(tonic);
 	lsettings->addWidget(mode_l);
@@ -62,8 +67,8 @@ MelodyEditor::MelodyEditor(TrackView *_tv, QWidget *parent, const char *name)
 	// Fretboard box
 	l->addWidget(fb);
 
-	connect(fb, SIGNAL(buttonPress(int, int, ButtonState)),
-	        tv, SLOT(melodyEditorPress(int, int, ButtonState)));
+	connect(fb, SIGNAL(buttonPress(int, int, Qt::ButtonState)),
+	        tv, SLOT(melodyEditorPress(int, int, Qt::ButtonState)));
 	connect(fb, SIGNAL(buttonRelease(ButtonState)), tv, SLOT(melodyEditorRelease(ButtonState)));
 	connect(tv, SIGNAL(trackChanged(TabTrack *)), fb, SLOT(setTrack(TabTrack *)));
 	connect(tv, SIGNAL(columnChanged()), fb, SLOT(update()));
@@ -86,8 +91,8 @@ void MelodyEditor::optionsDialog()
 	KDialogBase opDialog(0, 0, TRUE, i18n("Melody Constructor"),
 	                     KDialogBase::Help|KDialogBase::Default|KDialogBase::Ok|
 	                     KDialogBase::Apply|KDialogBase::Cancel, KDialogBase::Ok);
-	QVBox *box = opDialog.makeVBoxMainWidget();
-	OptionsMelodyEditor op(Settings::config, (QFrame *) box);
+	Q3VBox *box = opDialog.makeVBoxMainWidget();
+	OptionsMelodyEditor op(Settings::config, (Q3Frame *) box);
 	connect(&opDialog, SIGNAL(defaultClicked()), &op, SLOT(defaultBtnClicked()));
 	connect(&opDialog, SIGNAL(okClicked()), &op, SLOT(applyBtnClicked()));
 	connect(&opDialog, SIGNAL(applyClicked()), &op, SLOT(applyBtnClicked()));

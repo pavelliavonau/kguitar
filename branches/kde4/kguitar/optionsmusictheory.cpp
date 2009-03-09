@@ -3,6 +3,9 @@
 #include <qvbuttongroup.h>
 #include <qradiobutton.h>
 #include <qlayout.h>
+//Added by qt3to4:
+#include <Q3VBoxLayout>
+#include <Q3HBoxLayout>
 
 #include <klocale.h>
 #include <kconfig.h>
@@ -15,20 +18,20 @@ OptionsMusicTheory::OptionsMusicTheory(KConfig *conf, QWidget *parent, const cha
 
 	// Dominant 7th name selection group
 
-	maj7Group = new QVButtonGroup(i18n("Dominant 7th"), this);
+	maj7Group = new Q3VButtonGroup(i18n("Dominant 7th"), this);
 	maj7[0] = new QRadioButton("7M", maj7Group);
 	maj7[1] = new QRadioButton("maj7", maj7Group);
 	maj7[2] = new QRadioButton("dom7", maj7Group);
 
 	// Chord step alterations selection group
 
-	flatGroup = new QVButtonGroup(i18n("Alterations"), this);
+	flatGroup = new Q3VButtonGroup(i18n("Alterations"), this);
 	flat[0] = new QRadioButton(i18n("-/+ symbols"), flatGroup);
 	flat[1] = new QRadioButton(i18n("b/# symbols"), flatGroup);
 
 	// Note naming conventions
 
-	noteNameGroup = new QVButtonGroup(i18n("Note naming"), this);
+	noteNameGroup = new Q3VButtonGroup(i18n("Note naming"), this);
 	noteName[0] = new QRadioButton(i18n("American, sharps"), noteNameGroup);
 	noteName[1] = new QRadioButton(i18n("American, flats"), noteNameGroup);
 	noteName[2] = new QRadioButton(i18n("American, mixed"), noteNameGroup);
@@ -45,9 +48,9 @@ OptionsMusicTheory::OptionsMusicTheory(KConfig *conf, QWidget *parent, const cha
 
 	// Set widget layout
 
-	QHBoxLayout *box = new QHBoxLayout(this);
+	Q3HBoxLayout *box = new Q3HBoxLayout(this);
 
-	QVBoxLayout *chordbox = new QVBoxLayout(box);
+	Q3VBoxLayout *chordbox = new Q3VBoxLayout(box);
 	chordbox->addWidget(maj7Group);
 	chordbox->addWidget(flatGroup);
 

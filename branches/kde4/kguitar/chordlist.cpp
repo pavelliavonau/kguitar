@@ -1,7 +1,7 @@
 #include "chordlist.h"
 
 ChordList::ChordList(QWidget *parent, const char *name)
-	: QListBox(parent, name)
+	: Q3ListBox(parent, name)
 {
 }
 

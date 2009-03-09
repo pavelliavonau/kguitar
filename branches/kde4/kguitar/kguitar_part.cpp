@@ -44,13 +44,15 @@
 #include <qwidget.h>
 
 #include <qpixmap.h>
-#include <qkeycode.h>
+#include <qnamespace.h>
 #include <qstatusbar.h>
 #include <qclipboard.h>
 
-#include <qbuttongroup.h>
+#include <q3buttongroup.h>
 #include <qradiobutton.h>
 #include <qfileinfo.h>
+//Added by qt3to4:
+#include <Q3Frame>
 
 typedef KParts::GenericFactory<KGuitarPart> KGuitarPartFactory;
 K_EXPORT_COMPONENT_FACTORY(libkguitarpart, KGuitarPartFactory)
@@ -66,7 +68,7 @@ KGuitarPart::KGuitarPart(QWidget *parentWidget,
 {
 	Settings::config = KGuitarPartFactory::instance()->config();
 
-	cmdHist = new KCommandHistory();
+	cmdHist = new K3CommandHistory();
 
 	setInstance(KGuitarPartFactory::instance());
 
@@ -190,12 +192,12 @@ bool KGuitarPart::exportOptionsDialog(QString ext)
 	                     KDialogBase::Help|KDialogBase::Default|
 	                     KDialogBase::Ok|KDialogBase::Cancel, KDialogBase::Ok);
 
-	QVBox *box = opDialog.makeVBoxMainWidget();
+	Q3VBox *box = opDialog.makeVBoxMainWidget();
 
 	if (ext == "tab") {
-		op = new OptionsExportAscii(Settings::config, (QFrame *) box);
+		op = new OptionsExportAscii(Settings::config, (Q3Frame *) box);
 	} else if (ext == "tex") {
-		op = new OptionsExportMusixtex(Settings::config, (QFrame *) box);
+		op = new OptionsExportMusixtex(Settings::config, (Q3Frame *) box);
 	} else {
 		return TRUE;
 	}

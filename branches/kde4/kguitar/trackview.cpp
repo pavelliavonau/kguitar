@@ -20,9 +20,12 @@
 #include <qwidget.h>
 #include <qpainter.h>
 #include <qpen.h>
-#include <qkeycode.h>
+#include <qnamespace.h>
 #include <qcursor.h>
 #include <qstyle.h>
+//Added by qt3to4:
+#include <QResizeEvent>
+#include <QMouseEvent>
 
 #include "trackprint.h"
 
@@ -67,11 +70,11 @@
 #define BOTSPST                         1.5 // bottom space staff in ystepst units
 #define NLINEST                         5   // number of staff lines
 
-TrackView::TrackView(TabSong *s, KXMLGUIClient *_XMLGUIClient, KCommandHistory *_cmdHist,
+TrackView::TrackView(TabSong *s, KXMLGUIClient *_XMLGUIClient, K3CommandHistory *_cmdHist,
 #ifdef WITH_TSE3
                      TSE3::MidiScheduler *_scheduler,
 #endif
-                     QWidget *parent, const char *name): QGridView(parent, name)
+                     QWidget *parent, const char *name): Q3GridView(parent, name)
 {
 	setFrameStyle(Panel | Sunken);
 	setBackgroundMode(PaletteBase);
@@ -279,7 +282,7 @@ void TrackView::ensureCurrentVisible()
 // Process a mouse press of fret "fret" in current column on string
 // "num". Depending on given "button" mouse state flags, additional
 // things may happen.
-void TrackView::melodyEditorPress(int num, int fret, ButtonState button = NoButton)
+void TrackView::melodyEditorPress(int num, int fret, Qt::ButtonState button = Qt::NoButton)
 {
 	if (button & LeftButton)
 		melodyEditorAction(num, fret, 0);
@@ -322,7 +325,7 @@ void TrackView::melodyEditorAction(int num, int fret, int action)
 // Process a mouse release in melody editor. Depending on given
 // "button" mouse state flags, additional things, such as proceeding
 // to next column, may happen.
-void TrackView::melodyEditorRelease(ButtonState button)
+void TrackView::melodyEditorRelease(Qt::ButtonState button)
 {
 	if (((button & LeftButton)  && (Settings::melodyEditorAdvance(0))) ||
 		((button & MidButton)   && (Settings::melodyEditorAdvance(1))) ||
@@ -473,10 +476,10 @@ int TrackView::horizDelta(uint n)
 #ifdef USE_BOTH_OLD_AND_NEW
 void TrackView::drawLetRing(QPainter *p, int x, int y)
 {
-	p->setPen(SolidLine);
+	p->setPen(Qt::SolidLine);
 	p->drawLine(x, y, x - HORCELL / 3, y - VERTLINE / 3);
 	p->drawLine(x, y, x - HORCELL / 3, y + VERTLINE / 3);
-	p->setPen(NoPen);
+	p->setPen(Qt::NoPen);
 }
 #endif
 
@@ -607,7 +610,7 @@ void TrackView::paintCell(QPainter *p, int r, int c)
 	// Starting bars - very thick and thick one
 
 	if (bn == 0) {
-		p->setBrush(SolidPattern);
+		p->setBrush(Qt::SolidPattern);
 		p->drawRect(0, VERTSPACE, 5, VERTLINE * s);
 		p->drawRect(8, VERTSPACE, 2, VERTLINE * s);
 	}
@@ -618,10 +621,10 @@ void TrackView::paintCell(QPainter *p, int r, int c)
  		p->setFont(*timeSigFont);
 		tmp.setNum(curt->b[bn].time1);
 		p->drawText(20, VERTSPACE + VERTLINE * s / 4 - TIMESIGSIZE / 2,
-					TIMESIGSIZE, TIMESIGSIZE, AlignCenter, tmp);
+					TIMESIGSIZE, TIMESIGSIZE, Qt::AlignCenter, tmp);
 		tmp.setNum(curt->b[bn].time2);
 		p->drawText(20, VERTSPACE + VERTLINE * s * 3 / 4 - TIMESIGSIZE / 2,
-					TIMESIGSIZE, TIMESIGSIZE, AlignCenter, tmp);
+					TIMESIGSIZE, TIMESIGSIZE, Qt::AlignCenter, tmp);
 	}
 
 	p->setFont(*normalFont);
@@ -630,15 +633,15 @@ void TrackView::paintCell(QPainter *p, int r, int c)
 	// Drum abbreviations markings
 
 	if (curt->trackMode() == TabTrack::DrumTab) {
-		p->setPen(NoPen);
+		p->setPen(Qt::NoPen);
 		for (int i = 0; i <= s; i++) {
 			p->drawRect(xpos, VERTSPACE + (s - i) * VERTLINE - VERTLINE / 2,
 						ABBRLENGTH, VERTLINE + 1);
 			p->drawText(xpos, VERTSPACE + (s - i) * VERTLINE - VERTLINE / 2,
-						ABBRLENGTH, VERTLINE, AlignCenter, drum_abbr[curt->tune[i]]);
+						ABBRLENGTH, VERTLINE, Qt::AlignCenter, drum_abbr[curt->tune[i]]);
 		}
 		xpos += ABBRLENGTH + 10; lastxpos += ABBRLENGTH + 10;
-		p->setPen(SolidLine);
+		p->setPen(Qt::SolidLine);
 	}
 
 	for (int t = curt->b[bn].start; t <= curt->lastColumn(bn); t++) {
@@ -752,7 +755,7 @@ void TrackView::paintCell(QPainter *p, int r, int c)
 		if (trpCnt == 2) {
 			// draw "3"
 			p->setFont(*smallCaptionFont);
-			p->drawText(xpos, BOTTOMDUR + VERTLINE + 7, HORCELL, VERTLINE, AlignHCenter | AlignTop, "3");
+			p->drawText(xpos, BOTTOMDUR + VERTLINE + 7, HORCELL, VERTLINE, Qt::AlignHCenter | Qt::AlignTop, "3");
 			p->setFont(*normalFont);
 		}
 
@@ -768,7 +771,7 @@ void TrackView::paintCell(QPainter *p, int r, int c)
 			if (lastPalmMute == 0)  {     // start drawing with "P.M."
 				p->setFont(*smallCaptionFont);
 				p->drawText(xpos, VERTSPACE / 2, VERTLINE * 2, VERTLINE,
-							AlignCenter, "P.M.");
+							Qt::AlignCenter, "P.M.");
 				p->setFont(*normalFont);
 				lastPalmMute = 1;
 			} else if (lastPalmMute == 1) {
@@ -789,7 +792,7 @@ void TrackView::paintCell(QPainter *p, int r, int c)
 
 		// Draw the number column
 
-		p->setPen(NoPen);
+		p->setPen(Qt::NoPen);
 		for (int i = 0; i <= s; i++) {
 			if (curt->c[t].a[i] != -1) {
 				if (curt->c[t].a[i] == DEAD_NOTE)
@@ -799,7 +802,7 @@ void TrackView::paintCell(QPainter *p, int r, int c)
 				p->drawRect(xpos, VERTSPACE + (s - i) * VERTLINE - VERTLINE / 2,
 							HORCELL, VERTLINE);
 				p->drawText(xpos, VERTSPACE + (s - i) * VERTLINE - VERTLINE / 2,
-							HORCELL, VERTLINE, AlignCenter, tmp);
+							HORCELL, VERTLINE, Qt::AlignCenter, tmp);
 				if (ringing[i]) {
 					drawLetRing(p, xpos, VERTSPACE + (s - i) * VERTLINE);
 					ringing[i] = FALSE;
@@ -826,34 +829,34 @@ void TrackView::paintCell(QPainter *p, int r, int c)
 			case EFFECT_HARMONIC:
  				p->setFont(*smallCaptionFont);
 				p->drawText(xpos + VERTLINE + 2, VERTSPACE + (s - i) * VERTLINE - VERTLINE * 2 / 3,
-							HORCELL, VERTLINE, AlignCenter, "H");
+							HORCELL, VERTLINE, Qt::AlignCenter, "H");
  				p->setFont(*normalFont);
 				break;
 			case EFFECT_ARTHARM:
  				p->setFont(*smallCaptionFont);
 				p->drawText(xpos + VERTLINE + 2, VERTSPACE + (s - i) * VERTLINE - VERTLINE * 2 / 3,
-							HORCELL * 2, VERTLINE, AlignCenter, "AH");
+							HORCELL * 2, VERTLINE, Qt::AlignCenter, "AH");
  				p->setFont(*normalFont);
 				break;
 			case EFFECT_LEGATO:
- 				p->setPen(SolidLine);
+ 				p->setPen(Qt::SolidLine);
 				p->drawArc(xpos + HORCELL, VERTSPACE + (s - i) * VERTLINE - VERTLINE / 2,
 						   xdelta - HORCELL, 10, 0, 180 * 16);
 				if ((t < curt->c.size() - 1) && (curt->c[t + 1].a[i] >= 0)) {
  					p->setFont(*smallCaptionFont);
 					if (curt->c[t + 1].a[i] > curt->c[t].a[i]) {
 						p->drawText(xpos + xdelta / 2 - HORCELL / 2, VERTSPACE + (s - i) * VERTLINE - VERTLINE / 3,
-									HORCELL * 2, VERTLINE, AlignCenter, "HO");
+									HORCELL * 2, VERTLINE, Qt::AlignCenter, "HO");
 					} else if (curt->c[t + 1].a[i] < curt->c[t].a[i]) {
 						p->drawText(xpos + xdelta / 2 - HORCELL / 2, VERTSPACE + (s - i) * VERTLINE - VERTLINE / 3,
-									HORCELL * 2, VERTLINE, AlignCenter, "PO");
+									HORCELL * 2, VERTLINE, Qt::AlignCenter, "PO");
 					}
  					p->setFont(*normalFont);
 				}
-				p->setPen(NoPen);
+				p->setPen(Qt::NoPen);
 				break;
 			case EFFECT_SLIDE:
-				p->setPen(SolidLine);
+				p->setPen(Qt::SolidLine);
 				if ((t < curt->c.size() - 1) && (curt->c[t + 1].a[i] >= 0)) {
 					if (curt->c[t + 1].a[i] > curt->c[t].a[i]) {
 						p->drawLine(xpos + HORCELL + 2, VERTSPACE + (s - i) * VERTLINE + VERTLINE / 2 - 1,
@@ -863,7 +866,7 @@ void TrackView::paintCell(QPainter *p, int r, int c)
 									xpos + xdelta, VERTSPACE + (s - i) * VERTLINE + VERTLINE / 2 - 1);
 					}
 				}
-				p->setPen(NoPen);
+				p->setPen(Qt::NoPen);
 				break;
 			case EFFECT_LETRING:
 				ringing[i] = TRUE;
@@ -871,7 +874,7 @@ void TrackView::paintCell(QPainter *p, int r, int c)
 			}
 		}
 
-		p->setPen(SolidLine);
+		p->setPen(Qt::SolidLine);
 
 		lastxpos = xpos;
 		xpos += xdelta;
@@ -886,7 +889,7 @@ void TrackView::paintCell(QPainter *p, int r, int c)
 	}
 
 	// End bar with vertical line
-	p->setPen(SolidLine);
+	p->setPen(Qt::SolidLine);
 	p->drawRect(xpos, VERTSPACE, 1, VERTLINE * s);
 
 	// Draw original cursor (still inverted)
@@ -899,13 +902,13 @@ void TrackView::paintCell(QPainter *p, int r, int c)
 
 // 	p->setBrush(KGlobalSettings::baseColor());
 	p->setRasterOp(Qt::CopyROP);
-	p->setBrush(SolidPattern);
+	p->setBrush(Qt::SolidPattern);
 #endif // USE_BOTH_OLD_AND_NEW
 }
 
 void TrackView::resizeEvent(QResizeEvent *e)
 {
-	QGridView::resizeEvent(e); // GREYFIX ? Is it C++-correct?
+	Q3GridView::resizeEvent(e); // GREYFIX ? Is it C++-correct?
 	updateRows();
 }
 

@@ -6,6 +6,9 @@
 #include <qlabel.h>
 #include <qcheckbox.h>
 #include <qlayout.h>
+//Added by qt3to4:
+#include <Q3VBoxLayout>
+#include <Q3HBoxLayout>
 
 #include <klocale.h>
 #include <kconfig.h>
@@ -15,7 +18,7 @@ OptionsExportAscii::OptionsExportAscii(KConfig *conf, QWidget *parent, const cha
 {
 	// Create option widgets
 
-	durationGroup = new QVButtonGroup(i18n("&Duration Display"), this);
+	durationGroup = new Q3VButtonGroup(i18n("&Duration Display"), this);
 	duration[0] = new QRadioButton(i18n("Fixed one blank"), durationGroup);
 	duration[1] = new QRadioButton(i18n("One blank") + " = 1/4", durationGroup);
 	duration[2] = new QRadioButton(i18n("One blank") + " = 1/8", durationGroup);
@@ -29,10 +32,10 @@ OptionsExportAscii::OptionsExportAscii(KConfig *conf, QWidget *parent, const cha
 
 	// Set widget layout
 
-	QVBoxLayout *box = new QVBoxLayout(this);
+	Q3VBoxLayout *box = new Q3VBoxLayout(this);
 	box->addWidget(durationGroup);
 
-	QHBoxLayout *pageWidthBox = new QHBoxLayout(box);
+	Q3HBoxLayout *pageWidthBox = new Q3HBoxLayout(box);
 	pageWidthBox->addWidget(pageWidth_l);
 	pageWidthBox->addWidget(pageWidth);
 	pageWidthBox->addStretch(1);

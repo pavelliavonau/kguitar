@@ -2,6 +2,9 @@
 # KPART SECTION
 #########################################################################
 #kde_module_LTLIBRARIES = libkguitarpart.la
+
+add_definitions (-DQT3_SUPPORT -DQT3_SUPPORT_WARNINGS)
+
 set(kguitar_PART_SRCS
 	kguitar_part.cpp
 	songview.cpp
@@ -56,6 +59,10 @@ set(kguitar_PART_SRCS
 	converttex.cpp
 	convertgtp.cpp
 	kgfontmap.cpp
+)
+
+kde4_add_ui_files(kguitar_PART_SRCS
+	settabmidibase.ui
 )
 
 kde4_add_plugin(kguitarpart WITH_PREFIX ${kguitar_PART_SRCS})

@@ -53,7 +53,7 @@ ConvertKg::ConvertKg(TabSong *song): ConvertBase(song) {}
 bool ConvertKg::save(QString fileName)
 {
 	QFile f(fileName);
-	if (!f.open(IO_WriteOnly))
+	if (!f.open(QIODevice::WriteOnly))
 		return FALSE;
 
 	QDataStream s(&f);
@@ -159,7 +159,7 @@ bool ConvertKg::save(QString fileName)
 bool ConvertKg::load(QString fileName)
 {
 	QFile f(fileName);
-	if (!f.open(IO_ReadOnly))
+	if (!f.open(QIODevice::ReadOnly))
 		return FALSE;
 
 	QDataStream s(&f);

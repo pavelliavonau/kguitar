@@ -1,11 +1,15 @@
 #include "rhythmer.h"
 
 #include <qlayout.h>
-#include <qlistbox.h>
+#include <q3listbox.h>
 #include <qpushbutton.h>
 #include <qlabel.h>
 #include <qspinbox.h>
 #include <qcheckbox.h>
+//Added by qt3to4:
+#include <Q3BoxLayout>
+#include <Q3HBoxLayout>
+#include <Q3VBoxLayout>
 
 #include <klocale.h>
 
@@ -20,8 +24,8 @@ Rhythmer::Rhythmer(
 	scheduler = _scheduler;
 #endif
 
-	original = new QListBox(this);
-	quantized = new QListBox(this);
+	original = new Q3ListBox(this);
+	quantized = new Q3ListBox(this);
 	QLabel *original_l = new QLabel(original, i18n("&Original taps:"), this);
 	QLabel *quantized_l = new QLabel(quantized, i18n("Q&uantized rhythm:"), this);
 
@@ -56,21 +60,21 @@ Rhythmer::Rhythmer(
 	// LAYOUT MANAGEMENT
 
 	// Main layout
-	QBoxLayout *l = new QHBoxLayout(this, 10);
+	Q3BoxLayout *l = new Q3HBoxLayout(this, 10);
 
 	// Original layout
-	QBoxLayout *lorig = new QVBoxLayout();
+	Q3BoxLayout *lorig = new Q3VBoxLayout();
 	lorig->addWidget(original_l);
 	lorig->addWidget(original, 1);
 	l->addLayout(lorig, 1);
 
 	// Tempo layout
-	QBoxLayout *ltempo = new QHBoxLayout();
+	Q3BoxLayout *ltempo = new Q3HBoxLayout();
 	ltempo->addWidget(tempo_l);
 	ltempo->addWidget(tempo, 1);
 
 	// Button zone layout
-	QBoxLayout *lbzone = new QVBoxLayout();
+	Q3BoxLayout *lbzone = new Q3VBoxLayout();
 	lbzone->addLayout(ltempo);
 	lbzone->addWidget(temponew);
 	lbzone->addWidget(dotted);
@@ -81,13 +85,13 @@ Rhythmer::Rhythmer(
 	l->addLayout(lbzone);
 
 	// Quantized layout
-	QBoxLayout *lquan = new QVBoxLayout();
+	Q3BoxLayout *lquan = new Q3VBoxLayout();
 	lquan->addWidget(quantized_l);
 	lquan->addWidget(quantized, 1);
 	l->addLayout(lquan, 1);
 
 	// Dialog buttons layout
-	QBoxLayout *ldialog = new QVBoxLayout();
+	Q3BoxLayout *ldialog = new Q3VBoxLayout();
 	ldialog->addWidget(ok);
 	ldialog->addWidget(cancel);
 	l->addLayout(ldialog);

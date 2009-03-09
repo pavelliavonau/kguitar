@@ -3,7 +3,10 @@
 
 #include "global.h"
 
-#include <qgridview.h>
+#include <q3gridview.h>
+//Added by qt3to4:
+#include <QResizeEvent>
+#include <QMouseEvent>
 
 #ifdef WITH_TSE3
 #include <tse3/MidiScheduler.h>
@@ -12,16 +15,16 @@
 class TabSong;
 class TabTrack;
 class Fretboard;
-class QListViewItem;
+class Q3ListViewItem;
 class KXMLGUIClient;
-class KCommandHistory;
+class K3CommandHistory;
 class QFont;
 class TrackPrint;
 
-class TrackView: public QGridView {
+class TrackView: public Q3GridView {
 	Q_OBJECT
 public:
-	TrackView(TabSong *s, KXMLGUIClient *_XMLGUIClient, KCommandHistory *_cmdHist,
+	TrackView(TabSong *s, KXMLGUIClient *_XMLGUIClient, K3CommandHistory *_cmdHist,
 #ifdef WITH_TSE3
 	          TSE3::MidiScheduler *_scheduler,
 #endif
@@ -149,8 +152,8 @@ public slots:
 	void zoomOut();
 	void zoomLevelDialog();
 
-	void melodyEditorPress(int num, int fret, ButtonState button);
-	void melodyEditorRelease(ButtonState button);
+	void melodyEditorPress(int num, int fret, Qt::ButtonState button);
+	void melodyEditorRelease(Qt::ButtonState button);
 
 	void selectTrack(TabTrack *);
 	void selectBar(uint);
@@ -241,7 +244,7 @@ private:
 #endif
 
 	KXMLGUIClient *xmlGUIClient;
-	KCommandHistory *cmdHist;
+	K3CommandHistory *cmdHist;
 
 	void drawLetRing(QPainter *p, int x, int y);
 

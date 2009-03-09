@@ -3,7 +3,7 @@
 
 #include <kconfig.h>
 #include <qfile.h>
-#include <qtextstream.h>
+#include <q3textstream.h>
 
 ConvertAscii::ConvertAscii(TabSong *song): ConvertBase(song)
 {
@@ -21,9 +21,9 @@ bool ConvertAscii::save(QString fileName)
 {
 	// Initialize output stream
 	QFile f(fileName);
-	if (!f.open(IO_WriteOnly))
+	if (!f.open(QIODevice::WriteOnly))
 		return FALSE;
-	QTextStream s(&f);
+	Q3TextStream s(&f);
 	stream = &s;
 
 	// Print out header

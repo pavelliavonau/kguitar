@@ -11,12 +11,12 @@ QValidator::State NoteValidator::validate(QString &input, int &) const
 	switch (input.length()) {
 	case 1:
 		if ((input.left(1)>='A') && (input.left(1)<='H'))
-			res = Valid;
+			res = QValidator::Intermediate;
 	break;
 	case 2:
 		if ((input.left(1) >= 'A') && (input.left(1) <= 'H')) {
 			if ((input.mid(1, 1) == '#') && (input.mid(1, 1) == 'b')) {
-				res = Valid;
+				res = QValidator::Intermediate;
 			} else if ((input.mid(1, 1) >= '0') && (input.mid(1,1) <= '9')) {
 				res = Acceptable;
 			} else {

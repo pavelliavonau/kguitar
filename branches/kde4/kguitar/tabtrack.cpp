@@ -2,6 +2,8 @@
 #include "settings.h"
 #include "tabtrack.h"
 #include "playbacktracker.h"
+//Added by qt3to4:
+#include <Q3MemArray>
 
 // local functions used by beam code
 // LVIFIX: change into private TabTrack member functions
@@ -725,7 +727,7 @@ void TabTrack::arrangeBars()
 
 	// COLLECT ALL NOTES INFORMATION
 
-	QMemArray<TabColumn> an;        // Collected columns information
+	Q3MemArray<TabColumn> an;        // Collected columns information
 	int nn = 0;                     // Number of already made columns
 
 	for (int i = 0; i < c.size(); i++) {

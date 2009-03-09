@@ -1,13 +1,15 @@
 #ifndef FINGERS_H
 #define FINGERS_H
 
-#include <qframe.h>
+#include <q3frame.h>
+//Added by qt3to4:
+#include <QMouseEvent>
 #include "global.h"
 
 class QScrollBar;
 class TabTrack;
 
-class Fingering: public QFrame {
+class Fingering: public Q3Frame {
 	Q_OBJECT
 public:
 	Fingering(TabTrack *p, QWidget *parent = 0, const char *name = 0);

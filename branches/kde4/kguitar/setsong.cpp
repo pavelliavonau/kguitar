@@ -3,9 +3,11 @@
 #include <klocale.h>
 
 #include <qlineedit.h>
-#include <qtextedit.h>
+#include <q3textedit.h>
 #include <qlabel.h>
 #include <qlayout.h>
+//Added by qt3to4:
+#include <Q3GridLayout>
 
 SetSong::SetSong(QMap<QString, QString> info, int tempo_, bool ro, QWidget *parent, const char *name)
 	: KDialogBase(parent, name, TRUE, i18n("Song properties"),
@@ -17,7 +19,7 @@ SetSong::SetSong(QMap<QString, QString> info, int tempo_, bool ro, QWidget *pare
 	title = new QLineEdit(page1);
 	author = new QLineEdit(page1);
 	transcriber = new QLineEdit(page1);
-	comments = new QTextEdit(page1);
+	comments = new Q3TextEdit(page1);
 	m_tempo = new KIntNumInput(page1);
 
 	QLabel *title_l = new QLabel(title, i18n("&Title:"), page1);
@@ -26,7 +28,7 @@ SetSong::SetSong(QMap<QString, QString> info, int tempo_, bool ro, QWidget *pare
 	QLabel *comments_l = new QLabel(comments, i18n("&Comments:"), page1);
 	QLabel *tempo_l = new QLabel(m_tempo, i18n("T&empo:"), page1);
 
-	QGridLayout *g = new QGridLayout(page1, 6, 2, 0, spacingHint());
+	Q3GridLayout *g = new Q3GridLayout(page1, 6, 2, 0, spacingHint());
 	g->addWidget(title_l, 0, 0);
 	g->addWidget(title, 0, 1);
 	g->addWidget(author_l, 1, 0);

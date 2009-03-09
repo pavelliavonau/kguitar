@@ -5,7 +5,7 @@
 #include "tabtrack.h"
 #include "songview.h"
 
-#include <kcommand.h>
+#include <k3command.h>
 #include <qmap.h>
 #include <qstring.h>
 

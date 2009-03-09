@@ -3,7 +3,7 @@
 
 ChordListItem::ChordListItem(int _tonic, int _bass, int s3, int s5, int s7,
 							 int s9, int s11, int s13)
-	: QListBoxText()
+	: Q3ListBoxText()
 {
 	// MEMORIZING STEPS INFO IN THE COMBOBOX SELECTION FORM
 

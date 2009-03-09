@@ -1,12 +1,14 @@
 #ifndef TRACKPANE_H
 #define TRACKPANE_H
 
-#include <qtable.h>
+#include <q3table.h>
+//Added by qt3to4:
+#include <QMouseEvent>
 
 class TabSong;
 class TabTrack;
 
-class TrackPane: public QScrollView {
+class TrackPane: public Q3ScrollView {
 	Q_OBJECT
 
 public:

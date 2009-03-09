@@ -3,8 +3,10 @@
 
 #include "tabsong.h"
 
-#include <qheader.h>
+#include <q3header.h>
 #include <qcursor.h>
+//Added by qt3to4:
+#include <QMouseEvent>
 
 #include <kdebug.h>
 #include <klocale.h>
@@ -13,7 +15,7 @@
 #include <kxmlguiclient.h>
 
 TrackList::TrackList(TabSong *s, KXMLGUIClient *_XMLGUIClient, QWidget *parent, const char *name)
-	: QListView(parent, name)
+	: Q3ListView(parent, name)
 {
 	song = s;
 	xmlGUIClient = _XMLGUIClient;
@@ -29,7 +31,7 @@ TrackList::TrackList(TabSong *s, KXMLGUIClient *_XMLGUIClient, QWidget *parent, 
 
 	updateList();
 
-	connect(this, SIGNAL(selectionChanged(QListViewItem *)), SLOT(selectNewTrack(QListViewItem *)));
+	connect(this, SIGNAL(selectionChanged(Q3ListViewItem *)), SLOT(selectNewTrack(Q3ListViewItem *)));
 
 	show();
 }
@@ -42,7 +44,7 @@ void TrackList::updateList()
 	for (int n = 1; it.current(); ++it) {		// For every track
 		TabTrack *trk = it.current();
 
-		(void) new QListViewItem(this, QString::number(n), trk->name,
+		(void) new Q3ListViewItem(this, QString::number(n), trk->name,
 								 QString::number(trk->channel),
 								 QString::number(trk->bank),
 								 QString::number(trk->patch));
@@ -54,7 +56,7 @@ void TrackList::updateList()
 
 void TrackList::contentsMousePressEvent(QMouseEvent *e)
 {
-	QListView::contentsMousePressEvent(e);
+	Q3ListView::contentsMousePressEvent(e);
 
 	if (e->button() == RightButton) {
 		QWidget *tmpWidget = 0;
@@ -72,7 +74,7 @@ void TrackList::contentsMousePressEvent(QMouseEvent *e)
 	setSelected(currentItem(), TRUE);
 }
 
-void TrackList::selectNewTrack(QListViewItem *item)
+void TrackList::selectNewTrack(Q3ListViewItem *item)
 {
 	if (!item)
 		return;

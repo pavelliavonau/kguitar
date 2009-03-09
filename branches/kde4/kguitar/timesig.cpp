@@ -7,6 +7,8 @@
 #include <qcheckbox.h>
 #include <qlabel.h>
 #include <qlayout.h>
+//Added by qt3to4:
+#include <Q3GridLayout>
 
 SetTimeSig::SetTimeSig(int t1, int t2, QWidget *parent, const char *name)
 	: KDialogBase(parent, name, TRUE, i18n("Time signature"),
@@ -41,7 +43,7 @@ SetTimeSig::SetTimeSig(int t1, int t2, QWidget *parent, const char *name)
 
 	toend = new QCheckBox(i18n("Apply till the &end"),this);
 	
-	QGridLayout *l = new QGridLayout(page, 3, 2, 0, spacingHint());
+	Q3GridLayout *l = new Q3GridLayout(page, 3, 2, 0, spacingHint());
 	l->addWidget(l_time1, 0, 0);
 	l->addWidget(m_time1, 0, 1);
 	l->addWidget(l_time2, 1, 0);

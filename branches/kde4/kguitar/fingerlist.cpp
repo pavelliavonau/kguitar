@@ -5,13 +5,16 @@
 #include <qpainter.h>
 #include <qcolor.h>
 #include <qstyle.h>
+//Added by qt3to4:
+#include <QResizeEvent>
+#include <QMouseEvent>
 
 #include <kglobalsettings.h>
 
 #define FRET_NUMBER_FONT_FACTOR 0.7
 
 FingerList::FingerList(TabTrack *p, QWidget *parent, const char *name)
-	: QGridView(parent, name)
+	: Q3GridView(parent, name)
 {
 	parm = p;
 
@@ -80,7 +83,7 @@ void FingerList::addFingering(const int a[MAX_STRINGS])
 
 void FingerList::resizeEvent(QResizeEvent *e)
 {
-	QGridView::resizeEvent(e);
+	Q3GridView::resizeEvent(e);
 	perRow = width() / ICONCHORD;
 	setNumCols(perRow);
 	setNumRows((num - 1) / perRow + 1);
@@ -124,11 +127,11 @@ void FingerList::paintCell(QPainter *p, int row, int col)
 			fore = KGlobalSettings::highlightedTextColor();
 
 			p->setBrush(back);
-			p->setPen(NoPen);
+			p->setPen(Qt::NoPen);
 			p->drawRect(0, 0, ICONCHORD - 1, ICONCHORD - 1);
 
 			if (hasFocus()) {
-				p->setBrush(NoBrush);
+				p->setBrush(Qt::NoBrush);
 				p->setPen(fore);
 				style().drawPrimitive(QStyle::PE_FocusRect, p, QRect(0, 0, ICONCHORD - 1, ICONCHORD - 1), colorGroup());
 			}
@@ -163,7 +166,7 @@ void FingerList::paintCell(QPainter *p, int row, int col)
 			fs.setNum(firstFret);
 			p->setFont(*fretNumberFont);
 			p->drawText(BORDER, BORDER + SCALE + 2 * SPACER, 50, 50,
-			            AlignLeft | AlignTop, fs);
+			            Qt::AlignLeft | Qt::AlignTop, fs);
 		}
 
 		// Vertical lines and fingering
@@ -221,7 +224,7 @@ void FingerList::paintCell(QPainter *p, int row, int col)
 			}
 		}
 
-		p->setBrush(NoBrush);
-		p->setPen(SolidLine);
+		p->setBrush(Qt::NoBrush);
+		p->setPen(Qt::SolidLine);
 	}
 }

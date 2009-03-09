@@ -5,12 +5,14 @@
 #include <qcombobox.h>
 #include <qlabel.h>
 #include <qcheckbox.h>
-#include <qhgroupbox.h>
+#include <q3hgroupbox.h>
 #include <qlayout.h>
+//Added by qt3to4:
+#include <Q3VBoxLayout>
 
 #include <klocale.h>
 #include <qvbuttongroup.h>
-#include <qgroupbox.h>
+#include <q3groupbox.h>
 #include <kconfig.h>
 
 OptionsMelodyEditor::OptionsMelodyEditor(KConfig *conf, QWidget *parent, const char *name)
@@ -30,11 +32,11 @@ OptionsMelodyEditor::OptionsMelodyEditor(KConfig *conf, QWidget *parent, const c
 	globalMelodyEditorAction[2] = config->readNumEntry("Action2", 1);
 	globalMelodyEditorAdvance[2] = config->readBoolEntry("Advance2", TRUE);
 
-	QVBoxLayout *l = new QVBoxLayout(this, 0, -1, "main");
+	Q3VBoxLayout *l = new Q3VBoxLayout(this, 0, -1, "main");
 
-	QHGroupBox *designGroup = new QHGroupBox(i18n("Design"), this, "designbox");
+	Q3HGroupBox *designGroup = new Q3HGroupBox(i18n("Design"), this, "designbox");
 
-	inlayGroup = new QVButtonGroup(i18n("Inlays"), designGroup, "inlaygroup");
+	inlayGroup = new Q3VButtonGroup(i18n("Inlays"), designGroup, "inlaygroup");
 	inlay[0] = new QRadioButton(i18n("None"), inlayGroup);
 	inlay[1] = new QRadioButton(i18n("Center dots"), inlayGroup);
 	inlay[2] = new QRadioButton(i18n("Side dots"), inlayGroup);
@@ -44,7 +46,7 @@ OptionsMelodyEditor::OptionsMelodyEditor(KConfig *conf, QWidget *parent, const c
 
 	inlayGroup->setButton(Settings::melodyEditorInlay());
 
-	woodGroup = new QVButtonGroup(i18n("Texture"), designGroup, "texturegroup");
+	woodGroup = new Q3VButtonGroup(i18n("Texture"), designGroup, "texturegroup");
 	wood[0] = new QRadioButton(i18n("Schematic"), woodGroup);
 	wood[1] = new QRadioButton(i18n("Maple"), woodGroup);
 	wood[2] = new QRadioButton(i18n("Rosewood"), woodGroup);
@@ -54,7 +56,7 @@ OptionsMelodyEditor::OptionsMelodyEditor(KConfig *conf, QWidget *parent, const c
 
 	l->addWidget(designGroup);
 
-	QGroupBox *actionsGroup = new QGroupBox(3, Horizontal, i18n("Mouse button actions"), this, "actionsbox");
+	Q3GroupBox *actionsGroup = new Q3GroupBox(3, Horizontal, i18n("Mouse button actions"), this, "actionsbox");
 
 	QStringList labels;
 	labels << i18n("Left:") << i18n("Middle:") << i18n("Right:");

@@ -4,7 +4,7 @@
 #include "optionspage.h"
 #include "global.h"
 
-class QVButtonGroup;
+class Q3VButtonGroup;
 class QCheckBox;
 class QRadioButton;
 
@@ -16,7 +16,7 @@ public:
 	virtual void defaultBtnClicked();
 
 private:
-	QVButtonGroup *tabSizeGroup, *exportModeGroup;
+	Q3VButtonGroup *tabSizeGroup, *exportModeGroup;
 	QCheckBox *showBarNumber, *showStr, *showPageNumber;
 	QRadioButton *tabSize[4], *exportMode[2];
 	QCheckBox *always;

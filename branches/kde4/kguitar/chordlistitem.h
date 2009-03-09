@@ -1,7 +1,7 @@
 #ifndef CHORDLISTITEM_H
 #define CHORDLISTITEM_H
 
-#include <qlistbox.h>
+#include <q3listbox.h>
 #include "global.h"
 
 /**
@@ -11,7 +11,7 @@
  * and all steps presence. Automatically forms proper text chord name
  * from this data.
  */
-class ChordListItem: public QListBoxText {
+class ChordListItem: public Q3ListBoxText {
 public:
 	ChordListItem(int _tonic, int _bass, int s3, int s5, int s7,
 	              int s9, int s11, int s13);

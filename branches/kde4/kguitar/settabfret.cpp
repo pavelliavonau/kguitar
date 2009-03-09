@@ -8,6 +8,8 @@
 #include <qcombobox.h>
 #include <qspinbox.h>
 #include <qlabel.h>
+//Added by qt3to4:
+#include <QResizeEvent>
 
 // Numbers of instruments that are selected by default with selection
 // of new number of strings

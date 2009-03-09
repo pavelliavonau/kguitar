@@ -5,6 +5,8 @@
 #include <qradiobutton.h>
 #include <qcheckbox.h>
 #include <qlayout.h>
+//Added by qt3to4:
+#include <Q3VBoxLayout>
 
 #include <klocale.h>
 #include <kconfig.h>
@@ -14,16 +16,16 @@ OptionsExportMusixtex::OptionsExportMusixtex(KConfig *conf, QWidget *parent, con
 {
 	// Create option widgets
 
-	QVButtonGroup *layoutGroup = new QVButtonGroup(i18n("MusiXTeX Layout"), this);
+	Q3VButtonGroup *layoutGroup = new Q3VButtonGroup(i18n("MusiXTeX Layout"), this);
 	showBarNumber  = new QCheckBox(i18n("Show Bar Number"), layoutGroup);
 	showStr        = new QCheckBox(i18n("Show Tuning"), layoutGroup);
 	showPageNumber = new QCheckBox(i18n("Show Page Number"), layoutGroup);
 
-	exportModeGroup = new QVButtonGroup(i18n("Export as..."), this);
+	exportModeGroup = new Q3VButtonGroup(i18n("Export as..."), this);
 	exportMode[0] = new QRadioButton(i18n("Tabulature"), exportModeGroup);
 	exportMode[1] = new QRadioButton(i18n("Notes"), exportModeGroup);
 
-	tabSizeGroup = new QVButtonGroup(i18n("Tab Size"), this);
+	tabSizeGroup = new Q3VButtonGroup(i18n("Tab Size"), this);
 	tabSize[0] = new QRadioButton(i18n("Smallest"), tabSizeGroup);
 	tabSize[1] = new QRadioButton(i18n("Small"), tabSizeGroup);
 	tabSize[2] = new QRadioButton(i18n("Normal"), tabSizeGroup);
@@ -33,7 +35,7 @@ OptionsExportMusixtex::OptionsExportMusixtex(KConfig *conf, QWidget *parent, con
 
 	// Set widget layout
 
-	QVBoxLayout *box = new QVBoxLayout(this);
+	Q3VBoxLayout *box = new Q3VBoxLayout(this);
 	box->addWidget(layoutGroup);
 	box->addWidget(tabSizeGroup);
 	box->addWidget(exportModeGroup);

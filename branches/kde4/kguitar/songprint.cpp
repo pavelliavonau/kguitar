@@ -61,9 +61,9 @@
 #include "settings.h"
 
 #include <kprinter.h>
-#include <qmemarray.h>
+#include <q3memarray.h>
 #include <qpainter.h>
-#include <qpaintdevicemetrics.h>
+#include <q3paintdevicemetrics.h>
 #include <qprinter.h>
 #include <kglobal.h>
 
@@ -229,7 +229,7 @@ void SongPrint::initFonts()
 void SongPrint::initMetrics(QPaintDevice *printer)
 {
 	// determine width/height of printer surface
-	QPaintDeviceMetrics pdm(printer);
+	Q3PaintDeviceMetrics pdm(printer);
 	pprh  = pdm.height();
 	pprw  = pdm.width();
 	// determine font-dependent bar metrics
@@ -395,8 +395,8 @@ void SongPrint::printSong(KPrinter *printer, TabSong *song)
 		int bn = 0;					// current bar nr
 
 		// precalculate bar widths
-		QMemArray<int> bew(trk->b.size());
-		QMemArray<int> bw(trk->b.size());
+		Q3MemArray<int> bew(trk->b.size());
+		Q3MemArray<int> bw(trk->b.size());
 		for (uint bn = 0; bn < trk->b.size(); bn++) {
 			bew[bn] = trp->barExpWidth(bn, trk);
 			bw[bn]  = trp->barWidth(bn, trk);

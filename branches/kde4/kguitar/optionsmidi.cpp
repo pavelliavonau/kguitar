@@ -4,9 +4,12 @@
 #include <klocale.h>
 
 #include <qlayout.h>
-#include <qlistview.h>
+#include <q3listview.h>
 #include <qlabel.h>
 #include <qpushbutton.h>
+//Added by qt3to4:
+#include <Q3VBoxLayout>
+#include <Q3Frame>
 #include <kconfig.h>
 
 #ifdef WITH_TSE3
@@ -22,9 +25,9 @@ OptionsMidi::OptionsMidi(KConfig *conf, QWidget *parent, const char *name)
 	
 	// Create option widgets
 
-	midiport = new QListView(this);
+	midiport = new Q3ListView(this);
 	midiport->setSorting(-1); // no text sorting
-	midiport->setFrameStyle(QFrame::Panel | QFrame::Sunken);
+	midiport->setFrameStyle(Q3Frame::Panel | Q3Frame::Sunken);
 	midiport->addColumn(i18n("Port"));
 	midiport->addColumn(i18n("Info"));
 
@@ -37,7 +40,7 @@ OptionsMidi::OptionsMidi(KConfig *conf, QWidget *parent, const char *name)
 
 	// Set widget layout
 
-	QVBoxLayout *midivb = new QVBoxLayout(this, 10, 5);
+	Q3VBoxLayout *midivb = new Q3VBoxLayout(this, 10, 5);
 	midivb->addWidget(midiport_l);
 	midivb->addWidget(midiport, 1);
 	midivb->addWidget(midirefresh);
@@ -54,10 +57,10 @@ void OptionsMidi::fillMidiBox()
 
 	midiport->clear();
 
-	QListViewItem *lastItem = NULL;
+	Q3ListViewItem *lastItem = NULL;
 
 	for (size_t i = 0; i < sch->numPorts(); i++) {
-		lastItem = new QListViewItem(
+		lastItem = new Q3ListViewItem(
 			midiport, lastItem, QString::number(portNums[i]),
 			sch->portName(portNums[i]));
 		if (Settings::midiPort() == portNums[i])

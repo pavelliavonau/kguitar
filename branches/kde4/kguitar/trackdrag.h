@@ -1,11 +1,11 @@
 #ifndef TRACKDRAG_H
 #define TRACKDRAG_H
 
-#include <qdragobject.h>
+#include <q3dragobject.h>
 
 class TabTrack;
 
-class TrackDrag: public QStoredDrag {
+class TrackDrag: public Q3StoredDrag {
 	Q_OBJECT
 public:
 	TrackDrag(TabTrack *trk, QWidget *dragSource = 0, const char *name = 0);

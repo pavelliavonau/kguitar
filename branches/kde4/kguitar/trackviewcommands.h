@@ -5,6 +5,8 @@
 #include "tabtrack.h"
 #include "trackview.h"
 #include <kcommand.h>
+//Added by qt3to4:
+#include <Q3MemArray>
 
 // Set the duration for the notes
 class TrackView::SetLengthCommand: public KNamedCommand {
@@ -140,7 +142,7 @@ public:
 private:
 	int x, y, xsel;
 	uint p_delta, p_del, p_start;
-	QMemArray<TabColumn> c;
+	Q3MemArray<TabColumn> c;
 	bool p_all, sel;
 	TabTrack *trk;
 	TrackView *tv;
@@ -158,7 +160,7 @@ public:
 private:
 	int x, y, xb, xsel, time1, time2;
 	bool sel, toend;
-	QMemArray<TabBar> b;
+	Q3MemArray<TabBar> b;
 	TabTrack *trk;
 	TrackView *tv;
 };
@@ -191,25 +193,25 @@ public:
 private:
 	int sch, x, y, xsel, len, toadd;
 	int chord[MAX_STRINGS];
-	QMemArray<TabColumn> c;
+	Q3MemArray<TabColumn> c;
 	bool sel;
 	TabTrack *trk;
 	TrackView *tv;
 };
 
-class QListBox;
+class Q3ListBox;
 
 // Insert rhythm from rhythmer
 class TrackView::InsertRhythm: public KNamedCommand {
 public:
-	InsertRhythm(TrackView *_tv, TabTrack *&_trk, QListBox *quantized);
+	InsertRhythm(TrackView *_tv, TabTrack *&_trk, Q3ListBox *quantized);
 
 	virtual void execute();
 	virtual void unexecute();
 
 private:
 	int x;
-	QMemArray<int> newdur, olddur;
+	Q3MemArray<int> newdur, olddur;
 	TabTrack *trk;
 	TrackView *tv;
 };

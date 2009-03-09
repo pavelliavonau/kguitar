@@ -17,12 +17,17 @@
 #include <qpushbutton.h>
 #include <qvbuttongroup.h>
 #include <qradiobutton.h>
-#include <qlistbox.h>
+#include <q3listbox.h>
 #include <qlineedit.h>
 #include <qstring.h>
 #include <qlabel.h>
 #include <qlayout.h>
 #include <qkeysequence.h>
+//Added by qt3to4:
+#include <Q3HBoxLayout>
+#include <Q3BoxLayout>
+#include <Q3GridLayout>
+#include <Q3VBoxLayout>
 
 #ifdef WITH_TSE3
 #include <tse3/Song.h>
@@ -81,7 +86,7 @@ void ChordSelector::initChordSelector(TabTrack *p)
 
 	// CHORD SELECTOR FOR FINDER WIDGETS
 
-	tonic = new QListBox(this);
+	tonic = new Q3ListBox(this);
 	for (int i = 0; i < 12; i++)
 		tonic->insertItem(Settings::noteName(i));
 //     tonic->setHScrollBarMode(QScrollView::AlwaysOff);
@@ -95,7 +100,7 @@ void ChordSelector::initChordSelector(TabTrack *p)
 	for (int i = 0; i < 12; i++)
 		bassnote->insertItem(Settings::noteName(i));
 
-	step3 = new QListBox(this);
+	step3 = new Q3ListBox(this);
 	step3->insertItem("M");
 	step3->insertItem("m");
 	step3->insertItem("sus2");
@@ -104,7 +109,7 @@ void ChordSelector::initChordSelector(TabTrack *p)
 	step3->setMinimumWidth(40);
 	connect(step3, SIGNAL(highlighted(int)), SLOT(setStep3()));
 
-	stephigh = new QListBox(this);
+	stephigh = new Q3ListBox(this);
 	stephigh->insertItem("");
 	stephigh->insertItem("7");
 	stephigh->insertItem(Settings::maj7Name());
@@ -175,7 +180,7 @@ void ChordSelector::initChordSelector(TabTrack *p)
 	inv->insertItem(i18n("Inv #6"));
 	connect(inv, SIGNAL(activated(int)), SLOT(findChords()));
 
-	complexity = new QVButtonGroup(this);
+	complexity = new Q3VButtonGroup(this);
 	complexer[0] = new QRadioButton(i18n("Usual"), complexity);
 	complexer[1] = new QRadioButton(i18n("Rare"), complexity);
 	complexer[2] = new QRadioButton(i18n("All"), complexity);
@@ -226,20 +231,20 @@ void ChordSelector::initChordSelector(TabTrack *p)
 	// LAYOUT MANAGEMENT
 
 	// Main layout
-	QBoxLayout *l = new QHBoxLayout(this, 10);
+	Q3BoxLayout *l = new Q3HBoxLayout(this, 10);
 
 	// Chord finding & analyzing layout
-	QBoxLayout *lchord = new QVBoxLayout();
+	Q3BoxLayout *lchord = new Q3VBoxLayout();
 	l->addLayout(lchord, 1);
 
 	// Chord editing layout
-	QBoxLayout *lchedit = new QHBoxLayout();
+	Q3BoxLayout *lchedit = new Q3HBoxLayout();
     lchord->addWidget(chordName);
 	lchord->addLayout(lchedit);
 	lchord->addWidget(fnglist, 1);
 
 	// Chord selection (template-based) layout
-	QGridLayout *lselect = new QGridLayout(3, 3, 5);
+	Q3GridLayout *lselect = new Q3GridLayout(3, 3, 5);
 	lchedit->addLayout(lselect);
 
 	lselect->addMultiCellWidget(tonic, 0, 2, 0, 0);
@@ -253,17 +258,17 @@ void ChordSelector::initChordSelector(TabTrack *p)
 	lselect->addWidget(bassnote, 2, 2);
 
 	// Chord icon showing layout
-	QBoxLayout *lshow = new QVBoxLayout();
+	Q3BoxLayout *lshow = new Q3VBoxLayout();
 	lchedit->addLayout(lshow);
 
 	// Analyzing and showing chord layout
-	QBoxLayout *lanalyze = new QHBoxLayout();
+	Q3BoxLayout *lanalyze = new Q3HBoxLayout();
 	lshow->addLayout(lanalyze);
 	lanalyze->addWidget(fng);
 	lanalyze->addWidget(chords);
 
 	// Steps editor layout
-	QGridLayout *lsteps = new QGridLayout(3, 7, 0);
+	Q3GridLayout *lsteps = new Q3GridLayout(3, 7, 0);
 	lshow->addLayout(lsteps);
 
 	lsteps->addRowSpacing(0, 15);
@@ -279,7 +284,7 @@ void ChordSelector::initChordSelector(TabTrack *p)
 	}
 
 	// Strumming and buttons stuff layout
-	QBoxLayout *lstrum = new QVBoxLayout();
+	Q3BoxLayout *lstrum = new Q3VBoxLayout();
 	l->addLayout(lstrum);
     lstrum->addWidget(chordNameAnalyze);
     lstrum->addWidget(chordNameQuickInsert);

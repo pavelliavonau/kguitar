@@ -1,11 +1,13 @@
 #ifndef TRACKLIST_H
 #define TRACKLIST_H
 
-#include <qlistview.h>
+#include <q3listview.h>
+//Added by qt3to4:
+#include <QMouseEvent>
 
 class TabSong;
 class TabTrack;
-class QListViewItem;
+class Q3ListViewItem;
 class QMouseEvent;
 class KXMLGUIClient;
 
@@ -16,7 +18,7 @@ class KXMLGUIClient;
  * and mouse event handlers to make selection of tracks by mouse
  * possible.
  */
-class TrackList: public QListView {
+class TrackList: public Q3ListView {
 	Q_OBJECT
 
 public:
@@ -30,7 +32,7 @@ protected:
     virtual void contentsMousePressEvent(QMouseEvent *e);
 
 private slots:
-	void selectNewTrack(QListViewItem *);
+	void selectNewTrack(Q3ListViewItem *);
 
 private:
 	TabSong *song;

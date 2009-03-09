@@ -8,9 +8,12 @@
 #include <qbrush.h>
 #include <qstring.h>
 #include <qscrollbar.h>
+//Added by qt3to4:
+#include <QMouseEvent>
+#include <Q3Frame>
 
 Fingering::Fingering(TabTrack *p, QWidget *parent, const char *name):
-    QFrame(parent, name)
+    Q3Frame(parent, name)
 {
     parm = p;
 

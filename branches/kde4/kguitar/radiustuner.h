@@ -2,6 +2,9 @@
 #define RADIUSTUNER_H
 
 #include <qwidget.h>
+//Added by qt3to4:
+#include <QPaintEvent>
+#include <QResizeEvent>
 #include "global.h"
 
 #include "notespinbox.h"

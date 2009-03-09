@@ -6,7 +6,7 @@
 #include "strumlib.h"
 
 #include <klocale.h>
-#include <qlistbox.h>
+#include <q3listbox.h>
 
 extern strummer lib_strum[];
 
@@ -810,7 +810,7 @@ void TrackView::InsertStrumCommand::unexecute()
 	tv->repaintCurrentBar();
 }
 
-TrackView::InsertRhythm::InsertRhythm(TrackView *_tv, TabTrack *&_trk, QListBox *quantized)
+TrackView::InsertRhythm::InsertRhythm(TrackView *_tv, TabTrack *&_trk, Q3ListBox *quantized)
 	: KNamedCommand(i18n("Insert rhythm"))
 {
 	trk = _trk;

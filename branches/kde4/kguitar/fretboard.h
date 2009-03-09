@@ -2,6 +2,11 @@
 #define FRETBOARD_H
 
 #include <qwidget.h>
+//Added by qt3to4:
+#include <QPaintEvent>
+#include <QResizeEvent>
+#include <QMouseEvent>
+#include <QPixmap>
 #include "global.h"
 
 class TabTrack;
@@ -23,8 +28,8 @@ public slots:
 	void drawScaleBack();
 
 signals:
-	void buttonPress(int, int, ButtonState);
-	void buttonRelease(ButtonState);
+	void buttonPress(int, int, Qt::ButtonState);
+	void buttonRelease(Qt::ButtonState);
 
 protected:
 	virtual void paintEvent(QPaintEvent *);

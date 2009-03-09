@@ -35,8 +35,11 @@
 #include <qlayout.h>
 #include <qlineedit.h>
 #include <qcombobox.h>
-#include <qtextedit.h>
+#include <q3textedit.h>
 #include <qdir.h>
+//Added by qt3to4:
+#include <Q3BoxLayout>
+#include <Q3VBoxLayout>
 
 #ifdef WITH_TSE3
 #include <tse3/MidiScheduler.h>
@@ -51,7 +54,7 @@
 #include "playbacktracker.h"
 #endif
 
-SongView::SongView(KXMLGUIClient *_XMLGUIClient, KCommandHistory *_cmdHist,
+SongView::SongView(KXMLGUIClient *_XMLGUIClient, K3CommandHistory *_cmdHist,
 				   QWidget *parent, const char *name): QWidget(parent, name)
 {
 #ifdef WITH_TSE3
@@ -98,7 +101,7 @@ SongView::SongView(KXMLGUIClient *_XMLGUIClient, KCommandHistory *_cmdHist,
 	// was changed in TrackView
 	connect(tv, SIGNAL(songChanged()), this, SIGNAL(songChanged()));
 
-	QBoxLayout *l = new QVBoxLayout(this);
+	Q3BoxLayout *l = new Q3VBoxLayout(this);
 	l->addWidget(split);
 
 	cmdHist = _cmdHist;
