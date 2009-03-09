@@ -32,8 +32,8 @@
 #include <Q3HBoxLayout>
 
 SetKeySig::SetKeySig(int keySig, QWidget *parent, const char *name)
-	: KDialogBase(parent, name, TRUE, i18n("Key signature"),
-				  Ok | Cancel, Ok, TRUE)
+	: KDialog(parent, name, TRUE, i18n("Key signature"),
+	          Ok | Cancel, Ok, TRUE)
 {
 	QWidget *page = new QWidget(this);
 	setMainWidget(page);

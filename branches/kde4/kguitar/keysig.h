@@ -18,20 +18,20 @@
 #ifndef KEYSIG_H
 #define KEYSIG_H
 
-#include <kdialogbase.h>
+#include <kdialog.h>
 #include "global.h"
 
 class QComboBox;
 
-class SetKeySig: public KDialogBase {
-    Q_OBJECT
+class SetKeySig: public KDialog {
+	Q_OBJECT
 
 public:
-    SetKeySig(int keySig, QWidget *parent = 0, const char *name = 0);
+	SetKeySig(int keySig, QWidget *parent = 0, const char *name = 0);
 	int keySignature();
 
 protected:
-    QComboBox *sig;
+	QComboBox *sig;
 };
 
 #endif
