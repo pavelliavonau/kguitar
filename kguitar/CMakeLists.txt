@@ -3,7 +3,7 @@
 #########################################################################
 #kde_module_LTLIBRARIES = libkguitarpart.la
 
-add_definitions (-DQT3_SUPPORT -DQT3_SUPPORT_WARNINGS)
+add_definitions (-DQT3_SUPPORT -DQT3_SUPPORT_WARNINGS -fexceptions)
 
 set(kguitar_PART_SRCS
 	kguitar_part.cpp

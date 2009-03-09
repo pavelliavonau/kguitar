@@ -1,6 +1,5 @@
 #include "global.h"
 
-#include "kguitar_part.h"
 
 #include "songprint.h"
 #include "songview.h"
@@ -25,23 +24,24 @@
 #include "optionsexportmusixtex.h"
 
 // KDE system things
-#include <kparts/genericfactory.h>
+#include "kguitar_part.h"
 
-#include <kapp.h>
-#include <kmenubar.h>
-#include <ktoolbar.h>
+#include "kguitar_part.moc"
+
 #include <kaction.h>
-#include <kstdaction.h>
-#include <klocale.h>
+#include <kactioncollection.h>
 #include <kfiledialog.h>
-#include <kaccel.h>
+#include <kparts/genericfactory.h>
+#include <kstandardaction.h>
 #include <kmessagebox.h>
-#include <kurl.h>
-#include <kkeydialog.h>
-#include <kdebug.h>
-#include <kprinter.h>
-
-#include <qwidget.h>
+#include <kvbox.h>
+#include <ktoggleaction.h>
+#include <QPrinter>
+#include <kdeprintdialog.h>
+#include <KComponentData>
+#include <KConfig>
+#include <KGlobal>
+#include <KSharedConfigPtr>
 
 #include <qpixmap.h>
 #include <qnamespace.h>
@@ -51,8 +51,7 @@
 #include <q3buttongroup.h>
 #include <qradiobutton.h>
 #include <qfileinfo.h>
-//Added by qt3to4:
-#include <Q3Frame>
+#include <QPrintDialog>
 
 typedef KParts::GenericFactory<KGuitarPart> KGuitarPartFactory;
 K_EXPORT_COMPONENT_FACTORY(libkguitarpart, KGuitarPartFactory)
@@ -61,16 +60,13 @@ K_EXPORT_COMPONENT_FACTORY(libkguitarpart, KGuitarPartFactory)
 
 QString drum_abbr[128];
 
-KGuitarPart::KGuitarPart(QWidget *parentWidget,
-                         const char * /*widgetName*/, QObject *parent, const char *name,
-                         const QStringList & /*args*/)
-	: KParts::ReadWritePart(parent, name)
+KGuitarPart::KGuitarPart(QWidget *parentWidget, QObject *parent, const QStringList & /*args*/)
+    : KParts::ReadWritePart(parent)
 {
-	Settings::config = KGuitarPartFactory::instance()->config();
+	// we need an instance
+	setComponentData(KGuitarPartFactory::componentData());
 
 	cmdHist = new K3CommandHistory();
-
-	setInstance(KGuitarPartFactory::instance());
 
 	// Custom main widget
 	sv = new SongView(this, cmdHist, parentWidget);
@@ -79,19 +75,40 @@ KGuitarPart::KGuitarPart(QWidget *parentWidget,
 	setWidget(sv);
 
 	setupActions();
-	setupAccels();
 
 	// SET UP RESPONSES FOR VARIOUS TRACK CHANGES
 
 	connect(sv->tv, SIGNAL(trackChanged(TabTrack *)), SLOT(updateToolbars(TabTrack *)));
-	connect(QApplication::clipboard(), SIGNAL(dataChanged()), SLOT(clipboardDataChanged()));
+// GREYTODO
+//	connect(QApplication::clipboard(), SIGNAL(dataChanged()), SLOT(clipboardDataChanged()));
 	connect(sv->tv, SIGNAL(barChanged()), SLOT(updateStatusBar()));
+
+/*
+    // create our actions
+    KStandardAction::saveAs(this, SLOT(fileSaveAs()), actionCollection());
+    save = KStandardAction::save(this, SLOT(save()), actionCollection());
+*/
 
 	setXMLFile("kguitar_part.rc");
 
+	// we are read-write by default
 	setReadWrite(true);
+
+	// we are not modified since we haven't done anything yet
 	setModified(false);
 
+
+/*
+	Settings::config = KGuitarPartFactory::instance()->config();
+
+	setInstance(KGuitarPartFactory::instance());
+
+
+
+
+	setReadWrite(true);
+	setModified(false);
+*/
 	// READ CONFIGS
 	readOptions();
 
@@ -116,14 +133,19 @@ void KGuitarPart::setReadWrite(bool rw)
 	ReadWritePart::setReadWrite(rw);
 }
 
+
 void KGuitarPart::setModified(bool modified)
 {
-	// enable or disable Save action based on modified
-	KAction *save = actionCollection()->action(KStdAction::stdName(KStdAction::Save));
+	// get a handle on our Save action and make sure it is valid
 	if (!save)
 		return;
 
-	save->setEnabled(modified);
+	// if so, we either enable or disable it based on the current
+	// state
+	if (modified)
+		save->setEnabled(true);
+	else
+		save->setEnabled(false);
 
 	// in any event, we want our parent to do it's thing
 	ReadWritePart::setModified(modified);
@@ -131,15 +153,17 @@ void KGuitarPart::setModified(bool modified)
 
 KAboutData *KGuitarPart::createAboutData()
 {
-	KAboutData *aboutData = new KAboutData("kguitar", "KGuitarPart", VERSION);
-	aboutData->addAuthor(i18n("KGuitar development team"), 0, 0);
+	KAboutData *aboutData = new KAboutData("kguitarpart", 0, ki18n("KGuitarPart"), VERSION);
+	aboutData->addAuthor(ki18n("KGuitar development team"), KLocalizedString(), 0);
 	return aboutData;
 }
 
 // Reimplemented method from KParts to open file m_file
 bool KGuitarPart::openFile()
 {
-	QFileInfo fi(m_file);
+// GREYTODO
+/*
+	QFileInfo fi("m_file");
 
 	if (!fi.isFile()) {
 		KMessageBox::sorry(0, i18n("No file specified, please select a file."));
@@ -183,33 +207,40 @@ bool KGuitarPart::openFile()
 	}
 
 	return success;
+*/
+	return false;
 }
 
 bool KGuitarPart::exportOptionsDialog(QString ext)
 {
 	OptionsPage *op;
-	KDialogBase opDialog(0, 0, TRUE, i18n("Additional Export Options"),
-	                     KDialogBase::Help|KDialogBase::Default|
-	                     KDialogBase::Ok|KDialogBase::Cancel, KDialogBase::Ok);
+	KDialog opDialog;
+	opDialog.setCaption(i18n("Additional Export Options"));
+	opDialog.setButtons(KDialog::Help|KDialog::Default|KDialog::Ok|KDialog::Cancel);
 
-	Q3VBox *box = opDialog.makeVBoxMainWidget();
+	KVBox *box = new KVBox(&opDialog);
+	opDialog.setMainWidget(box);
 
 	if (ext == "tab") {
-		op = new OptionsExportAscii(Settings::config, (Q3Frame *) box);
+		op = new OptionsExportAscii(Settings::config, box);
 	} else if (ext == "tex") {
-		op = new OptionsExportMusixtex(Settings::config, (Q3Frame *) box);
+		op = new OptionsExportMusixtex(Settings::config, box);
 	} else {
 		return TRUE;
 	}
 
 	// Skip the dialog if a user has set the appropriate option
+// GREYTODO
+/*
 	if (!Settings::config->readBoolEntry("AlwaysShow", TRUE)) {
 		delete op;
 		return TRUE;
 	}
-
+*/
 	connect(&opDialog, SIGNAL(defaultClicked()), op, SLOT(defaultBtnClicked()));
 	connect(&opDialog, SIGNAL(okClicked()), op, SLOT(applyBtnClicked()));
+// GREYTODO: from example - needed here?
+//   connect( widget, SIGNAL( changed( bool ) ), dialog, SLOT( enableButtonApply( bool ) ) );
 
 	bool res = (opDialog.exec() == QDialog::Accepted);
 	delete op;
@@ -243,14 +274,7 @@ bool KGuitarPart::saveFile()
 	if (isReadWrite() == false)
 		return false;
 
-	// GREYFIX: some sort of dirty hack - workaround the KDE default
-	// save, not saveAs without file name
-	if (m_file.isEmpty()) {
-		fileSaveAs();
-		return false;
-	}
-
-	QFileInfo *fi = new QFileInfo(m_file);
+	QFileInfo *fi = new QFileInfo("m_file");
 	QString ext = fi->extension().lower();
 
 	bool success = FALSE;
@@ -258,7 +282,7 @@ bool KGuitarPart::saveFile()
 	try {
 		if (exportOptionsDialog(ext)) {
 			ConvertBase *converter = converterForExtension(ext, sv->song());
-			if (converter)  success = converter->save(m_file);
+			if (converter)  success = converter->save("m_file");
 		} else {
 			return FALSE;
 		}
@@ -275,7 +299,7 @@ bool KGuitarPart::saveFile()
 	}
 
 	if (success) {
-		setWinCaption(m_file);
+		setWinCaption("m_file");
 		cmdHist->clear();
 	} else {
 		KMessageBox::sorry(0, i18n("Can't save song in %1 format").arg(ext));
@@ -296,7 +320,7 @@ void KGuitarPart::fileSaveAs()
 		"*.xml|" + i18n("MusicXML files") + " (*.xml)\n"
 		"*.tex|" + i18n("MusiXTeX") + " (*.tex)\n"
 		"*|" + i18n("All files");
-	QString file_name = KFileDialog::getSaveFileName(QString::null, filter);
+	QString file_name = KFileDialog::getSaveFileName(KUrl(), filter);
 
 	if (file_name.isEmpty() == false)
 		saveAs(file_name);
@@ -324,8 +348,8 @@ void KGuitarPart::filePrint()
 // LVIFIX: enable status message
 //  slotStatusMsg(i18n("Printing..."));
 
-	KPrinter printer(true, QPrinter::HighResolution);
-	if (printer.setup())
+	QPrinter printer(QPrinter::HighResolution);
+	if (KdePrint::createPrintDialog(&printer)->exec())
 		sv->print(&printer);
 
 //  slotStatusMsg(i18n("Ready."));
@@ -333,18 +357,19 @@ void KGuitarPart::filePrint()
 
 void KGuitarPart::options()
 {
+	KSharedConfigPtr config = KGlobal::mainComponent().config();
 	Options op(
 #ifdef WITH_TSE3
 		sv->midiScheduler(),
 #endif
-		KGuitarPartFactory::instance()->config());
+		config);
 	op.exec();
 	sv->me->drawBackground();
 }
 
 void KGuitarPart::readOptions()
 {
-	KConfig *config = KGuitarPartFactory::instance()->config();
+	KSharedConfigPtr config = KGlobal::mainComponent().config();
 
 // 	config->setGroup("MusiXTeX");
 // 	globalTabSize = config->readNumEntry("TabSize", 2);
@@ -353,7 +378,7 @@ void KGuitarPart::readOptions()
 // 	globalShowPageNumb = config->readBoolEntry("ShowPageNumb", TRUE);
 // 	globalTexExpMode = config->readNumEntry("TexExpMode", 0);
 
- 	viewMelodyEditorAct->setChecked(config->readBoolEntry("Visible", TRUE));
+ 	viewMelodyEditorAct->setChecked(config->group("MelodyEditor").readEntry("Visible", TRUE));
 	viewMelodyEditor();
 //	viewScoreAct->setChecked(TRUE);		// LVIFIX: read value from config, enable only if feta fonts found
 	viewScoreAct->setChecked(FALSE);	// LVIFIX: enable before commit
@@ -362,8 +387,7 @@ void KGuitarPart::readOptions()
 
 void KGuitarPart::saveOptions()
 {
- 	Settings::config->setGroup("MelodyEditor");
-	Settings::config->writeEntry("Visible", viewMelodyEditorAct->isChecked());
+ 	Settings::config->group("MelodyEditor").writeEntry("Visible", viewMelodyEditorAct->isChecked());
 	Settings::config->sync();
 }
 
@@ -433,27 +457,29 @@ void KGuitarPart::viewScore()
 void KGuitarPart::setupActions()
 {
 	// SET UP STANDARD ACTIONS
-	KStdAction::saveAs(this, SLOT(fileSaveAs()), actionCollection());
-	KStdAction::save(this, SLOT(save()), actionCollection());
+	KStandardAction::saveAs(this, SLOT(fileSaveAs()), actionCollection());
+	save = KStandardAction::save(this, SLOT(save()), actionCollection());
 
-	(void) KStdAction::print(this, SLOT(filePrint()), actionCollection());
-	(void) KStdAction::preferences(this, SLOT(options()), actionCollection());
+	(void) KStandardAction::print(this, SLOT(filePrint()), actionCollection());
+	(void) KStandardAction::preferences(this, SLOT(options()), actionCollection());
 
-	(void) new KAction(i18n("P&roperties..."), 0, sv, SLOT(songProperties()),
-	                   actionCollection(), "song_properties");
+	KAction *propAct = new KAction(i18n("P&roperties..."), actionCollection());
+	connect(propAct, SIGNAL(triggered(bool)), sv, SLOT(songProperties()));
 
 	// EDIT ACTIONS
-	(void) KStdAction::undo(cmdHist, SLOT(undo()), actionCollection());
-	(void) KStdAction::redo(cmdHist, SLOT(redo()), actionCollection());
-	(void) KStdAction::cut(sv, SLOT(slotCut()), actionCollection());
-	(void) KStdAction::copy(sv, SLOT(slotCopy()), actionCollection());
-	(void) KStdAction::paste(sv, SLOT(slotPaste()), actionCollection());
-	(void) KStdAction::selectAll(sv, SLOT(slotSelectAll()), actionCollection());
+	(void) KStandardAction::undo(cmdHist, SLOT(undo()), actionCollection());
+	(void) KStandardAction::redo(cmdHist, SLOT(redo()), actionCollection());
+	(void) KStandardAction::cut(sv, SLOT(slotCut()), actionCollection());
+	(void) KStandardAction::copy(sv, SLOT(slotCopy()), actionCollection());
+	paste = KStandardAction::paste(sv, SLOT(slotPaste()), actionCollection());
+	(void) KStandardAction::selectAll(sv, SLOT(slotSelectAll()), actionCollection());
 
 	// VIEW ACTIONS
-	(void) KStdAction::zoomIn(sv->tv, SLOT(zoomIn()), actionCollection());
-	(void) KStdAction::zoomOut(sv->tv, SLOT(zoomOut()), actionCollection());
-	(void) KStdAction::zoom(sv->tv, SLOT(zoomLevelDialog()), actionCollection());
+	(void) KStandardAction::zoomIn(sv->tv, SLOT(zoomIn()), actionCollection());
+	(void) KStandardAction::zoomOut(sv->tv, SLOT(zoomOut()), actionCollection());
+	(void) KStandardAction::zoom(sv->tv, SLOT(zoomLevelDialog()), actionCollection());
+//GREYTODO
+/*
 	viewMelodyEditorAct = new KToggleAction(i18n("Show Melody Editor"), "melodyeditor",
 	                                        SHIFT + Key_M, this, SLOT(viewMelodyEditor()),
 	                                        actionCollection(), "view_melodyEditor");
@@ -542,14 +568,15 @@ void KGuitarPart::setupActions()
 	midiPlaySongAct->setEnabled(FALSE);
 	midiStopPlayAct->setEnabled(FALSE);
 #endif
-}
-
-void KGuitarPart::setupAccels()
-{
-	// SET UP ACCEL...
-	mainAccel = new KAccel(sv->tv);
+*/
 
 	// ...FOR CURSOR
+	KAction *prevColumn = new KAction(i18n("Move cursor left"), actionCollection());
+	prevColumn->setShortcut(Qt::Key_Left);
+	connect(prevColumn, SIGNAL(triggered(bool)), SLOT(keyLeft()));
+
+// GREYTODO
+/*
 	mainAccel->insert("prev_column", i18n("Move cursor left"), QString::null,
 	                  Key_Left, sv->tv, SLOT(keyLeft()));
 	mainAccel->insert("next_column", i18n("Move cursor right"), QString::null,
@@ -594,14 +621,14 @@ void KGuitarPart::setupAccels()
 	mainAccel->insert("key_8", i18n("Key 8"), QString::null, Key_8, sv->tv, SLOT(key8()));
 	mainAccel->insert("key_9", i18n("Key 9"), QString::null, Key_9, sv->tv, SLOT(key9()));
 	mainAccel->insert("key_0", i18n("Key 0"), QString::null, Key_0, sv->tv, SLOT(key0()));
+*/
 }
 
 void KGuitarPart::clipboardDataChanged()
 {
-	KAction *paste = actionCollection()->action(KStdAction::stdName(KStdAction::Paste));
 	if (!paste)
 		return;
-	paste->setEnabled(TrackDrag::canDecode(QApplication::clipboard()->data()));
+//	paste->setEnabled(TrackDrag::canDecode(QApplication::clipboard()->data()));
 }
 
 void KGuitarPart::updateStatusBar()

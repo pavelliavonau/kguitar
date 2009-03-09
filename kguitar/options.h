@@ -26,11 +26,11 @@ public:
 #ifdef WITH_TSE3
 			TSE3::MidiScheduler *sch,
 #endif
-			KConfig *config,
+			KSharedConfigPtr &config,
 			QWidget *parent = 0, char *name = 0,//##
 			bool modal = TRUE);
 
-    OptionsPage *optWidget[OPTIONS_PAGES_NUM];
+	OptionsPage *optWidget[OPTIONS_PAGES_NUM];
 
 protected slots:
 	void applyBtnClicked();
