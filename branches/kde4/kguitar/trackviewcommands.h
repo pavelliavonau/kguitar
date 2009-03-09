@@ -4,7 +4,7 @@
 #include "global.h"
 #include "tabtrack.h"
 #include "trackview.h"
-#include <kcommand.h>
+#include <k3command.h>
 //Added by qt3to4:
 #include <Q3MemArray>
 

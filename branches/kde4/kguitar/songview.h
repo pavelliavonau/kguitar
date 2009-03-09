@@ -5,7 +5,7 @@
 
 #include <qwidget.h>
 
-#include <kcommand.h>
+#include <k3command.h>
 
 class TrackView;
 class TrackList;
