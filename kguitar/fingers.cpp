@@ -15,38 +15,38 @@
 Fingering::Fingering(TabTrack *p, QWidget *parent, const char *name):
     Q3Frame(parent, name)
 {
-    parm = p;
+	parm = p;
 
-    lastff = 1;
+	lastff = 1;
 
-    setFixedSize(parm->string * SCALE + 2 * BORDER + FRETTEXT + SCROLLER,
+	setFixedSize(parm->string * SCALE + 2 * BORDER + FRETTEXT + SCROLLER,
 	             NUMFRETS * SCALE + SCALE + 2 * BORDER + 2 * SPACER + NOTES);
-    setFrameStyle(Panel | Sunken);
-    setBackgroundMode(PaletteBase);
+	setFrameStyle(Panel | Sunken);
+	setBackgroundMode(Qt::PaletteBase);
 
-    ff = new QScrollBar(1, parm->frets-NUMFRETS + 1, 1, 5, 1,
-	                    QScrollBar::Vertical, this);
-    ff->setGeometry(width() - SCROLLER, 0, SCROLLER, height());
-    connect(ff, SIGNAL(valueChanged(int)), SLOT(setFirstFret(int)));
+	ff = new QScrollBar(1, parm->frets-NUMFRETS + 1, 1, 5, 1,
+	                    Qt::Vertical, this);
+	ff->setGeometry(width() - SCROLLER, 0, SCROLLER, height());
+	connect(ff, SIGNAL(valueChanged(int)), SLOT(setFirstFret(int)));
 
-    clear();
+	clear();
 }
 
 void Fingering::clear()
 {
-    for (int i = 0; i < parm->string; i++)
+	for (int i = 0; i < parm->string; i++)
 		appl[i] = -1;
-    repaint();
-    emit chordChange();
+	repaint();
+	emit chordChange();
 }
 
 void Fingering::setFinger(int string, int fret)
 {
-    if (appl[string] != fret) {
-        appl[string] = fret;
-        repaint();
-        emit chordChange();
-    }
+	if (appl[string] != fret) {
+		appl[string] = fret;
+		repaint();
+		emit chordChange();
+	}
 }
 
 void Fingering::setFingering(const int a[MAX_STRINGS])
@@ -100,13 +100,13 @@ void Fingering::mouseHandle(const QPoint &pos, bool domute)
 
 void Fingering::mouseMoveEvent(QMouseEvent *e)
 {
-    mouseHandle(e->pos(), FALSE);
+	mouseHandle(e->pos(), FALSE);
 }
 
 void Fingering::mousePressEvent(QMouseEvent *e)
 {
-    if (e->button() == LeftButton)
-	mouseHandle(e->pos(), TRUE);
+	if (e->button() == Qt::LeftButton)
+		mouseHandle(e->pos(), TRUE);
 }
 
 void Fingering::drawContents(QPainter *p)
@@ -129,7 +129,7 @@ void Fingering::drawContents(QPainter *p)
 
 	QString tmp;
 	tmp.setNum(ff->value());
-	p->drawText(BORDER - SPACER, BORDER + SCALE + 2 * SPACER, 50, 50, AlignLeft | AlignTop, tmp);
+	p->drawText(BORDER - SPACER, BORDER + SCALE + 2 * SPACER, 50, 50, Qt::AlignLeft | Qt::AlignTop, tmp);
 
 	// Vertical lines, fingering and note names
 
@@ -144,24 +144,24 @@ void Fingering::drawContents(QPainter *p)
 			            i * SCALE + BORDER + CIRCBORD + FRETTEXT, BORDER + SCALE - CIRCBORD);
 		} else {
 			if (appl[i] == 0) {
-				p->setBrush(NoBrush);
+				p->setBrush(Qt::NoBrush);
 				p->drawEllipse(i * SCALE + BORDER + CIRCBORD + FRETTEXT,
 				               BORDER + CIRCBORD, CIRCLE, CIRCLE);
 			} else {
-				p->setBrush(SolidPattern);
+				p->setBrush(Qt::SolidPattern);
 				p->drawEllipse(i * SCALE + BORDER + CIRCBORD + FRETTEXT,
 				               BORDER + SCALE + 2 * SPACER + (appl[i] - ff->value()) * SCALE + CIRCBORD,
 				               CIRCLE, CIRCLE);
 			};
 			p->drawText(BORDER + FRETTEXT + i * SCALE, BORDER + NUMFRETS * SCALE + SCALE + 2 * SPACER,
-			            SCALE, 30, AlignHCenter | AlignTop,
+			            SCALE, 30, Qt::AlignHCenter | Qt::AlignTop,
 			            Settings::noteName((appl[i] + parm->tune[i]) % 12));
 		}
 	}
 
 	// Analyze & draw barre
 
-	p->setBrush(SolidPattern);
+	p->setBrush(Qt::SolidPattern);
 
 	for (int i = 0; i < NUMFRETS; i++) {
 		barre = 0;
