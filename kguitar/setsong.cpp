@@ -10,8 +10,8 @@
 #include <Q3GridLayout>
 
 SetSong::SetSong(QMap<QString, QString> info, int tempo_, bool ro, QWidget *parent, const char *name)
-	: KDialogBase(parent, name, TRUE, i18n("Song properties"),
-	              Ok | Cancel, Ok, TRUE)
+	: KDialog(parent, name, TRUE, i18n("Song properties"),
+	          Ok | Cancel, Ok, TRUE)
 {
 	QWidget *page1 = new QWidget(this);
 	setMainWidget(page1);

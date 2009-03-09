@@ -25,9 +25,10 @@ Options::Options(
                  TSE3::MidiScheduler *sch,
 #endif
                  KConfig *config, QWidget *parent, char *name, bool modal)
-	: KDialogBase(TreeList, i18n("Configure"), Help|Default|Ok|Apply|Cancel,
+	: KDialogBase(i18n("Configure"), Help|Default|Ok|Apply|Cancel,
 	              Ok, parent, name, modal, TRUE)
 {
+	setFaceType(KPageDialog::Tree);
 	Q3Frame *optPage[OPTIONS_PAGES_NUM];
 
 	optPage[0] = addPage(i18n("Music Theory"), 0, SmallIcon("lookandfeel"));

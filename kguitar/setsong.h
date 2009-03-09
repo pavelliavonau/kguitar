@@ -1,7 +1,7 @@
 #ifndef SETSONG_H
 #define SETSONG_H
 
-#include <kdialogbase.h>
+#include <kdialog.h>
 #include "global.h"
 
 #include <qmap.h>
@@ -18,7 +18,7 @@ class KIntNumInput;
  * Provides song properties dialog that maintains all metainformation
  * about song and, for now, holds first tempo value.
  */
-class SetSong: public KDialogBase {
+class SetSong: public KDialog {
 	Q_OBJECT
 public:
 	SetSong(QMap<QString, QString> info, int tempo_, bool ro, QWidget *parent=0, const char *name=0);

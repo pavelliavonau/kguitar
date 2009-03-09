@@ -11,8 +11,8 @@
 #include <Q3GridLayout>
 
 SetTimeSig::SetTimeSig(int t1, int t2, QWidget *parent, const char *name)
-	: KDialogBase(parent, name, TRUE, i18n("Time signature"),
-	              Ok | Cancel, Ok, TRUE)
+	: KDialog(parent, name, TRUE, i18n("Time signature"),
+	          Ok | Cancel, Ok, TRUE)
 {
 	QWidget *page = new QWidget(this);
 	setMainWidget(page);

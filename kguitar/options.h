@@ -1,7 +1,7 @@
 #ifndef OPTIONS_H
 #define OPTIONS_H
 
-#include <kdialogbase.h>
+#include <kpagedialog.h>
 #include "global.h"
 
 class KConfig;
@@ -19,7 +19,7 @@ class OptionsPage;
 
 #define OPTIONS_PAGES_NUM 6
 
-class Options: public KDialogBase {
+class Options: public KPageDialog {
 	Q_OBJECT
 public:
 	Options(
