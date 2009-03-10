@@ -291,7 +291,7 @@ bool KGuitarPart::saveFile()
 		KMessageBox::sorry(0, msg, i18n("Loading failed"));
 
 		sv->song()->t.clear();
-		sv->song()->t.append(new TabTrack(TabTrack::FretTab, i18n("Guitar"), 1, 0, 25, 6, 24));
+		sv->song()->addEmptyTrack();
 		sv->refreshView();
 		cmdHist->clear();
 
@@ -549,7 +549,7 @@ void KGuitarPart::setupActions()
 	letRingAct = new KAction(i18n("Let Ring"), "fx_let_ring", Key_I,
 	                         sv->tv, SLOT(addLetRing()), actionCollection(), "fx_let_ring");
 	natHarmAct = new KAction(i18n("Natural harmonic"), "fx_harmonic", Key_H,
-	                         sv->tv, SLOT(addHarmonic()), actionCollection(), "fx_nat_harm"); 
+	                         sv->tv, SLOT(addHarmonic()), actionCollection(), "fx_nat_harm");
 	artHarmAct = new KAction(i18n("Artificial harmonic"), "fx_harmonic", Key_R,
 	                         sv->tv, SLOT(addArtHarm()), actionCollection(), "fx_art_harm");
 	palmMuteAct = new KAction(i18n("Palm muting"), "fx_palmmute", Key_M,

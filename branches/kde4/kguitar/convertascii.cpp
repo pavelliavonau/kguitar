@@ -7,9 +7,9 @@
 
 ConvertAscii::ConvertAscii(TabSong *song): ConvertBase(song)
 {
-	Settings::config->setGroup("ASCII");
-	durMode = Settings::config->readNumEntry("DurationDisplay", 3);
-	pageWidth = Settings::config->readNumEntry("PageWidth", 72);
+	KConfigGroup g = Settings::config->group("ASCII");
+	durMode = g.readNumEntry("DurationDisplay", 3);
+	pageWidth = g.readNumEntry("PageWidth", 72);
 
 	// Clever expression to determine minimal duration to put one
 	// blank for (i.e. we put only one blank for this duration and any
@@ -30,12 +30,8 @@ bool ConvertAscii::save(QString fileName)
 	writeHeader();
 
 	// Print out track data
-	QListIterator<TabTrack> it(song->t);
-	for (int n = 1; it.current(); ++it) {
-		TabTrack *trk = it.current();
-		writeTrack(trk, n);
-		n++; // Numerical track counter
-	}
+	for (int i = 0; song->t.size(); i++)
+		writeTrack(song->t.at(i), i + 1);
 
 	f.close();
 

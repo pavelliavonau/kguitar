@@ -28,7 +28,7 @@ public:
 	/**
 	 * Holds a list of tracks that the song consists of.
 	 */
-	Q3PtrList<TabTrack> t;
+	QList<TabTrack> t;
 
 	/**
 	 * Map of metainformation. Can hold lots of strings, referenced by
@@ -50,6 +50,7 @@ public:
 	uint maxLen();
 
 	void arrangeBars();
+	void addEmptyTrack();
 #ifdef WITH_TSE3
 	TSE3::Song *midiSong(bool tracking = FALSE);
 #endif

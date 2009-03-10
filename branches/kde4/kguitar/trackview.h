@@ -32,8 +32,8 @@ public:
 
 	~TrackView();
 
-	TabTrack* trk() { return curt; }
-	void setCurrentTrack(TabTrack *);
+	TabTrack* trk() { return &curt; }
+	void setCurrentTrack(TabTrack*);
 
  	void setFinger(int num, int fret);
 	int finger(int num);
@@ -45,7 +45,7 @@ public:
 
 	void repaintCurrentBar();
 	void repaintCurrentColumn();
-	
+
 	void initFonts(QFont *f4, QFont *f5);
 
 	// Forwards declarations of all undo/redo commands
@@ -233,7 +233,7 @@ private:
 	int barByRowCol(int row, int col);
 
 	TabSong *song;
-	TabTrack *curt;
+	TabTrack& curt;
 	TrackPrint *trp;
 	Fretboard *fretboard;
 
