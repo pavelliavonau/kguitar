@@ -19,7 +19,6 @@ TabSong::TabSong(QString _title, int _tempo)
 {
 	tempo = _tempo;
 	info["TITLE"] = _title;
-	t.setAutoDelete(TRUE);
 }
 
 int TabSong::freeChannel()
@@ -28,9 +27,8 @@ int TabSong::freeChannel()
 	for (int i = 1; i <= 16; i++)
 		fc[i] = TRUE;
 
-	QListIterator<TabTrack> it(t);
-	for (; it.current(); ++it)
-		fc[it.current()->channel] = FALSE;
+	for (int i = 0; i < t.size(); i++)
+		fc[t[i].channel] = false;
 
 	int res;
 	for (res = 1; res <= 16; res++)
@@ -47,20 +45,17 @@ uint TabSong::maxLen()
 {
 	uint res = 0;
 
-	QListIterator<TabTrack> it(t);
-	for (; it.current(); ++it)
-		res = it.current()->b.size() > res ? it.current()->b.size() : res;
+	for (int i = 0; i < t.size(); i++)
+		res = t.at(i).b.size() > res ? t.at(i).b.size() : res;
 
 	return res;
 }
 
 void TabSong::arrangeBars()
 {
-	QListIterator<TabTrack> it(t);
-	for (; it.current(); ++it) {		// For every track
-		TabTrack *trk = it.current();
-		trk->arrangeBars();
-	}
+	// For every track
+	for (int i = 0; i < t.size(); i++)
+		t.at(i).arrangeBars();
 }
 
 #ifdef WITH_TSE3
@@ -92,3 +87,9 @@ TSE3::Song *TabSong::midiSong(bool tracking)
 	return song;
 }
 #endif
+
+void TabSong::addEmptyTrack()
+{
+	TabTrack *trk = new TabTrack(TabTrack::FretTab, i18n("Guitar"), 1, 0, 25, 6, 24);
+	t.append(*trk);
+}

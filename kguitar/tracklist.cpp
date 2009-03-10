@@ -10,8 +10,7 @@
 
 #include <kdebug.h>
 #include <klocale.h>
-#include <kpopupmenu.h>
-#include <kxmlgui.h>
+#include <kmenu.h>
 #include <kxmlguiclient.h>
 
 TrackList::TrackList(TabSong *s, KXMLGUIClient *_XMLGUIClient, QWidget *parent, const char *name)
@@ -20,7 +19,7 @@ TrackList::TrackList(TabSong *s, KXMLGUIClient *_XMLGUIClient, QWidget *parent, 
 	song = s;
 	xmlGUIClient = _XMLGUIClient;
 
-	setFocusPolicy(QWidget::StrongFocus);
+	setFocusPolicy(Qt::StrongFocus);
 	setAllColumnsShowFocus(TRUE);
 
 	addColumn("N");
@@ -40,15 +39,14 @@ void TrackList::updateList()
 {
 	clear();
 
-	QListIterator<TabTrack> it(song->t);
-	for (int n = 1; it.current(); ++it) {		// For every track
-		TabTrack *trk = it.current();
+	// For every track
+	for (int i = 0; i < song->t.size(); i++) {// For every track
+		TabTrack *trk = song->t.at(i);
 
-		(void) new Q3ListViewItem(this, QString::number(n), trk->name,
+		(void) new Q3ListViewItem(this, QString::number(i + 1), trk->name,
 								 QString::number(trk->channel),
 								 QString::number(trk->bank),
 								 QString::number(trk->patch));
-		n++;
 	}
 
 // 	setMaximumHeight(header()->height() + viewport()->height());
@@ -58,7 +56,7 @@ void TrackList::contentsMousePressEvent(QMouseEvent *e)
 {
 	Q3ListView::contentsMousePressEvent(e);
 
-	if (e->button() == RightButton) {
+	if (e->button() == Qt::RightButton) {
 		QWidget *tmpWidget = 0;
 		tmpWidget = xmlGUIClient->factory()->container("tracklistpopup", xmlGUIClient);
 
@@ -67,7 +65,7 @@ void TrackList::contentsMousePressEvent(QMouseEvent *e)
 			return;
 		}
 
-		KPopupMenu *menu(static_cast<KPopupMenu*>(tmpWidget));
+		KMenu *menu(static_cast<KMenu*>(tmpWidget));
 		menu->popup(QCursor::pos());
 	}
 

@@ -66,7 +66,7 @@ SongView::SongView(KXMLGUIClient *_XMLGUIClient, K3CommandHistory *_cmdHist,
 	ro = FALSE;
 
 	m_song = new TabSong(i18n("Unnamed"), 120);
-	m_song->t.append(new TabTrack(TabTrack::FretTab, i18n("Guitar"), 1, 0, 25, 6, 24));
+	m_song->addEmptyTrack();
 
 	split = new QSplitter(this);
 	split->setOrientation(Qt::Vertical);
@@ -129,7 +129,7 @@ SongView::~SongView()
 // or imported.
 void SongView::refreshView()
 {
-	tv->setCurrentTrack(m_song->t.first());
+	tv->setCurrentTrack(&(m_song->t.first()));
 	tv->updateRows();
 	tv->repaint();
 	tl->updateList();
@@ -143,7 +143,7 @@ bool SongView::trackNew()
 	TabTrack* oldtr = tv->trk();
 	TabTrack* newtr = new TabTrack(TabTrack::FretTab, "", m_song->freeChannel(), 0, 25, 6, 24);
 
-	m_song->t.append(newtr);
+	m_song->t.append(*newtr);
 	tv->setCurrentTrack(newtr);
 
 	// Special case - if user declined track properties dialog during
@@ -163,18 +163,18 @@ bool SongView::trackNew()
 void SongView::trackDelete()
 {
 	// Check that we won't delete the only last track in the list
-	if (m_song->t.getFirst() != m_song->t.getLast()) {
-		TabTrack *newsel;
+	if (m_song->t.size() > 1) {
+		TabTrack newsel = 0;
 
 		// If we delete the last track, make sure we'll get the item
-		if (m_song->t.last() == tv->trk()) {
-			newsel = m_song->t.prev();
+		if (&(m_song->t.last()) == tv->trk()) {
+			newsel = m_song->t.at(m_song->t.size() - 2);
 		} else {
-			m_song->t.findRef(tv->trk());
-			newsel = m_song->t.next();
+			int n = m_song->t.indexOf(*tv->trk());
+			newsel = m_song->t.at(n - 1);
 		}
 
-		m_song->t.remove(tv->trk());
+		m_song->t.remove(*(tv->trk()));
 		tv->setCurrentTrack(newsel);
 		tv->updateRows();
 		tv->repaintContents();
@@ -585,7 +585,7 @@ void SongView::print(QPrinter *printer)
 // thru PlaybackTracker
 void SongView::playbackColumn(int track, int x)
 {
- 	TabTrack *trk = m_song->t.at(track);
-	if (tv->trk() == trk && trk->x != x)
+ 	TabTrack trk = m_song->t.at(track);
+	if (tv->trk() == &trk && trk.x != x)
 		tv->setX(x);
 }

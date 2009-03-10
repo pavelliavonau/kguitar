@@ -9,13 +9,16 @@
 //Added by qt3to4:
 #include <Q3GridLayout>
 
-SetSong::SetSong(QMap<QString, QString> info, int tempo_, bool ro, QWidget *parent, const char *name)
-	: KDialog(parent, name, TRUE, i18n("Song properties"),
-	          Ok | Cancel, Ok, TRUE)
+SetSong::SetSong(QMap<QString, QString> info, int tempo_, bool ro, QWidget *parent)
+	: KDialog(parent)
 {
+	setCaption(i18n("Song properties"));
+	setModal(true);
+	setButtons(Ok | Cancel);
+
 	QWidget *page1 = new QWidget(this);
 	setMainWidget(page1);
-	
+
 	title = new QLineEdit(page1);
 	author = new QLineEdit(page1);
 	transcriber = new QLineEdit(page1);

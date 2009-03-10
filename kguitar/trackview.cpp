@@ -13,9 +13,9 @@
 #include <kglobal.h>
 #include <kmessagebox.h>
 #include <klocale.h>
-#include <kpopupmenu.h>
-#include <kxmlgui.h>
 #include <kxmlguiclient.h>
+#include <kxmlguifactory.h>
+#include <kmenu.h>
 
 #include <qwidget.h>
 #include <qpainter.h>
@@ -34,6 +34,7 @@
 #include <qcheckbox.h>
 
 #include <stdlib.h>		// required for declaration of abs()
+#include <algorithm>
 
 // LVIFIX: note differences between "old" (in trackview.cpp) and "new" drawing code (in trackprint.cpp):
 // - erase width around tab column numbers is "as tight as possible", while the cursor is a bit wider,
@@ -77,9 +78,9 @@ TrackView::TrackView(TabSong *s, KXMLGUIClient *_XMLGUIClient, K3CommandHistory 
                      QWidget *parent, const char *name): Q3GridView(parent, name)
 {
 	setFrameStyle(Panel | Sunken);
-	setBackgroundMode(PaletteBase);
+	setBackgroundMode(Qt::PaletteBase);
 
-	setFocusPolicy(QWidget::StrongFocus);
+	setFocusPolicy(Qt::StrongFocus);
 
 	xmlGUIClient = _XMLGUIClient;
 	cmdHist = _cmdHist;
@@ -113,7 +114,7 @@ TrackView::TrackView(TabSong *s, KXMLGUIClient *_XMLGUIClient, K3CommandHistory 
 
 	fetaFont   = 0;
 	fetaNrFont = 0;
-	
+
 	lastnumber = -1;
 
 #ifdef WITH_TSE3
@@ -187,7 +188,7 @@ void TrackView::selectBar(uint n)
 	lastnumber = -1;
 }
 
-void TrackView::setCurrentTrack(TabTrack *trk)
+void TrackView::setCurrentTrack(TabTrack &trk)
 {
 	curt = trk;
 	emit trackChanged(trk);
@@ -284,11 +285,11 @@ void TrackView::ensureCurrentVisible()
 // things may happen.
 void TrackView::melodyEditorPress(int num, int fret, Qt::ButtonState button = Qt::NoButton)
 {
-	if (button & LeftButton)
+	if (button & Qt::LeftButton)
 		melodyEditorAction(num, fret, 0);
-	if (button & MidButton)
+	if (button & Qt::MidButton)
 		melodyEditorAction(num, fret, 1);
-	if (button & RightButton)
+	if (button & Qt::RightButton)
 		melodyEditorAction(num, fret, 2);
 }
 
@@ -327,9 +328,9 @@ void TrackView::melodyEditorAction(int num, int fret, int action)
 // to next column, may happen.
 void TrackView::melodyEditorRelease(Qt::ButtonState button)
 {
-	if (((button & LeftButton)  && (Settings::melodyEditorAdvance(0))) ||
-		((button & MidButton)   && (Settings::melodyEditorAdvance(1))) ||
-		((button & RightButton) && (Settings::melodyEditorAdvance(2))))  {
+	if (((button & Qt::LeftButton)  && (Settings::melodyEditorAdvance(0))) ||
+		((button & Qt::MidButton)   && (Settings::melodyEditorAdvance(1))) ||
+		((button & Qt::RightButton) && (Settings::melodyEditorAdvance(2))))  {
 		if (curt->sel) {
 			curt->sel = FALSE;
 			repaintContents();
@@ -490,7 +491,7 @@ void TrackView::paintCell(QPainter *p, int r, int c)
 
 	int selx2coord = -1;
 	selxcoord = -1;
-	
+
 	if (bn >= curt->b.size())  return;
 
 	trp->setPainter(p);
@@ -541,8 +542,8 @@ void TrackView::paintCell(QPainter *p, int r, int c)
 
 	// DRAW SELECTION
 
-	p->setRasterOp(Qt::XorROP);
-	p->setBrush(KGlobalSettings::baseColor());
+	p->setCompositionMode(QPainter::CompositionMode_Xor);
+	p->setBrush(palette().color(QPalette::Base));
 
 	const int horcell = (int) (2.6 * trp->br8w);
 	const int vertline = trp->ysteptb;
@@ -558,7 +559,7 @@ void TrackView::paintCell(QPainter *p, int r, int c)
 		// Draw selection between selxcoord and selx2coord (if it exists)
 		if (curt->sel) {
 			if ((selxcoord != -1) && (selx2coord != -1)) {
-				int x1 = KMIN(selxcoord, selx2coord);
+				int x1 = std::min(selxcoord, selx2coord);
 				int wid = abs(selx2coord - selxcoord) + horcell + 1;
 				p->drawRect(x1 - horcell / 2, 0, wid, cellHeight());
 			} else if ((selxcoord == -1) && (selx2coord != -1)) {
@@ -572,8 +573,8 @@ void TrackView::paintCell(QPainter *p, int r, int c)
 				else
 					p->drawRect(0, 0, selxcoord + horcell / 2 + 1, cellHeight());
 			} else { // both are -1
-				int x1 = KMIN(curt->x, curt->xsel);
-				int x2 = KMAX(curt->x, curt->xsel);
+				int x1 = std::min(curt->x, curt->xsel);
+				int x2 = std::max(curt->x, curt->xsel);
 				if ((x1 < curt->b[bn].start) && (x2 > curt->lastColumn(bn)))
 					p->drawRect(0, 0, cellWidth(), cellHeight());
 			}
@@ -587,7 +588,7 @@ void TrackView::paintCell(QPainter *p, int r, int c)
 		}
 	}
 
-	p->setRasterOp(Qt::CopyROP);
+	p->setCompositionMode(QPainter::CompositionMode_Source);
 
 #ifdef USE_BOTH_OLD_AND_NEW
 	QString tmp;
@@ -1096,7 +1097,7 @@ void TrackView::moveRight()
 void TrackView::moveLeftBar()
 {
 	if (curt->x > curt->b[curt->xb].start) {
-		moveHome(); 
+		moveHome();
 	} else {
 		moveLeft();
 		moveHome();
@@ -1322,7 +1323,7 @@ void TrackView::mousePressEvent(QMouseEvent *e)
 	lastnumber = -1;
 
 	// RightButton pressed
-	if (e->button() == RightButton) {
+	if (e->button() == Qt::RightButton) {
 		QWidget *tmpWidget = 0;
 		tmpWidget = xmlGUIClient->factory()->container("trackviewpopup", xmlGUIClient);
 
@@ -1331,12 +1332,12 @@ void TrackView::mousePressEvent(QMouseEvent *e)
 			return;
 		}
 
-		KPopupMenu *menu(static_cast<KPopupMenu*>(tmpWidget));
+		KMenu *menu(static_cast<KMenu*>(tmpWidget));
 		menu->popup(QCursor::pos());
 	}
 
 	// LeftButton pressed
-	if (e->button() == LeftButton) {
+	if (e->button() == Qt::LeftButton) {
 		bool found = FALSE;
 		QPoint clickpt;
 

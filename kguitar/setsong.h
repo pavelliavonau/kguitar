@@ -21,7 +21,7 @@ class KIntNumInput;
 class SetSong: public KDialog {
 	Q_OBJECT
 public:
-	SetSong(QMap<QString, QString> info, int tempo_, bool ro, QWidget *parent=0, const char *name=0);
+	SetSong(QMap<QString, QString> info, int tempo_, bool ro, QWidget *parent=0);
 	QMap<QString, QString> info();
 	int tempo() { return m_tempo->value(); }
 
