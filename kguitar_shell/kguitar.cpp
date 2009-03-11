@@ -44,8 +44,10 @@ KGuitar::KGuitar(): KParts::MainWindow()
 			// tell the KParts::MainWindow that this is indeed the main widget
 			setCentralWidget(kgpart->widget());
 
+			setupGUI(ToolBar | Keys | StatusBar | Save);
+
 			// and integrate the part's GUI with the shell's
-			setupGUI();
+			createGUI(kgpart);
 		}
 	} else {
 		// if we couldn't find our Part, we exit since the Shell by
