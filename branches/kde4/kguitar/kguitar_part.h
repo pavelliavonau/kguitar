@@ -63,6 +63,7 @@ protected slots:
 
 private:
 	void setupActions();
+	void setupKey(const char *name, QString text, QKeySequence key, QWidget *target, const char *slot);
 
 	void updateMenu();
 	void setWinCaption(const QString& caption);
