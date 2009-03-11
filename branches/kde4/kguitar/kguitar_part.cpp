@@ -476,7 +476,6 @@ void KGuitarPart::setupActions()
 	actionCollection()->addAction("view_score", viewScoreAct);
 	connect(viewScoreAct, SIGNAL(triggered(bool)), this, SLOT(viewScore()));
 
-
 	//GREYTODO
 /*
 	// TRACK ACTIONS
@@ -490,9 +489,12 @@ void KGuitarPart::setupActions()
 	                         actionCollection(), "track_properties");
 	rhythmerAct = new KAction(i18n("&Rhythm..."), "rhythmer", SHIFT + Key_R,
 	                          sv->tv, SLOT(rhythmer()), actionCollection(), "rhythmer");
-	insChordAct = new KAction(i18n("&Chord..."), "chord", SHIFT + Key_C,
-	                          sv->tv, SLOT(insertChord()), actionCollection(), "insert_chord");
-
+ */
+	insChordAct = actionCollection()->addAction("insert_chord", sv->tv, SLOT(insertChord()));
+	insChordAct->setShortcut(Qt::SHIFT + Qt::Key_C);
+	insChordAct->setText(i18n("&Chord..."));
+	insChordAct->setIcon(KIcon("chord"));
+/*
 	saveOptionAct = new KAction(i18n("&Save Options"), 0, this,
 	                            SLOT(saveOptions()), actionCollection(), "save_options");
 
