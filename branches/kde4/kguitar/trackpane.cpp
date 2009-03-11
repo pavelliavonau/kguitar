@@ -7,6 +7,7 @@
 #include <qstyle.h>
 //Added by qt3to4:
 #include <QMouseEvent>
+#include <QStyleOption>
 
 TrackPane::TrackPane(TabSong *s, int hh, int cs, QWidget *parent, const char *name)
 	: Q3ScrollView(parent, name)
@@ -41,15 +42,23 @@ void TrackPane::drawContents(QPainter *p, int clipx, int clipy, int clipw, int /
 
 	int py = headerHeight;
 
-	for (TabTrack *trk = song->t.first(); trk; trk = song->t.next()) {
+	foreach (TabTrack *trk, song->t) {
 		int px = x1 * cellSide;
 		for (int i = x1; i <= x2; i++) {
-			if (trk->barStatus(i))
-				style().drawPrimitive(QStyle::PE_ButtonBevel, p,
-				                      QRect(px, py, cellSide, cellSide), colorGroup());
-			if (trk->xb == i)
-				style().drawPrimitive(QStyle::PE_FocusRect, p,
-				                      QRect(px, py, cellSide, cellSide), colorGroup());
+			if (trk->barStatus(i)) {
+				QStyleOption option;
+				option.initFrom(this);
+				style()->drawPrimitive(QStyle::PE_FrameButtonBevel, &option, p, this);
+				// GREYTODO: port this rect
+//				                      QRect(px, py, cellSide, cellSide), colorGroup());
+			}
+			if (trk->xb == i) {
+				QStyleOptionFocusRect option;
+				option.initFrom(this);
+				style()->drawPrimitive(QStyle::PE_FrameFocusRect, &option, p, this);
+				// GREYTODO: port this rect
+//				                      QRect(px, py, cellSide, cellSide), colorGroup());
+			}
 			px += cellSide;
 		}
 		py += cellSide;
@@ -57,16 +66,17 @@ void TrackPane::drawContents(QPainter *p, int clipx, int clipy, int clipw, int /
 
 	// Draw header, covering some tracks if necessary
 	if (clipy < contentsY() + headerHeight) {
-		style().drawPrimitive(QStyle::PE_HeaderSection, p,
-		                      QRect(x1 * cellSide, contentsY(),
-		                            x2 * cellSide, contentsY() + headerHeight),
-		                      colorGroup());
+		// GREYTODO: port
+//		style()->drawPrimitive(QStyle::PE_HeaderSection, p,
+//		                      QRect(x1 * cellSide, contentsY(),
+//		                            x2 * cellSide, contentsY() + headerHeight),
+//		                      colorGroup());
 	}
 }
 
 void TrackPane::mousePressEvent(QMouseEvent *e)
 {
-	if (e->button() == LeftButton) {
+	if (e->button() == Qt::LeftButton) {
 		int barnum = (e->pos().x() + contentsX()) / cellSide;
 		uint tracknum = (e->pos().y() + contentsY() - headerHeight) / cellSide;
 

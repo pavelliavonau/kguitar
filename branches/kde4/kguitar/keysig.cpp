@@ -31,10 +31,13 @@
 //Added by qt3to4:
 #include <Q3HBoxLayout>
 
-SetKeySig::SetKeySig(int keySig, QWidget *parent, const char *name)
-	: KDialog(parent, name, TRUE, i18n("Key signature"),
-	          Ok | Cancel, Ok, TRUE)
+SetKeySig::SetKeySig(int keySig, QWidget *parent)
+	: KDialog(parent)
 {
+	setCaption(i18n("Key signature"));
+	setButtons(Ok | Cancel);
+	setModal(true);
+
 	QWidget *page = new QWidget(this);
 	setMainWidget(page);
 

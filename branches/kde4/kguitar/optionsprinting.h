@@ -10,7 +10,7 @@ class QRadioButton;
 class OptionsPrinting: public OptionsPage {
 	Q_OBJECT
 public:
-	OptionsPrinting(KConfig *conf, QWidget *parent = 0, const char *name = 0);
+	OptionsPrinting(KSharedConfigPtr &conf, QWidget *parent = 0, const char *name = 0);
 	virtual void applyBtnClicked();
 	virtual void defaultBtnClicked();
 

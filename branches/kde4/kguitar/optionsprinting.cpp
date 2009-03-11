@@ -1,7 +1,7 @@
 #include "optionsprinting.h"
 #include "settings.h"
 
-#include <qvbuttongroup.h>
+#include <q3buttongroup.h>
 #include <qradiobutton.h>
 #include <qlayout.h>
 //Added by qt3to4:
@@ -9,8 +9,9 @@
 
 #include <klocale.h>
 #include <kconfig.h>
+#include <kconfiggroup.h>
 
-OptionsPrinting::OptionsPrinting(KConfig *conf, QWidget *parent, const char *name)
+OptionsPrinting::OptionsPrinting(KSharedConfigPtr &conf, QWidget *parent, const char *name)
 	: OptionsPage(conf, parent, name)
 {
 	// Create option widgets
@@ -39,6 +40,5 @@ void OptionsPrinting::defaultBtnClicked()
 
 void OptionsPrinting::applyBtnClicked()
 {
-	config->setGroup("Printing");
-	config->writeEntry("Style", styleGroup->id(styleGroup->selected()));
+	config->group("Printing").writeEntry("Style", styleGroup->id(styleGroup->selected()));
 }

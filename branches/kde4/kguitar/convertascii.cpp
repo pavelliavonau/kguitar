@@ -2,14 +2,15 @@
 #include "settings.h"
 
 #include <kconfig.h>
+#include <kconfiggroup.h>
 #include <qfile.h>
 #include <q3textstream.h>
 
 ConvertAscii::ConvertAscii(TabSong *song): ConvertBase(song)
 {
 	KConfigGroup g = Settings::config->group("ASCII");
-	durMode = g.readNumEntry("DurationDisplay", 3);
-	pageWidth = g.readNumEntry("PageWidth", 72);
+	durMode = g.readEntry("DurationDisplay", 3);
+	pageWidth = g.readEntry("PageWidth", 72);
 
 	// Clever expression to determine minimal duration to put one
 	// blank for (i.e. we put only one blank for this duration and any

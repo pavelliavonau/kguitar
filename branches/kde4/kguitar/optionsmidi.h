@@ -16,7 +16,7 @@ public:
 #ifdef WITH_TSE3
 	OptionsMidi(TSE3::MidiScheduler *, KConfig *, QWidget *parent = 0, const char *name = 0);
 #else
-	OptionsMidi(KConfig *, QWidget *parent = 0, const char *name = 0);
+	OptionsMidi(KSharedConfigPtr &, QWidget *parent = 0, const char *name = 0);
 #endif
 	virtual void applyBtnClicked();
 	virtual void defaultBtnClicked();

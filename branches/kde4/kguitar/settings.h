@@ -2,6 +2,7 @@
 #define SETTINGS_H
 
 #include "global.h"
+#include <ksharedconfig.h>
 
 class KConfig;
 class QString;
@@ -18,7 +19,7 @@ public:
 	/**
 	 * Cached configuration access variable
 	 */
-	static KConfig *config;
+	static KSharedConfigPtr config;
 
 	/*
 	 * Returns name of note in currently selected note naming

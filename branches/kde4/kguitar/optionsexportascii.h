@@ -19,7 +19,7 @@ class QCheckBox;
 class OptionsExportAscii: public OptionsPage {
 	Q_OBJECT
 public:
-	OptionsExportAscii(KConfig *conf, QWidget *parent = 0, const char *name = 0);
+	OptionsExportAscii(KSharedConfigPtr &config, QWidget *parent = 0, const char *name = 0);
 	virtual void applyBtnClicked();
 	virtual void defaultBtnClicked();
 

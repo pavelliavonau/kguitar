@@ -60,7 +60,7 @@
 #include "trackprint.h"
 #include "settings.h"
 
-#include <kprinter.h>
+#include <qprinter.h>
 #include <q3memarray.h>
 #include <qpainter.h>
 #include <q3paintdevicemetrics.h>

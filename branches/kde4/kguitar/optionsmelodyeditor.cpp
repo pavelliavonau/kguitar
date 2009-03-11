@@ -11,11 +11,12 @@
 #include <Q3VBoxLayout>
 
 #include <klocale.h>
-#include <qvbuttongroup.h>
+#include <q3buttongroup.h>
 #include <q3groupbox.h>
 #include <kconfig.h>
+#include <kconfiggroup.h>
 
-OptionsMelodyEditor::OptionsMelodyEditor(KConfig *conf, QWidget *parent, const char *name)
+OptionsMelodyEditor::OptionsMelodyEditor(KSharedConfigPtr &conf, QWidget *parent, const char *name)
 	: OptionsPage(conf, parent, name)
 {
 	// GREYFIX!!!
@@ -23,14 +24,14 @@ OptionsMelodyEditor::OptionsMelodyEditor(KConfig *conf, QWidget *parent, const c
 	int globalMelodyEditorAction[3];
 	bool globalMelodyEditorAdvance[3];
 
-	config->setGroup("MelodyEditor");
-	globalMelodyEditorWood = config->readNumEntry("Wood",  2);
-	globalMelodyEditorAction[0] = config->readNumEntry("Action0", 1);
-	globalMelodyEditorAdvance[0] = config->readBoolEntry("Advance0", FALSE);
-	globalMelodyEditorAction[1] = config->readNumEntry("Action1", 3);
-	globalMelodyEditorAdvance[1] = config->readBoolEntry("Advance1", TRUE);
-	globalMelodyEditorAction[2] = config->readNumEntry("Action2", 1);
-	globalMelodyEditorAdvance[2] = config->readBoolEntry("Advance2", TRUE);
+	KConfigGroup g = config->group("MelodyEditor");
+	globalMelodyEditorWood = g.readEntry("Wood",  2);
+	globalMelodyEditorAction[0] = g.readEntry("Action0", 1);
+	globalMelodyEditorAdvance[0] = g.readEntry("Advance0", FALSE);
+	globalMelodyEditorAction[1] = g.readEntry("Action1", 3);
+	globalMelodyEditorAdvance[1] = g.readEntry("Advance1", TRUE);
+	globalMelodyEditorAction[2] = g.readEntry("Action2", 1);
+	globalMelodyEditorAdvance[2] = g.readEntry("Advance2", TRUE);
 
 	Q3VBoxLayout *l = new Q3VBoxLayout(this, 0, -1, "main");
 
@@ -56,7 +57,7 @@ OptionsMelodyEditor::OptionsMelodyEditor(KConfig *conf, QWidget *parent, const c
 
 	l->addWidget(designGroup);
 
-	Q3GroupBox *actionsGroup = new Q3GroupBox(3, Horizontal, i18n("Mouse button actions"), this, "actionsbox");
+	Q3HGroupBox *actionsGroup = new Q3HGroupBox(i18n("Mouse button actions"), this, "actionsbox");
 
 	QStringList labels;
 	labels << i18n("Left:") << i18n("Middle:") << i18n("Right:");
@@ -99,13 +100,13 @@ void OptionsMelodyEditor::defaultBtnClicked()
 
 void OptionsMelodyEditor::applyBtnClicked()
 {
-	config->setGroup("MelodyEditor");
-	config->writeEntry("Inlay", inlayGroup->id(inlayGroup->selected()));
-	config->writeEntry("Wood", woodGroup->id(woodGroup->selected()));
-	config->writeEntry("Action0", mouseAction[0]->currentItem());
-	config->writeEntry("Advance0", mouseAdvance[0]->isChecked());
-	config->writeEntry("Action1", mouseAction[1]->currentItem());
-	config->writeEntry("Advance1", mouseAdvance[1]->isChecked());
-	config->writeEntry("Action2", mouseAction[2]->currentItem());
-	config->writeEntry("Advance2", mouseAdvance[2]->isChecked());
+	KConfigGroup g = config->group("MelodyEditor");
+	g.writeEntry("Inlay", inlayGroup->id(inlayGroup->selected()));
+	g.writeEntry("Wood", woodGroup->id(woodGroup->selected()));
+	g.writeEntry("Action0", mouseAction[0]->currentItem());
+	g.writeEntry("Advance0", mouseAdvance[0]->isChecked());
+	g.writeEntry("Action1", mouseAction[1]->currentItem());
+	g.writeEntry("Advance1", mouseAdvance[1]->isChecked());
+	g.writeEntry("Action2", mouseAction[2]->currentItem());
+	g.writeEntry("Advance2", mouseAdvance[2]->isChecked());
 }

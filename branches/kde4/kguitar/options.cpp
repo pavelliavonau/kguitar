@@ -11,6 +11,7 @@
 #include <kconfig.h>
 #include <klocale.h>
 #include <kiconloader.h>
+#include <kconfigdialog.h>
 
 #include <qlayout.h>
 #include <q3buttongroup.h>
@@ -24,40 +25,49 @@ Options::Options(
 #ifdef WITH_TSE3
                  TSE3::MidiScheduler *sch,
 #endif
-                 KSharedConfigPtr &config, QWidget *parent = 0, char *name = 0, bool modal = true)
-	: KDialogBase(i18n("Configure"), Help|Default|Ok|Apply|Cancel,
-	              Ok, parent, name, modal, TRUE)
+                 KSharedConfigPtr &config, QWidget *parent)
+	: KPageDialog(parent)
 {
+	setCaption(i18n("Configure"));
+	setButtons(Help|Default|Ok|Apply|Cancel);
 	setFaceType(KPageDialog::Tree);
-	Q3Frame *optPage[OPTIONS_PAGES_NUM];
+	KPageWidgetItem *optPage[OPTIONS_PAGES_NUM];
 
-	optPage[0] = addPage(i18n("Music Theory"), 0, SmallIcon("lookandfeel"));
-	optPage[1] = addPage(i18n("Melody Constructor"), 0, SmallIcon("melodyeditor"));
-	optPage[2] = addPage(QStringList::split('/', i18n("Export") + "/" + i18n("MusiXTeX")),
-	                     0, SmallIcon("musixtex"));
+	optWidget[0] = new OptionsMusicTheory(config);
+	optWidget[1] = new OptionsMelodyEditor(config);
+	optWidget[2] = new OptionsExportMusixtex(config);
+#ifdef WITH_TSE3
+	optWidget[3] = new OptionsMidi(sch, config, 0);
+#endif
+	optWidget[4] = new OptionsPrinting(config);
+	optWidget[5] = new OptionsExportAscii(config);
+
+	optPage[0] = addPage(optWidget[0], i18n("Music Theory"));
+//	, 0, SmallIcon("lookandfeel"));
+	optPage[1] = addPage(optWidget[1], i18n("Melody Constructor"));
+//	, 0, SmallIcon("melodyeditor"));
+//	optPage[2] = addPage(optWidget[2], QStringList::split('/', i18n("Export") + "/" + i18n("MusiXTeX")));
+	optPage[2] = addPage(optWidget[2], i18n("Export") + "/" + i18n("MusiXTeX"));
+//    0, SmallIcon("ascii"));
+//	,
+//	                     0, SmallIcon("musixtex"));
 #ifdef WITH_TSE3
 	optPage[3] = addPage(i18n("MIDI Devices"), 0, SmallIcon("kcmmidi"));
 #endif
-	optPage[4] = addPage(i18n("Printing"), 0, SmallIcon("printmgr"));
-	optPage[5] = addPage(QStringList::split('/', i18n("Export") + "/" + i18n("ASCII")),
-	                     0, SmallIcon("ascii"));
-
-	optWidget[0] = new OptionsMusicTheory(config, optPage[0]);
-	optWidget[1] = new OptionsMelodyEditor(config, optPage[1]);
-	optWidget[2] = new OptionsExportMusixtex(config, optPage[2]);
-#ifdef WITH_TSE3
-	optWidget[3] = new OptionsMidi(sch, config, optPage[3]);
-#endif
-	optWidget[4] = new OptionsPrinting(config, optPage[4]);
-	optWidget[5] = new OptionsExportAscii(config, optPage[5]);
+	optPage[4] = addPage(optWidget[4], i18n("Printing"));
+//	, 0, SmallIcon("printmgr"));
+//	optPage[5] = addPage(optWidget[5], QStringList::split('/', i18n("Export") + "/" + i18n("ASCII")));
+	optPage[5] = addPage(optWidget[5], i18n("Export") + "/" + i18n("ASCII"));
+//	                     0, SmallIcon("ascii"));
 
 	// Special weird layout stuff to pack everything
-	for (int i = 0; i < OPTIONS_PAGES_NUM; i++) {
-		if (optWidget[i]) {
-			Q3VBoxLayout *l = new Q3VBoxLayout(optPage[i]);
-			l->addWidget(optWidget[i]);
-		}
-	}
+	// GREYTODO: delete if not needed
+//	for (int i = 0; i < OPTIONS_PAGES_NUM; i++) {
+//		if (optWidget[i]) {
+//			Q3VBoxLayout *l = new Q3VBoxLayout(optPage[i]);
+//			l->addWidget(optWidget[i]);
+//		}
+//	}
 
 	connect(this, SIGNAL(defaultClicked()), SLOT(defaultBtnClicked()));
 	connect(this, SIGNAL(okClicked()), SLOT(applyBtnClicked()));

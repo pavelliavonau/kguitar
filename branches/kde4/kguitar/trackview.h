@@ -32,7 +32,7 @@ public:
 
 	~TrackView();
 
-	TabTrack* trk() { return &curt; }
+	TabTrack* trk() { return curt; }
 	void setCurrentTrack(TabTrack*);
 
  	void setFinger(int num, int fret);
@@ -233,7 +233,7 @@ private:
 	int barByRowCol(int row, int col);
 
 	TabSong *song;
-	TabTrack& curt;
+	TabTrack *curt;
 	TrackPrint *trp;
 	Fretboard *fretboard;
 

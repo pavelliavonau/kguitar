@@ -86,8 +86,6 @@
 #include "tabsong.h"
 #include "tabtrack.h"
 
-#include <iostream>		// for cout and friends
-using namespace std;		// for cout and friends
 #include <qstring.h>
 #include <q3valuelist.h>
 
@@ -103,7 +101,7 @@ MusicXMLErrorHandler::MusicXMLErrorHandler()
 
 bool MusicXMLErrorHandler::warning(const QXmlParseException& exception)
 {
-	cerr << "MusicXMLErrorHandler::warning"
+	kDebug() << "MusicXMLErrorHandler::warning"
 		<< " col=" << exception.columnNumber()
 		<< " line=" << exception.lineNumber()
 		<< " msg=" << exception.message()
@@ -115,7 +113,7 @@ bool MusicXMLErrorHandler::warning(const QXmlParseException& exception)
 
 bool MusicXMLErrorHandler::error(const QXmlParseException& exception)
 {
-	cerr << "MusicXMLErrorHandler::error"
+	kDebug() << "MusicXMLErrorHandler::error"
 		<< " col=" << exception.columnNumber()
 		<< " line=" << exception.lineNumber()
 		<< " msg=" << exception.message()
@@ -136,7 +134,7 @@ bool MusicXMLErrorHandler::fatalError(const QXmlParseException& exception)
 			if (parser) {
 				parser->reportError(exception.message());
 			} else {
-				cerr << "MusicXMLErrorHandler::fatalError"
+				kFatal() << "MusicXMLErrorHandler::fatalError"
 					<< " parser=0" << endl;
 			}
 			fatalReported = true;
@@ -145,7 +143,7 @@ bool MusicXMLErrorHandler::fatalError(const QXmlParseException& exception)
 	return false;	// do not continue parsing
 }
 
-QString MusicXMLErrorHandler::errorString()
+QString MusicXMLErrorHandler::errorString() const
 {
 	return "KGuitar musicxmlimport error string";
 }

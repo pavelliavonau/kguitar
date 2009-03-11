@@ -76,10 +76,8 @@ bool ConvertKg::save(QString fileName)
 
 	bool needfx = FALSE;				// Should we write FX event after tab?
 
-	QListIterator<TabTrack> it(song->t);
-	for (; it.current(); ++it) {		// For every track
-		TabTrack *trk = it.current();
-
+	// For every track
+	foreach (TabTrack *trk, song->t) {
 		s << (Q_UINT8) trk->trackMode();// Track properties
 		s << trk->name;
 		s << (Q_UINT8) trk->channel;
@@ -226,13 +224,14 @@ bool ConvertKg::load(QString fileName)
 		kdDebug() << "Read a track of " << string << " strings," << endl;
 		kdDebug() << "       bank = " << i16 << ", patch = " << patch << " ..." << endl;
 
-		song->t.append(new TabTrack((TabTrack::TrackMode) tm, tn, channel, i16, patch, string, frets));
+		TabTrack *trk = new TabTrack((TabTrack::TrackMode) tm, tn, channel, i16, patch, string, frets);
+		song->t.append(trk);
 
 		kdDebug() << "Appended a track..." << endl;;
 
 		for (int j = 0; j < string; j++) {
 			s >> cn;
-			song->t.current()->tune[j] = cn;
+			trk->tune[j] = cn;
 		}
 
 		kdDebug() << "Read the tuning..." << endl;;
@@ -240,7 +239,7 @@ bool ConvertKg::load(QString fileName)
 		bool finished = FALSE;
 
 		int x = 0, bar = 1;
-		TabTrack *ct = song->t.current();
+		TabTrack *ct = trk;
 // uchar tcsize=ct->string+2;
 		ct->c.resize(1);
 		ct->b.resize(1);

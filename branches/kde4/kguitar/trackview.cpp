@@ -188,7 +188,7 @@ void TrackView::selectBar(uint n)
 	lastnumber = -1;
 }
 
-void TrackView::setCurrentTrack(TabTrack &trk)
+void TrackView::setCurrentTrack(TabTrack *trk)
 {
 	curt = trk;
 	emit trackChanged(trk);

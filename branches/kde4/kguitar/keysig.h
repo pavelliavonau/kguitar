@@ -27,7 +27,7 @@ class SetKeySig: public KDialog {
 	Q_OBJECT
 
 public:
-	SetKeySig(int keySig, QWidget *parent = 0, const char *name = 0);
+	SetKeySig(int keySig, QWidget *parent = 0);
 	int keySignature();
 
 protected:

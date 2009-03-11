@@ -11,7 +11,7 @@ class QRadioButton;
 class OptionsExportMusixtex: public OptionsPage {
 	Q_OBJECT
 public:
-	OptionsExportMusixtex(KConfig *conf, QWidget *parent = 0, const char *name = 0);
+	OptionsExportMusixtex(KSharedConfigPtr &conf, QWidget *parent = 0, const char *name = 0);
 	virtual void applyBtnClicked();
 	virtual void defaultBtnClicked();
 

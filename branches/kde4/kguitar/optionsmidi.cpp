@@ -11,6 +11,7 @@
 #include <Q3VBoxLayout>
 #include <Q3Frame>
 #include <kconfig.h>
+#include <kconfiggroup.h>
 
 #ifdef WITH_TSE3
 OptionsMidi::OptionsMidi(TSE3::MidiScheduler *_sch, KConfig *conf, QWidget *parent, const char *name)
@@ -18,11 +19,11 @@ OptionsMidi::OptionsMidi(TSE3::MidiScheduler *_sch, KConfig *conf, QWidget *pare
 {
 	sch = _sch;
 #else
-OptionsMidi::OptionsMidi(KConfig *conf, QWidget *parent, const char *name)
+OptionsMidi::OptionsMidi(KSharedConfigPtr &conf, QWidget *parent, const char *name)
 	: OptionsPage(conf, parent, name)
 {
 #endif
-	
+
 	// Create option widgets
 
 	midiport = new Q3ListView(this);
@@ -76,7 +77,6 @@ void OptionsMidi::defaultBtnClicked()
 void OptionsMidi::applyBtnClicked()
 {
 	if (midiport->currentItem()) {
-		config->setGroup("MIDI");
-		config->writeEntry("Port", midiport->currentItem()->text(0).toInt());
+		config->group("MIDI").writeEntry("Port", midiport->currentItem()->text(0).toInt());
 	}
 }

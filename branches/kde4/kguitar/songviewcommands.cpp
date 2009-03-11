@@ -8,7 +8,7 @@
 #include <klocale.h>
 
 SongView::SetSongPropCommand::SetSongPropCommand(SongView *_sv, QMap<QString, QString> _info, int _tempo)
-	: KNamedCommand(i18n("Set song properties"))
+	: K3NamedCommand(i18n("Set song properties"))
 {
 	sv       = _sv;
 	info     = _info;
@@ -34,7 +34,7 @@ void SongView::SetSongPropCommand::unexecute()
 
 SongView::SetTrackPropCommand::SetTrackPropCommand(TrackView *_tv, TrackList *_tl, TrackPane *_tp,
 										 TabTrack *_trk, TabTrack *_newtrk):
-	KNamedCommand(i18n("Set track properties"))
+	K3NamedCommand(i18n("Set track properties"))
 {
 	tv     = _tv;
 	tl     = _tl;
@@ -121,7 +121,7 @@ void SongView::SetTrackPropCommand::unexecute()
 }
 
 SongView::InsertTabsCommand::InsertTabsCommand(TrackView *_tv, TabTrack *_trk, TabTrack *_tabs)
-	: KNamedCommand(i18n("Insert from clipboard"))
+	: K3NamedCommand(i18n("Insert from clipboard"))
 {
 	trk  = _trk;
 	tv   = _tv;

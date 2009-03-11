@@ -3,8 +3,8 @@
 
 #include <kpagedialog.h>
 #include "global.h"
+#include <ksharedconfig.h>
 
-class KConfig;
 class Q3ButtonGroup;
 class QRadioButton;
 class Q3ListView;
@@ -27,8 +27,7 @@ public:
 			TSE3::MidiScheduler *sch,
 #endif
 			KSharedConfigPtr &config,
-			QWidget *parent = 0, char *name = 0,//##
-			bool modal = TRUE);
+			QWidget *parent = 0);
 
 	OptionsPage *optWidget[OPTIONS_PAGES_NUM];
 
