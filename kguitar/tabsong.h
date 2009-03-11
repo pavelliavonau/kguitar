@@ -28,7 +28,7 @@ public:
 	/**
 	 * Holds a list of tracks that the song consists of.
 	 */
-	QList<TabTrack> t;
+	QList<TabTrack*> t;
 
 	/**
 	 * Map of metainformation. Can hold lots of strings, referenced by

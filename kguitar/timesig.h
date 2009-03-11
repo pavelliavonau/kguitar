@@ -12,7 +12,7 @@ class SetTimeSig: public KDialog {
 	Q_OBJECT
 
 public:
-	SetTimeSig(int t1, int t2, QWidget *parent = 0, const char *name = 0);
+	SetTimeSig(int t1, int t2, QWidget *parent = 0);
 
 	int time1();
 	int time2();

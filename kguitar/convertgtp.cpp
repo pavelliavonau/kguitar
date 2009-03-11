@@ -137,13 +137,13 @@ void ConvertGtp::readChord()
 		kdWarning() << "Chord BYTE5=" << (int) num << ", not 0\n";
 	text = readPascalString(25);
 	kdDebug() << "Chord diagram: " << text << "\n";
-	
+
 	// Chord diagram parameters - for every string
 	for (int i = 0; i < STRING_MAX_NUMBER; i++) {
 		x1 = readDelphiInteger();
 		kdDebug() << x1 << "\n";
 	}
-	
+
 	// Unknown bytes
 	stream->readRawBytes(garbage, 36);
 
@@ -342,7 +342,7 @@ void ConvertGtp::readTrackProperties()
 		kdDebug() << "Simulations: " << num << "\n";
 
 		song->t.append(new TabTrack(TabTrack::FretTab, 0, 0, 0, 0, 6, 24));
-		TabTrack *trk = song->t.current();
+		TabTrack *trk = song->t.at(i);
 
 		trk->name = readPascalString(40);    // Track name
 		kdDebug() << "Track: " << trk->name << "\n";
@@ -398,16 +398,15 @@ void ConvertGtp::readTabs()
 
 	currentStage = QString("readTabs");
 
-	TabTrack *trk = song->t.first();
 	for (int tr = 0; tr < numTracks; tr++) {
+		TabTrack *trk = song->t.at(tr);
 		trk->b.resize(numBars);
 		trk->c.resize(0);
-		trk = song->t.next();
 	}
 
 	for (int j = 0; j < numBars; j++) {
-		TabTrack *trk = song->t.first();
 		for (int tr = 0; tr < numTracks; tr++) {
+			TabTrack *trk = song->t.at(tr);
 			int numBeats = readDelphiInteger();
 			kdDebug() << "TRACK " << tr << ", BAR " << j << ", numBeats " << numBeats << " (position: " << stream->device()->at() << ")\n";
 
@@ -424,7 +423,7 @@ void ConvertGtp::readTabs()
 				trk->c[x].flags = 0;
 
 				(*stream) >> beat_bitmask;   // beat bitmask
-				
+
 				if (beat_bitmask & 0x01)     // dotted column
 					trk->c[x].flags |= FLAG_DOT;
 
@@ -450,14 +449,14 @@ void ConvertGtp::readTabs()
 					kdDebug() << "Tuple: " << tuple << "\n"; // GREYFIX: t for tuples
 					if (!(tuple == 3 || (tuple >= 5 && tuple <= 7) || (tuple >= 9 && tuple <= 13)))  throw QString("Insane tuple t: %1").arg(tuple);
 				}
-				
+
 				if (beat_bitmask & 0x02)     // Chord diagram
 					readChord();
 
 				if (beat_bitmask & 0x04) {
 					kdDebug() << "Text: " << readDelphiString() << "\n"; // GREYFIX: text with a beat
 				}
-				
+
 				// GREYFIX: column-wide effects
 				if (beat_bitmask & 0x08)
 					readColumnEffects(trk, x);
@@ -486,14 +485,14 @@ void ConvertGtp::readTabs()
 				}
 
 				(*stream) >> strings;          // used strings mask
-				
+
 				for (int y = STRING_MAX_NUMBER - 1; y >= 0; y--) {
 					trk->c[x].e[y] = 0;
 					trk->c[x].a[y] = NULL_NOTE;
 					if (strings & (1 << (y + STRING_MAX_NUMBER - trk->string)))
 						readNote(trk, x, y);
 				}
-				
+
 				// Dump column
 				QString tmp = "";
 				for (int y = 0; y <= trk->string; y++) {
@@ -504,10 +503,9 @@ void ConvertGtp::readTabs()
 					}
 				}
 				kdDebug() << "[" << tmp << "]\n";
-				
+
 				x++;
 			}
-			trk = song->t.next();
 		}
 	}
 }

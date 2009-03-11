@@ -3,8 +3,7 @@
 
 #include "global.h"
 #include <qwidget.h>
-
-class KConfig;
+#include <ksharedconfig.h>
 
 /**
  * Abstract base class for all options pages.
@@ -15,7 +14,7 @@ class KConfig;
 class OptionsPage: public QWidget {
 	Q_OBJECT
 public:
-	OptionsPage(KConfig *conf, QWidget *parent = 0, const char *name = 0);
+	OptionsPage(KSharedConfigPtr &conf, QWidget *parent = 0, const char *name = 0);
 
 public slots:
 	/**
@@ -36,7 +35,7 @@ protected:
 	 * Convenience storage to KConfig configuration object that
 	 * represents application-wide configuration.
 	 */
-	KConfig *config;
+	KSharedConfig *config;
 };
 
 #endif

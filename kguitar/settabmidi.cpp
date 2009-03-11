@@ -17,26 +17,26 @@ SetTabMidi::~SetTabMidi()
 
 void SetTabMidi::setVolume(int vol)
 {
-	SliderVolume->setValue(vol);
+	ui.SliderVolume->setValue(vol);
 }
 
 void SetTabMidi::setPan(int pan)
 {
-	SliderPan->setValue(pan);
+	ui.SliderPan->setValue(pan);
 }
 
 void SetTabMidi::setReverb(int rev)
 {
-	SliderReverb->setValue(rev);
+	ui.SliderReverb->setValue(rev);
 }
 
 void SetTabMidi::setTranspose(int trans)
 {
-	SliderTranspose->setValue(trans);
+	ui.SliderTranspose->setValue(trans);
 }
 
 void SetTabMidi::setChorus(int chor)
 {
-	SliderChorus->setValue(chor);
+	ui.SliderChorus->setValue(chor);
 }
 

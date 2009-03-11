@@ -169,7 +169,7 @@ static void addInt(int len) {
 		integers.append(len);
 	}
 }
-	
+
 // check if all integers can be divided by div
 
 static bool canDivideBy(int div) {
@@ -984,7 +984,9 @@ bool ConvertXml::startElement( const QString&, const QString&,
 			x = 0;
 			bar = 0;
 			song->t.at(index);
-			trk = song->t.current();
+			// GREYTODO: check if t.current() here had any meaning?
+			//			trk = song->t.current();
+			trk = song->t.first();
 			tEndCur = 0;
 		}
 	} else if (qName == "pull-off") {

@@ -12,6 +12,7 @@
 #include <klocale.h>
 #include <kmenu.h>
 #include <kxmlguiclient.h>
+#include <kxmlguifactory.h>
 
 TrackList::TrackList(TabSong *s, KXMLGUIClient *_XMLGUIClient, QWidget *parent, const char *name)
 	: Q3ListView(parent, name)

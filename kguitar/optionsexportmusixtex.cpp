@@ -1,7 +1,7 @@
 #include "optionsexportmusixtex.h"
 #include "settings.h"
 
-#include <qvbuttongroup.h>
+#include <q3buttongroup.h>
 #include <qradiobutton.h>
 #include <qcheckbox.h>
 #include <qlayout.h>
@@ -10,8 +10,9 @@
 
 #include <klocale.h>
 #include <kconfig.h>
+#include <kconfiggroup.h>
 
-OptionsExportMusixtex::OptionsExportMusixtex(KConfig *conf, QWidget *parent, const char *name)
+OptionsExportMusixtex::OptionsExportMusixtex(KSharedConfigPtr &conf, QWidget *parent, const char *name)
 	: OptionsPage(conf, parent, name)
 {
 	// Create option widgets
@@ -50,7 +51,7 @@ OptionsExportMusixtex::OptionsExportMusixtex(KConfig *conf, QWidget *parent, con
 	showStr->setChecked(Settings::texShowStr());
 	showPageNumber->setChecked(Settings::texShowPageNumber());
 	exportModeGroup->setButton(Settings::texExportMode());
-	always->setChecked(config->readBoolEntry("AlwaysShow", TRUE));
+	always->setChecked(config->group("MusiXTeX").readEntry("AlwaysShow", TRUE));
 }
 
 void OptionsExportMusixtex::defaultBtnClicked()
@@ -64,11 +65,11 @@ void OptionsExportMusixtex::defaultBtnClicked()
 
 void OptionsExportMusixtex::applyBtnClicked()
 {
-	config->setGroup("MusiXTeX");
-	config->writeEntry("TabSize", tabSizeGroup->id(tabSizeGroup->selected()));
-	config->writeEntry("ShowBarNumber", showBarNumber->isChecked());
-	config->writeEntry("ShowStr", showStr->isChecked());
-	config->writeEntry("ShowPageNumber", showPageNumber->isChecked());
-	config->writeEntry("ExportMode", exportModeGroup->id(exportModeGroup->selected()));
-	config->writeEntry("AlwaysShow", always->isChecked());
+	KConfigGroup g = config->group("MusiXTeX");
+	g.writeEntry("TabSize", tabSizeGroup->id(tabSizeGroup->selected()));
+	g.writeEntry("ShowBarNumber", showBarNumber->isChecked());
+	g.writeEntry("ShowStr", showStr->isChecked());
+	g.writeEntry("ShowPageNumber", showPageNumber->isChecked());
+	g.writeEntry("ExportMode", exportModeGroup->id(exportModeGroup->selected()));
+	g.writeEntry("AlwaysShow", always->isChecked());
 }

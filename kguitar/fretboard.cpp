@@ -67,9 +67,9 @@ Fretboard::Fretboard(TabTrack *_trk, QWidget *parent, const char *name)
 
 	scaleback = new QPixmap(width(), height());
 	back = new QPixmap(width(), height());
-	wood = new QPixmap(locate("data", "kguitar/pics/rosewood.jpg"));
-	fret = new QImage(locate("data", "kguitar/pics/fret.png"));
-	zeroFret = new QImage(locate("data", "kguitar/pics/zerofret.png"));
+	wood = new QPixmap(KStandardDirs::locate("data", "kguitar/pics/rosewood.jpg"));
+	fret = new QImage(KStandardDirs::locate("data", "kguitar/pics/fret.png"));
+	zeroFret = new QImage(KStandardDirs::locate("data", "kguitar/pics/zerofret.png"));
 	drawBackground();
 
 	setFocusPolicy(Qt::WheelFocus); // the strongest focus gainer
@@ -100,7 +100,7 @@ void Fretboard::paintEvent(QPaintEvent *)
 {
 	QPainter p;
 	p.begin(this);
-	p.setBrush(FINGER_COLOR);
+	p.setBrush(QBrush(QColor::fromRgb(FINGER_COLOR)));
 	int y = height() - STRING_HEIGHT / 2 - FINGER_RADIUS;
 	for (int i = 0; i < trk->string; i++) {
 		int a = trk->c[trk->x].a[i];
@@ -175,10 +175,10 @@ void Fretboard::drawBackground()
 	p.begin(back);
 	p.drawTiledPixmap(0, 0, width(), height(), *wood);
 
-	QImage scaledFret = fret->scale(fret->width(), height());
-	p.drawImage(0, 0, zeroFret->scale(ZERO_FRET_WIDTH, height()));
+	QImage scaledFret = fret->scaled(fret->width(), height());
+	p.drawImage(0, 0, zeroFret->scaled(ZERO_FRET_WIDTH, height()));
 
-	p.setBrush(INLAY_FILL_COLOR);
+	p.setBrush(QBrush(QColor::fromRgb(INLAY_FILL_COLOR)));
 
 	// Draw frets
 	for (int i = 1; i <= trk->frets; i++) {
@@ -301,7 +301,7 @@ void Fretboard::drawScaleBack()
 		now = trk->tune[i] % 12;
 		for (int j = 0; j < trk->frets; j++) {
 			if (step[now]) {
-				p.setBrush(qRgb(239, 207, 0));
+				p.setBrush(QBrush(QColor::fromRgb(qRgb(239, 207, 0))));
 				int x = (j == 0) ? SCALE_BORDER : (int) (fr[j - 1] + SCALE_BORDER);
 				p.drawRoundRect(x, y, (int) (fr[j] - x - SCALE_BORDER),
 				                STRING_HEIGHT - 2 * SCALE_BORDER,

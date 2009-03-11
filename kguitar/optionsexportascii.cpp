@@ -1,6 +1,6 @@
 #include "optionsexportascii.h"
 
-#include <qvbuttongroup.h>
+#include <q3buttongroup.h>
 #include <qradiobutton.h>
 #include <qspinbox.h>
 #include <qlabel.h>
@@ -12,8 +12,9 @@
 
 #include <klocale.h>
 #include <kconfig.h>
+#include <kconfiggroup.h>
 
-OptionsExportAscii::OptionsExportAscii(KConfig *conf, QWidget *parent, const char *name)
+OptionsExportAscii::OptionsExportAscii(KSharedConfigPtr &conf, QWidget *parent, const char *name)
 	: OptionsPage(conf, parent, name)
 {
 	// Create option widgets
@@ -45,11 +46,10 @@ OptionsExportAscii::OptionsExportAscii(KConfig *conf, QWidget *parent, const cha
 	box->activate();
 
 	// Fill in current config
-
-	config->setGroup("ASCII");
-	durationGroup->setButton(config->readNumEntry("DurationDisplay", 3));
-	pageWidth->setValue(config->readNumEntry("PageWidth", 72));
-	always->setChecked(config->readBoolEntry("AlwaysShow", TRUE));
+	KConfigGroup g = config->group("ASCII");
+	durationGroup->setButton(g.readEntry("DurationDisplay", 3));
+	pageWidth->setValue(g.readEntry("PageWidth", 72));
+	always->setChecked(g.readEntry("AlwaysShow", TRUE));
 }
 
 void OptionsExportAscii::defaultBtnClicked()
@@ -61,8 +61,8 @@ void OptionsExportAscii::defaultBtnClicked()
 
 void OptionsExportAscii::applyBtnClicked()
 {
-	config->setGroup("ASCII");
-	config->writeEntry("DurationDisplay", durationGroup->id(durationGroup->selected()));
-	config->writeEntry("PageWidth", pageWidth->value());
-	config->writeEntry("AlwaysShow", always->isChecked());
+	KConfigGroup g = config->group("ASCII");
+	g.writeEntry("DurationDisplay", durationGroup->id(durationGroup->selected()));
+	g.writeEntry("PageWidth", pageWidth->value());
+	g.writeEntry("AlwaysShow", always->isChecked());
 }

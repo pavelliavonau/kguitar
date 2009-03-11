@@ -17,6 +17,8 @@
 #include <Q3Frame>
 #include <klocale.h>
 #include <qapplication.h>
+#include <KDialog>
+#include <KVBox>
 
 MelodyEditor::MelodyEditor(TrackView *_tv, QWidget *parent, const char *name)
 	: QWidget(parent, name)
@@ -88,10 +90,13 @@ void MelodyEditor::drawBackground()
 
 void MelodyEditor::optionsDialog()
 {
-	KDialogBase opDialog(0, 0, TRUE, i18n("Melody Constructor"),
-	                     KDialogBase::Help|KDialogBase::Default|KDialogBase::Ok|
-	                     KDialogBase::Apply|KDialogBase::Cancel, KDialogBase::Ok);
-	Q3VBox *box = opDialog.makeVBoxMainWidget();
+	KDialog opDialog;
+	opDialog.setCaption(i18n("Melody Constructor"));
+	opDialog.setModal(true);
+	opDialog.setButtons(KDialog::Help|KDialog::Default|KDialog::Ok|
+            KDialog::Apply|KDialog::Cancel);
+	KVBox *box = new KVBox(&opDialog);
+	opDialog.setMainWidget(box);
 	OptionsMelodyEditor op(Settings::config, (Q3Frame *) box);
 	connect(&opDialog, SIGNAL(defaultClicked()), &op, SLOT(defaultBtnClicked()));
 	connect(&opDialog, SIGNAL(okClicked()), &op, SLOT(applyBtnClicked()));

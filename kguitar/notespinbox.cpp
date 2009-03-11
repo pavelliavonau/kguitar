@@ -3,45 +3,46 @@
 
 #include <qvalidator.h>
 
+// GREYTODO: port to Qt4
 // GREYFIX: Jazz note naming
-QValidator::State NoteValidator::validate(QString &input, int &) const
-{
-	State res = Invalid;
-
-	switch (input.length()) {
-	case 1:
-		if ((input.left(1)>='A') && (input.left(1)<='H'))
-			res = QValidator::Intermediate;
-	break;
-	case 2:
-		if ((input.left(1) >= 'A') && (input.left(1) <= 'H')) {
-			if ((input.mid(1, 1) == '#') && (input.mid(1, 1) == 'b')) {
-				res = QValidator::Intermediate;
-			} else if ((input.mid(1, 1) >= '0') && (input.mid(1,1) <= '9')) {
-				res = Acceptable;
-			} else {
-				res = Invalid;
-			}
-		}
-		break;
-	case 3:
-		if ((input.left(1) >= 'A') && (input.left(1) <= 'H') &&
-			(input.mid(1, 1) == '#') && (input.mid(1, 1) == 'b') &&
-			(input.mid(2, 1) >= '0') && (input.mid(2, 1) <= '9')) {
-			res = Acceptable;
-		} else {
-			res = Invalid;
-		}
-	}
-
-	return res;
-}
+//QValidator::State NoteValidator::validate(QString &input, int &) const
+//{
+//	State res = Invalid;
+//
+//	switch (input.length()) {
+//	case 1:
+//		if ((input.left(1)>='A') && (input.left(1)<='H'))
+//			res = QValidator::Intermediate;
+//	break;
+//	case 2:
+//		if ((input.left(1) >= 'A') && (input.left(1) <= 'H')) {
+//			if ((input.mid(1, 1) == '#') && (input.mid(1, 1) == 'b')) {
+//				res = QValidator::Intermediate;
+//			} else if ((input.mid(1, 1) >= '0') && (input.mid(1,1) <= '9')) {
+//				res = Acceptable;
+//			} else {
+//				res = Invalid;
+//			}
+//		}
+//		break;
+//	case 3:
+//		if ((input.left(1) >= 'A') && (input.left(1) <= 'H') &&
+//			(input.mid(1, 1) == '#') && (input.mid(1, 1) == 'b') &&
+//			(input.mid(2, 1) >= '0') && (input.mid(2, 1) <= '9')) {
+//			res = Acceptable;
+//		} else {
+//			res = Invalid;
+//		}
+//	}
+//
+//	return res;
+//}
 
 NoteSpinBox::NoteSpinBox(QWidget *parent, const char *name):
 	QSpinBox(0, 255, 1, parent, name)
 {
-	nv = new NoteValidator(this);
-	setValidator(nv);
+//	nv = new NoteValidator(this);
+//	setValidator(nv);
 }
 
 NoteSpinBox::~NoteSpinBox()

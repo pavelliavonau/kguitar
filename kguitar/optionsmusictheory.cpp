@@ -1,6 +1,6 @@
 #include "optionsmusictheory.h"
 
-#include <qvbuttongroup.h>
+#include <q3buttongroup.h>
 #include <qradiobutton.h>
 #include <qlayout.h>
 //Added by qt3to4:
@@ -9,9 +9,10 @@
 
 #include <klocale.h>
 #include <kconfig.h>
+#include <kconfiggroup.h>
 #include <kmessagebox.h>
 
-OptionsMusicTheory::OptionsMusicTheory(KConfig *conf, QWidget *parent, const char *name)
+OptionsMusicTheory::OptionsMusicTheory(KSharedConfigPtr &conf, QWidget *parent, const char *name)
 	: OptionsPage(conf, parent, name)
 {
 	// Create option widgets
@@ -58,10 +59,10 @@ OptionsMusicTheory::OptionsMusicTheory(KConfig *conf, QWidget *parent, const cha
 
 	// Fill in current config
 
-	config->setGroup("General");
-	maj7Group->setButton(config->readNumEntry("Maj7", 0));
-	flatGroup->setButton(config->readNumEntry("FlatPlus", 0));
-	noteNameGroup->setButton(config->readNumEntry("NoteNames", 2));
+	KConfigGroup g = config->group("General");
+	maj7Group->setButton(g.readEntry("Maj7", 0));
+	flatGroup->setButton(g.readEntry("FlatPlus", 0));
+	noteNameGroup->setButton(g.readEntry("NoteNames", 2));
 }
 
 void OptionsMusicTheory::defaultBtnClicked()
@@ -73,10 +74,10 @@ void OptionsMusicTheory::defaultBtnClicked()
 
 void OptionsMusicTheory::applyBtnClicked()
 {
-	config->setGroup("General");
-	config->writeEntry("Maj7", maj7Group->id(maj7Group->selected()));
-	config->writeEntry("FlatPlus", flatGroup->id(flatGroup->selected()));
-	config->writeEntry("NoteNames", noteNameGroup->id(noteNameGroup->selected()));
+	KConfigGroup g = config->group("General");
+	g.writeEntry("Maj7", maj7Group->id(maj7Group->selected()));
+	g.writeEntry("FlatPlus", flatGroup->id(flatGroup->selected()));
+	g.writeEntry("NoteNames", noteNameGroup->id(noteNameGroup->selected()));
 }
 
 bool OptionsMusicTheory::jazzWarning()

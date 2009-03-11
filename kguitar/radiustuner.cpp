@@ -33,6 +33,6 @@ void RadiusTuner::paintEvent(QPaintEvent *)
 	if (v > 103)  v = 103;
 	int d = (103 - v) * maxd / 103;
 
-	paint.setBrush(SolidPattern);
+	paint.setBrush(Qt::SolidPattern);
 	paint.drawEllipse((width() - d) / 2, (height() - 20 - d) / 2, d, d);
 }

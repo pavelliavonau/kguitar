@@ -127,7 +127,7 @@ bool TrackDrag::decode(const QMimeSource *e, TabTrack *&trk)
 	if (!b.size()) //No data
 		return FALSE;
 
-	QBuffer buffer(b);
+	QBuffer buffer(&b);
 	buffer.open(QIODevice::ReadOnly);
 
 	QDataStream s(&buffer);

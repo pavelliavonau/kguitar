@@ -10,10 +10,13 @@
 //Added by qt3to4:
 #include <Q3GridLayout>
 
-SetTimeSig::SetTimeSig(int t1, int t2, QWidget *parent, const char *name)
-	: KDialog(parent, name, TRUE, i18n("Time signature"),
-	          Ok | Cancel, Ok, TRUE)
+SetTimeSig::SetTimeSig(int t1, int t2, QWidget *parent)
+	: KDialog(parent)
 {
+	setCaption(i18n("Time signature"));
+	setModal(true);
+	setButtons(Ok | Cancel);
+
 	QWidget *page = new QWidget(this);
 	setMainWidget(page);
 
@@ -42,14 +45,14 @@ SetTimeSig::SetTimeSig(int t1, int t2, QWidget *parent, const char *name)
 	QLabel *l_time2 = new QLabel(m_time2, i18n("Beat &value:"), page);
 
 	toend = new QCheckBox(i18n("Apply till the &end"),this);
-	
+
 	Q3GridLayout *l = new Q3GridLayout(page, 3, 2, 0, spacingHint());
 	l->addWidget(l_time1, 0, 0);
 	l->addWidget(m_time1, 0, 1);
 	l->addWidget(l_time2, 1, 0);
 	l->addWidget(m_time2, 1, 1);
 	l->addMultiCellWidget(toend, 2, 2, 0, 1);
-	
+
 	l->activate();
 }
 
@@ -60,5 +63,5 @@ int SetTimeSig::time1()
 
 int SetTimeSig::time2()
 {
-	return ((QString) m_time2->currentText()).toUInt();	
+	return ((QString) m_time2->currentText()).toUInt();
 }

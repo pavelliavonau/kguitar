@@ -16,7 +16,8 @@
 
 ConvertTex::ConvertTex(TabSong *song): ConvertBase(song)
 {
-	Settings::config->setGroup("MusiXTeX");
+	// GREYTODO: really needed here?
+//	Settings::config->setGroup("MusiXTeX");
 }
 
 bool ConvertTex::save(QString fileName)
@@ -71,8 +72,7 @@ bool ConvertTex::saveToTab(Q3TextStream &s)
 	}
 	tsize += "\n";
 
-	QListIterator<TabTrack> it(song->t);
-	TabTrack *trk = it.current();
+	TabTrack *trk = song->t.first();
 
 	// Stuff if globalShowStr=TRUE
 
@@ -217,9 +217,8 @@ bool ConvertTex::saveToTab(Q3TextStream &s)
 	uint trksize;
 	uint bbar;       // who are bars?
 
-	for (; it.current(); ++it) { // For every track
-		TabTrack *trk = it.current();
-
+	// For every track
+	foreach (trk, song->t) {
 		s << "Track " << n << ": " << trk->name;
 		s << "\n";
 		s << "\\generalmeter{\\meterfrac{" << trk->b[0].time1;
@@ -289,10 +288,8 @@ bool ConvertTex::saveToTab(Q3TextStream &s)
 }
 
 bool ConvertTex::saveToNotes(Q3TextStream &s)
-{ 
+{
 	return FALSE; //ALINXFIX: disabled
-
-	QListIterator<TabTrack> it(song->t);
 
 	// TeX-File INFO-HEADER
 	s << "%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%" << "\n";
@@ -334,8 +331,7 @@ bool ConvertTex::saveToNotes(Q3TextStream &s)
 	// TRACK DATA
 	int n = 1;       // Trackcounter
 
-	for (; it.current(); ++it) { // For every track
-		TabTrack *trk = it.current();
+	foreach (TabTrack *trk, song->t) { // For every track
 		s << "\\generalmeter{\\meterfrac{" << trk->b[0].time1;
 		s << "}{" << trk->b[0].time2 << "}}";
 		s << "\n" << "\n";

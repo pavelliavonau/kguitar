@@ -1,3 +1,4 @@
+#include "global.h"
 #include "tabsong.h"
 #include "settings.h"
 
@@ -7,6 +8,7 @@
 #include <qfile.h>
 #include <qdatastream.h>
 #include <kconfig.h>
+#include <klocalizedstring.h>
 
 #ifdef WITH_TSE3
 #include <tse3/Track.h>
@@ -28,7 +30,7 @@ int TabSong::freeChannel()
 		fc[i] = TRUE;
 
 	for (int i = 0; i < t.size(); i++)
-		fc[t[i].channel] = false;
+		fc[t[i]->channel] = false;
 
 	int res;
 	for (res = 1; res <= 16; res++)
@@ -46,7 +48,7 @@ uint TabSong::maxLen()
 	uint res = 0;
 
 	for (int i = 0; i < t.size(); i++)
-		res = t.at(i).b.size() > res ? t.at(i).b.size() : res;
+		res = t.at(i)->b.size() > res ? t.at(i)->b.size() : res;
 
 	return res;
 }
@@ -55,7 +57,7 @@ void TabSong::arrangeBars()
 {
 	// For every track
 	for (int i = 0; i < t.size(); i++)
-		t.at(i).arrangeBars();
+		t.at(i)->arrangeBars();
 }
 
 #ifdef WITH_TSE3
@@ -91,5 +93,5 @@ TSE3::Song *TabSong::midiSong(bool tracking)
 void TabSong::addEmptyTrack()
 {
 	TabTrack *trk = new TabTrack(TabTrack::FretTab, i18n("Guitar"), 1, 0, 25, 6, 24);
-	t.append(*trk);
+	t.append(trk);
 }

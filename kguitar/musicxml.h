@@ -36,7 +36,7 @@ public:
 	bool warning(const QXmlParseException& exception);
 	bool error(const QXmlParseException& exception);
 	bool fatalError(const QXmlParseException& exception);
-	QString errorString();
+	QString errorString() const;
 	void setParser(ConvertXml * p);
 private:
 	bool fatalReported;

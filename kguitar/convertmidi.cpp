@@ -16,7 +16,8 @@
 
 ConvertMidi::ConvertMidi(TabSong *song): ConvertBase(song)
 {
-	Settings::config->setGroup("MIDI");
+	// GREYTODO: really needed here?
+//	Settings::config->setGroup("MIDI");
 }
 
 bool ConvertMidi::save(QString fileName)
