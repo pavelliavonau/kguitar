@@ -470,9 +470,10 @@ void KGuitarPart::setupActions()
 	viewMelodyEditorAct->setIcon(KIcon("melodyeditor"));
 //	connect(viewMelodyEditorAct. SIGNAL(triggered(bool)), this, SLOT(viewMelodyEditor()));
 
-//	viewScoreAct = new KToggleAction(i18n("Show Score"), "score", SHIFT + Key_S,
-//	                                 this, SLOT(viewScore()),
-//	                                 actionCollection(), "view_score");
+	viewScoreAct = new KToggleAction(KIcon("score"), i18n("Show Score"), actionCollection());
+	viewScoreAct->setShortcut(Qt::SHIFT + Qt::Key_S);
+	connect(viewScoreAct, SIGNAL(triggered(bool)), this, SLOT(viewScore()));
+
 	//GREYTODO
 /*
 	// TRACK ACTIONS
