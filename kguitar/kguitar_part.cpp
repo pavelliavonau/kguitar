@@ -1,6 +1,5 @@
 #include "global.h"
 
-
 #include "songprint.h"
 #include "songview.h"
 #include "trackview.h"
@@ -120,7 +119,6 @@ void KGuitarPart::setReadWrite(bool rw)
 
 	ReadWritePart::setReadWrite(rw);
 }
-
 
 void KGuitarPart::setModified(bool modified)
 {
@@ -565,61 +563,42 @@ void KGuitarPart::setupActions()
 */
 
 	// ...FOR CURSOR
-	KAction *prevColumn = new KAction(i18n("Move cursor left"), actionCollection());
-	prevColumn->setShortcut(Qt::Key_Left);
-	connect(prevColumn, SIGNAL(triggered(bool)), sv->tv, SLOT(keyLeft()));
-
-	KAction *nextColumn = new KAction(i18n("Move cursor right"), actionCollection());
-	nextColumn->setShortcut(Qt::Key_Right);
-	connect(prevColumn, SIGNAL(triggered(bool)), sv->tv, SLOT(keyRight()));
-
-// GREYTODO
-/*
-	mainAccel->insert("prev_column", i18n("Move cursor left"), QString::null,
-	                  Key_Left, sv->tv, SLOT(keyLeft()));
-	mainAccel->insert("next_column", i18n("Move cursor right"), QString::null,
-	                  Key_Right, sv->tv, SLOT(keyRight()));
-	mainAccel->insert("start_bar", i18n("Move cursor to the beginning of bar"), QString::null,
-	                  Key_Home, sv->tv, SLOT(keyHome()));
-	mainAccel->insert("end_bar", i18n("Move cursor to the end of bar"), QString::null,
-	                  Key_End, sv->tv, SLOT(keyEnd()));
-	mainAccel->insert("prev_bar", i18n("Move cursor to the previous bar"), QString::null,
-	                  CTRL + Key_Left, sv->tv, SLOT(keyLeftBar()));
-	mainAccel->insert("next_bar", i18n("Move cursor to the next bar"), QString::null,
-	                  CTRL + Key_Right, sv->tv, SLOT(keyRightBar()));
-	mainAccel->insert("start_track", i18n("Move cursor to the beginning of track"), QString::null,
-	                  CTRL + Key_Home, sv->tv, SLOT(keyCtrlHome()));
-	mainAccel->insert("end_track", i18n("Move cursor to the end of track"), QString::null,
-	                  CTRL + Key_End, sv->tv, SLOT(keyCtrlEnd()));
-	mainAccel->insert("select_prev_column", i18n("Move and select left"), QString::null,
-	                  SHIFT + Key_Left, sv->tv, SLOT(selectLeft()));
-	mainAccel->insert("select_next_column", i18n("Move and select right"), QString::null,
-	                  SHIFT + Key_Right, sv->tv, SLOT(selectRight()));
-	mainAccel->insert("key_up", i18n("Move cursor up"), QString::null,
-	                  Key_Up, sv->tv, SLOT(moveUp()));
-	mainAccel->insert("key_down", i18n("Move cursor down"), QString::null,
-	                  Key_Down, sv->tv, SLOT(moveDown()));
+	setupKey("key_left", i18n("Move cursor left"), Qt::Key_Left, sv->tv, SLOT(keyLeft()));
+	setupKey("key_right", i18n("Move cursor right"), Qt::Key_Right, sv->tv, SLOT(keyRight()));
+	setupKey("start_bar", i18n("Move cursor to the beginning of bar"), Qt::Key_Home, sv->tv, SLOT(keyHome()));
+	setupKey("end_bar", i18n("Move cursor to the end of bar"), Qt::Key_End, sv->tv, SLOT(keyEnd()));
+	setupKey("prev_bar", i18n("Move cursor to the previous bar"), Qt::CTRL + Qt::Key_Left, sv->tv, SLOT(keyLeftBar()));
+	setupKey("next_bar", i18n("Move cursor to the next bar"), Qt::CTRL + Qt::Key_Right, sv->tv, SLOT(keyRightBar()));
+	setupKey("start_track", i18n("Move cursor to the beginning of track"), Qt::CTRL + Qt::Key_Home, sv->tv, SLOT(keyCtrlHome()));
+	setupKey("end_track", i18n("Move cursor to the end of track"), Qt::CTRL + Qt::Key_End, sv->tv, SLOT(keyCtrlEnd()));
+	setupKey("select_prev_column", i18n("Move and select left"), Qt::SHIFT + Qt::Key_Left, sv->tv, SLOT(selectLeft()));
+	setupKey("select_next_column", i18n("Move and select right"), Qt::SHIFT + Qt::Key_Right, sv->tv, SLOT(selectRight()));
+	setupKey("key_up", i18n("Move cursor up"), Qt::Key_Up, sv->tv, SLOT(moveUp()));
+	setupKey("key_down", i18n("Move cursor down"), Qt::Key_Down, sv->tv, SLOT(moveDown()));
 
 	// ...FOR OTHER KEYS
-	mainAccel->insert("key_del", i18n("Delete note"), QString::null,
-	                  Key_Delete, sv->tv, SLOT(deleteNote()));
-	mainAccel->insert("key_CtrlDel", i18n("Delete column"), QString::null,
-	                  CTRL + Key_Delete, sv->tv, SLOT(deleteColumn()));
-	mainAccel->insert("key_ins", i18n("Insert column"), QString::null,
-	                  Key_Insert, sv->tv, SLOT(insertColumn()));
+	setupKey("key_del", i18n("Delete note"), Qt::Key_Delete, sv->tv, SLOT(deleteNote()));
+	setupKey("key_CtrlDel", i18n("Delete column"), Qt::CTRL + Qt::Key_Delete, sv->tv, SLOT(deleteColumn()));
+	setupKey("key_ins", i18n("Insert column"), Qt::Key_Insert, sv->tv, SLOT(insertColumn()));
 
 	// ...FOR KEY '0' - '9'
-	mainAccel->insert("key_1", i18n("Key 1"), QString::null, Key_1, sv->tv, SLOT(key1()));
-	mainAccel->insert("key_2", i18n("Key 2"), QString::null, Key_2, sv->tv, SLOT(key2()));
-	mainAccel->insert("key_3", i18n("Key 3"), QString::null, Key_3, sv->tv, SLOT(key3()));
-	mainAccel->insert("key_4", i18n("Key 4"), QString::null, Key_4, sv->tv, SLOT(key4()));
-	mainAccel->insert("key_5", i18n("Key 5"), QString::null, Key_5, sv->tv, SLOT(key5()));
-	mainAccel->insert("key_6", i18n("Key 6"), QString::null, Key_6, sv->tv, SLOT(key6()));
-	mainAccel->insert("key_7", i18n("Key 7"), QString::null, Key_7, sv->tv, SLOT(key7()));
-	mainAccel->insert("key_8", i18n("Key 8"), QString::null, Key_8, sv->tv, SLOT(key8()));
-	mainAccel->insert("key_9", i18n("Key 9"), QString::null, Key_9, sv->tv, SLOT(key9()));
-	mainAccel->insert("key_0", i18n("Key 0"), QString::null, Key_0, sv->tv, SLOT(key0()));
-*/
+	setupKey("key_1", i18n("Key 1"), Qt::Key_1, sv->tv, SLOT(key1()));
+	setupKey("key_2", i18n("Key 2"), Qt::Key_2, sv->tv, SLOT(key2()));
+	setupKey("key_3", i18n("Key 3"), Qt::Key_3, sv->tv, SLOT(key3()));
+	setupKey("key_4", i18n("Key 4"), Qt::Key_4, sv->tv, SLOT(key4()));
+	setupKey("key_5", i18n("Key 5"), Qt::Key_5, sv->tv, SLOT(key5()));
+	setupKey("key_6", i18n("Key 6"), Qt::Key_6, sv->tv, SLOT(key6()));
+	setupKey("key_7", i18n("Key 7"), Qt::Key_7, sv->tv, SLOT(key7()));
+	setupKey("key_8", i18n("Key 8"), Qt::Key_8, sv->tv, SLOT(key8()));
+	setupKey("key_9", i18n("Key 9"), Qt::Key_9, sv->tv, SLOT(key9()));
+	setupKey("key_0", i18n("Key 0"), Qt::Key_0, sv->tv, SLOT(key0()));
+}
+
+void KGuitarPart::setupKey(const char *name, QString text, QKeySequence key, QWidget *target, const char *slot)
+{
+	KAction *act = actionCollection()->addAction(name, target, slot);
+	act->setShortcut(key);
+	act->setText(text);
 }
 
 void KGuitarPart::clipboardDataChanged()
