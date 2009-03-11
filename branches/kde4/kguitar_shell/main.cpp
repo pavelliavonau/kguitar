@@ -21,24 +21,23 @@ int main(int argc, char **argv)
 	KAboutData about(
 		"kguitar", 0, ki18n("KGuitar"), version,
 		ki18n(description), KAboutData::License_GPL,
-		ki18n("(C) 2000-2008 by KGuitar Development Team"),
+		ki18n("(C) 2000-2009 by KGuitar Development Team"),
 		KLocalizedString(), 0, "http://kguitar.sourceforge.net"
 	);
 
 	about.addAuthor(ki18n("Mikhail Yakshin AKA GreyCat"), ki18n("Maintainer and main coder"), "greycat@users.sourceforge.net");
-/*
-	about.addAuthor("Alex Brand AKA alinx", 0, "alinx@users.sourceforge.net");
-	about.addAuthor("Leon Vinken", 0, "lvinken@users.sourceforge.net");
-	about.addAuthor("Matt Malone", 0, "marlboro@users.sourceforge.net");
-	about.addAuthor("Sylvain Vignaud", 0, "tfpsly@users.sourceforge.net");
-	about.addCredit("Stephan Borchert", 0, "sborchert@users.sourceforge.net");
-	about.addCredit("Juan Pablo Sousa Bravo AKA gotem", 0, "gotem@users.sourceforge.net");
-	about.addCredit("Wilane Ousmane", 0, "wilane@users.sourceforge.net");
-	about.addCredit("Richard G. Roberto", 0, "robertor@users.sourceforge.net");
-	about.addCredit("Riccardo Vitelli AKA feac", 0, "feac@users.sourceforge.net");
-	about.addCredit(0, I18N_NOOP("Special Thanks to Ronald Gelten who\n"
-	                "allowed us to make changes to tabdefs.tex"), 0);
-*/
+
+	about.addAuthor(ki18n("Alex Brand AKA alinx"), KLocalizedString(), "alinx@users.sourceforge.net");
+	about.addAuthor(ki18n("Leon Vinken"), KLocalizedString(), "lvinken@users.sourceforge.net");
+	about.addAuthor(ki18n("Matt Malone"), KLocalizedString(), "marlboro@users.sourceforge.net");
+	about.addAuthor(ki18n("Sylvain Vignaud"), KLocalizedString(), "tfpsly@users.sourceforge.net");
+	about.addCredit(ki18n("Stephan Borchert"), KLocalizedString(), "sborchert@users.sourceforge.net");
+	about.addCredit(ki18n("Juan Pablo Sousa Bravo AKA gotem"), KLocalizedString(), "gotem@users.sourceforge.net");
+	about.addCredit(ki18n("Wilane Ousmane"), KLocalizedString(), "wilane@users.sourceforge.net");
+	about.addCredit(ki18n("Richard G. Roberto"), KLocalizedString(), "robertor@users.sourceforge.net");
+	about.addCredit(ki18n("Riccardo Vitelli AKA feac"), KLocalizedString(), "feac@users.sourceforge.net");
+	about.addCredit(ki18n("Ronald Gelten"), ki18n("Special thanks for allowing us to make changes to tabdefs.tex"));
+
 	KCmdLineArgs::init(argc, argv, &about);
 
 	KCmdLineOptions options;
