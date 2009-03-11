@@ -465,14 +465,17 @@ void KGuitarPart::setupActions()
 	(void) KStandardAction::zoomOut(sv->tv, SLOT(zoomOut()), actionCollection());
 	(void) KStandardAction::zoom(sv->tv, SLOT(zoomLevelDialog()), actionCollection());
 
-	viewMelodyEditorAct = new KToggleAction(i18n("Show Melody Editor"), actionCollection());
+	viewMelodyEditorAct = new KToggleAction(i18n("Show Melody Editor"), this);
 	viewMelodyEditorAct->setShortcut(Qt::SHIFT + Qt::Key_M);
 	viewMelodyEditorAct->setIcon(KIcon("melodyeditor"));
-//	connect(viewMelodyEditorAct. SIGNAL(triggered(bool)), this, SLOT(viewMelodyEditor()));
+	actionCollection()->addAction("view_melodyEditor", viewMelodyEditorAct);
+	connect(viewMelodyEditorAct, SIGNAL(triggered(bool)), SLOT(viewMelodyEditor()));
 
-	viewScoreAct = new KToggleAction(KIcon("score"), i18n("Show Score"), actionCollection());
+	viewScoreAct = new KToggleAction(KIcon("score"), i18n("Show Score"), this);
 	viewScoreAct->setShortcut(Qt::SHIFT + Qt::Key_S);
+	actionCollection()->addAction("view_score", viewScoreAct);
 	connect(viewScoreAct, SIGNAL(triggered(bool)), this, SLOT(viewScore()));
+
 
 	//GREYTODO
 /*
@@ -562,7 +565,11 @@ void KGuitarPart::setupActions()
 	// ...FOR CURSOR
 	KAction *prevColumn = new KAction(i18n("Move cursor left"), actionCollection());
 	prevColumn->setShortcut(Qt::Key_Left);
-	connect(prevColumn, SIGNAL(triggered(bool)), SLOT(keyLeft()));
+	connect(prevColumn, SIGNAL(triggered(bool)), sv->tv, SLOT(keyLeft()));
+
+	KAction *nextColumn = new KAction(i18n("Move cursor right"), actionCollection());
+	nextColumn->setShortcut(Qt::Key_Right);
+	connect(prevColumn, SIGNAL(triggered(bool)), sv->tv, SLOT(keyRight()));
 
 // GREYTODO
 /*
