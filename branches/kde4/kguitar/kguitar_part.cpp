@@ -66,6 +66,8 @@ KGuitarPart::KGuitarPart(QWidget *parentWidget, QObject *parent, const QStringLi
 	// we need an instance
 	setComponentData(KGuitarPartFactory::componentData());
 
+	Settings::config = KGlobal::mainComponent().config();
+
 	cmdHist = new K3CommandHistory();
 
 	// Custom main widget
@@ -83,12 +85,6 @@ KGuitarPart::KGuitarPart(QWidget *parentWidget, QObject *parent, const QStringLi
 //	connect(QApplication::clipboard(), SIGNAL(dataChanged()), SLOT(clipboardDataChanged()));
 	connect(sv->tv, SIGNAL(barChanged()), SLOT(updateStatusBar()));
 
-/*
-    // create our actions
-    KStandardAction::saveAs(this, SLOT(fileSaveAs()), actionCollection());
-    save = KStandardAction::save(this, SLOT(save()), actionCollection());
-*/
-
 	setXMLFile("kguitar_part.rc");
 
 	// we are read-write by default
@@ -97,17 +93,9 @@ KGuitarPart::KGuitarPart(QWidget *parentWidget, QObject *parent, const QStringLi
 	// we are not modified since we haven't done anything yet
 	setModified(false);
 
-
 /*
-	Settings::config = KGuitarPartFactory::instance()->config();
 
 	setInstance(KGuitarPartFactory::instance());
-
-
-
-
-	setReadWrite(true);
-	setModified(false);
 */
 	// READ CONFIGS
 	readOptions();
@@ -369,16 +357,14 @@ void KGuitarPart::options()
 
 void KGuitarPart::readOptions()
 {
-	KSharedConfigPtr config = KGlobal::mainComponent().config();
+//	KConfigGroup g = Settings::config->group("MusiXTeX");
+// 	globalTabSize = g.readEntry("TabSize", 2);
+// 	globalShowBarNumb = g->readEntry("ShowBarNumb", TRUE);
+// 	globalShowStr = g.readEntry("ShowStr", TRUE);
+// 	globalShowPageNumb = g.readEntry("ShowPageNumb", TRUE);
+// 	globalTexExpMode = g.readEntry("TexExpMode", 0);
 
-// 	config->setGroup("MusiXTeX");
-// 	globalTabSize = config->readNumEntry("TabSize", 2);
-// 	globalShowBarNumb = config->readBoolEntry("ShowBarNumb", TRUE);
-// 	globalShowStr = config->readBoolEntry("ShowStr", TRUE);
-// 	globalShowPageNumb = config->readBoolEntry("ShowPageNumb", TRUE);
-// 	globalTexExpMode = config->readNumEntry("TexExpMode", 0);
-
- 	viewMelodyEditorAct->setChecked(config->group("MelodyEditor").readEntry("Visible", TRUE));
+ 	viewMelodyEditorAct->setChecked(Settings::config->group("MelodyEditor").readEntry("Visible", true));
 	viewMelodyEditor();
 //	viewScoreAct->setChecked(TRUE);		// LVIFIX: read value from config, enable only if feta fonts found
 	viewScoreAct->setChecked(FALSE);	// LVIFIX: enable before commit
@@ -478,15 +464,17 @@ void KGuitarPart::setupActions()
 	(void) KStandardAction::zoomIn(sv->tv, SLOT(zoomIn()), actionCollection());
 	(void) KStandardAction::zoomOut(sv->tv, SLOT(zoomOut()), actionCollection());
 	(void) KStandardAction::zoom(sv->tv, SLOT(zoomLevelDialog()), actionCollection());
-//GREYTODO
-/*
-	viewMelodyEditorAct = new KToggleAction(i18n("Show Melody Editor"), "melodyeditor",
-	                                        SHIFT + Key_M, this, SLOT(viewMelodyEditor()),
-	                                        actionCollection(), "view_melodyEditor");
-	viewScoreAct = new KToggleAction(i18n("Show Score"), "score", SHIFT + Key_S,
-	                                 this, SLOT(viewScore()),
-	                                 actionCollection(), "view_score");
 
+	viewMelodyEditorAct = new KToggleAction(i18n("Show Melody Editor"), actionCollection());
+	viewMelodyEditorAct->setShortcut(Qt::SHIFT + Qt::Key_M);
+	viewMelodyEditorAct->setIcon(KIcon("melodyeditor"));
+//	connect(viewMelodyEditorAct. SIGNAL(triggered(bool)), this, SLOT(viewMelodyEditor()));
+
+//	viewScoreAct = new KToggleAction(i18n("Show Score"), "score", SHIFT + Key_S,
+//	                                 this, SLOT(viewScore()),
+//	                                 actionCollection(), "view_score");
+	//GREYTODO
+/*
 	// TRACK ACTIONS
 	trkNewAct = new KAction(i18n("&New..."), 0, sv, SLOT(trackNew()),
 	                        actionCollection(), "track_new");
