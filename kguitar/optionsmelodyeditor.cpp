@@ -6,6 +6,7 @@
 #include <qlabel.h>
 #include <qcheckbox.h>
 #include <q3hgroupbox.h>
+#include <q3vgroupbox.h>
 #include <qlayout.h>
 //Added by qt3to4:
 #include <Q3VBoxLayout>
@@ -57,7 +58,7 @@ OptionsMelodyEditor::OptionsMelodyEditor(KSharedConfigPtr &conf, QWidget *parent
 
 	l->addWidget(designGroup);
 
-	Q3HGroupBox *actionsGroup = new Q3HGroupBox(i18n("Mouse button actions"), this, "actionsbox");
+	Q3VGroupBox *actionsGroup = new Q3VGroupBox(i18n("Mouse button actions"), this, "actionsbox");
 
 	QStringList labels;
 	labels << i18n("Left:") << i18n("Middle:") << i18n("Right:");
