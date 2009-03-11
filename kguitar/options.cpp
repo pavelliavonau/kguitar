@@ -38,6 +38,8 @@ Options::Options(
 	optWidget[2] = new OptionsExportMusixtex(config);
 #ifdef WITH_TSE3
 	optWidget[3] = new OptionsMidi(sch, config, 0);
+#else
+	optWidget[3] = NULL;
 #endif
 	optWidget[4] = new OptionsPrinting(config);
 	optWidget[5] = new OptionsExportAscii(config);
