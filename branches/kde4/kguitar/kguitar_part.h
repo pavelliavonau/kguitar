@@ -63,6 +63,8 @@ protected slots:
 
 private:
 	void setupActions();
+	void setupAction(KAction *act, QString text, const char *icon,
+	                 QKeySequence key, QWidget *target, const char *slot, const char *name);
 	void setupKey(const char *name, QString text, QKeySequence key, QWidget *target, const char *slot);
 
 	void updateMenu();

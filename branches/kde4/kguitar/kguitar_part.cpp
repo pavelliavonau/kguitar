@@ -474,88 +474,72 @@ void KGuitarPart::setupActions()
 	actionCollection()->addAction("view_score", viewScoreAct);
 	connect(viewScoreAct, SIGNAL(triggered(bool)), this, SLOT(viewScore()));
 
-	//GREYTODO
-/*
 	// TRACK ACTIONS
-	trkNewAct = new KAction(i18n("&New..."), 0, sv, SLOT(trackNew()),
-	                        actionCollection(), "track_new");
-	trkDeleteAct = new KAction(i18n("&Delete"), 0, sv, SLOT(trackDelete()),
-	                           actionCollection(), "track_delete");
-	trkBassLineAct = new KAction(i18n("&Generate Bass Line"), 0, sv, SLOT(trackBassLine()),
-	                             actionCollection(), "track_bassline");
-	trkPropAct = new KAction(i18n("P&roperties..."), 0, sv, SLOT(trackProperties()),
-	                         actionCollection(), "track_properties");
-	rhythmerAct = new KAction(i18n("&Rhythm..."), "rhythmer", SHIFT + Key_R,
-	                          sv->tv, SLOT(rhythmer()), actionCollection(), "rhythmer");
- */
-	insChordAct = actionCollection()->addAction("insert_chord", sv->tv, SLOT(insertChord()));
-	insChordAct->setShortcut(Qt::SHIFT + Qt::Key_C);
-	insChordAct->setText(i18n("&Chord..."));
-	insChordAct->setIcon(KIcon("chord"));
+	setupAction(trkNewAct, i18n("&New..."), NULL, sv, SLOT(trackNew()), "track_new");
+	setupAction(trkDeleteAct, i18n("&Delete"), 0, sv, SLOT(trackDelete()), "track_delete");
+	setupAction(trkBassLineAct, i18n("&Generate Bass Line"), 0, sv, SLOT(trackBassLine()), "track_bassline");
+	setupAction(trkPropAct, i18n("P&roperties..."), 0, sv, SLOT(trackProperties()), "track_properties");
+	setupAction(rhythmerAct, i18n("&Rhythm..."), "rhythmer", Qt::SHIFT + Qt::Key_R, sv->tv, SLOT(rhythmer()), "rhythmer");
+
+	setupAction(insChordAct, i18n("&Chord..."), "chord", Qt::SHIFT + Qt::Key_C, sv->tv, SLOT(insertChord()), "insert_chord");
 /*
 	saveOptionAct = new KAction(i18n("&Save Options"), 0, this,
 	                            SLOT(saveOptions()), actionCollection(), "save_options");
-
-	arrTrkAct = new KAction(i18n("&Arrange Track"), SHIFT + Key_A, sv->tv,
-	                        SLOT(arrangeTracks()), actionCollection(), "arrange_trk");
-
-	// LESS THAN TRIVIAL MOVING STUFF ACTIONS
-	(void) new KAction(i18n("Transpose up"), 0, CTRL + Key_Up,
-					   sv->tv, SLOT(transposeUp()), actionCollection(), "transpose_up");
-	(void) new KAction(i18n("Transpose down"), 0, CTRL + Key_Down,
-					   sv->tv, SLOT(transposeDown()), actionCollection(), "transpose_down");
+*/
+	setupAction(arrTrkAct, i18n("&Arrange Track"), 0, Qt::SHIFT + Qt::Key_A, sv->tv, SLOT(arrangeTracks()), "arrange_trk");
 
 	// SET UP DURATION
-	(void) new KAction(i18n("Whole"), "note1", CTRL + Key_1,
-	                   sv->tv, SLOT(setLength1()), actionCollection(), "set_len1");
-	(void) new KAction("1/2", "note2", CTRL + Key_2,
-	                   sv->tv, SLOT(setLength2()), actionCollection(), "set_len2");
-	(void) new KAction("1/4", "note4", CTRL + Key_3,
-	                   sv->tv, SLOT(setLength4()), actionCollection(), "set_len4");
-	(void) new KAction("1/8", "note8", CTRL + Key_4,
-	                   sv->tv, SLOT(setLength8()), actionCollection(), "set_len8");
-	(void) new KAction("1/16", "note16", CTRL + Key_5,
-	                   sv->tv, SLOT(setLength16()), actionCollection(), "set_len16");
-	(void) new KAction("1/32", "note32", CTRL + Key_6,
-	                   sv->tv, SLOT(setLength32()), actionCollection(), "set_len32");
-	(void) new KAction(i18n("Dotted note"), "dotted_note", Key_Period,
-	                   sv->tv, SLOT(dotNote()), actionCollection(), "dotted_note");
-	(void) new KAction(i18n("Triplet note"), "triplet", Key_T,
-	                   sv->tv, SLOT(tripletNote()), actionCollection(), "triplet");
-	(void) new KAction(i18n("More duration"), 0, Key_Equal,
-	                   sv->tv, SLOT(keyPlus()), actionCollection(), "more_duration");
-	(void) new KAction(i18n("Less duration"), 0, Key_Minus,
-	                   sv->tv, SLOT(keyMinus()), actionCollection(), "less_duration");
+// 	(void) new KAction(i18n("Whole"), "note1", CTRL + Key_1,
+// 	                   sv->tv, SLOT(setLength1()), actionCollection(), "set_len1");
+// 	(void) new KAction("1/2", "note2", CTRL + Key_2,
+// 	                   sv->tv, SLOT(setLength2()), actionCollection(), "set_len2");
+// 	(void) new KAction("1/4", "note4", CTRL + Key_3,
+// 	                   sv->tv, SLOT(setLength4()), actionCollection(), "set_len4");
+// 	(void) new KAction("1/8", "note8", CTRL + Key_4,
+// 	                   sv->tv, SLOT(setLength8()), actionCollection(), "set_len8");
+// 	(void) new KAction("1/16", "note16", CTRL + Key_5,
+// 	                   sv->tv, SLOT(setLength16()), actionCollection(), "set_len16");
+// 	(void) new KAction("1/32", "note32", CTRL + Key_6,
+// 	                   sv->tv, SLOT(setLength32()), actionCollection(), "set_len32");
+// 	(void) new KAction(i18n("Dotted note"), "dotted_note", Key_Period,
+// 	                   sv->tv, SLOT(dotNote()), actionCollection(), "dotted_note");
+// 	(void) new KAction(i18n("Triplet note"), "triplet", Key_T,
+// 	                   sv->tv, SLOT(tripletNote()), actionCollection(), "triplet");
+// 	(void) new KAction(i18n("More duration"), 0, Key_Equal,
+// 	                   sv->tv, SLOT(keyPlus()), actionCollection(), "more_duration");
+// 	(void) new KAction(i18n("Less duration"), 0, Key_Minus,
+// 	                   sv->tv, SLOT(keyMinus()), actionCollection(), "less_duration");
 
-	// SET UP EFFECTS
-	keySigAct = new KAction(i18n("Key signature"), "keysig", SHIFT + Key_K,
-	                        sv->tv, SLOT(keySig()), actionCollection(), "key_sig");
-	timeSigAct = new KAction(i18n("Time signature"), "timesig", SHIFT + Key_T,
-	                         sv->tv, SLOT(timeSig()), actionCollection(), "time_sig");
-	arcAct = new KAction(i18n("Link with previous column"), "arc", Key_L,
-	                     sv->tv, SLOT(linkPrev()), actionCollection(), "link_prev");
-	legatoAct = new KAction(i18n("Legato (hammer on/pull off)"), "fx_legato", Key_P,
-	                        sv->tv, SLOT(addLegato()), actionCollection(), "fx_legato");
-	slideAct = new KAction(i18n("Slide"), "fx_slide", Key_S,
-	                       sv->tv, SLOT(addSlide()), actionCollection(), "fx_slide");
-	letRingAct = new KAction(i18n("Let Ring"), "fx_let_ring", Key_I,
-	                         sv->tv, SLOT(addLetRing()), actionCollection(), "fx_let_ring");
-	natHarmAct = new KAction(i18n("Natural harmonic"), "fx_harmonic", Key_H,
-	                         sv->tv, SLOT(addHarmonic()), actionCollection(), "fx_nat_harm");
-	artHarmAct = new KAction(i18n("Artificial harmonic"), "fx_harmonic", Key_R,
-	                         sv->tv, SLOT(addArtHarm()), actionCollection(), "fx_art_harm");
-	palmMuteAct = new KAction(i18n("Palm muting"), "fx_palmmute", Key_M,
-	                          sv->tv, SLOT(palmMute()), actionCollection(), "fx_palmmute");
-	(void) new KAction(i18n("Dead note"), 0, Key_X,
-	                   sv->tv, SLOT(deadNote()), actionCollection(), "deadnote");
+// 	// SET UP EFFECTS
+// 	keySigAct = new KAction(i18n("Key signature"), "keysig", SHIFT + Key_K,
+// 	                        sv->tv, SLOT(keySig()), actionCollection(), "key_sig");
+// 	timeSigAct = new KAction(i18n("Time signature"), "timesig", SHIFT + Key_T,
+// 	                         sv->tv, SLOT(timeSig()), actionCollection(), "time_sig");
+// 	arcAct = new KAction(i18n("Link with previous column"), "arc", Key_L,
+// 	                     sv->tv, SLOT(linkPrev()), actionCollection(), "link_prev");
+// 	legatoAct = new KAction(i18n("Legato (hammer on/pull off)"), "fx_legato", Key_P,
+// 	                        sv->tv, SLOT(addLegato()), actionCollection(), "fx_legato");
+// 	slideAct = new KAction(i18n("Slide"), "fx_slide", Key_S,
+// 	                       sv->tv, SLOT(addSlide()), actionCollection(), "fx_slide");
+// 	letRingAct = new KAction(i18n("Let Ring"), "fx_let_ring", Key_I,
+// 	                         sv->tv, SLOT(addLetRing()), actionCollection(), "fx_let_ring");
+// 	natHarmAct = new KAction(i18n("Natural harmonic"), "fx_harmonic", Key_H,
+// 	                         sv->tv, SLOT(addHarmonic()), actionCollection(), "fx_nat_harm");
+// 	artHarmAct = new KAction(i18n("Artificial harmonic"), "fx_harmonic", Key_R,
+// 	                         sv->tv, SLOT(addArtHarm()), actionCollection(), "fx_art_harm");
+// 	palmMuteAct = new KAction(i18n("Palm muting"), "fx_palmmute", Key_M,
+// 	                          sv->tv, SLOT(palmMute()), actionCollection(), "fx_palmmute");
+// 	(void) new KAction(i18n("Dead note"), 0, Key_X,
+// 	                   sv->tv, SLOT(deadNote()), actionCollection(), "deadnote");
 
-	// SET UP 'Note Names'
+// 	// SET UP 'Note Names'
 
-	// SET UP MIDI-PLAY
-	midiPlaySongAct = new KAction(i18n("&Play / stop"), "1rightarrow", Key_Space,
-	                              sv, SLOT(playSong()), actionCollection(), "midi_playsong");
-	midiStopPlayAct = new KAction(i18n("&Stop"), "player_stop", CTRL + SHIFT + Key_P,
-	                              sv, SLOT(stopPlay()), actionCollection(), "midi_stopplay");
+// 	// SET UP MIDI-PLAY
+// 	midiPlaySongAct = new KAction(i18n("&Play / stop"), "1rightarrow", Key_Space,
+// 	                              sv, SLOT(playSong()), actionCollection(), "midi_playsong");
+// 	midiStopPlayAct = new KAction(i18n("&Stop"), "player_stop", CTRL + SHIFT + Key_P,
+// 	                              sv, SLOT(stopPlay()), actionCollection(), "midi_stopplay");
+/*
 #ifndef WITH_TSE3
 	midiPlaySongAct->setEnabled(FALSE);
 	midiStopPlayAct->setEnabled(FALSE);
@@ -576,6 +560,10 @@ void KGuitarPart::setupActions()
 	setupKey("key_up", i18n("Move cursor up"), Qt::Key_Up, sv->tv, SLOT(moveUp()));
 	setupKey("key_down", i18n("Move cursor down"), Qt::Key_Down, sv->tv, SLOT(moveDown()));
 
+	// LESS THAN TRIVIAL MOVING STUFF ACTIONS
+	setupKey("transpose_up", i18n("Transpose up"), Qt::CTRL + Qt::Key_Up, sv->tv, SLOT(transposeUp()));
+	setupKey("transpose_down", i18n("Transpose down"), Qt::CTRL + Qt::Key_Down, sv->tv, SLOT(transposeDown()));
+
 	// ...FOR OTHER KEYS
 	setupKey("key_del", i18n("Delete note"), Qt::Key_Delete, sv->tv, SLOT(deleteNote()));
 	setupKey("key_CtrlDel", i18n("Delete column"), Qt::CTRL + Qt::Key_Delete, sv->tv, SLOT(deleteColumn()));
@@ -592,6 +580,16 @@ void KGuitarPart::setupActions()
 	setupKey("key_8", i18n("Key 8"), Qt::Key_8, sv->tv, SLOT(key8()));
 	setupKey("key_9", i18n("Key 9"), Qt::Key_9, sv->tv, SLOT(key9()));
 	setupKey("key_0", i18n("Key 0"), Qt::Key_0, sv->tv, SLOT(key0()));
+}
+
+void KGuitarPart::setupAction(KAction *act, QString text, const char *icon,
+                              QKeySequence key, QWidget *target, const char *slot, const char *name)
+{
+	act = actionCollection()->addAction(name, target, slot);
+	act->setShortcut(key);
+	act->setText(text);
+	if (icon != 0)
+		act->setIcon(KIcon(icon));
 }
 
 void KGuitarPart::setupKey(const char *name, QString text, QKeySequence key, QWidget *target, const char *slot)
