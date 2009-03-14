@@ -362,7 +362,7 @@ void KGuitarPart::readOptions()
 // 	globalShowPageNumb = g.readEntry("ShowPageNumb", TRUE);
 // 	globalTexExpMode = g.readEntry("TexExpMode", 0);
 
- 	viewMelodyEditorAct->setChecked(Settings::config->group("MelodyEditor").readEntry("Visible", true));
+	viewMelodyEditorAct->setChecked(Settings::config->group("MelodyEditor").readEntry("Visible", true));
 	viewMelodyEditor();
 //	viewScoreAct->setChecked(TRUE);		// LVIFIX: read value from config, enable only if feta fonts found
 	viewScoreAct->setChecked(FALSE);	// LVIFIX: enable before commit
@@ -475,10 +475,10 @@ void KGuitarPart::setupActions()
 	connect(viewScoreAct, SIGNAL(triggered(bool)), this, SLOT(viewScore()));
 
 	// TRACK ACTIONS
-	setupAction(trkNewAct, i18n("&New..."), NULL, sv, SLOT(trackNew()), "track_new");
-	setupAction(trkDeleteAct, i18n("&Delete"), 0, sv, SLOT(trackDelete()), "track_delete");
-	setupAction(trkBassLineAct, i18n("&Generate Bass Line"), 0, sv, SLOT(trackBassLine()), "track_bassline");
-	setupAction(trkPropAct, i18n("P&roperties..."), 0, sv, SLOT(trackProperties()), "track_properties");
+	setupAction(trkNewAct, i18n("&New..."), NULL, NULL, sv, SLOT(trackNew()), "track_new");
+	setupAction(trkDeleteAct, i18n("&Delete"), NULL, NULL, sv, SLOT(trackDelete()), "track_delete");
+	setupAction(trkBassLineAct, i18n("&Generate Bass Line"), NULL, NULL, sv, SLOT(trackBassLine()), "track_bassline");
+	setupAction(trkPropAct, i18n("P&roperties..."), NULL, NULL, sv, SLOT(trackProperties()), "track_properties");
 	setupAction(rhythmerAct, i18n("&Rhythm..."), "rhythmer", Qt::SHIFT + Qt::Key_R, sv->tv, SLOT(rhythmer()), "rhythmer");
 
 	setupAction(insChordAct, i18n("&Chord..."), "chord", Qt::SHIFT + Qt::Key_C, sv->tv, SLOT(insertChord()), "insert_chord");
@@ -511,26 +511,17 @@ void KGuitarPart::setupActions()
 // 	                   sv->tv, SLOT(keyMinus()), actionCollection(), "less_duration");
 
 // 	// SET UP EFFECTS
-// 	keySigAct = new KAction(i18n("Key signature"), "keysig", SHIFT + Key_K,
-// 	                        sv->tv, SLOT(keySig()), actionCollection(), "key_sig");
-// 	timeSigAct = new KAction(i18n("Time signature"), "timesig", SHIFT + Key_T,
-// 	                         sv->tv, SLOT(timeSig()), actionCollection(), "time_sig");
-// 	arcAct = new KAction(i18n("Link with previous column"), "arc", Key_L,
-// 	                     sv->tv, SLOT(linkPrev()), actionCollection(), "link_prev");
-// 	legatoAct = new KAction(i18n("Legato (hammer on/pull off)"), "fx_legato", Key_P,
-// 	                        sv->tv, SLOT(addLegato()), actionCollection(), "fx_legato");
-// 	slideAct = new KAction(i18n("Slide"), "fx_slide", Key_S,
-// 	                       sv->tv, SLOT(addSlide()), actionCollection(), "fx_slide");
-// 	letRingAct = new KAction(i18n("Let Ring"), "fx_let_ring", Key_I,
-// 	                         sv->tv, SLOT(addLetRing()), actionCollection(), "fx_let_ring");
-// 	natHarmAct = new KAction(i18n("Natural harmonic"), "fx_harmonic", Key_H,
-// 	                         sv->tv, SLOT(addHarmonic()), actionCollection(), "fx_nat_harm");
-// 	artHarmAct = new KAction(i18n("Artificial harmonic"), "fx_harmonic", Key_R,
-// 	                         sv->tv, SLOT(addArtHarm()), actionCollection(), "fx_art_harm");
-// 	palmMuteAct = new KAction(i18n("Palm muting"), "fx_palmmute", Key_M,
-// 	                          sv->tv, SLOT(palmMute()), actionCollection(), "fx_palmmute");
-// 	(void) new KAction(i18n("Dead note"), 0, Key_X,
-// 	                   sv->tv, SLOT(deadNote()), actionCollection(), "deadnote");
+	setupAction(keySigAct, i18n("Key signature"), "keysig", Qt::SHIFT + Qt::Key_K, sv->tv, SLOT(keySig()), "key_sig");
+	setupAction(timeSigAct, i18n("Time signature"), "timesig", Qt::SHIFT + Qt::Key_T, sv->tv, SLOT(timeSig()), "time_sig");
+	setupAction(arcAct, i18n("Link with previous column"), "arc", Qt::Key_L, sv->tv, SLOT(linkPrev()), "link_prev");
+	setupAction(legatoAct, i18n("Legato (hammer on/pull off)"), "fx_legato", Qt::Key_P, sv->tv, SLOT(addLegato()), "fx_legato");
+	setupAction(slideAct, i18n("Slide"), "fx_slide", Qt::Key_S, sv->tv, SLOT(addSlide()), "fx_slide");
+	setupAction(letRingAct, i18n("Let Ring"), "fx_let_ring", Qt::Key_I, sv->tv, SLOT(addLetRing()), "fx_let_ring");
+	setupAction(natHarmAct, i18n("Natural harmonic"), "fx_harmonic", Qt::Key_H, sv->tv, SLOT(addHarmonic()), "fx_nat_harm");
+	setupAction(artHarmAct, i18n("Artificial harmonic"), "fx_harmonic", Qt::Key_R, sv->tv, SLOT(addArtHarm()), "fx_art_harm");
+	setupAction(palmMuteAct, i18n("Palm muting"), "fx_palmmute", Qt::Key_M, sv->tv, SLOT(palmMute()), "fx_palmmute");
+	KAction *deadNoteAct;
+	setupAction(deadNoteAct, i18n("Dead note"), 0, Qt::Key_X, sv->tv, SLOT(deadNote()), "deadnote");
 
 // 	// SET UP 'Note Names'
 
@@ -582,7 +573,7 @@ void KGuitarPart::setupActions()
 	setupKey("key_0", i18n("Key 0"), Qt::Key_0, sv->tv, SLOT(key0()));
 }
 
-void KGuitarPart::setupAction(KAction *act, QString text, const char *icon,
+void KGuitarPart::setupAction(KAction *&act, QString text, const char *icon,
                               QKeySequence key, QWidget *target, const char *slot, const char *name)
 {
 	act = actionCollection()->addAction(name, target, slot);
