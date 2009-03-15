@@ -361,7 +361,7 @@ void SongView::playSong()
 	int startclock = tv->trk()->cursortimer;
 
 	// Init cursors
-	for (TabTrack *trk = m_song->t.first(); trk; trk = m_song->t.next()) {
+	foreach (TabTrack *trk, m_song->t) {
 		if (trk->cursortimer < startclock) {
 			trk->x--;
 			trk->updateXB();
@@ -373,7 +373,7 @@ void SongView::playSong()
 	tv->setPlaybackCursor(TRUE);
 
 	do {
-		kapp->processEvents();
+		qApp->processEvents();
 		if (midiStopPlay)
 			transport->stop();
 		transport->poll();
@@ -408,7 +408,7 @@ void SongView::playAllNoteOff()
 	transport->play(&panic, TSE3::Clock());
 
 	do {
-		kapp->processEvents();
+		qApp->processEvents();
 		transport->poll();
 	} while (transport->status() != TSE3::Transport::Resting);
 
