@@ -5,10 +5,7 @@
 #include <qspinbox.h>
 #include <qcombobox.h>
 #include <qcheckbox.h>
-#include <qlabel.h>
-#include <qlayout.h>
-//Added by qt3to4:
-#include <Q3GridLayout>
+#include <QFormLayout>
 
 SetTimeSig::SetTimeSig(int t1, int t2, QWidget *parent)
 	: KDialog(parent)
@@ -20,40 +17,36 @@ SetTimeSig::SetTimeSig(int t1, int t2, QWidget *parent)
 	QWidget *page = new QWidget(this);
 	setMainWidget(page);
 
-	m_time1 = new QSpinBox(1, 32, 1, page);
+	m_time1 = new QSpinBox(page);
+	m_time1->setMinimum(1);
+	m_time1->setMaximum(32);
 	m_time1->setValue(t1);
 
-	m_time2 = new QComboBox(TRUE, page);
-	m_time2->setInsertionPolicy(QComboBox::NoInsertion);
-	m_time2->insertItem("1");
-	m_time2->insertItem("2");
-	m_time2->insertItem("4");
-	m_time2->insertItem("8");
-	m_time2->insertItem("16");
-	m_time2->insertItem("32");
+	m_time2 = new QComboBox(page);
+	m_time2->setInsertPolicy(QComboBox::NoInsertion);
+	m_time2->addItem("1");
+	m_time2->addItem("2");
+	m_time2->addItem("4");
+	m_time2->addItem("8");
+	m_time2->addItem("16");
+	m_time2->addItem("32");
 
 	switch (t2) {
-	case 1:	 m_time2->setCurrentItem(0); break;
-	case 2:	 m_time2->setCurrentItem(1); break;
-	case 4:	 m_time2->setCurrentItem(2); break;
-	case 8:	 m_time2->setCurrentItem(3); break;
-	case 16: m_time2->setCurrentItem(4); break;
-	case 32: m_time2->setCurrentItem(5); break;
+	case 1:	 m_time2->setCurrentIndex(0); break;
+	case 2:	 m_time2->setCurrentIndex(1); break;
+	case 4:	 m_time2->setCurrentIndex(2); break;
+	case 8:	 m_time2->setCurrentIndex(3); break;
+	case 16: m_time2->setCurrentIndex(4); break;
+	case 32: m_time2->setCurrentIndex(5); break;
 	}
-
-	QLabel *l_time1 = new QLabel(m_time1, i18n("&Beats per measure:"), page);
-	QLabel *l_time2 = new QLabel(m_time2, i18n("Beat &value:"), page);
 
 	toend = new QCheckBox(i18n("Apply till the &end"),this);
 
-	Q3GridLayout *l = new Q3GridLayout(page, 3, 2, 0, spacingHint());
-	l->addWidget(l_time1, 0, 0);
-	l->addWidget(m_time1, 0, 1);
-	l->addWidget(l_time2, 1, 0);
-	l->addWidget(m_time2, 1, 1);
-	l->addMultiCellWidget(toend, 2, 2, 0, 1);
-
-	l->activate();
+	QFormLayout *l = new QFormLayout(page);
+	l->addRow(i18n("&Beats per measure:"), m_time1);
+	l->addRow(i18n("Beat &value:"), m_time2);
+	l->addRow(toend);
+	page->setLayout(l);
 }
 
 int SetTimeSig::time1()
