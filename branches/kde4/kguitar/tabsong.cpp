@@ -56,8 +56,8 @@ uint TabSong::maxLen()
 void TabSong::arrangeBars()
 {
 	// For every track
-	for (int i = 0; i < t.size(); i++)
-		t.at(i)->arrangeBars();
+	foreach(TabTrack *trk, t)
+		trk->arrangeBars();
 }
 
 #ifdef WITH_TSE3
