@@ -489,26 +489,16 @@ void KGuitarPart::setupActions()
 	setupAction(arrTrkAct, i18n("&Arrange Track"), 0, Qt::SHIFT + Qt::Key_A, sv->tv, SLOT(arrangeTracks()), "arrange_trk");
 
 	// SET UP DURATION
-// 	(void) new KAction(i18n("Whole"), "note1", CTRL + Key_1,
-// 	                   sv->tv, SLOT(setLength1()), actionCollection(), "set_len1");
-// 	(void) new KAction("1/2", "note2", CTRL + Key_2,
-// 	                   sv->tv, SLOT(setLength2()), actionCollection(), "set_len2");
-// 	(void) new KAction("1/4", "note4", CTRL + Key_3,
-// 	                   sv->tv, SLOT(setLength4()), actionCollection(), "set_len4");
-// 	(void) new KAction("1/8", "note8", CTRL + Key_4,
-// 	                   sv->tv, SLOT(setLength8()), actionCollection(), "set_len8");
-// 	(void) new KAction("1/16", "note16", CTRL + Key_5,
-// 	                   sv->tv, SLOT(setLength16()), actionCollection(), "set_len16");
-// 	(void) new KAction("1/32", "note32", CTRL + Key_6,
-// 	                   sv->tv, SLOT(setLength32()), actionCollection(), "set_len32");
-// 	(void) new KAction(i18n("Dotted note"), "dotted_note", Key_Period,
-// 	                   sv->tv, SLOT(dotNote()), actionCollection(), "dotted_note");
-// 	(void) new KAction(i18n("Triplet note"), "triplet", Key_T,
-// 	                   sv->tv, SLOT(tripletNote()), actionCollection(), "triplet");
-// 	(void) new KAction(i18n("More duration"), 0, Key_Equal,
-// 	                   sv->tv, SLOT(keyPlus()), actionCollection(), "more_duration");
-// 	(void) new KAction(i18n("Less duration"), 0, Key_Minus,
-// 	                   sv->tv, SLOT(keyMinus()), actionCollection(), "less_duration");
+	setupAction(i18n("Whole"), "note1", Qt::CTRL + Qt::Key_1, sv->tv, SLOT(setLength1()), "set_len1");
+	setupAction("1/2", "note2", Qt::CTRL + Qt::Key_2, sv->tv, SLOT(setLength2()), "set_len2");
+	setupAction("1/4", "note4", Qt::CTRL + Qt::Key_3, sv->tv, SLOT(setLength4()), "set_len4");
+	setupAction("1/8", "note8", Qt::CTRL + Qt::Key_4, sv->tv, SLOT(setLength8()), "set_len8");
+	setupAction("1/16", "note16", Qt::CTRL + Qt::Key_5, sv->tv, SLOT(setLength16()), "set_len16");
+	setupAction("1/32", "note32", Qt::CTRL + Qt::Key_6, sv->tv, SLOT(setLength32()), "set_len32");
+	setupAction(i18n("Dotted note"), "dotted_note", Qt::Key_Period, sv->tv, SLOT(dotNote()), "dotted_note");
+	setupAction(i18n("Triplet note"), "triplet", Qt::Key_T, sv->tv, SLOT(tripletNote()), "triplet");
+	setupAction(i18n("More duration"), 0, Qt::Key_Equal, sv->tv, SLOT(keyPlus()), "more_duration");
+	setupAction(i18n("Less duration"), 0, Qt::Key_Minus, sv->tv, SLOT(keyMinus()), "less_duration");
 
 // 	// SET UP EFFECTS
 	setupAction(keySigAct, i18n("Key signature"), "keysig", Qt::SHIFT + Qt::Key_K, sv->tv, SLOT(keySig()), "key_sig");
@@ -571,6 +561,16 @@ void KGuitarPart::setupActions()
 	setupKey("key_8", i18n("Key 8"), Qt::Key_8, sv->tv, SLOT(key8()));
 	setupKey("key_9", i18n("Key 9"), Qt::Key_9, sv->tv, SLOT(key9()));
 	setupKey("key_0", i18n("Key 0"), Qt::Key_0, sv->tv, SLOT(key0()));
+}
+
+void KGuitarPart::setupAction(QString text, const char *icon,
+                              QKeySequence key, QWidget *target, const char *slot, const char *name)
+{
+	KAction *act = actionCollection()->addAction(name, target, slot);
+	act->setShortcut(key);
+	act->setText(text);
+	if (icon != 0)
+		act->setIcon(KIcon(icon));
 }
 
 void KGuitarPart::setupAction(KAction *&act, QString text, const char *icon,
