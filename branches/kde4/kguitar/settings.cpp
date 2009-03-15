@@ -61,50 +61,50 @@ QString Settings::sharpName()
 
 int Settings::midiPort()
 {
-	config->group("MIDI").readEntry("Port", 0);
+	return config->group("MIDI").readEntry("Port", 0);
 }
 
 int Settings::melodyEditorInlay()
 {
-    config->group("MelodyEditor").readEntry("Inlay", 1);
+    return config->group("MelodyEditor").readEntry("Inlay", 1);
 }
 
 int Settings::melodyEditorAction(int num)
 {
-    config->group("MelodyEditor").readEntry(QString("Action%1").arg(num), 0);
+    return config->group("MelodyEditor").readEntry(QString("Action%1").arg(num), 0);
 }
 
 bool Settings::melodyEditorAdvance(int num)
 {
-    config->group("MelodyEditor").readEntry(QString("Advance%1").arg(num), FALSE);
+    return config->group("MelodyEditor").readEntry(QString("Advance%1").arg(num), FALSE);
 }
 
 int Settings::texTabSize()
 {
-    config->group("MusiXTeX").readEntry(QString("TabSize"), 2);
+    return config->group("MusiXTeX").readEntry(QString("TabSize"), 2);
 }
 
 bool Settings::texShowBarNumber()
 {
-    config->group("MusiXTeX").readEntry("ShowBarNumber", TRUE);
+    return config->group("MusiXTeX").readEntry("ShowBarNumber", TRUE);
 }
 
 bool Settings::texShowStr()
 {
-    config->group("MusiXTeX").readEntry("ShowStr", TRUE);
+    return config->group("MusiXTeX").readEntry("ShowStr", TRUE);
 }
 
 bool Settings::texShowPageNumber()
 {
-    config->group("MusiXTeX").readEntry("ShowPageNumber", TRUE);
+    return config->group("MusiXTeX").readEntry("ShowPageNumber", TRUE);
 }
 
 bool Settings::texExportMode()
 {
-    config->group("MusiXTeX").readEntry("ExportMode", 0);
+    return config->group("MusiXTeX").readEntry("ExportMode", 0);
 }
 
 int Settings::printingStyle()
 {
-    config->group("Printing").readEntry("Style", 0);
+    return config->group("Printing").readEntry("Style", 0);
 }
