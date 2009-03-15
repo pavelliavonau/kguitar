@@ -147,9 +147,7 @@ KAboutData *KGuitarPart::createAboutData()
 // Reimplemented method from KParts to open file m_file
 bool KGuitarPart::openFile()
 {
-// GREYTODO
-/*
-	QFileInfo fi("m_file");
+	QFileInfo fi(localFilePath());
 
 	if (!fi.isFile()) {
 		KMessageBox::sorry(0, i18n("No file specified, please select a file."));
@@ -168,7 +166,7 @@ bool KGuitarPart::openFile()
 	ConvertBase *converter = converterForExtension(ext, sv->song());
 
 	try {
-		if (converter)  success = converter->load(m_file);
+		if (converter)  success = converter->load(localFilePath());
 	} catch (QString msg) {
 		kdDebug() << "Converter failed with message \"" << msg << "\"\n";
 		KMessageBox::sorry(0, msg, i18n("Loading failed"));
@@ -193,8 +191,6 @@ bool KGuitarPart::openFile()
 	}
 
 	return success;
-*/
-	return false;
 }
 
 bool KGuitarPart::exportOptionsDialog(QString ext)
@@ -260,7 +256,7 @@ bool KGuitarPart::saveFile()
 	if (isReadWrite() == false)
 		return false;
 
-	QFileInfo *fi = new QFileInfo("m_file");
+	QFileInfo *fi = new QFileInfo(localFilePath());
 	QString ext = fi->extension().lower();
 
 	bool success = FALSE;
@@ -268,7 +264,7 @@ bool KGuitarPart::saveFile()
 	try {
 		if (exportOptionsDialog(ext)) {
 			ConvertBase *converter = converterForExtension(ext, sv->song());
-			if (converter)  success = converter->save("m_file");
+			if (converter)  success = converter->save(localFilePath());
 		} else {
 			return FALSE;
 		}
@@ -285,7 +281,6 @@ bool KGuitarPart::saveFile()
 	}
 
 	if (success) {
-		setWinCaption("m_file");
 		cmdHist->clear();
 	} else {
 		KMessageBox::sorry(0, i18n("Can't save song in %1 format").arg(ext));
@@ -475,10 +470,10 @@ void KGuitarPart::setupActions()
 	connect(viewScoreAct, SIGNAL(triggered(bool)), this, SLOT(viewScore()));
 
 	// TRACK ACTIONS
-	setupAction(trkNewAct, i18n("&New..."), NULL, NULL, sv, SLOT(trackNew()), "track_new");
-	setupAction(trkDeleteAct, i18n("&Delete"), NULL, NULL, sv, SLOT(trackDelete()), "track_delete");
-	setupAction(trkBassLineAct, i18n("&Generate Bass Line"), NULL, NULL, sv, SLOT(trackBassLine()), "track_bassline");
-	setupAction(trkPropAct, i18n("P&roperties..."), NULL, NULL, sv, SLOT(trackProperties()), "track_properties");
+	setupAction(trkNewAct, i18n("&New..."), NULL, 0, sv, SLOT(trackNew()), "track_new");
+	setupAction(trkDeleteAct, i18n("&Delete"), NULL, 0, sv, SLOT(trackDelete()), "track_delete");
+	setupAction(trkBassLineAct, i18n("&Generate Bass Line"), NULL, 0, sv, SLOT(trackBassLine()), "track_bassline");
+	setupAction(trkPropAct, i18n("P&roperties..."), NULL, 0, sv, SLOT(trackProperties()), "track_properties");
 	setupAction(rhythmerAct, i18n("&Rhythm..."), "rhythmer", Qt::SHIFT + Qt::Key_R, sv->tv, SLOT(rhythmer()), "rhythmer");
 
 	setupAction(insChordAct, i18n("&Chord..."), "chord", Qt::SHIFT + Qt::Key_C, sv->tv, SLOT(insertChord()), "insert_chord");
