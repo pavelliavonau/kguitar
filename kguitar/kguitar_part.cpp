@@ -160,8 +160,8 @@ bool KGuitarPart::openFile()
 
 	bool success = FALSE;
 
-	QString ext = fi.extension();
-	ext = ext.lower();
+	QString ext = fi.suffix();
+	ext = ext.toLower();
 
 	ConvertBase *converter = converterForExtension(ext, sv->song());
 
@@ -257,7 +257,7 @@ bool KGuitarPart::saveFile()
 		return false;
 
 	QFileInfo *fi = new QFileInfo(localFilePath());
-	QString ext = fi->extension().lower();
+	QString ext = fi->suffix().toLower();
 
 	bool success = FALSE;
 
@@ -558,8 +558,8 @@ void KGuitarPart::setupActions()
 	setupKey("key_0", i18n("Key 0"), Qt::Key_0, sv->tv, SLOT(key0()));
 }
 
-void KGuitarPart::setupAction(QString text, const char *icon,
-                              QKeySequence key, QWidget *target, const char *slot, const char *name)
+void KGuitarPart::setupAction(QString text, const char *icon, QKeySequence key,
+        QWidget *target, const char *slot, const char *name)
 {
 	KAction *act = actionCollection()->addAction(name, target, slot);
 	act->setShortcut(key);
