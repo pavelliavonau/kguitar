@@ -47,7 +47,7 @@ NoteSpinBox::NoteSpinBox(QWidget *parent, const char *name):
 
 NoteSpinBox::~NoteSpinBox()
 {
-	delete nv;
+//	delete nv;
 }
 
 QString NoteSpinBox::mapValueToText(int v)
