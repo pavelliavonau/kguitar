@@ -1,1 +1,1 @@
-install(DIRECTORY . DESTINATION ${DATA_INSTALL_DIR}/kguitar/icons FILES_MATCHING PATTERN "*.png")
+kde4_install_icons(${ICON_INSTALL_DIR})
