@@ -442,8 +442,7 @@ void KGuitarPart::setupActions()
 	(void) KStandardAction::print(this, SLOT(filePrint()), actionCollection());
 	(void) KStandardAction::preferences(this, SLOT(options()), actionCollection());
 
-	KAction *propAct = new KAction(i18n("P&roperties..."), actionCollection());
-	connect(propAct, SIGNAL(triggered(bool)), sv, SLOT(songProperties()));
+	setupAction(i18n("P&roperties..."), 0, 0, sv, SLOT(songProperties()), "song_properties");
 
 	// EDIT ACTIONS
 	(void) KStandardAction::undo(cmdHist, SLOT(undo()), actionCollection());
@@ -508,19 +507,13 @@ void KGuitarPart::setupActions()
 	KAction *deadNoteAct;
 	setupAction(deadNoteAct, i18n("Dead note"), 0, Qt::Key_X, sv->tv, SLOT(deadNote()), "deadnote");
 
-// 	// SET UP 'Note Names'
-
-// 	// SET UP MIDI-PLAY
-// 	midiPlaySongAct = new KAction(i18n("&Play / stop"), "1rightarrow", Key_Space,
-// 	                              sv, SLOT(playSong()), actionCollection(), "midi_playsong");
-// 	midiStopPlayAct = new KAction(i18n("&Stop"), "player_stop", CTRL + SHIFT + Key_P,
-// 	                              sv, SLOT(stopPlay()), actionCollection(), "midi_stopplay");
-/*
+ 	// SET UP MIDI-PLAY
+	setupAction(midiPlaySongAct, i18n("&Play / stop"), "1rightarrow", Qt::Key_Space, sv, SLOT(playSong()), "midi_playsong");
+ 	setupAction(midiStopPlayAct, i18n("&Stop"), "player_stop", Qt::CTRL + Qt::SHIFT + Qt::Key_P, sv, SLOT(stopPlay()), "midi_stopplay");
 #ifndef WITH_TSE3
 	midiPlaySongAct->setEnabled(FALSE);
 	midiStopPlayAct->setEnabled(FALSE);
 #endif
-*/
 
 	// ...FOR CURSOR
 	setupKey("key_left", i18n("Move cursor left"), Qt::Key_Left, sv->tv, SLOT(keyLeft()));

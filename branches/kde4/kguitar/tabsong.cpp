@@ -73,9 +73,8 @@ TSE3::Song *TabSong::midiSong(bool tracking)
 
 	// Create data tracks
 	int tn = 0;
-	QListIterator<TabTrack> it(t);
-	for (; it.current(); ++it) {
-		TSE3::PhraseEdit *trackData = it.current()->midiTrack(tracking, tn);
+	foreach (TabTrack *ttrk, t) {
+		TSE3::PhraseEdit *trackData = ttrk->midiTrack(tracking, tn);
 		TSE3::Phrase *phrase = trackData->createPhrase(song->phraseList());
 		TSE3::Part *part = new TSE3::Part(0, trackData->lastClock() + 1); // GREYFIX: this may be why last event got clipped?
 		part->setPhrase(phrase);

@@ -14,7 +14,7 @@
 #include <kconfiggroup.h>
 
 #ifdef WITH_TSE3
-OptionsMidi::OptionsMidi(TSE3::MidiScheduler *_sch, KConfig *conf, QWidget *parent, const char *name)
+OptionsMidi::OptionsMidi(TSE3::MidiScheduler *_sch, KSharedConfigPtr &conf, QWidget *parent, const char *name)
 	: OptionsPage(conf, parent, name)
 {
 	sch = _sch;

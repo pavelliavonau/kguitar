@@ -1,1 +1,2 @@
 #define VERSION "0.6"
+#cmakedefine WITH_TSE3 1

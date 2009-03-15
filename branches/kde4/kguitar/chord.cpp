@@ -36,6 +36,7 @@
 #include <tse3/Metronome.h>
 #include <tse3/MidiScheduler.h>
 #include <tse3/Transport.h>
+#include <QApplication>
 #endif
 
 //					   3  5	 7	9  11 13
@@ -377,7 +378,7 @@ void ChordSelector::playMidi()
     // Play and wait for the end
 	transport.play(&tsong, 0);
 	do {
-		kapp->processEvents();
+		qApp->processEvents();
 		transport.poll();
 	} while (transport.status() != TSE3::Transport::Resting);
 #endif

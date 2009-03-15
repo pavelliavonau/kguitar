@@ -37,7 +37,7 @@ Options::Options(
 	optWidget[1] = new OptionsMelodyEditor(config);
 	optWidget[2] = new OptionsExportMusixtex(config);
 #ifdef WITH_TSE3
-	optWidget[3] = new OptionsMidi(sch, config, 0);
+	optWidget[3] = new OptionsMidi(sch, config);
 #else
 	optWidget[3] = NULL;
 #endif
@@ -54,7 +54,8 @@ Options::Options(
 //	,
 //	                     0, SmallIcon("musixtex"));
 #ifdef WITH_TSE3
-	optPage[3] = addPage(i18n("MIDI Devices"), 0, SmallIcon("kcmmidi"));
+	optPage[3] = addPage(optWidget[3], i18n("MIDI Devices"));
+//, SmallIcon("kcmmidi"));
 #endif
 	optPage[4] = addPage(optWidget[4], i18n("Printing"));
 //	, 0, SmallIcon("printmgr"));
