@@ -1,7 +1,7 @@
 #ifndef SETTRACK_H
 #define SETTRACK_H
 
-#include <q3tabdialog.h>
+#include <kpagedialog.h>
 #include "global.h"
 #include "tabtrack.h"
 
@@ -13,14 +13,15 @@ class SetTabDrum;
 class SetTabMidi;
 class TabTrack;
 
-class SetTrack: public Q3TabDialog {
+class SetTrack: public KPageDialog {
     Q_OBJECT
 public:
-    SetTrack(TabTrack *trk, QWidget *parent = 0, const char *name = 0);
+    SetTrack(TabTrack *trk, QWidget *parent = 0);
 
     QLineEdit *title;
     KIntNumInput *channel, *bank, *patch;
 	QComboBox *mode;
+	KPageWidgetItem *modeSpecPage;
     QWidget *modespec;
     TabTrack *track;
 

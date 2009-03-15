@@ -4,57 +4,41 @@
 #include "settabmidi.h"
 
 #include <klocale.h>
-#include <qlayout.h>
 #include <qlineedit.h>
-//Added by qt3to4:
-#include <Q3GridLayout>
+#include <QFormLayout>
 #include <knuminput.h>
 #include <qcombobox.h>
-#include <qlabel.h>
 
-SetTrack::SetTrack(TabTrack *trk, QWidget *parent, const char *name)
-	: Q3TabDialog(parent, name, TRUE)
+SetTrack::SetTrack(TabTrack *trk, QWidget *parent)
+	: KPageDialog(parent)
 {
-    //////////////////////////////////////////////////////////////////
-    // GENERAL CONTROLS TAB
+	setCaption(i18n("Track properties"));
+	setButtons(Ok | Cancel);
+	setFaceType(Tabbed);
+
+	//////////////////////////////////////////////////////////////////
+	// GENERAL CONTROLS TAB
 	//////////////////////////////////////////////////////////////////
 
 	QWidget *gen = new QWidget(this);
 
-    Q3GridLayout *g = new Q3GridLayout(gen, 5, 2, 10);
+	QFormLayout *l = new QFormLayout(gen);
 
-    title = new QLineEdit(gen);
-    channel = new KIntNumInput(gen);
-    bank = new KIntNumInput(gen);
-    patch = new KIntNumInput(gen);
-	mode = new QComboBox(FALSE, gen);
-	mode->insertItem(i18n("Fretted instrument"));
-	mode->insertItem(i18n("Drum track"));
+	title = new QLineEdit(gen);
+	channel = new KIntNumInput(gen);
+	bank = new KIntNumInput(gen);
+	patch = new KIntNumInput(gen);
+	mode = new QComboBox(gen);
+	mode->addItem(i18n("Fretted instrument"));
+	mode->addItem(i18n("Drum track"));
 
-    QLabel *title_l = new QLabel(title, i18n("&Track name:"), gen);
-    QLabel *channel_l = new QLabel(bank, i18n("&Channel:"), gen);
-    QLabel *bank_l = new QLabel(bank, i18n("&Bank:"), gen);
-    QLabel *patch_l = new QLabel(patch, i18n("&Patch:"), gen);
-    QLabel *mode_l = new QLabel(mode, i18n("&Mode:"), gen);
+	l->addRow(i18n("&Track name:"), title);
+	l->addRow(i18n("&Channel:"), channel);
+	l->addRow(i18n("&Bank:"), bank);
+	l->addRow(i18n("&Patch:"), patch);
+	l->addRow(i18n("&Mode:"), mode);
 
-    g->addWidget(title_l, 0, 0);
-    g->addWidget(title, 0, 1);
-    g->addWidget(channel_l, 1, 0);
-    g->addWidget(channel, 1, 1);
-    g->addWidget(bank_l, 2, 0);
-    g->addWidget(bank, 2, 1);
-    g->addWidget(patch_l, 3, 0);
-    g->addWidget(patch, 3, 1);
-    g->addWidget(mode_l, 4, 0);
-    g->addWidget(mode, 4, 1);
-
-	for (int i = 0; i < 4; i++)
-		g->addRowSpacing(i, 20);
-
-    g->addColSpacing(0, 80);
-    g->setColStretch(1, 1);
-
-	g->activate();
+	gen->setLayout(l);
 
 	// Fill tab with information
 
@@ -66,20 +50,19 @@ SetTrack::SetTrack(TabTrack *trk, QWidget *parent, const char *name)
 	//	bank->setDisabled(isBrowserView);
 	patch->setValue(trk->patch);
 	//	patch->setDisabled(isBrowserView);
-	mode->setCurrentItem(trk->trackMode());
+	mode->setCurrentIndex(trk->trackMode());
 	//	mode->setDisabled(isBrowserView);
 	connect(mode, SIGNAL(highlighted(int)), SLOT(selectTrackMode(int)));
 
 	track = trk;
 
-	addTab(gen, i18n("&General"));
+	addPage(gen, i18n("&General"));
 
-    //////////////////////////////////////////////////////////////////
-    // TAB MIDI SPECIFIC WIDGET
-    //////////////////////////////////////////////////////////////////
+	//////////////////////////////////////////////////////////////////
+	// TAB MIDI SPECIFIC WIDGET
+	//////////////////////////////////////////////////////////////////
 
 	QWidget *tabmidiPage = new SetTabMidi(this);
-	addTab(tabmidiPage, i18n("MIDI &effects"));
 
 	SetTabMidi *tabmidi = (SetTabMidi *) tabmidiPage;
 	//ToDo: set values from track
@@ -88,22 +71,18 @@ SetTrack::SetTrack(TabTrack *trk, QWidget *parent, const char *name)
 	tabmidi->setReverb(0);
 	tabmidi->setChorus(0);
 	tabmidi->setTranspose(0);
-    //////////////////////////////////////////////////////////////////
-    // TAB MODE SPECIFIC WIDGET
-    //////////////////////////////////////////////////////////////////
+
+	addPage(tabmidiPage, i18n("MIDI &effects"));
+
+	//////////////////////////////////////////////////////////////////
+	// TAB MODE SPECIFIC WIDGET
+	//////////////////////////////////////////////////////////////////
 
 	modespec = new SetTabFret(this);
-	addTab(modespec, i18n("&Mode-specific"));
+	modeSpecPage = addPage(modespec, i18n("&Mode-specific"));
 
 	// Fill tab with information
 	selectTrackMode(trk->trackMode());
-
-	// Buttons
-
-	setOkButton(i18n("OK"));
-	setCancelButton(i18n("Cancel"));
-
-    setCaption(i18n("Track properties"));
 }
 
 void SetTrack::selectTrackMode(int sel)
@@ -116,9 +95,9 @@ void SetTrack::selectTrackMode(int sel)
 
 void SetTrack::selectFret()
 {
-	removePage(modespec);
-    modespec = new SetTabFret(this);
-	addTab(modespec, i18n("&Mode-specific"));
+	removePage(modeSpecPage);
+	modespec = new SetTabFret(this);
+	modeSpecPage = addPage(modespec, i18n("&Mode-specific"));
 	SetTabFret *fret = (SetTabFret *) modespec;
 
 	fret->setString(track->string);
@@ -130,9 +109,9 @@ void SetTrack::selectFret()
 
 void SetTrack::selectDrum()
 {
-	removePage(modespec);
-    modespec = new SetTabDrum(this);
-	addTab(modespec, i18n("&Mode-specific"));
+	removePage(modeSpecPage);
+	modespec = new SetTabDrum(this);
+	modeSpecPage = addPage(modespec, i18n("&Mode-specific"));
 	SetTabDrum *drum = (SetTabDrum *) modespec;
 
 	drum->setDrums(track->string);
