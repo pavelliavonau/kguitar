@@ -43,7 +43,8 @@ public:
 
 	TabSong *song() { return m_song; }
 #ifdef WITH_TSE3
-	TSE3::MidiScheduler* midiScheduler() { return scheduler; }
+	// GREYFIX
+	TSE3::MidiScheduler* midiScheduler() { return 0; }
 #endif
 
 	// Forwards declarations of all undo/redo commands
@@ -88,16 +89,9 @@ private:
 
 	bool ro;
 
-	// MIDI stuff
-	bool midiInUse, midiStopPlay;
-
 #ifdef WITH_TSE3
-	TSE3::MidiScheduler *scheduler;
-	TSE3::Transport *transport;
-	TSE3::Metronome *metronome;
-	PlaybackTracker *tracker;
+	PlaybackTracker *playThread;
 	bool initMidi();
-	void playAllNoteOff();
 #endif
 };
 
