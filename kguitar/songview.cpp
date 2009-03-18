@@ -56,12 +56,9 @@ SongView::SongView(KXMLGUIClient *_XMLGUIClient, K3CommandHistory *_cmdHist,
 				   QWidget *parent, const char *name): QWidget(parent, name)
 {
 #ifdef WITH_TSE3
-	scheduler = 0L;
-	initMidi();
+	playThread = new PlaybackTracker();
+	connect(playThread, SIGNAL(playColumn(int, int)), this, SLOT(playbackColumn(int, int)));
 #endif
-
-	midiInUse = FALSE;
-	midiStopPlay = FALSE;
 
 	ro = FALSE;
 
@@ -72,7 +69,9 @@ SongView::SongView(KXMLGUIClient *_XMLGUIClient, K3CommandHistory *_cmdHist,
 	split->setOrientation(Qt::Vertical);
 
 #ifdef WITH_TSE3
-	tv = new TrackView(m_song, _XMLGUIClient, _cmdHist, scheduler, split);
+//	GREYFIX
+//	tv = new TrackView(m_song, _XMLGUIClient, _cmdHist, scheduler, split);
+	tv = new TrackView(m_song, _XMLGUIClient, _cmdHist, 0, split);
 #else
 	tv = new TrackView(m_song, _XMLGUIClient, _cmdHist, split);
 #endif
@@ -114,13 +113,7 @@ SongView::~SongView()
 	delete sp;
 
 #ifdef WITH_TSE3
-	if (scheduler) {
-		transport->detachCallback(tracker);
-		delete tracker;
-		delete transport;
-		delete metronome;
-		delete scheduler;
-	}
+	delete playThread;
 #endif
 }
 
@@ -338,22 +331,18 @@ void SongView::playSong()
 #ifdef WITH_TSE3
 	kdDebug() << "SongView::playSong" << endl;
 
-	if (midiInUse) {
-		stopPlay();
+	// Try to stop a running song, return if we invoked stopping
+	if (playThread->stop())
 		return;
-	}
 
-	midiInUse = TRUE;
-	midiStopPlay = FALSE;
-
-	if (!scheduler) {
-		kdDebug() << "SongView::playSong: Scheduler not open from the beginning!" << endl;
-		if (!initMidi()) {
-			KMessageBox::error(this, i18n("Error opening MIDI device!"));
-			midiInUse = FALSE;
-			return;
-		}
-	}
+//	if (!scheduler) {
+//		kdDebug() << "SongView::playSong: Scheduler not open from the beginning!" << endl;
+//		if (!initMidi()) {
+//			KMessageBox::error(this, i18n("Error opening MIDI device!"));
+//			midiInUse = FALSE;
+//			return;
+//		}
+//	}
 
 	// Get song object
 	TSE3::Song *tsong = m_song->midiSong(TRUE);
@@ -368,78 +357,23 @@ void SongView::playSong()
 		}
 	}
 
-	// Play and wait for the end
-	transport->play(tsong, startclock);
 	tv->setPlaybackCursor(TRUE);
-
-	do {
-		qApp->processEvents();
-		if (midiStopPlay)
-			transport->stop();
-		transport->poll();
-	} while (transport->status() != TSE3::Transport::Resting);
-
-	delete tsong;
-
-	tv->setPlaybackCursor(FALSE);
-
-	// Create and play panic sequence to stop all sounds
-	playAllNoteOff();
+	playThread->playSong(tsong, startclock);
+	// GREYFIX
+//	tv->setPlaybackCursor(FALSE);
 #endif
 }
 
 void SongView::stopPlay()
 {
 #ifdef WITH_TSE3
-	kdDebug() << "SongView::stopPlay" << endl;
-	if (midiInUse)  midiStopPlay = TRUE;
+	playThread->stop();
 #endif
 }
 
 #ifdef WITH_TSE3
-// Plays so called "panic" events in various styles to shut off any
-// stuck playing MIDI note
-void SongView::playAllNoteOff()
-{
-	kdDebug() << "SongView::playSong: starting panic on stop" << endl;
-	TSE3::Panic panic;
-	panic.setAllNotesOff(TRUE);
-// 	panic.setAllNotesOffManually(TRUE);
-	transport->play(&panic, TSE3::Clock());
-
-	do {
-		qApp->processEvents();
-		transport->poll();
-	} while (transport->status() != TSE3::Transport::Resting);
-
-	midiInUse = FALSE;
-
-	kdDebug() << "SongView::playSong: completed panic on stop" << endl;
-}
-
 bool SongView::initMidi()
 {
-	if (!scheduler) {
-		TSE3::MidiSchedulerFactory factory;
-		try {
-			scheduler = factory.createScheduler();
-			kdDebug() << "MIDI Scheduler created" << endl;
-		} catch (TSE3::MidiSchedulerError e) {
-			kdDebug() << "cannot create MIDI Scheduler" << endl;
-		}
-
-		if (!scheduler) {
-			kdDebug() << "ERROR opening MIDI device / Music can't be played" << endl;
-			midiInUse = FALSE;
-			return FALSE;
-		}
-
-		metronome = new TSE3::Metronome;
-		transport = new TSE3::Transport(metronome, scheduler);
-		tracker = new PlaybackTracker(this);
-		transport->attachCallback(tracker);
-	}
-	return TRUE;
 }
 #endif
 
