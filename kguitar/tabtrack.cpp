@@ -1214,10 +1214,12 @@ TSE3::MidiCommand TabTrack::encodeTimeTracking(int track, int x)
 	// Data2 - 7 bits - high 7 bits of x
 	int pseudoData2 = x >> 7;
 
-	return TSE3::MidiCommand(KGUITAR_MIDI_COMMAND,
-							 pseudoChannel,
-							 KGUITAR_MIDI_PORT,
-							 pseudoData1, pseudoData2);
+	return TSE3::MidiCommand(
+		KGUITAR_MIDI_COMMAND,
+		pseudoChannel,
+		KGUITAR_MIDI_PORT,
+		pseudoData1, pseudoData2
+	);
 }
 
 void TabTrack::decodeTimeTracking(TSE3::MidiCommand mc, int &track, int &x)
