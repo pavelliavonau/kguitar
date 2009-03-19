@@ -163,6 +163,7 @@ public slots:
 	 */
 	void ensureCurrentVisible();
 
+	void disablePlaybackCursor();
 	void setPlaybackCursor(bool);
 
 	void viewScore(bool);

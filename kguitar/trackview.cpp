@@ -1417,6 +1417,11 @@ void TrackView::setX(int x)
 	}
 }
 
+void TrackView::disablePlaybackCursor()
+{
+	setPlaybackCursor(false);
+}
+
 void TrackView::setPlaybackCursor(bool pc)
 {
 	playbackCursor = pc;
