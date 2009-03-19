@@ -72,6 +72,7 @@ SongView::SongView(KXMLGUIClient *_XMLGUIClient, K3CommandHistory *_cmdHist,
 //	GREYFIX
 //	tv = new TrackView(m_song, _XMLGUIClient, _cmdHist, scheduler, split);
 	tv = new TrackView(m_song, _XMLGUIClient, _cmdHist, 0, split);
+	connect(playThread, SIGNAL(finished()), tv, SLOT(disablePlaybackCursor()));
 #else
 	tv = new TrackView(m_song, _XMLGUIClient, _cmdHist, split);
 #endif
@@ -359,8 +360,6 @@ void SongView::playSong()
 
 	tv->setPlaybackCursor(TRUE);
 	playThread->playSong(tsong, startclock);
-	// GREYFIX
-//	tv->setPlaybackCursor(FALSE);
 #endif
 }
 
