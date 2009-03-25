@@ -9,6 +9,12 @@ ConvertGtp::ConvertGtp(TabSong *song): ConvertBase(song)
 	strongChecks = TRUE;
 }
 
+void ConvertGtp::skipBytes(int n)
+{
+	int x = stream->skipRawData(n);
+	if (x != n)  throw QString("skipBytes: skip past EOF");
+}
+
 QString ConvertGtp::readDelphiString()
 {
 	QString str;
@@ -55,9 +61,7 @@ QString ConvertGtp::readPascalString(int maxlen)
 	}
 
 	// Skip garbage after pascal string end
-	c = (char *) malloc(maxlen + 5);
-	stream->readRawBytes(c, maxlen - l);
-	free(c);
+	skipBytes(maxlen - l);
 
 	return str;
 }
@@ -180,6 +184,10 @@ void ConvertGtp::readSignature()
 		versionMajor = 4; versionMinor = 6;
 	} else if (s == "FICHIER GUITAR PRO L4.06") {
 		versionMajor = 4; versionMinor = 6;
+	} else if (s == "FICHIER GUITAR PRO v5.00") {
+		versionMajor = 5; versionMinor = 0;
+	} else if (s == "FICHIER GUITAR PRO v5.10") {
+		versionMajor = 5; versionMinor = 10;
 	} else {
 		throw i18n("Invalid file format: \"%1\"").arg(s);
 	}
@@ -197,6 +205,8 @@ void ConvertGtp::readSongAttributes()
 	song->info["SUBTITLE"] = readDelphiString();
 	song->info["ARTIST"] = readDelphiString();
 	song->info["ALBUM"] = readDelphiString();
+	if (versionMajor >= 5)
+		song->info["LYRICIST"] = readDelphiString();
 	song->info["COMPOSER"] = readDelphiString();
 	song->info["COPYRIGHT"] = readDelphiString();
 	song->info["TRANSCRIBER"] = readDelphiString();
@@ -209,22 +219,36 @@ void ConvertGtp::readSongAttributes()
 	for (int i = 0; i < n; i++)
 		song->info["COMMENTS"] += readDelphiString() + "\n";
 
-	currentStage = QString("readSongAttributes: shuffle rhythm feel");
-	(*stream) >> num;                        // GREYFIX: Shuffle rhythm feel
+	if (versionMajor <= 4) {
+		currentStage = QString("readSongAttributes: shuffle rhythm feel");
+		(*stream) >> num;                // GREYFIX: Shuffle rhythm feel
+	}
 
 	if (versionMajor >= 4) {
 		currentStage = QString("readSongAttributes: lyrics");
 		// Lyrics
-		readDelphiInteger();                     // GREYFIX: Lyric track number start
+		if (versionMajor <= 4)
+			readDelphiInteger();                 // GREYFIX: Lyric track number start
 		for (int i = 0; i < LYRIC_LINES_MAX_NUMBER; i++) {
 			readDelphiInteger();                 // GREYFIX: Start from bar
 			readWordPascalString();              // GREYFIX: Lyric line
 		}
 	}
 
+	if (versionMajor >= 5) {
+		currentStage = QString("readSongAttributes: print page");
+		// Print page
+		skipBytes((versionMinor > 0) ? 52 : 33);
+		for (int i = 0; i < 11; i++)
+			readDelphiString();
+	}
+
 	currentStage = QString("readSongAttributes: tempo");
 	song->tempo = readDelphiInteger();       // Tempo
 	kdDebug() << "tempo: " << song->tempo << "\n";
+
+	if (versionMajor >= 5 && versionMinor > 0)
+		skipBytes(1);
 
 	if (versionMajor >= 4) {
 		(*stream) >> num;                // GREYFIX: key
@@ -260,6 +284,10 @@ void ConvertGtp::readTrackDefaults()
 		(*stream) >> num;
 		if (num != 0)  kdDebug() << QString("2 of 2 byte padding: there is %1, must be 0\n").arg(num);
 	}
+
+	// Some weird padding, filled with FFs
+	if (versionMajor >= 5)
+		skipBytes(42);
 }
 
 void ConvertGtp::readBarProperties()
@@ -338,8 +366,13 @@ void ConvertGtp::readTrackProperties()
 	kdDebug() << "readTrackProperties(): start\n";
 
 	for (int i = 0; i < numTracks; i++) {
+		kdDebug() << "start track pos: " << stream->device()->at() << "\n";
+
 		(*stream) >> num;                    // GREYFIX: simulations bitmask
 		kdDebug() << "Simulations: " << num << "\n";
+
+		if (versionMajor >= 5)
+			skipBytes(7);
 
 		song->t.append(new TabTrack(TabTrack::FretTab, 0, 0, 0, 0, 6, 24));
 		TabTrack *trk = song->t.at(i);
