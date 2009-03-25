@@ -70,6 +70,11 @@ private:
 	int readDelphiInteger();
 
 	/**
+	 * Advances the pointer by n bytes forward, skipping them.
+	 */
+	void skipBytes(int n);
+
+	/**
 	 * Version of Guitar Pro file
 	 */
 	int versionMajor, versionMinor;
