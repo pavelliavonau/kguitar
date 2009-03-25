@@ -29,7 +29,7 @@ QString ConvertGtp::readDelphiString()
 
 	c = (char *) malloc(l + 5);
 
-	if (stream->device()->size() - stream->device()->at() < l) {
+	if (stream->device()->size() - stream->device()->pos() < l) {
 		throw QString("readDelphiString: not enough bytes to read %1 byte string").arg(l);
 	}
 
@@ -151,7 +151,7 @@ void ConvertGtp::readChord()
 	// Unknown bytes
 	stream->readRawBytes(garbage, 36);
 
-	kdDebug() << "after chord, position: " << stream->device()->at() << "\n";
+	kdDebug() << "after chord, position: " << stream->device()->pos() << "\n";
 }
 
 void ConvertGtp::readSignature()
@@ -247,7 +247,7 @@ void ConvertGtp::readSongAttributes()
 	song->tempo = readDelphiInteger();       // Tempo
 	kdDebug() << "tempo: " << song->tempo << "\n";
 
-	if (versionMajor >= 5 && versionMinor > 0)
+	if (versionMajor > 5 || (versionMajor == 5 && versionMinor > 0))
 		skipBytes(1);
 
 	if (versionMajor >= 4) {
@@ -365,14 +365,17 @@ void ConvertGtp::readTrackProperties()
 	currentStage = QString("readTrackProperties");
 	kdDebug() << "readTrackProperties(): start\n";
 
+	if (versionMajor >= 5)
+		skipBytes(3);
+
 	for (int i = 0; i < numTracks; i++) {
-		kdDebug() << "start track pos: " << stream->device()->at() << "\n";
+		kdDebug() << "start track pos: " << stream->device()->pos() << "\n";
 
 		(*stream) >> num;                    // GREYFIX: simulations bitmask
 		kdDebug() << "Simulations: " << num << "\n";
 
 		if (versionMajor >= 5)
-			skipBytes(7);
+			skipBytes(4);
 
 		song->t.append(new TabTrack(TabTrack::FretTab, 0, 0, 0, 0, 6, 24));
 		TabTrack *trk = song->t.at(i);
@@ -382,7 +385,7 @@ void ConvertGtp::readTrackProperties()
 
 		// Tuning information
 
-		kdDebug() << "pos: " << stream->device()->at() << "\n";
+		kdDebug() << "pos: " << stream->device()->pos() << "\n";
 
 		strings = readDelphiInteger();
 		if (strings <= 0 || strings > STRING_MAX_NUMBER)  throw QString("Track %1: insane # of strings (%2)\n").arg(i).arg(strings);
@@ -407,6 +410,16 @@ void ConvertGtp::readTrackProperties()
 		capo = readDelphiInteger();          // GREYFIX: Capo
 		color = readDelphiInteger();         // GREYFIX: Color
 
+		if (versionMajor >= 5) {
+			if (versionMajor > 5 || (versionMajor == 5 && versionMinor > 0)) {
+				skipBytes(49);
+				kdDebug() << "additional track string1: " << readDelphiString();
+				kdDebug() << "additional track string2: " << readDelphiString();
+			} else {
+				skipBytes(41);
+			}
+		}
+
 		kdDebug() <<
 			"MIDI #" << trk->channel << "/" << (int) midiChannel2 << ", " <<
 			(int) trk->string << " strings, " <<
@@ -420,6 +433,15 @@ void ConvertGtp::readTrackProperties()
 		// Fill remembered values from defaults
 		trk->patch = trackPatch[i];
 	}
+
+	kdDebug() << "end all tracks pos: " << stream->device()->pos() << "\n";
+
+	if (versionMajor >= 5) {
+		skipBytes(5);
+// 		if (versionMajor == 5 && versionMinor == 0)
+// 			skipBytes(1);
+	}
+
 	kdDebug() << "readTrackProperties(): end\n";
 }
 
@@ -441,7 +463,7 @@ void ConvertGtp::readTabs()
 		for (int tr = 0; tr < numTracks; tr++) {
 			TabTrack *trk = song->t.at(tr);
 			int numBeats = readDelphiInteger();
-			kdDebug() << "TRACK " << tr << ", BAR " << j << ", numBeats " << numBeats << " (position: " << stream->device()->at() << ")\n";
+			kdDebug() << "TRACK " << tr << ", BAR " << j << ", numBeats " << numBeats << " (position: " << stream->device()->pos() << ")\n";
 
 			if (numBeats < 0 || (strongChecks && numBeats > 128))  throw QString("Track %1, bar %2, insane number of beats: %3").arg(tr).arg(j).arg(numBeats);
 
