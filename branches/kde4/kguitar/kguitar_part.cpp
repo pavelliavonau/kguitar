@@ -256,8 +256,10 @@ bool KGuitarPart::saveFile()
 	if (isReadWrite() == false)
 		return false;
 
-	QFileInfo *fi = new QFileInfo(localFilePath());
+	QFileInfo *fi = new QFileInfo(url().fileName());
 	QString ext = fi->suffix().toLower();
+	kdDebug() << "URL is " << url() << endl;
+	kdDebug() << "Trying to save to " << localFilePath() << endl;
 
 	bool success = FALSE;
 
