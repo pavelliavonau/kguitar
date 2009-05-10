@@ -319,6 +319,14 @@ void ConvertGtp::readBarProperties()
 			time2 = num;
 			kdDebug() << "new time2 signature: " << time1 << ":" << time2 << "\n";
 		}
+
+		// Since GP5, time signature changes also brings new
+		// "beam eight notes by" array
+		if ((versionMajor >= 5) && (bar_bitmask & 0x03)) {
+			// "beam eight notes by" array, usually 2-2-2-2
+			skipBytes(4);
+		}
+
 		// GREYFIX: begin repeat
 		if (bar_bitmask & 0x04) {
 			kdDebug() << "begin repeat\n";
@@ -353,6 +361,10 @@ void ConvertGtp::readBarProperties()
 		bars[i].time1 = time1;
 		bars[i].time2 = time1;
 		bars[i].keysig = keysig;
+
+		// GREYFIX: unknown bytes, should be 00 00 00
+		if (versionMajor >= 5)
+			skipBytes(3);
 	}
 	kdDebug() << "readBarProperties(): end\n";
 }
@@ -365,8 +377,8 @@ void ConvertGtp::readTrackProperties()
 	currentStage = QString("readTrackProperties");
 	kdDebug() << "readTrackProperties(): start\n";
 
-	if (versionMajor >= 5)
-		skipBytes(3);
+// 	if (versionMajor >= 5)
+// 		skipBytes(3);
 
 	for (int i = 0; i < numTracks; i++) {
 		kdDebug() << "start track pos: " << stream->device()->pos() << "\n";
@@ -374,8 +386,8 @@ void ConvertGtp::readTrackProperties()
 		(*stream) >> num;                    // GREYFIX: simulations bitmask
 		kdDebug() << "Simulations: " << num << "\n";
 
-		if (versionMajor >= 5)
-			skipBytes(4);
+// 		if (versionMajor >= 5)
+// 			skipBytes(4);
 
 		song->t.append(new TabTrack(TabTrack::FretTab, 0, 0, 0, 0, 6, 24));
 		TabTrack *trk = song->t.at(i);
@@ -437,7 +449,7 @@ void ConvertGtp::readTrackProperties()
 	kdDebug() << "end all tracks pos: " << stream->device()->pos() << "\n";
 
 	if (versionMajor >= 5) {
-		skipBytes(5);
+		skipBytes(1);
 // 		if (versionMajor == 5 && versionMinor == 0)
 // 			skipBytes(1);
 	}
@@ -447,8 +459,6 @@ void ConvertGtp::readTrackProperties()
 
 void ConvertGtp::readTabs()
 {
-	Q_UINT8 beat_bitmask, strings, num;
-	Q_INT8 length, volume, pan, chorus, reverb, phase, tremolo;
 	int x;
 
 	currentStage = QString("readTabs");
@@ -465,7 +475,8 @@ void ConvertGtp::readTabs()
 			int numBeats = readDelphiInteger();
 			kdDebug() << "TRACK " << tr << ", BAR " << j << ", numBeats " << numBeats << " (position: " << stream->device()->pos() << ")\n";
 
-			if (numBeats < 0 || (strongChecks && numBeats > 128))  throw QString("Track %1, bar %2, insane number of beats: %3").arg(tr).arg(j).arg(numBeats);
+			if (numBeats < 0 || (strongChecks && numBeats > 128))
+				throw QString("Track %1, bar %2, insane number of beats: %3").arg(tr).arg(j).arg(numBeats);
 
 			x = trk->c.size();
 			trk->c.resize(trk->c.size() + numBeats);
@@ -475,93 +486,108 @@ void ConvertGtp::readTabs()
 			trk->b[j].start = x;
 
 			for (int k = 0; k < numBeats; k++) {
-				trk->c[x].flags = 0;
-
-				(*stream) >> beat_bitmask;   // beat bitmask
-
-				if (beat_bitmask & 0x01)     // dotted column
-					trk->c[x].flags |= FLAG_DOT;
-
-				if (beat_bitmask & 0x40) {
-					(*stream) >> num;        // GREYFIX: pause_kind
-				}
-
-				// Guitar Pro 4 beat lengths are as following:
-				// -2 = 1    => 480     3-l = 5  2^(3-l)*15
-				// -1 = 1/2  => 240           4
-				//  0 = 1/4  => 120           3
-				//  1 = 1/8  => 60            2
-				//  2 = 1/16 => 30 ... etc    1
-				//  3 = 1/32 => 15            0
-
-				(*stream) >> length;            // length
-				kdDebug() << "beat_bitmask: " << (int) beat_bitmask << "; length: " << length << "\n";
-
-				trk->c[x].l = (1 << (3 - length)) * 15;
-
-				if (beat_bitmask & 0x20) {
-					int tuple = readDelphiInteger();
-					kdDebug() << "Tuple: " << tuple << "\n"; // GREYFIX: t for tuples
-					if (!(tuple == 3 || (tuple >= 5 && tuple <= 7) || (tuple >= 9 && tuple <= 13)))  throw QString("Insane tuple t: %1").arg(tuple);
-				}
-
-				if (beat_bitmask & 0x02)     // Chord diagram
-					readChord();
-
-				if (beat_bitmask & 0x04) {
-					kdDebug() << "Text: " << readDelphiString() << "\n"; // GREYFIX: text with a beat
-				}
-
-				// GREYFIX: column-wide effects
-				if (beat_bitmask & 0x08)
-					readColumnEffects(trk, x);
-
-				if (beat_bitmask & 0x10) {     // mixer variations
-					(*stream) >> num;          // GREYFIX: new MIDI patch
-					(*stream) >> volume;       // GREYFIX: new
-					(*stream) >> pan;          // GREYFIX: new
-					(*stream) >> chorus;       // GREYFIX: new
-					(*stream) >> reverb;       // GREYFIX: new
-					(*stream) >> phase;        // GREYFIX: new
-					(*stream) >> tremolo;      // GREYFIX: new
-					int tempo = readDelphiInteger(); // GREYFIX: new tempo
-
-					// GREYFIX: transitions
-					if (volume != -1)   (*stream) >> num;
-					if (pan != -1)      (*stream) >> num;
-					if (chorus != -1)   (*stream) >> num;
-					if (reverb != -1)   (*stream) >> num;
-					if (tremolo != -1)  (*stream) >> num;
-					if (tempo != -1)    (*stream) >> num;
-
-					if (versionMajor >= 4) {
-						(*stream) >> num;          // bitmask: what should be applied to all tracks
-					}
-				}
-
-				(*stream) >> strings;          // used strings mask
-
-				for (int y = STRING_MAX_NUMBER - 1; y >= 0; y--) {
-					trk->c[x].e[y] = 0;
-					trk->c[x].a[y] = NULL_NOTE;
-					if (strings & (1 << (y + STRING_MAX_NUMBER - trk->string)))
-						readNote(trk, x, y);
-				}
-
-				// Dump column
-				QString tmp = "";
-				for (int y = 0; y <= trk->string; y++) {
-					if (trk->c[x].a[y] == NULL_NOTE) {
-						tmp += ".";
-					} else {
-						tmp += '0' + trk->c[x].a[y];
-					}
-				}
-				kdDebug() << "[" << tmp << "]\n";
-
+				readColumn(trk, x);
 				x++;
 			}
 		}
+	}
+}
+
+void ConvertGtp::readColumn(TabTrack *trk, int x)
+{
+	Q_UINT8 beat_bitmask, strings, num;
+	Q_INT8 length, volume, pan, chorus, reverb, phase, tremolo;
+
+	trk->c[x].flags = 0;
+
+	(*stream) >> beat_bitmask;   // beat bitmask
+
+	if (beat_bitmask & 0x01)     // dotted column
+		trk->c[x].flags |= FLAG_DOT;
+
+	if (beat_bitmask & 0x40) {
+		(*stream) >> num;        // GREYFIX: pause_kind
+	}
+
+	// Guitar Pro 4 beat lengths are as following:
+	// -2 = 1    => 480     3-l = 5  2^(3-l)*15
+	// -1 = 1/2  => 240           4
+	//  0 = 1/4  => 120           3
+	//  1 = 1/8  => 60            2
+	//  2 = 1/16 => 30 ... etc    1
+	//  3 = 1/32 => 15            0
+
+	(*stream) >> length;            // length
+	kdDebug() << "beat_bitmask: " << (int) beat_bitmask << "; length: " << length << "\n";
+
+	trk->c[x].l = (1 << (3 - length)) * 15;
+
+	if (beat_bitmask & 0x20) {
+		int tuple = readDelphiInteger();
+		kdDebug() << "Tuple: " << tuple << "\n"; // GREYFIX: t for tuples
+		if (!(tuple == 3 || (tuple >= 5 && tuple <= 7) || (tuple >= 9 && tuple <= 13)))  throw QString("Insane tuple t: %1").arg(tuple);
+	}
+
+	if (beat_bitmask & 0x02)     // Chord diagram
+		readChord();
+
+	if (beat_bitmask & 0x04) {
+		kdDebug() << "Text: " << readDelphiString() << "\n"; // GREYFIX: text with a beat
+	}
+
+	// GREYFIX: column-wide effects
+	if (beat_bitmask & 0x08)
+		readColumnEffects(trk, x);
+
+	if (beat_bitmask & 0x10) {     // mixer variations
+		(*stream) >> num;          // GREYFIX: new MIDI patch
+		(*stream) >> volume;       // GREYFIX: new
+		(*stream) >> pan;          // GREYFIX: new
+		(*stream) >> chorus;       // GREYFIX: new
+		(*stream) >> reverb;       // GREYFIX: new
+		(*stream) >> phase;        // GREYFIX: new
+		(*stream) >> tremolo;      // GREYFIX: new
+		int tempo = readDelphiInteger(); // GREYFIX: new tempo
+
+		// GREYFIX: transitions
+		if (volume != -1)   (*stream) >> num;
+		if (pan != -1)      (*stream) >> num;
+		if (chorus != -1)   (*stream) >> num;
+		if (reverb != -1)   (*stream) >> num;
+		if (tremolo != -1)  (*stream) >> num;
+		if (tempo != -1)    (*stream) >> num;
+
+		if (versionMajor >= 4) {
+			(*stream) >> num;          // bitmask: what should be applied to all tracks
+		}
+	}
+
+	(*stream) >> strings;          // used strings mask
+
+	for (int y = STRING_MAX_NUMBER - 1; y >= 0; y--) {
+		trk->c[x].e[y] = 0;
+		trk->c[x].a[y] = NULL_NOTE;
+		if (strings & (1 << (y + STRING_MAX_NUMBER - trk->string)))
+			readNote(trk, x, y);
+	}
+
+	// Dump column
+	QString tmp = "";
+	for (int y = 0; y <= trk->string; y++) {
+		if (trk->c[x].a[y] == NULL_NOTE) {
+			tmp += ".";
+		} else {
+			tmp += '0' + trk->c[x].a[y];
+		}
+	}
+	kdDebug() << "[" << tmp << "]\n";
+
+	if (versionMajor >= 5) {
+		(*stream) >> num;
+		kdDebug() << "trailing byte: " << num << "\n";
+		if (num == 7 || num == 8 || num == 10)
+			skipBytes(1);
+		skipBytes(2);
 	}
 }
 
@@ -576,7 +602,7 @@ void ConvertGtp::readColumnEffects(TabTrack *trk, int x)
 	} else {
 		kdDebug() << "column-wide fx: " << (int) fx_bitmask1 << "\n";
 	}
-
+	
 	if (fx_bitmask1 & 0x20) {      // GREYFIX: string torture
 		(*stream) >> num;
 		switch (num) {
