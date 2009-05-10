@@ -4,9 +4,8 @@
 #include <kaboutdata.h>
 #include <kcmdlineargs.h>
 #include <klocale.h>
+#include <kdebug.h>
 #include "kguitar.h"
-
-#include <Q3CString>
 
 #ifdef WITH_TSE3
 static const char description[] = I18N_NOOP("A stringed instrument tabulature editor (with MIDI support via TSE3)");
@@ -68,8 +67,8 @@ int main(int argc, char **argv)
 				widget->load(args->url(i));
 
 				if (saveFile != NULL) {
-//					kdDebug() << "Saving as " << saveFile << "...\n";
-					widget->saveURL(args->url(i));
+					kdDebug() << "Saving as " << saveFile << "...\n";
+					widget->saveURL(KCmdLineArgs::makeURL(saveFile.toUtf8()));
 				} else {
 					widget->show();
 				}
