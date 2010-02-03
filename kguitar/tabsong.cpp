@@ -2,8 +2,6 @@
 #include "tabsong.h"
 #include "settings.h"
 
-#include "musicxml.h"
-
 #include <qxml.h>
 #include <qfile.h>
 #include <qdatastream.h>
