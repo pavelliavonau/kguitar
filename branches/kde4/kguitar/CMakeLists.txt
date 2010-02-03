@@ -8,9 +8,12 @@ add_definitions (-DQT3_SUPPORT -DQT3_SUPPORT_WARNINGS -fexceptions)
 set(kguitar_PART_SRCS
 	kguitar_part.cpp
 	songview.cpp
-	chord.cpp
-	fingers.cpp
-	fingerlist.cpp
+	ui/chord/chordeditor.cpp
+	ui/chord/chordlistitem.cpp
+	ui/chord/fingering.cpp
+	ui/chord/fingerlist.cpp
+	ui/chord/strumming.cpp
+	ui/chord/chordanalyzer.cpp
 	trackview.cpp
 	setsong.cpp
 	data/tabsong.cpp
@@ -23,9 +26,7 @@ set(kguitar_PART_SRCS
 	settabdrum.cpp
 	radiustuner.cpp
 	notespinbox.cpp
-	chordlistitem.cpp
 	timesig.cpp
-	strumming.cpp
 	tracklist.cpp
 	trackpane.cpp
 	trackdrag.cpp
@@ -46,7 +47,6 @@ set(kguitar_PART_SRCS
 	optionsmidi.cpp
 	optionsprinting.cpp
 	playbacktracker.cpp
-	chordanalyzer.cpp
 	optionsexportascii.cpp
 	settings.cpp
 	convert/convertascii.cpp

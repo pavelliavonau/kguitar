@@ -1,7 +1,7 @@
 #include "trackview.h"
 #include "trackviewcommands.h"
 #include "data/tabsong.h"
-#include "chord.h"
+#include "ui/chord/chordeditor.h"
 #include "rhythmer.h"
 #include "keysig.h"
 #include "timesig.h"
@@ -417,7 +417,7 @@ void TrackView::insertChord()
 {
 	int a[MAX_STRINGS];
 
-	ChordSelector cs(
+	ChordEditor cs(
 #ifdef WITH_TSE3
 	                 scheduler,
 #endif

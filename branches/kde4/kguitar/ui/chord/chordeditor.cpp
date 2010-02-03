@@ -1,7 +1,7 @@
 #include "config.h"
 
-#include "chord.h"
-#include "fingers.h"
+#include "chordeditor.h"
+#include "fingering.h"
 #include "fingerlist.h"
 #include "settings.h"
 #include "strumming.h"
@@ -46,14 +46,14 @@ int stemplate[][6] = {{-1,2, 0, 0, 0, 0 },   // C
                       {2, 1, 1, 0, 0, 0 },   // Cdim
                       {0, 2, 0, 0, 0, 0 }};  // C5
 
-ChordSelector::ChordSelector(TabTrack *p, QWidget *parent, const char *name)
+ChordEditor::ChordEditor(TabTrack *p, QWidget *parent, const char *name)
 	: QDialog(parent, name, TRUE)
 {
 	initChordSelector(p);
 }
 
 #ifdef WITH_TSE3
-ChordSelector::ChordSelector(TSE3::MidiScheduler *_scheduler, TabTrack *p, QWidget *parent,
+ChordEditor::ChordEditor(TSE3::MidiScheduler *_scheduler, TabTrack *p, QWidget *parent,
                              const char *name): QDialog(parent, name, TRUE)
 {
 	kdDebug() << k_funcinfo << endl;
@@ -70,7 +70,7 @@ ChordSelector::ChordSelector(TSE3::MidiScheduler *_scheduler, TabTrack *p, QWidg
 }
 #endif
 
-void ChordSelector::initChordSelector(TabTrack *p)
+void ChordEditor::initChordSelector(TabTrack *p)
 {
 	parm = p;
 	strum_scheme = 0;
@@ -298,7 +298,7 @@ void ChordSelector::initChordSelector(TabTrack *p)
 	setCaption(i18n("Chord Constructor"));
 }
 
-void ChordSelector::askStrum()
+void ChordEditor::askStrum()
 {
 	Strumming strum(strum_scheme);
 
@@ -306,7 +306,7 @@ void ChordSelector::askStrum()
 		strum_scheme = strum.scheme();
 }
 
-void ChordSelector::playMidi()
+void ChordEditor::playMidi()
 {
 #ifdef WITH_TSE3
 	if (!scheduler)
@@ -384,7 +384,7 @@ void ChordSelector::playMidi()
 }
 
 // Try to detect some chord forms from a given applicature.
-void ChordSelector::detectChord()
+void ChordEditor::detectChord()
 {
 	bool cn[12];
 	int i, j, numnotes, noteok, bassiest = 255, bass;
@@ -483,7 +483,7 @@ void ChordSelector::detectChord()
 	chords->repaint();
 }
 
-void ChordSelector::setStep3(int n)
+void ChordEditor::setStep3(int n)
 {
 	switch (n) {
 	case 0: st[1]->setCurrentItem(3); break;				// Major
@@ -496,7 +496,7 @@ void ChordSelector::setStep3(int n)
 	findChords();
 }
 
-void ChordSelector::setStepsFromChord()
+void ChordEditor::setStepsFromChord()
 {
 	ChordListItem *it = (ChordListItem *) chords->currentItem();
 
@@ -508,7 +508,7 @@ void ChordSelector::setStepsFromChord()
 	findChords();
 }
 
-void ChordSelector::setHighSteps(int j)
+void ChordEditor::setHighSteps(int j)
 {
 	if (j == -1)
 		return;
@@ -523,7 +523,7 @@ void ChordSelector::setHighSteps(int j)
 
 // Analyses st[] combobox array and find out steps templating
 // listboxes selections from it
-void ChordSelector::findSelection()
+void ChordEditor::findSelection()
 {
 	bool ok = TRUE;
 
@@ -554,7 +554,7 @@ void ChordSelector::findSelection()
 }
 
 // Calculate absolute notes from tonic + step user input
-bool ChordSelector::calculateNotesFromSteps(int need[], int &notenum)
+bool ChordEditor::calculateNotesFromSteps(int need[], int &notenum)
 {
 	//                  1  5  7   9  11 13
 	int toneshift[6] = {0, 7, 10, 2, 5, 9};
@@ -598,7 +598,7 @@ bool ChordSelector::calculateNotesFromSteps(int need[], int &notenum)
 // Most complex and longest method that does the real calculation of
 // chords. Translates steps settings input to the list of chords and
 // adds them to displayer.
-void ChordSelector::findChords()
+void ChordEditor::findChords()
 {
 	int i, j, k = 0, min, max, bass = 0, muted = 0;
 	int app[MAX_STRINGS];				// raw fingering itself
@@ -754,7 +754,7 @@ void ChordSelector::findChords()
 }
 
 // Try to decipher text-written chord name and set steps accordingly
-void ChordSelector::analyzeChordName()
+void ChordEditor::analyzeChordName()
 {
 	ChordAnalyzer ca(chordName->text());
 	if (ca.analyze()) {
@@ -770,7 +770,7 @@ void ChordSelector::analyzeChordName()
 
 // Analyze chord by text-written name, automatically select best one
 // and insert it into track
-void ChordSelector::quickInsert()
+void ChordEditor::quickInsert()
 {
 	analyzeChordName();
 	if (fnglist->count() > 0)  {

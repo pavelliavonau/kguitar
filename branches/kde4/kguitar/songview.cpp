@@ -14,8 +14,8 @@
 #include "settabfret.h"
 #include "settabdrum.h"
 #include "setsong.h"
-#include "chord.h"
-#include "chordlistitem.h"
+#include "ui/chord/chordeditor.h"
+#include "ui/chord/chordlistitem.h"
 #include "songprint.h"
 #include "melodyeditor.h"
 
@@ -194,7 +194,7 @@ void SongView::trackBassLine()
 	if (trackNew()) {
 		TabTrack *newtrk = tv->trk();
 		newtrk->c.resize(origtrk->c.size());
-		ChordSelector cs(origtrk);
+		ChordEditor cs(origtrk);
 
 		int note;
 
