@@ -24,7 +24,6 @@ set(kguitar_PART_SRCS
 	radiustuner.cpp
 	notespinbox.cpp
 	chordlistitem.cpp
-	chordlist.cpp
 	timesig.cpp
 	strumming.cpp
 	tracklist.cpp

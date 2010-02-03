@@ -3,30 +3,25 @@
 #include "chord.h"
 #include "fingers.h"
 #include "fingerlist.h"
-#include "chordlist.h"
 #include "settings.h"
 #include "strumming.h"
 #include "settings.h"
 #include "chordanalyzer.h"
 #include "tabtrack.h"
+#include "chordlistitem.h"
 
 #include <klocale.h>
 #include <kmessagebox.h>
 
 #include <qpushbutton.h>
 #include <qradiobutton.h>
-#include <q3listbox.h>
 #include <qlineedit.h>
 #include <qstring.h>
 #include <qlabel.h>
 #include <qlayout.h>
 #include <qkeysequence.h>
-//Added by qt3to4:
-#include <Q3HBoxLayout>
-#include <Q3BoxLayout>
-#include <Q3GridLayout>
-#include <Q3VBoxLayout>
-#include <Q3ButtonGroup>
+#include <QGroupBox>
+#include <QListWidget>
 
 #ifdef WITH_TSE3
 #include <tse3/Song.h>
@@ -86,43 +81,42 @@ void ChordSelector::initChordSelector(TabTrack *p)
 
 	// CHORD SELECTOR FOR FINDER WIDGETS
 
-	tonic = new Q3ListBox(this);
+	tonic = new QListWidget(this);
 	for (int i = 0; i < 12; i++)
-		tonic->insertItem(Settings::noteName(i));
+		tonic->addItem(Settings::noteName(i));
 //     tonic->setHScrollBarMode(QScrollView::AlwaysOff);
 //     tonic->setVScrollBarMode(QScrollView::AlwaysOff);
 // 	tonic->setRowMode(12);
-	tonic->setMinimumHeight(tonic->itemHeight() * 12 + 4);
+//	tonic->setMinimumHeight(tonic->item(0) * 12 + 4);
 // 	tonic->setMinimumWidth(tonic->maxItemWidth());
-	connect(tonic, SIGNAL(highlighted(int)), SLOT(findChords()));
+	connect(tonic, SIGNAL(currentRowChanged(int)), SLOT(findChords()));
 
 	bassnote = new QComboBox(FALSE, this);
 	for (int i = 0; i < 12; i++)
 		bassnote->insertItem(Settings::noteName(i));
 
-	step3 = new Q3ListBox(this);
-	step3->insertItem("M");
-	step3->insertItem("m");
-	step3->insertItem("sus2");
-	step3->insertItem("sus4");
+	step3 = new QListWidget(this);
+	step3->addItem("M");
+	step3->addItem("m");
+	step3->addItem("sus2");
+	step3->addItem("sus4");
 //	step3->setFixedVisibleLines(4);
-	step3->setMinimumWidth(40);
-	connect(step3, SIGNAL(highlighted(int)), SLOT(setStep3()));
+	connect(step3, SIGNAL(currentRowChanged(int)), SLOT(setStep3(int)));
 
-	stephigh = new Q3ListBox(this);
-	stephigh->insertItem("");
-	stephigh->insertItem("7");
-	stephigh->insertItem(Settings::maj7Name());
-	stephigh->insertItem("6");
-	stephigh->insertItem("9");
-	stephigh->insertItem("11");
-	stephigh->insertItem("13");
-	stephigh->insertItem("aug");
-	stephigh->insertItem("dim");
-	stephigh->insertItem("5");
+	stephigh = new QListWidget(this);
+	stephigh->addItem("");
+	stephigh->addItem("7");
+	stephigh->addItem(Settings::maj7Name());
+	stephigh->addItem("6");
+	stephigh->addItem("9");
+	stephigh->addItem("11");
+	stephigh->addItem("13");
+	stephigh->addItem("aug");
+	stephigh->addItem("dim");
+	stephigh->addItem("5");
 //	stephigh->setFixedVisibleLines(10);
-	stephigh->setMinimumWidth(40);
-	connect(stephigh, SIGNAL(highlighted(int)), SLOT(setHighSteps()));
+//	stephigh->setMinimumWidth(40);
+	connect(stephigh, SIGNAL(currentRowChanged(int)), SLOT(setHighSteps(int)));
 
 	// st array holds values for each step:
     // st[1] - 1'
@@ -180,11 +174,11 @@ void ChordSelector::initChordSelector(TabTrack *p)
 	inv->insertItem(i18n("Inv #6"));
 	connect(inv, SIGNAL(activated(int)), SLOT(findChords()));
 
-	complexity = new Q3VButtonGroup(this);
+	complexity = new QGroupBox(this);
 	complexer[0] = new QRadioButton(i18n("Usual"), complexity);
 	complexer[1] = new QRadioButton(i18n("Rare"), complexity);
 	complexer[2] = new QRadioButton(i18n("All"), complexity);
-	complexity->setButton(0);
+	complexer[0]->setChecked(true);
 	connect(complexity, SIGNAL(clicked(int)), SLOT(findChords()));
 
 	// CHORD ANALYZER
@@ -192,9 +186,9 @@ void ChordSelector::initChordSelector(TabTrack *p)
 	fng = new Fingering(p, this);
 	connect(fng, SIGNAL(chordChange()), SLOT(detectChord()));
 
-	chords = new ChordList(this);
-	chords->setMinimumWidth(120);
-	connect(chords, SIGNAL(highlighted(int)), SLOT(setStepsFromChord()));
+	chords = new QListWidget(this);
+	chords->setSortingEnabled(true);
+	connect(chords, SIGNAL(itemSelectionChanged()), SLOT(setStepsFromChord()));
 
 	// CHORD FINDER OUTPUT
 
@@ -231,44 +225,49 @@ void ChordSelector::initChordSelector(TabTrack *p)
 	// LAYOUT MANAGEMENT
 
 	// Main layout
-	Q3BoxLayout *l = new Q3HBoxLayout(this, 10);
+	QBoxLayout *l = new QHBoxLayout(this);
 
 	// Chord finding & analyzing layout
-	Q3BoxLayout *lchord = new Q3VBoxLayout();
+	QBoxLayout *lchord = new QVBoxLayout();
 	l->addLayout(lchord, 1);
 
 	// Chord editing layout
-	Q3BoxLayout *lchedit = new Q3HBoxLayout();
-    lchord->addWidget(chordName);
+	QBoxLayout *lchedit = new QHBoxLayout();
+	lchord->addWidget(chordName);
 	lchord->addLayout(lchedit);
 	lchord->addWidget(fnglist, 1);
 
 	// Chord selection (template-based) layout
-	Q3GridLayout *lselect = new Q3GridLayout(3, 3, 5);
+	QGridLayout *lselect = new QGridLayout(3, 3, 5);
 	lchedit->addLayout(lselect);
 
 	lselect->addMultiCellWidget(tonic, 0, 2, 0, 0);
 	lselect->addColSpacing(0, 40);
 
 	lselect->addWidget(step3, 0, 1);
-	lselect->addWidget(complexity, 1, 1);
 	lselect->addWidget(inv, 2, 1);
 
 	lselect->addMultiCellWidget(stephigh, 0, 1, 2, 2);
 	lselect->addWidget(bassnote, 2, 2);
 
+	// Complexity selection
+	QBoxLayout *lcomplexity = new QVBoxLayout();
+	for (int i = 0; i < 3; i++)
+		lcomplexity->addWidget(complexer[i]);
+	lselect->addLayout(lcomplexity, 1, 1);
+
 	// Chord icon showing layout
-	Q3BoxLayout *lshow = new Q3VBoxLayout();
+	QBoxLayout *lshow = new QVBoxLayout();
 	lchedit->addLayout(lshow);
 
 	// Analyzing and showing chord layout
-	Q3BoxLayout *lanalyze = new Q3HBoxLayout();
+	QBoxLayout *lanalyze = new QHBoxLayout();
 	lshow->addLayout(lanalyze);
 	lanalyze->addWidget(fng);
 	lanalyze->addWidget(chords);
 
 	// Steps editor layout
-	Q3GridLayout *lsteps = new Q3GridLayout(3, 7, 0);
+	QGridLayout *lsteps = new QGridLayout(3, 7, 0);
 	lshow->addLayout(lsteps);
 
 	lsteps->addRowSpacing(0, 15);
@@ -284,7 +283,7 @@ void ChordSelector::initChordSelector(TabTrack *p)
 	}
 
 	// Strumming and buttons stuff layout
-	Q3BoxLayout *lstrum = new Q3VBoxLayout();
+	QBoxLayout *lstrum = new QVBoxLayout();
 	l->addLayout(lstrum);
     lstrum->addWidget(chordNameAnalyze);
     lstrum->addWidget(chordNameQuickInsert);
@@ -473,20 +472,20 @@ void ChordSelector::detectChord()
 			s13=10;noteok--;
 		}
 
-		if (noteok == 0) {
-			ChordListItem *item = new ChordListItem(i, bass, s3, s5,
-			                                        s7, s9, s11, s13);
-			chords->inSort(item);
-		}
+		if (noteok == 0)
+			chords->addItem(new ChordListItem(
+				i, bass, s3, s5, s7, s9, s11, s13
+			));
 	}
 
 //	chords->setAutoUpdate(TRUE);
+	chords->sortItems();
 	chords->repaint();
 }
 
-void ChordSelector::setStep3()
+void ChordSelector::setStep3(int n)
 {
-	switch (step3->currentItem()) {
+	switch (n) {
 	case 0: st[1]->setCurrentItem(3); break;				// Major
 	case 1: st[1]->setCurrentItem(2); break;				// Minor
 	case 2: st[1]->setCurrentItem(1); break;				// Sus2
@@ -499,9 +498,9 @@ void ChordSelector::setStep3()
 
 void ChordSelector::setStepsFromChord()
 {
-	ChordListItem *it = chords->currentItemPointer();
+	ChordListItem *it = (ChordListItem *) chords->currentItem();
 
-	tonic->setCurrentItem(it->tonic());
+	tonic->setCurrentRow(it->tonic());
 	for (int i = 0; i < 6; i++)
 		st[i + 1]->setCurrentItem(it->step(i));
 
@@ -509,10 +508,8 @@ void ChordSelector::setStepsFromChord()
 	findChords();
 }
 
-void ChordSelector::setHighSteps()
+void ChordSelector::setHighSteps(int j)
 {
-	int j = stephigh->currentItem();
-
 	if (j == -1)
 		return;
 
@@ -531,11 +528,11 @@ void ChordSelector::findSelection()
 	bool ok = TRUE;
 
 	switch (st[1]->currentItem()) {
-	case 0: step3->clearSelection(); break;					// no3
-	case 1: step3->setCurrentItem(2); break;				// Sus2
-	case 2: step3->setCurrentItem(1); break;				// Minor
-	case 3: step3->setCurrentItem(0); break;				// Major
-	case 4: step3->setCurrentItem(3); break;				// Sus4
+	case 0: step3->clearSelection(); break;           // no3
+	case 1: step3->setCurrentRow(2); break;           // Sus2
+	case 2: step3->setCurrentRow(1); break;           // Minor
+	case 3: step3->setCurrentRow(0); break;           // Major
+	case 4: step3->setCurrentRow(3); break;           // Sus4
 	}
 
 	for (int j = stephigh->count() - 1; j >= 0; j--) {
@@ -548,7 +545,7 @@ void ChordSelector::findSelection()
 			}
 		}
 		if (ok) {
-			stephigh->setCurrentItem(j);
+			stephigh->setCurrentRow(j);
 			break;
 		}
 	}
@@ -562,7 +559,7 @@ bool ChordSelector::calculateNotesFromSteps(int need[], int &notenum)
 	//                  1  5  7   9  11 13
 	int toneshift[6] = {0, 7, 10, 2, 5, 9};
 
-	int t = tonic->currentItem();
+	int t = tonic->currentRow();
 
 	if (t == -1)                        // no calculations without tonic
 		return FALSE;
@@ -761,7 +758,7 @@ void ChordSelector::analyzeChordName()
 {
 	ChordAnalyzer ca(chordName->text());
 	if (ca.analyze()) {
-		tonic->setCurrentItem(ca.tonic);
+		tonic->setCurrentRow(ca.tonic);
 		for (int i = 0; i < 6; i++)
 			st[i + 1]->setCurrentIndex(ca.step[i]);
 		findSelection();

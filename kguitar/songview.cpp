@@ -15,7 +15,6 @@
 #include "settabdrum.h"
 #include "setsong.h"
 #include "chord.h"
-#include "chordlist.h"
 #include "chordlistitem.h"
 #include "songprint.h"
 #include "melodyeditor.h"
