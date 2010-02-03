@@ -18,13 +18,12 @@
 #define STEPSIZE     40
 
 class QLineEdit;
-class Q3ListBox;
 class QPushButton;
-class Q3ButtonGroup;
+class QGroupBox;
 class QRadioButton;
 class QComboBox;
 class QLabel;
-class ChordList;
+class QListWidget;
 class FingerList;
 class TabTrack;
 class Strumming;
@@ -45,12 +44,12 @@ public:
 	int  scheme() { return strum_scheme; }
 
 	Fingering *fng;
-	ChordList *chords;
+	QListWidget *chords;
 
 public slots:
 	void detectChord();
-	void setStep3();
-	void setHighSteps();
+	void setStep3(int);
+	void setHighSteps(int);
 	void setStepsFromChord();
 	void findSelection();
 	void findChords();
@@ -66,10 +65,10 @@ private:
 	TabTrack *parm;
 
 	QLineEdit *chordName;
-	Q3ListBox *tonic, *step3, *stephigh;
+	QListWidget *tonic, *step3, *stephigh;
 	QComboBox *st[7], *inv, *bassnote;
 	QLabel *cnote[7];
-	Q3ButtonGroup *complexity;
+        QGroupBox *complexity;
 	QRadioButton *complexer[3];
 	QPushButton *play;
 	FingerList *fnglist;
