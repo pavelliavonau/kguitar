@@ -2,7 +2,7 @@
 #define SONGVIEWCOMMANDS_H
 
 #include "global.h"
-#include "tabtrack.h"
+#include "data/tabtrack.h"
 #include "songview.h"
 
 #include <k3command.h>

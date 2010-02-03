@@ -1,6 +1,6 @@
 #include "songviewcommands.h"
-#include "tabsong.h"
-#include "tabtrack.h"
+#include "data/tabsong.h"
+#include "data/tabtrack.h"
 #include "trackview.h"
 #include "tracklist.h"
 #include "trackpane.h"

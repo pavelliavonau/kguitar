@@ -55,8 +55,8 @@
 
 #include "accidentals.h"
 #include "songprint.h"
-#include "tabsong.h"
-#include "tabtrack.h"
+#include "data/tabsong.h"
+#include "data/tabtrack.h"
 #include "trackprint.h"
 #include "settings.h"
 

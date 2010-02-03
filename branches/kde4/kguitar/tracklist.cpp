@@ -1,7 +1,7 @@
 #include "tracklist.h"
 #include "global.h"
 
-#include "tabsong.h"
+#include "data/tabsong.h"
 
 #include <q3header.h>
 #include <qcursor.h>

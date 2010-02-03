@@ -2,7 +2,7 @@
 #define CONVERT_BASE_H
 
 #include "global.h"
-#include "tabsong.h"
+#include "data/tabsong.h"
 
 /**
  * Abstract base class for all converters.

@@ -1,5 +1,5 @@
 #include "trackdrag.h"
-#include "tabtrack.h"
+#include "data/tabtrack.h"
 
 #include <kdebug.h>
 

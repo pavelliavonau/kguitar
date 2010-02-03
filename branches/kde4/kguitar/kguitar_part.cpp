@@ -4,7 +4,7 @@
 #include "songview.h"
 #include "trackview.h"
 #include "tracklist.h"
-#include "tabsong.h"
+#include "data/tabsong.h"
 #include "setsong.h"
 #include "options.h"
 #include "melodyeditor.h"
