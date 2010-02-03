@@ -1,6 +1,6 @@
 #include "playbacktracker.h"
 #include "songview.h"
-#include "tabtrack.h"
+#include "data/tabtrack.h"
 
 #include <kdebug.h>
 #ifdef WITH_TSE3

@@ -1,6 +1,6 @@
 #include "trackview.h"
 #include "trackviewcommands.h"
-#include "tabsong.h"
+#include "data/tabsong.h"
 #include "chord.h"
 #include "rhythmer.h"
 #include "keysig.h"

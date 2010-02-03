@@ -13,9 +13,9 @@ set(kguitar_PART_SRCS
 	fingerlist.cpp
 	trackview.cpp
 	setsong.cpp
-	tabsong.cpp
-	tabtrack.cpp
-	tabcolumn.cpp
+	data/tabsong.cpp
+	data/tabtrack.cpp
+	data/tabcolumn.cpp
 	settrack.cpp
 	settabmidibase.ui
 	settabmidi.cpp

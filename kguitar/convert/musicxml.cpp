@@ -83,8 +83,8 @@
 #include "global.h"
 #include "accidentals.h"
 #include "musicxml.h"
-#include "tabsong.h"
-#include "tabtrack.h"
+#include "data/tabsong.h"
+#include "data/tabtrack.h"
 
 #include <qstring.h>
 #include <q3valuelist.h>

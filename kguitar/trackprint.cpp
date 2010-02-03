@@ -48,7 +48,7 @@ using namespace std;		// required for cout and friends
 #include "accidentals.h"
 #include "global.h"
 #include "kgfontmap.h"
-#include "tabtrack.h"
+#include "data/tabtrack.h"
 #include "trackprint.h"
 
 // TrackPrint constructor. Initialize font metrics with reasonable guesstimates, as required

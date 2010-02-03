@@ -1,6 +1,6 @@
 #include "trackpane.h"
 
-#include "tabsong.h"
+#include "data/tabsong.h"
 
 #include <qpainter.h>
 #include <qdrawutil.h>

@@ -2,7 +2,7 @@
 #define TRACKVIEWCOMMANDS_H
 
 #include "global.h"
-#include "tabtrack.h"
+#include "data/tabtrack.h"
 #include "trackview.h"
 #include <k3command.h>
 //Added by qt3to4:

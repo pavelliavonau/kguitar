@@ -3,7 +3,7 @@
 
 #include <kpagedialog.h>
 #include "global.h"
-#include "tabtrack.h"
+#include "data/tabtrack.h"
 
 class QLineEdit;
 class KIntNumInput;

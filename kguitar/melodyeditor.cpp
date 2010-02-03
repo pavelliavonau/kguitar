@@ -1,7 +1,7 @@
 #include "melodyeditor.h"
 #include "fretboard.h"
 #include "trackview.h"
-#include "tabtrack.h"
+#include "data/tabtrack.h"
 #include "options.h"
 #include "optionsmelodyeditor.h"
 #include "settings.h"

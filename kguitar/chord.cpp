@@ -7,7 +7,7 @@
 #include "strumming.h"
 #include "settings.h"
 #include "chordanalyzer.h"
-#include "tabtrack.h"
+#include "data/tabtrack.h"
 #include "chordlistitem.h"
 
 #include <klocale.h>
