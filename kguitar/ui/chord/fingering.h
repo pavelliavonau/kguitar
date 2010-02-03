@@ -1,5 +1,5 @@
-#ifndef FINGERS_H
-#define FINGERS_H
+#ifndef FINGERING_H
+#define FINGERING_H
 
 #include <q3frame.h>
 //Added by qt3to4:

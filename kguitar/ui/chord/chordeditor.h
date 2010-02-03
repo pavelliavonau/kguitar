@@ -1,10 +1,10 @@
-#ifndef CHORD_H
-#define CHORD_H
+#ifndef CHORDEDITOR_H
+#define CHORDEDITOR_H
 
 #include "config.h"
 
 #include "global.h"
-#include "fingers.h"
+#include "fingering.h"
 
 #include <qcombobox.h>
 #include <qdialog.h>
@@ -28,12 +28,12 @@ class FingerList;
 class TabTrack;
 class Strumming;
 
-class ChordSelector: public QDialog {
+class ChordEditor: public QDialog {
 	Q_OBJECT
 public:
-	ChordSelector(TabTrack *p, QWidget *parent = 0, const char *name = 0);
+	ChordEditor(TabTrack *p, QWidget *parent = 0, const char *name = 0);
 #ifdef WITH_TSE3
-	ChordSelector(TSE3::MidiScheduler *_scheduler, TabTrack *p, QWidget *parent = 0,
+	ChordEditor(TSE3::MidiScheduler *_scheduler, TabTrack *p, QWidget *parent = 0,
 	              const char *name = 0);
 #endif
 
