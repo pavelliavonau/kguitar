@@ -32,7 +32,6 @@ set(kguitar_PART_SRCS
 	trackviewcommands.cpp
 	songviewcommands.cpp
 	songprint.cpp
-	musicxml.cpp
 	rhythmer.cpp
 	accidentals.cpp
 	keysig.cpp
@@ -50,13 +49,14 @@ set(kguitar_PART_SRCS
 	chordanalyzer.cpp
 	optionsexportascii.cpp
 	settings.cpp
-	convertascii.cpp
-	convertxml.cpp
-	convertkg.cpp
-	convertmidi.cpp
-	converttse3.cpp
-	converttex.cpp
-	convertgtp.cpp
+	convert/convertascii.cpp
+	convert/convertxml.cpp
+	convert/convertkg.cpp
+	convert/convertmidi.cpp
+	convert/converttse3.cpp
+	convert/converttex.cpp
+	convert/convertgtp.cpp
+	convert/musicxml.cpp
 	kgfontmap.cpp
 )
 
