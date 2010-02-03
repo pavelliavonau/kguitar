@@ -35,19 +35,19 @@ MelodyEditor::MelodyEditor(TrackView *_tv, QWidget *parent, const char *name)
 		tonic->insertItem(Settings::noteName(i));
 
 	mode = new QComboBox(FALSE, this);
-	mode->insertItem(i18n("<no mode>"));
-	mode->insertItem(i18n("Pentatonic"));
-	mode->insertItem(i18n("Natural Major"));
-	mode->insertItem(i18n("Natural Minor"));
-	mode->insertItem(i18n("Harmonic Major"));
-	mode->insertItem(i18n("Harmonic Minor"));
-	mode->insertItem(i18n("Melodic Major"));
-	mode->insertItem(i18n("Melodic Minor"));
-	mode->insertItem(i18n("Mixolydian"));
-	mode->insertItem(i18n("Lydian"));
-	mode->insertItem(i18n("Dorian"));
-	mode->insertItem(i18n("Phrygian"));
-	mode->insertItem(i18n("Locrian"));
+	mode->addItem(i18n("<no mode>"));
+	mode->addItem(i18n("Pentatonic"));
+	mode->addItem(i18n("Natural Major"));
+	mode->addItem(i18n("Natural Minor"));
+	mode->addItem(i18n("Harmonic Major"));
+	mode->addItem(i18n("Harmonic Minor"));
+	mode->addItem(i18n("Melodic Major"));
+	mode->addItem(i18n("Melodic Minor"));
+	mode->addItem(i18n("Mixolydian"));
+	mode->addItem(i18n("Lydian"));
+	mode->addItem(i18n("Dorian"));
+	mode->addItem(i18n("Phrygian"));
+	mode->addItem(i18n("Locrian"));
 
 	options = new QPushButton(i18n("Options..."), this);
 
