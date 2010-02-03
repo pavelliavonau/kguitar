@@ -97,20 +97,20 @@ TrackView::TrackView(TabSong *s, KXMLGUIClient *_XMLGUIClient, K3CommandHistory 
 		normalFont->setPointSizeFloat(normalFont->pointSizeFloat() * NORMAL_FONT_FACTOR);
 	}
 
- 	smallCaptionFont = new QFont(*normalFont);
+	smallCaptionFont = new QFont(*normalFont);
 	if (smallCaptionFont->pointSize() == -1) {
 		smallCaptionFont->setPixelSize((int) ((double) smallCaptionFont->pixelSize() * SMALL_CAPTION_FONT_FACTOR));
 	} else {
 		smallCaptionFont->setPointSizeFloat(smallCaptionFont->pointSizeFloat() * SMALL_CAPTION_FONT_FACTOR);
 	}
 
-  	timeSigFont = new QFont(*normalFont);
+	timeSigFont = new QFont(*normalFont);
 	if (timeSigFont->pointSize() == -1) {
 		timeSigFont->setPixelSize((int) ((double) timeSigFont->pixelSize() * TIME_SIG_FONT_FACTOR));
 	} else {
 		timeSigFont->setPointSizeFloat(timeSigFont->pointSizeFloat() * TIME_SIG_FONT_FACTOR);
 	}
-  	timeSigFont->setBold(TRUE);
+	timeSigFont->setBold(TRUE);
 
 	fetaFont   = 0;
 	fetaNrFont = 0;
@@ -542,7 +542,7 @@ void TrackView::paintCell(QPainter *p, int r, int c)
 
 	// DRAW SELECTION
 
-	p->setCompositionMode(QPainter::CompositionMode_Xor);
+	p->setCompositionMode(QPainter::RasterOp_SourceXorDestination);
 	p->setBrush(palette().color(QPalette::Base));
 
 	const int horcell = (int) (2.6 * trp->br8w);
