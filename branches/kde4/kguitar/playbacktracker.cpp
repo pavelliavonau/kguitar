@@ -16,7 +16,7 @@
 #include <tse3/Error.h>
 
 PlaybackTracker::PlaybackTracker(QObject *parent)
-	: QThread(parent), TransportCallback()
+	: QThread(parent), TSE3::TransportCallback()
 {
 	scheduler = 0;
 	init();
