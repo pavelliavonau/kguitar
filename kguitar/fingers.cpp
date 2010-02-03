@@ -113,6 +113,8 @@ void Fingering::drawContents(QPainter *p)
 {
 	int barre, eff;
 
+	p->setRenderHints(QPainter::Antialiasing | QPainter::HighQualityAntialiasing);
+
 	// Horizontal separator line
 
 	p->drawLine(BORDER + FRETTEXT, BORDER + SCALE + SPACER,
