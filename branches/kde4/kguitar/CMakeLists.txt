@@ -33,7 +33,6 @@ set(kguitar_PART_SRCS
 	trackviewcommands.cpp
 	songviewcommands.cpp
 	songprint.cpp
-	rhythmer.cpp
 	accidentals.cpp
 	keysig.cpp
 	trackprint.cpp
@@ -58,10 +57,12 @@ set(kguitar_PART_SRCS
 	convert/convertgtp.cpp
 	convert/musicxml.cpp
 	kgfontmap.cpp
+	ui/rhythmeditor.cpp
 )
 
 kde4_add_ui_files(kguitar_PART_SRCS
 	settabmidibase.ui
+	ui/rhythmeditor.ui
 )
 
 kde4_add_plugin(kguitarpart WITH_PREFIX ${kguitar_PART_SRCS})
