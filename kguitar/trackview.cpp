@@ -2,12 +2,12 @@
 #include "trackviewcommands.h"
 #include "data/tabsong.h"
 #include "ui/chord/chordeditor.h"
-#include "rhythmer.h"
 #include "keysig.h"
 #include "timesig.h"
 #include "songview.h"
 #include "fretboard.h"
 #include "settings.h"
+#include "ui/rhythmeditor.h"
 
 #include <kglobalsettings.h>
 #include <kglobal.h>
@@ -448,14 +448,10 @@ void TrackView::insertChord()
 // Call rhythm construction dialog and may be parse something from it
 void TrackView::rhythmer()
 {
-#ifdef WITH_TSE3
-	Rhythmer r(scheduler);
-#else
-	Rhythmer r;
-#endif
+	RhythmEditor re;
 
-	if (r.exec())
-		cmdHist->addCommand(new InsertRhythm(this, curt, r.quantized));
+	if (re.exec())
+		cmdHist->addCommand(new InsertRhythm(this, curt, re.quantizedDurations()));
 
 	lastnumber = -1;
 }

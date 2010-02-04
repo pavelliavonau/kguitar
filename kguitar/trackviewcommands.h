@@ -199,19 +199,17 @@ private:
 	TrackView *tv;
 };
 
-class Q3ListBox;
-
 // Insert rhythm from rhythmer
 class TrackView::InsertRhythm: public K3NamedCommand {
 public:
-	InsertRhythm(TrackView *_tv, TabTrack *&_trk, Q3ListBox *quantized);
+	InsertRhythm(TrackView *_tv, TabTrack *&_trk, QList<int> quantized);
 
 	virtual void execute();
 	virtual void unexecute();
 
 private:
 	int x;
-	Q3MemArray<int> newdur, olddur;
+	QList<int> newdur, olddur;
 	TabTrack *trk;
 	TrackView *tv;
 };

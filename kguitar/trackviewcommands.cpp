@@ -6,7 +6,7 @@
 #include "strumlib.h"
 
 #include <klocale.h>
-#include <q3listbox.h>
+#include <QList>
 
 extern strummer lib_strum[];
 
@@ -810,24 +810,23 @@ void TrackView::InsertStrumCommand::unexecute()
 	tv->repaintCurrentBar();
 }
 
-TrackView::InsertRhythm::InsertRhythm(TrackView *_tv, TabTrack *&_trk, Q3ListBox *quantized)
+TrackView::InsertRhythm::InsertRhythm(TrackView *_tv, TabTrack *&_trk, QList<int> quantized)
 	: K3NamedCommand(i18n("Insert rhythm"))
 {
 	trk = _trk;
 	tv  = _tv;
 	x   = trk->x;
 
-	newdur.resize(quantized->count() - 1);
-	for (int i = 1; i < quantized->count(); i++)
-		newdur[i - 1] = quantized->text(i).toInt();
+	newdur = QList<int>(quantized);
 }
 
 void TrackView::InsertRhythm::execute()
 {
 	trk->x = x;
+	int end = trk->c.size();
 
+	// Create additional columns at the end of track, if we need them
 	if (x + newdur.size() > trk->c.size()) {
-		int end = trk->c.size();
 		trk->c.resize(x + newdur.size());
 		for (int i = end; i < trk->c.size(); i++) {
 			for (uint j = 0; j < MAX_STRINGS; j++) {
@@ -836,14 +835,11 @@ void TrackView::InsertRhythm::execute()
 			}
 			trk->c[i].flags = 0;
 		}
-		olddur.resize(end - x);
-	} else {
-		olddur.resize(newdur.size());
 	}
 
 	for (int i = 0; i < newdur.size(); i++) {
-		if (i < olddur.size())
-			olddur[i] = trk->c[x + i].fullDuration();
+		if (x + i < end)
+			olddur.append(trk->c[x + i].fullDuration());
 		trk->c[x + i].setFullDuration(newdur[i]);
 	}
 
@@ -860,5 +856,6 @@ void TrackView::InsertRhythm::unexecute()
 
 	trk->c.resize(x + olddur.size());
 
+	emit tv->songChanged();
 	tv->repaintContents();
 }
