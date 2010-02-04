@@ -11,7 +11,7 @@
 extern strummer lib_strum[];
 
 TrackView::SetLengthCommand::SetLengthCommand(TrackView *_tv, TabTrack *&_trk, int l):
-	K3NamedCommand(i18n("Set duration"))
+	QUndoCommand(i18n("Set duration"))
 {
 	QString cmd(i18n("Set duration to %1"));
 	QString dur;
@@ -37,7 +37,7 @@ TrackView::SetLengthCommand::SetLengthCommand(TrackView *_tv, TabTrack *&_trk, i
 		break;
 	}
 
-	setName(cmd.arg(dur));
+	setText(cmd.arg(dur));
 
 	//Store important data
 	trk = _trk;
@@ -50,7 +50,7 @@ TrackView::SetLengthCommand::SetLengthCommand(TrackView *_tv, TabTrack *&_trk, i
 	sel = trk->sel;
 }
 
-void TrackView::SetLengthCommand::execute()
+void TrackView::SetLengthCommand::redo()
 {
 	trk->x = x;
 	trk->y = y;
@@ -61,7 +61,7 @@ void TrackView::SetLengthCommand::execute()
 	emit tv->songChanged();
 }
 
-void TrackView::SetLengthCommand::unexecute()
+void TrackView::SetLengthCommand::undo()
 {
 	trk->x = x;
 	trk->y = y;
@@ -72,9 +72,9 @@ void TrackView::SetLengthCommand::unexecute()
 }
 
 TrackView::InsertTabCommand::InsertTabCommand(TrackView *_tv, TabTrack *&_trk, int t)
-	: K3NamedCommand(i18n("Insert tab"))
+	: QUndoCommand(i18n("Insert tab"))
 {
-	setName(i18n("Insert tab %1").arg(QString::number(t)));
+	setText(i18n("Insert tab %1").arg(QString::number(t)));
 	//Store important data
 	trk = _trk;
 	tv = _tv;
@@ -86,7 +86,7 @@ TrackView::InsertTabCommand::InsertTabCommand(TrackView *_tv, TabTrack *&_trk, i
 	oldtab = trk->c[x].a[y];
 }
 
-void TrackView::InsertTabCommand::execute()
+void TrackView::InsertTabCommand::redo()
 {
 	trk->x = x;
 	trk->y = y;
@@ -97,7 +97,7 @@ void TrackView::InsertTabCommand::execute()
 	emit tv->songChanged();
 }
 
-void TrackView::InsertTabCommand::unexecute()
+void TrackView::InsertTabCommand::undo()
 {
 	trk->x = x;
 	trk->y = y;
@@ -109,7 +109,7 @@ void TrackView::InsertTabCommand::unexecute()
 
 TrackView::MoveFingerCommand::MoveFingerCommand(TrackView *_tv, TabTrack *&_trk,
 												int _from, int _to, int _tune)
-	: K3NamedCommand(i18n("Transpose"))
+	: QUndoCommand(i18n("Transpose"))
 {
     from = _from;
 	to = _to;
@@ -123,13 +123,13 @@ TrackView::MoveFingerCommand::MoveFingerCommand(TrackView *_tv, TabTrack *&_trk,
 	oldtune = trk->c[x].a[from];
 
 	if (to < from) {
-		setName(i18n("Transpose down"));
+		setText(i18n("Transpose down"));
 	} else {
-		setName(i18n("Transpose up"));
+		setText(i18n("Transpose up"));
 	}
 }
 
-void TrackView::MoveFingerCommand::execute()
+void TrackView::MoveFingerCommand::redo()
 {
 	trk->c[x].a[from] = -1;
 	trk->c[x].a[to] = tune;
@@ -146,7 +146,7 @@ void TrackView::MoveFingerCommand::execute()
 	tv->repaintCurrentBar();
 }
 
-void TrackView::MoveFingerCommand::unexecute()
+void TrackView::MoveFingerCommand::undo()
 {
  	trk->c[x].a[from] = oldtune;
 	trk->c[x].a[to] = -1;
@@ -164,7 +164,7 @@ void TrackView::MoveFingerCommand::unexecute()
 }
 
 TrackView::AddFXCommand::AddFXCommand(TrackView *_tv, TabTrack *&_trk, char _fx)
-	: K3NamedCommand(i18n("Add effect"))
+	: QUndoCommand(i18n("Add effect"))
 {
 	trk = _trk;
 	tv = _tv;
@@ -194,10 +194,10 @@ TrackView::AddFXCommand::AddFXCommand(TrackView *_tv, TabTrack *&_trk, char _fx)
 		break;
 	}
 
-	setName(cmd.arg(p_fx));
+	setText(cmd.arg(p_fx));
 }
 
-void TrackView::AddFXCommand::execute()
+void TrackView::AddFXCommand::redo()
 {
 	trk->x = x;
 	trk->y = y;
@@ -206,7 +206,7 @@ void TrackView::AddFXCommand::execute()
 	tv->repaintCurrentBar();
 }
 
-void TrackView::AddFXCommand::unexecute()
+void TrackView::AddFXCommand::undo()
 {
 	trk->x = x;
 	trk->y = y;
@@ -218,7 +218,7 @@ void TrackView::AddFXCommand::unexecute()
 }
 
 TrackView::SetFlagCommand::SetFlagCommand(TrackView *_tv, TabTrack *&_trk, int _flag)
-	: K3NamedCommand(i18n("Set flag"))
+	: QUndoCommand(i18n("Set flag"))
 {
     flag = _flag;
 	trk = _trk;
@@ -249,10 +249,10 @@ TrackView::SetFlagCommand::SetFlagCommand(TrackView *_tv, TabTrack *&_trk, int _
 		break;
 	}
 
-	setName(cmd);
+	setText(cmd);
 }
 
-void TrackView::SetFlagCommand::execute()
+void TrackView::SetFlagCommand::redo()
 {
 	trk->x = x;
 	trk->y = y;
@@ -275,7 +275,7 @@ void TrackView::SetFlagCommand::execute()
 	tv->repaintCurrentBar();
 }
 
-void TrackView::SetFlagCommand::unexecute()
+void TrackView::SetFlagCommand::undo()
 {
 	trk->x = x;
 	trk->y = y;
@@ -298,7 +298,7 @@ void TrackView::SetFlagCommand::unexecute()
 }
 
 TrackView::DeleteNoteCommand::DeleteNoteCommand(TrackView *_tv, TabTrack *&_trk)
-	: K3NamedCommand(i18n("Delete note"))
+	: QUndoCommand(i18n("Delete note"))
 {
 	trk = _trk;
 	tv = _tv;
@@ -309,10 +309,10 @@ TrackView::DeleteNoteCommand::DeleteNoteCommand(TrackView *_tv, TabTrack *&_trk)
 	a = trk->c[x].a[y];
 	e = trk->c[x].e[y];
 
-	setName(i18n("Delete note %1").arg(a));
+	setText(i18n("Delete note %1").arg(a));
 }
 
-void TrackView::DeleteNoteCommand::execute()
+void TrackView::DeleteNoteCommand::redo()
 {
 	trk->x = x;
 	trk->y = y;
@@ -323,7 +323,7 @@ void TrackView::DeleteNoteCommand::execute()
 	tv->repaintCurrentBar();
 }
 
-void TrackView::DeleteNoteCommand::unexecute()
+void TrackView::DeleteNoteCommand::undo()
 {
 	trk->x = x;
 	trk->y = y;
@@ -335,7 +335,7 @@ void TrackView::DeleteNoteCommand::unexecute()
 }
 
 TrackView::AddColumnCommand::AddColumnCommand(TrackView *_tv, TabTrack *&_trk)
-	: K3NamedCommand(i18n("Add column"))
+	: QUndoCommand(i18n("Add column"))
 {
 	trk = _trk;
 	tv = _tv;
@@ -346,7 +346,7 @@ TrackView::AddColumnCommand::AddColumnCommand(TrackView *_tv, TabTrack *&_trk)
 	addBar = trk->currentBarDuration() == trk->maxCurrentBarDuration();
 }
 
-void TrackView::AddColumnCommand::execute()
+void TrackView::AddColumnCommand::redo()
 {
 	trk->x = x;
 	trk->y = y;
@@ -376,7 +376,7 @@ void TrackView::AddColumnCommand::execute()
 	tv->repaintCurrentBar();
 }
 
-void TrackView::AddColumnCommand::unexecute()
+void TrackView::AddColumnCommand::undo()
 {
 	trk->x = x + 1;
 	trk->y = y;
@@ -391,7 +391,7 @@ void TrackView::AddColumnCommand::unexecute()
 }
 
 TrackView::DeleteColumnCommand::DeleteColumnCommand(TrackView *_tv, TabTrack *&_trk)
-	: K3NamedCommand(i18n("Delete column"))
+	: QUndoCommand(i18n("Delete column"))
 {
 	trk = _trk;
 	tv = _tv;
@@ -417,7 +417,7 @@ TrackView::DeleteColumnCommand::DeleteColumnCommand(TrackView *_tv, TabTrack *&_
 	}
 
 	if (p_delta > 1)
-		setName(i18n("Delete %1 columns").arg(QString::number(p_delta)));
+		setText(i18n("Delete %1 columns").arg(QString::number(p_delta)));
 	p_del = p_delta;
 
 	c.resize(1);
@@ -426,7 +426,7 @@ TrackView::DeleteColumnCommand::DeleteColumnCommand(TrackView *_tv, TabTrack *&_
 //This is the constructor called by cutToClipboard
 TrackView::DeleteColumnCommand::DeleteColumnCommand(QString name, TrackView *_tv,
                                                     TabTrack *&_trk)
-	: K3NamedCommand(name)
+	: QUndoCommand(name)
 {
 	trk = _trk;
 	tv = _tv;
@@ -456,7 +456,7 @@ TrackView::DeleteColumnCommand::DeleteColumnCommand(QString name, TrackView *_tv
 	c.resize(1);
 }
 
-void TrackView::DeleteColumnCommand::execute()
+void TrackView::DeleteColumnCommand::redo()
 {
 	p_all = FALSE;
 	trk->x = x;
@@ -516,7 +516,7 @@ void TrackView::DeleteColumnCommand::execute()
 	tv->repaintCurrentBar();
 }
 
-void TrackView::DeleteColumnCommand::unexecute()
+void TrackView::DeleteColumnCommand::undo()
 {
 	//Only the first column was deleted
 	if ((p_del == 1) && p_all) {
@@ -589,7 +589,7 @@ void TrackView::DeleteColumnCommand::unexecute()
 
 TrackView::SetTimeSigCommand::SetTimeSigCommand(TrackView *_tv, TabTrack *&_trk,
                                                 bool _toend, int _time1, int _time2)
-	: K3NamedCommand(i18n("Set time signature"))
+	: QUndoCommand(i18n("Set time signature"))
 {
 	trk = _trk;
 	tv = _tv;
@@ -607,7 +607,7 @@ TrackView::SetTimeSigCommand::SetTimeSigCommand(TrackView *_tv, TabTrack *&_trk,
 		b[i] = trk->b[i];
 }
 
-void TrackView::SetTimeSigCommand::execute()
+void TrackView::SetTimeSigCommand::redo()
 {
 	// Sophisticated construction to mark all or only one bar with
 	// new sig, depending on user's selection of checkbox
@@ -623,7 +623,7 @@ void TrackView::SetTimeSigCommand::execute()
 	tv->repaintCurrentBar(); //for emit paneChanded
 }
 
-void TrackView::SetTimeSigCommand::unexecute()
+void TrackView::SetTimeSigCommand::undo()
 {
 	int k;
 	if (b.size() <= trk->b.size())
@@ -643,7 +643,7 @@ void TrackView::SetTimeSigCommand::unexecute()
 }
 
 TrackView::InsertColumnCommand::InsertColumnCommand(TrackView *_tv, TabTrack *&_trk)
-	: K3NamedCommand(i18n("Insert column"))
+	: QUndoCommand(i18n("Insert column"))
 {
 	trk = _trk;
 	tv = _tv;
@@ -653,7 +653,7 @@ TrackView::InsertColumnCommand::InsertColumnCommand(TrackView *_tv, TabTrack *&_
 	sel = trk->sel;
 }
 
-void TrackView::InsertColumnCommand::execute()
+void TrackView::InsertColumnCommand::redo()
 {
 	trk->x = x;
 	trk->y = y;
@@ -664,7 +664,7 @@ void TrackView::InsertColumnCommand::execute()
 	tv->repaintCurrentBar();
 }
 
-void TrackView::InsertColumnCommand::unexecute()
+void TrackView::InsertColumnCommand::undo()
 {
 	trk->x = x;
 	trk->y = y;
@@ -677,7 +677,7 @@ void TrackView::InsertColumnCommand::unexecute()
 
 TrackView::InsertStrumCommand::InsertStrumCommand(TrackView *_tv, TabTrack *&_trk,
                                                   int _sch, int *_chord)
-	: K3NamedCommand(i18n("Insert strum"))
+	: QUndoCommand(i18n("Insert strum"))
 {
 	trk   = _trk;
 	tv    = _tv;
@@ -704,10 +704,10 @@ TrackView::InsertStrumCommand::InsertStrumCommand(TrackView *_tv, TabTrack *&_tr
 	}
 
 	if (sch == 0)
-		setName(i18n("Insert Chord"));
+		setText(i18n("Insert Chord"));
 }
 
-void TrackView::InsertStrumCommand::execute()
+void TrackView::InsertStrumCommand::redo()
 {
 	trk->x = x;
 	trk->y = y;
@@ -782,7 +782,7 @@ void TrackView::InsertStrumCommand::execute()
 	tv->repaintCurrentBar();
 }
 
-void TrackView::InsertStrumCommand::unexecute()
+void TrackView::InsertStrumCommand::undo()
 {
 	trk->x = x;
 	trk->y = y;
@@ -811,7 +811,7 @@ void TrackView::InsertStrumCommand::unexecute()
 }
 
 TrackView::InsertRhythm::InsertRhythm(TrackView *_tv, TabTrack *&_trk, QList<int> quantized)
-	: K3NamedCommand(i18n("Insert rhythm"))
+	: QUndoCommand(i18n("Insert rhythm"))
 {
 	trk = _trk;
 	tv  = _tv;
@@ -820,7 +820,7 @@ TrackView::InsertRhythm::InsertRhythm(TrackView *_tv, TabTrack *&_trk, QList<int
 	newdur = QList<int>(quantized);
 }
 
-void TrackView::InsertRhythm::execute()
+void TrackView::InsertRhythm::redo()
 {
 	trk->x = x;
 	int end = trk->c.size();
@@ -847,7 +847,7 @@ void TrackView::InsertRhythm::execute()
 	tv->repaintContents();
 }
 
-void TrackView::InsertRhythm::unexecute()
+void TrackView::InsertRhythm::undo()
 {
 	trk->x = x;
 

@@ -9,7 +9,7 @@
 
 class KAction;
 class KToggleAction;
-class K3CommandHistory;
+class QUndoStack;
 class KAboutData;
 class ConvertBase;
 
@@ -99,7 +99,7 @@ private:
 		*arrTrkAct, *midiPlaySongAct, *midiStopPlayAct, *rhythmerAct;
 	KToggleAction *showMainTBAct, *showEditTBAct, *viewMelodyEditorAct, *viewScoreAct;
 
-	K3CommandHistory* cmdHist;
+	QUndoStack* cmdHist;
 
 protected:
 	virtual bool openFile();

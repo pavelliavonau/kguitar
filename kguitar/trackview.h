@@ -17,14 +17,14 @@ class TabTrack;
 class Fretboard;
 class Q3ListViewItem;
 class KXMLGUIClient;
-class K3CommandHistory;
+class QUndoStack;
 class QFont;
 class TrackPrint;
 
 class TrackView: public Q3GridView {
 	Q_OBJECT
 public:
-	TrackView(TabSong *s, KXMLGUIClient *_XMLGUIClient, K3CommandHistory *_cmdHist,
+	TrackView(TabSong *s, KXMLGUIClient *_XMLGUIClient, QUndoStack *_cmdHist,
 #ifdef WITH_TSE3
 	          TSE3::MidiScheduler *_scheduler,
 #endif
@@ -245,7 +245,7 @@ private:
 #endif
 
 	KXMLGUIClient *xmlGUIClient;
-	K3CommandHistory *cmdHist;
+	QUndoStack *cmdHist;
 
 	void drawLetRing(QPainter *p, int x, int y);
 

@@ -5,7 +5,7 @@
 #include "data/tabtrack.h"
 #include "songview.h"
 
-#include <k3command.h>
+#include <QUndoCommand>
 #include <qmap.h>
 #include <qstring.h>
 
@@ -18,13 +18,13 @@ class SongView;
 /**
  * Undo/redo command to set song properties
  */
-class SongView::SetSongPropCommand: public K3NamedCommand {
+class SongView::SetSongPropCommand: public QUndoCommand {
 public:
 	SetSongPropCommand(SongView *_song, QMap<QString, QString> _info, int _tempo);
 	virtual ~SetSongPropCommand() {};
 
-	virtual void execute();
-	virtual void unexecute();
+	virtual void redo();
+	virtual void undo();
 
 private:
 	QMap<QString, QString> info, oldinfo;
@@ -35,14 +35,14 @@ private:
 /**
  * Undo/redo command to set track properties
  */
-class SongView::SetTrackPropCommand: public K3NamedCommand {
+class SongView::SetTrackPropCommand: public QUndoCommand {
 public:
 	SetTrackPropCommand(TrackView *_tv, TrackList *_tl, TrackPane *_tp,
 						TabTrack *_trk, TabTrack *_newtrk);
 	virtual ~SetTrackPropCommand() {};
 
-	virtual void execute();
-	virtual void unexecute();
+	virtual void redo();
+	virtual void undo();
 
 private:
 	int x, oldy, newy, xsel, oldbank, newbank;
@@ -62,13 +62,13 @@ private:
 /**
  * Undo/redo command to insert tabs
  */
-class SongView::InsertTabsCommand: public K3NamedCommand {
+class SongView::InsertTabsCommand: public QUndoCommand {
 public:
 	InsertTabsCommand(TrackView *_tv, TabTrack *_trk, TabTrack *_tabs);
 	virtual ~InsertTabsCommand() {};
 
-	virtual void execute();
-	virtual void unexecute();
+	virtual void redo();
+	virtual void undo();
 
 private:
 	int x, y, xsel;

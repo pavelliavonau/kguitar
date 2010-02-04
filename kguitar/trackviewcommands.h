@@ -5,17 +5,18 @@
 #include "data/tabtrack.h"
 #include "trackview.h"
 #include <k3command.h>
+#include <QUndoCommand>
 //Added by qt3to4:
 #include <Q3MemArray>
 
 // Set the duration for the notes
-class TrackView::SetLengthCommand: public K3NamedCommand {
+class TrackView::SetLengthCommand: public QUndoCommand {
 public:
 	SetLengthCommand(TrackView *_tv, TabTrack *&_trk, int l);
 	virtual ~SetLengthCommand() {};
 
-	virtual void execute();
-	virtual void unexecute();
+	virtual void redo();
+	virtual void undo();
 
 private:
 	int len, oldlen,  //Length
@@ -26,13 +27,13 @@ private:
 };
 
 // Insert tabs from keyboard
-class TrackView::InsertTabCommand: public K3NamedCommand {
+class TrackView::InsertTabCommand: public QUndoCommand {
 public:
 	InsertTabCommand(TrackView *_tv, TabTrack *&_trk, int t);
 	virtual ~InsertTabCommand() {};
 
-	virtual void execute();
-	virtual void unexecute();
+	virtual void redo();
+	virtual void undo();
 
 private:
 	int totab, oldtab,   //Tab
@@ -43,13 +44,13 @@ private:
 };
 
 // Moves the finger
-class TrackView::MoveFingerCommand: public K3NamedCommand {
+class TrackView::MoveFingerCommand: public QUndoCommand {
 public:
 	MoveFingerCommand(TrackView *_tv, TabTrack *&_trk, int _from, int _to, int _tune);
 	virtual ~MoveFingerCommand() {};
 
-	virtual void execute();
-	virtual void unexecute();
+	virtual void redo();
+	virtual void undo();
 
 private:
 	int from, to, oldtune, tune, x, y, xsel;
@@ -59,13 +60,13 @@ private:
 };
 
 // Add FX
-class TrackView::AddFXCommand: public K3NamedCommand {
+class TrackView::AddFXCommand: public QUndoCommand {
 public:
 	AddFXCommand(TrackView *_tv, TabTrack *&_trk, char _fx);
 	virtual ~AddFXCommand() {};
 
-	virtual void execute();
-	virtual void unexecute();
+	virtual void redo();
+	virtual void undo();
 
 private:
 	int x, y, xsel;
@@ -76,13 +77,13 @@ private:
 };
 
 // Set a flag
-class TrackView::SetFlagCommand: public K3NamedCommand {
+class TrackView::SetFlagCommand: public QUndoCommand {
 public:
 	SetFlagCommand(TrackView *_tv, TabTrack *&_trk, int _flag);
 	virtual ~SetFlagCommand() {};
 
-	virtual void execute();
-	virtual void unexecute();
+	virtual void redo();
+	virtual void undo();
 
 private:
 	int x, y, xsel, flag, oldflag;
@@ -95,13 +96,13 @@ private:
 };
 
 // Delete Note
-class TrackView::DeleteNoteCommand : public K3NamedCommand {
+class TrackView::DeleteNoteCommand : public QUndoCommand {
 public:
 	DeleteNoteCommand(TrackView *_tv, TabTrack *&_trk);
 	virtual ~DeleteNoteCommand() {};
 
-	virtual void execute();
-	virtual void unexecute();
+	virtual void redo();
+	virtual void undo();
 
 private:
 	int x, y, xsel;
@@ -113,13 +114,13 @@ private:
 };
 
 // Add a column at end of track
-class TrackView::AddColumnCommand: public K3NamedCommand {
+class TrackView::AddColumnCommand: public QUndoCommand {
 public:
 	AddColumnCommand(TrackView *_tv, TabTrack *&_trk);
 	virtual ~AddColumnCommand() {};
 
-	virtual void execute();
-	virtual void unexecute();
+	virtual void redo();
+	virtual void undo();
 
 private:
 	int x, y, xsel;
@@ -130,14 +131,14 @@ private:
 };
 
 // Delete column
-class TrackView::DeleteColumnCommand: public K3NamedCommand {
+class TrackView::DeleteColumnCommand: public QUndoCommand {
 public:
 	DeleteColumnCommand(TrackView *_tv, TabTrack *&_trk);
 	DeleteColumnCommand(QString name, TrackView *_tv, TabTrack *&_trk);
 	virtual ~DeleteColumnCommand() {};
 
-	virtual void execute();
-	virtual void unexecute();
+	virtual void redo();
+	virtual void undo();
 
 private:
 	int x, y, xsel;
@@ -149,13 +150,13 @@ private:
 };
 
 // Set time sig
-class TrackView::SetTimeSigCommand : public K3NamedCommand {
+class TrackView::SetTimeSigCommand : public QUndoCommand {
 public:
 	SetTimeSigCommand(TrackView *_tv, TabTrack *&_trk, bool _toend, int _time1, int _time2);
 	virtual ~SetTimeSigCommand() {};
 
-	virtual void execute();
-	virtual void unexecute();
+	virtual void redo();
+	virtual void undo();
 
 private:
 	int x, y, xb, xsel, time1, time2;
@@ -166,13 +167,13 @@ private:
 };
 
 // Insert a column at cursor pos
-class TrackView::InsertColumnCommand: public K3NamedCommand {
+class TrackView::InsertColumnCommand: public QUndoCommand {
 public:
 	InsertColumnCommand(TrackView *_tv, TabTrack *&_trk);
 	virtual ~InsertColumnCommand() {};
 
-	virtual void execute();
-	virtual void unexecute();
+	virtual void redo();
+	virtual void undo();
 
 private:
 	int x, y, xsel;
@@ -182,13 +183,13 @@ private:
 };
 
 // Insert strum
-class TrackView::InsertStrumCommand: public K3NamedCommand {
+class TrackView::InsertStrumCommand: public QUndoCommand {
 public:
 	InsertStrumCommand(TrackView *_tv, TabTrack *&_trk, int _sch, int *_chord);
 	virtual ~InsertStrumCommand() {};
 
-	virtual void execute();
-	virtual void unexecute();
+	virtual void redo();
+	virtual void undo();
 
 private:
 	int sch, x, y, xsel, len, toadd;
@@ -200,12 +201,12 @@ private:
 };
 
 // Insert rhythm from rhythmer
-class TrackView::InsertRhythm: public K3NamedCommand {
+class TrackView::InsertRhythm: public QUndoCommand {
 public:
 	InsertRhythm(TrackView *_tv, TabTrack *&_trk, QList<int> quantized);
 
-	virtual void execute();
-	virtual void unexecute();
+	virtual void redo();
+	virtual void undo();
 
 private:
 	int x;
