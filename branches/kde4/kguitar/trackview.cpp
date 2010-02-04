@@ -32,6 +32,7 @@
 #include <qspinbox.h>
 #include <qcombobox.h>
 #include <qcheckbox.h>
+#include <QUndoStack>
 
 #include <stdlib.h>		// required for declaration of abs()
 #include <algorithm>
@@ -71,7 +72,7 @@
 #define BOTSPST                         1.5 // bottom space staff in ystepst units
 #define NLINEST                         5   // number of staff lines
 
-TrackView::TrackView(TabSong *s, KXMLGUIClient *_XMLGUIClient, K3CommandHistory *_cmdHist,
+TrackView::TrackView(TabSong *s, KXMLGUIClient *_XMLGUIClient, QUndoStack *_cmdHist,
 #ifdef WITH_TSE3
                      TSE3::MidiScheduler *_scheduler,
 #endif
@@ -352,7 +353,7 @@ void TrackView::setFinger(int num, int fret)
 		return;
 
 	curt->y = num;
-	cmdHist->addCommand(new InsertTabCommand(this, curt, fret));
+	cmdHist->push(new InsertTabCommand(this, curt, fret));
 	repaintCurrentColumn();
 	emit columnChanged();
 }
@@ -366,49 +367,49 @@ void TrackView::setLength(int l)
 {
 	//only if needed
 	if (curt->c[curt->x].l != l)
-		cmdHist->addCommand(new SetLengthCommand(this, curt, l));
+		cmdHist->push(new SetLengthCommand(this, curt, l));
 }
 
 void TrackView::linkPrev()
 {
-	cmdHist->addCommand(new SetFlagCommand(this, curt, FLAG_ARC));
+	cmdHist->push(new SetFlagCommand(this, curt, FLAG_ARC));
 	lastnumber = -1;
 }
 
 void TrackView::addHarmonic()
 {
 	if (curt->c[curt->x].a[curt->y] >= 0)
-		cmdHist->addCommand(new AddFXCommand(this, curt, EFFECT_HARMONIC));
+		cmdHist->push(new AddFXCommand(this, curt, EFFECT_HARMONIC));
 	lastnumber = -1;
 }
 
 void TrackView::addArtHarm()
 {
 	if (curt->c[curt->x].a[curt->y] >= 0)
-		cmdHist->addCommand(new AddFXCommand(this, curt, EFFECT_ARTHARM));
+		cmdHist->push(new AddFXCommand(this, curt, EFFECT_ARTHARM));
 	lastnumber = -1;
 }
 
 void TrackView::addLegato()
 {
 	if (curt->c[curt->x].a[curt->y] >= 0)
-		cmdHist->addCommand(new AddFXCommand(this, curt, EFFECT_LEGATO));
+		cmdHist->push(new AddFXCommand(this, curt, EFFECT_LEGATO));
 	lastnumber = -1;
 }
 
 void TrackView::addSlide()
 {
 	if (curt->c[curt->x].a[curt->y] >= 0)
-		cmdHist->addCommand(new AddFXCommand(this, curt, EFFECT_SLIDE));
+		cmdHist->push(new AddFXCommand(this, curt, EFFECT_SLIDE));
 	lastnumber = -1;
 }
 
 void TrackView::addLetRing()
 {
 	if (curt->c[curt->x].a[curt->y] >= 0)
-		cmdHist->addCommand(new AddFXCommand(this, curt, EFFECT_LETRING));
+		cmdHist->push(new AddFXCommand(this, curt, EFFECT_LETRING));
 	else
-		cmdHist->addCommand(new AddFXCommand(this, curt, EFFECT_STOPRING));
+		cmdHist->push(new AddFXCommand(this, curt, EFFECT_STOPRING));
 	lastnumber = -1;
 }
 
@@ -439,7 +440,7 @@ void TrackView::insertChord()
 	if (cs.exec()) {
 		for (i = 0; i < curt->string; i++)
 			a[i] = cs.app(i);
-		cmdHist->addCommand(new InsertStrumCommand(this, curt, cs.scheme(), a));
+		cmdHist->push(new InsertStrumCommand(this, curt, cs.scheme(), a));
 	}
 
 	lastnumber = -1;
@@ -451,7 +452,7 @@ void TrackView::rhythmer()
 	RhythmEditor re;
 
 	if (re.exec())
-		cmdHist->addCommand(new InsertRhythm(this, curt, re.quantizedDurations()));
+		cmdHist->push(new InsertRhythm(this, curt, re.quantizedDurations()));
 
 	lastnumber = -1;
 }
@@ -927,7 +928,7 @@ bool TrackView::moveFinger(int from, int dir)
 			return FALSE;
 	} while (curt->c[curt->x].a[to] != -1);
 
-	cmdHist->addCommand(new MoveFingerCommand(this, curt, from, to, n));
+	cmdHist->push(new MoveFingerCommand(this, curt, from, to, n));
 	emit columnChanged();
 
 	return TRUE;
@@ -961,7 +962,7 @@ void TrackView::timeSig()
 	SetTimeSig sts(curt->b[curt->xb].time1, curt->b[curt->xb].time2);
 
 	if (sts.exec())
-		cmdHist->addCommand(new SetTimeSigCommand(this, curt, sts.toend->isChecked(),
+		cmdHist->push(new SetTimeSigCommand(this, curt, sts.toend->isChecked(),
 		                                          sts.time1(), sts.time2()));
 
 	lastnumber = -1;
@@ -1068,7 +1069,7 @@ void TrackView::moveLeft()
 void TrackView::moveRight()
 {
 	if (((uint) (curt->x + 1)) == curt->c.size()) {
-		cmdHist->addCommand(new AddColumnCommand(this, curt));
+		cmdHist->push(new AddColumnCommand(this, curt));
 		emit columnChanged();
 	} else {
 		if (curt->b.size() == (uint) curt->xb + 1)
@@ -1208,7 +1209,7 @@ void TrackView::transposeDown()
 
 void TrackView::deadNote()
 {
-	cmdHist->addCommand(new SetFlagCommand(this, curt, DEAD_NOTE));
+	cmdHist->push(new SetFlagCommand(this, curt, DEAD_NOTE));
 	emit columnChanged();
 	lastnumber = -1;
 }
@@ -1216,7 +1217,7 @@ void TrackView::deadNote()
 void TrackView::deleteNote()
 {
 	if (curt->c[curt->x].a[curt->y] != -1) {
-		cmdHist->addCommand(new DeleteNoteCommand(this, curt));
+		cmdHist->push(new DeleteNoteCommand(this, curt));
 		emit columnChanged();
 	}
 	lastnumber = -1;
@@ -1224,39 +1225,39 @@ void TrackView::deleteNote()
 
 void TrackView::deleteColumn()
 {
-	cmdHist->addCommand(new DeleteColumnCommand(this, curt));
+	cmdHist->push(new DeleteColumnCommand(this, curt));
 	emit columnChanged();
 	lastnumber = -1;
 }
 
 void TrackView::deleteColumn(QString name)
 {
-	cmdHist->addCommand(new DeleteColumnCommand(name, this, curt));
+	cmdHist->push(new DeleteColumnCommand(name, this, curt));
 	emit columnChanged();
 }
 
 void TrackView::insertColumn()
 {
-	cmdHist->addCommand(new InsertColumnCommand(this, curt));
+	cmdHist->push(new InsertColumnCommand(this, curt));
 	emit columnChanged();
 	lastnumber = -1;
 }
 
 void TrackView::palmMute()
 {
-	cmdHist->addCommand(new SetFlagCommand(this, curt, FLAG_PM));
+	cmdHist->push(new SetFlagCommand(this, curt, FLAG_PM));
 	lastnumber = -1;
 }
 
 void TrackView::dotNote()
 {
-	cmdHist->addCommand(new SetFlagCommand(this, curt, FLAG_DOT));
+	cmdHist->push(new SetFlagCommand(this, curt, FLAG_DOT));
 	lastnumber = -1;
 }
 
 void TrackView::tripletNote()
 {
-	cmdHist->addCommand(new SetFlagCommand(this, curt, FLAG_TRIPLET));
+	cmdHist->push(new SetFlagCommand(this, curt, FLAG_TRIPLET));
 	lastnumber = -1;
 }
 
@@ -1302,7 +1303,7 @@ void TrackView::insertTab(int num)
 	}
 
 	if ((totab <= curt->frets) && (curt->c[curt->x].a[curt->y] != totab))
-		cmdHist->addCommand(new InsertTabCommand(this, curt, totab));
+		cmdHist->push(new InsertTabCommand(this, curt, totab));
 	emit columnChanged();
 }
 

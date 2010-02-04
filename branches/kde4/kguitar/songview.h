@@ -5,15 +5,13 @@
 
 #include <qwidget.h>
 
-#include <k3command.h>
-
 class TrackView;
 class TrackList;
 class TrackPane;
 class TabSong;
 class QSplitter;
 class KXMLGUIClient;
-class K3CommandHistory;
+class QUndoStack;
 class QPrinter;
 class SongPrint;
 class TabTrack;
@@ -29,7 +27,7 @@ class PlaybackTracker;
 class SongView: public QWidget {
 	Q_OBJECT
 public:
-	SongView(KXMLGUIClient *_XMLGUIClient, K3CommandHistory *_cmdHist,
+	SongView(KXMLGUIClient *_XMLGUIClient, QUndoStack *_cmdHist,
 	         QWidget *parent = 0, const char *name = 0);
 	~SongView();
 	void refreshView();
@@ -85,7 +83,7 @@ private:
 
 	QSplitter *split, *splitv;
 	TabSong *m_song;
-	K3CommandHistory *cmdHist;
+	QUndoStack *cmdHist;
 
 	bool ro;
 

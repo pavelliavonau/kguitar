@@ -24,7 +24,7 @@
 #include <kxmlguiclient.h>
 #include <knuminput.h>
 #include <kmessagebox.h>
-#include <k3command.h>
+#include <QUndoStack>
 
 #include <qclipboard.h>
 #include <qsplitter.h>
@@ -51,7 +51,7 @@
 #include "playbacktracker.h"
 #endif
 
-SongView::SongView(KXMLGUIClient *_XMLGUIClient, K3CommandHistory *_cmdHist,
+SongView::SongView(KXMLGUIClient *_XMLGUIClient, QUndoStack *_cmdHist,
 				   QWidget *parent, const char *name): QWidget(parent, name)
 {
 #ifdef WITH_TSE3
@@ -268,7 +268,7 @@ bool SongView::trackProperties()
 		if (newtrk->y >= newtrk->string)
 			newtrk->y = newtrk->string - 1;
 
-		cmdHist->addCommand(new SetTrackPropCommand(tv, tl, tp, tv->trk(), newtrk));
+		cmdHist->push(new SetTrackPropCommand(tv, tl, tp, tv->trk(), newtrk));
 		res = TRUE;
 	}
 
@@ -323,7 +323,7 @@ void SongView::songProperties()
 	SetSong ss(m_song->info, m_song->tempo, ro);
 
 	if (ss.exec())
-		cmdHist->addCommand(new SetSongPropCommand(this, ss.info(), ss.tempo()));
+		cmdHist->push(new SetSongPropCommand(this, ss.info(), ss.tempo()));
 }
 
 void SongView::playSong()
@@ -505,7 +505,7 @@ void SongView::insertTabs(TabTrack* trk)
 		return;
 	}
 
-	cmdHist->addCommand(new InsertTabsCommand(tv, tv->trk(), trk));
+	cmdHist->push(new InsertTabsCommand(tv, tv->trk(), trk));
 }
 
 void SongView::print(QPrinter *printer)

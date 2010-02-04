@@ -52,6 +52,8 @@
 #include <qfileinfo.h>
 #include <QPrintDialog>
 
+#include <QUndoStack>
+
 typedef KParts::GenericFactory<KGuitarPart> KGuitarPartFactory;
 K_EXPORT_COMPONENT_FACTORY(libkguitarpart, KGuitarPartFactory)
 
@@ -67,7 +69,7 @@ KGuitarPart::KGuitarPart(QWidget *parentWidget, QObject *parent, const QStringLi
 
 	Settings::config = KGlobal::mainComponent().config();
 
-	cmdHist = new K3CommandHistory();
+	cmdHist = new QUndoStack();
 
 	// Custom main widget
 	sv = new SongView(this, cmdHist, parentWidget);

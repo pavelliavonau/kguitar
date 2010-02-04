@@ -8,7 +8,7 @@
 #include <klocale.h>
 
 SongView::SetSongPropCommand::SetSongPropCommand(SongView *_sv, QMap<QString, QString> _info, int _tempo)
-	: K3NamedCommand(i18n("Set song properties"))
+	: QUndoCommand(i18n("Set song properties"))
 {
 	sv       = _sv;
 	info     = _info;
@@ -18,14 +18,14 @@ SongView::SetSongPropCommand::SetSongPropCommand(SongView *_sv, QMap<QString, QS
 	oldtempo = sv->song()->tempo;
 }
 
-void SongView::SetSongPropCommand::execute()
+void SongView::SetSongPropCommand::redo()
 {
 	sv->song()->info  = info;
 	sv->song()->tempo = tempo;
 	emit sv->songChanged();
 }
 
-void SongView::SetSongPropCommand::unexecute()
+void SongView::SetSongPropCommand::undo()
 {
 	sv->song()->info  = oldinfo;
 	sv->song()->tempo = oldtempo;
@@ -34,7 +34,7 @@ void SongView::SetSongPropCommand::unexecute()
 
 SongView::SetTrackPropCommand::SetTrackPropCommand(TrackView *_tv, TrackList *_tl, TrackPane *_tp,
 										 TabTrack *_trk, TabTrack *_newtrk):
-	K3NamedCommand(i18n("Set track properties"))
+	QUndoCommand(i18n("Set track properties"))
 {
 	tv     = _tv;
 	tl     = _tl;
@@ -72,7 +72,7 @@ SongView::SetTrackPropCommand::SetTrackPropCommand(TrackView *_tv, TrackList *_t
 		newtune[i] = _newtrk->tune[i];
 }
 
-void SongView::SetTrackPropCommand::execute()
+void SongView::SetTrackPropCommand::redo()
 {
 	trk->x = x;
 	trk->y = newy;
@@ -96,7 +96,7 @@ void SongView::SetTrackPropCommand::execute()
 	tp->updateList();
 }
 
-void SongView::SetTrackPropCommand::unexecute()
+void SongView::SetTrackPropCommand::undo()
 {
 	trk->x = x;
 	trk->y = oldy;
@@ -121,7 +121,7 @@ void SongView::SetTrackPropCommand::unexecute()
 }
 
 SongView::InsertTabsCommand::InsertTabsCommand(TrackView *_tv, TabTrack *_trk, TabTrack *_tabs)
-	: K3NamedCommand(i18n("Insert from clipboard"))
+	: QUndoCommand(i18n("Insert from clipboard"))
 {
 	trk  = _trk;
 	tv   = _tv;
@@ -132,7 +132,7 @@ SongView::InsertTabsCommand::InsertTabsCommand(TrackView *_tv, TabTrack *_trk, T
 	sel  = trk->sel;
 }
 
-void SongView::InsertTabsCommand::execute()
+void SongView::InsertTabsCommand::redo()
 {
 	trk->x = x;
 	trk->y = y;
@@ -156,7 +156,7 @@ void SongView::InsertTabsCommand::execute()
 	tv->update();
 }
 
-void SongView::InsertTabsCommand::unexecute()
+void SongView::InsertTabsCommand::undo()
 {
 	trk->x = x;
 	trk->y = y;
