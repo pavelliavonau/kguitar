@@ -5,7 +5,6 @@
 #include "trackview.h"
 #include "tracklist.h"
 #include "data/tabsong.h"
-#include "setsong.h"
 #include "options.h"
 #include "melodyeditor.h"
 #include "trackdrag.h"
