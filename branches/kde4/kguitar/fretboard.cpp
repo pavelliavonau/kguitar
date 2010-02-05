@@ -1,36 +1,25 @@
 #include "config.h"
 #include "fretboard.h"
-#include "tabtrack.h"
+#include "data/tabtrack.h"
 #include "settings.h"
 
-#include <qpainter.h>
-#include <qsizepolicy.h>
-#include <qpixmap.h>
-#include <qimage.h>
-#include <q3pointarray.h>
-//Added by qt3to4:
+#include <QPainter>
 #include <QResizeEvent>
 #include <QMouseEvent>
 #include <QPaintEvent>
 
 #include <kstandarddirs.h>
 
-#define STRING_HEIGHT    24
 #define FRET_DIVISOR     1.05946
-#define ZERO_FRET_WIDTH  24
-#define INLAY_RADIUS     7
-#define FINGER_RADIUS    8
-#define SIDE_BORDER      2
-#define SCALE_BORDER     5
-#define SCALE_ROUND      99
 
-#define INLAY_FILL_COLOR qRgb(205, 214, 221)
-// #define FRET_COLOR_1     qRgb(144, 151, 166)
-// #define FRET_COLOR_2     qRgb( 77,  84,  99)
-#define STRING_COLOR_1   qRgb(230, 230, 230)
-#define STRING_COLOR_2   qRgb(166, 166, 166)
+#define INLAY_FILL_COLOR 205, 214, 221
+// #define FRET_COLOR_1     144, 151, 166
+// #define FRET_COLOR_2      77,  84,  99
+#define STRING_COLOR_1   230, 230, 230
+#define STRING_COLOR_2   166, 166, 166
 
-#define FINGER_COLOR     qRgb( 44,  77, 240)
+#define FINGER_COLOR     44,  77, 240
+#define SCALE_COLOR      239, 207, 0, 128
 
 // Inlay marks array
 
@@ -57,22 +46,23 @@ int steptemplate[][12] = {
 	{ 1, 0, 2, 0, 3, 4, 0, 5, 0, 6, 0, 7 }, // C Locrian       // GREYFIX
 };
 
-Fretboard::Fretboard(TabTrack *_trk, QWidget *parent, const char *name)
-	: QWidget(parent, name)
+Fretboard::Fretboard(TabTrack *_trk, QWidget *parent)
+	: QWidget(parent)
 {
 	tonic = 0;
 	mode = 0;
 
 	setTrack(_trk);
 
-	scaleback = new QPixmap(width(), height());
-	back = new QPixmap(width(), height());
+	scaleback = NULL;
+	back = NULL;
 	wood = new QPixmap(KStandardDirs::locate("data", "kguitar/pics/rosewood.jpg"));
 	fret = new QImage(KStandardDirs::locate("data", "kguitar/pics/fret.png"));
 	zeroFret = new QImage(KStandardDirs::locate("data", "kguitar/pics/zerofret.png"));
 	drawBackground();
 
 	setFocusPolicy(Qt::WheelFocus); // the strongest focus gainer
+	setAutoFillBackground(true);
 }
 
 Fretboard::~Fretboard()
@@ -98,9 +88,9 @@ void Fretboard::setTrack(TabTrack *_trk)
 
 void Fretboard::paintEvent(QPaintEvent *)
 {
-	QPainter p;
-	p.begin(this);
-	p.setBrush(QBrush(QColor::fromRgb(FINGER_COLOR)));
+	QPainter p(this);
+	p.setRenderHint(QPainter::Antialiasing);
+	p.setBrush(QBrush(QColor(FINGER_COLOR)));
 	int y = height() - STRING_HEIGHT / 2 - FINGER_RADIUS;
 	for (int i = 0; i < trk->string; i++) {
 		int a = trk->c[trk->x].a[i];
@@ -110,7 +100,6 @@ void Fretboard::paintEvent(QPaintEvent *)
 		}
 		y -= STRING_HEIGHT;
 	}
-	p.end();
 }
 
 void Fretboard::mousePressEvent(QMouseEvent *e)
@@ -170,21 +159,25 @@ void Fretboard::recalculateSizes()
 // Draw background according to new widget sizes
 void Fretboard::drawBackground()
 {
-	QPainter p;
-	back->resize(width(), height());
-	p.begin(back);
+	kDebug() << "drawBackground - start\n";
+
+	if (back != NULL)
+		delete back;
+	back = new QPixmap(width(), height());
+	QPainter p(back);
 	p.drawTiledPixmap(0, 0, width(), height(), *wood);
+	p.setRenderHint(QPainter::Antialiasing);
 
 	QImage scaledFret = fret->scaled(fret->width(), height());
 	p.drawImage(0, 0, zeroFret->scaled(ZERO_FRET_WIDTH, height()));
 
-	p.setBrush(QBrush(QColor::fromRgb(INLAY_FILL_COLOR)));
+	p.setBrush(QBrush(QColor(INLAY_FILL_COLOR)));
 
 	// Draw frets
 	for (int i = 1; i <= trk->frets; i++) {
-// 		p.setPen(FRET_COLOR_1);
+// 		p.setPen(QColor(FRET_COLOR_1));
 // 		p.drawLine((int) fr[i], 0, (int) fr[i], height());
-// 		p.setPen(FRET_COLOR_2);
+// 		p.setPen(QColor(FRET_COLOR_2));
 // 		p.drawLine((int) fr[i] - 1, 0, (int) fr[i] - 1, height());
 // 		p.drawLine((int) fr[i] + 1, 0, (int) fr[i] + 1, height());
 		// Draw frets
@@ -232,7 +225,7 @@ void Fretboard::drawBackground()
 			break;
 		case 4: // trapezoids
 			{
-				Q3PointArray ar(4);
+				QPolygon ar(4);
 				int h1, h2;
 				if (marks[i] == 1) {
 					h1 = height() * 2 / 3;
@@ -249,7 +242,7 @@ void Fretboard::drawBackground()
 			break;
 		case 5: // shark fins
 			{
-				Q3PointArray ar(3);
+				QPolygon ar(3);
 				int x1 = (int) (1 * (fr[i] - fr[i - 1]) / 8 + fr[i - 1]);
 				int x2 = (int) (7 * (fr[i] - fr[i - 1]) / 8 + fr[i - 1]);
 				ar.putPoints(0, 3, x1, height() / 8, x2, height() / 8, x1, height() * 7 / 8);
@@ -262,25 +255,29 @@ void Fretboard::drawBackground()
 	// Draw strings
 	for (int i = 0; i < trk->string; i++) {
 		int y = i * STRING_HEIGHT + STRING_HEIGHT / 2;
-		p.setPen(STRING_COLOR_1);
+		p.setPen(QColor(STRING_COLOR_1));
 		p.drawLine(0, y, width(), y);
-		p.setPen(STRING_COLOR_2);
+		p.setPen(QColor(STRING_COLOR_2));
 		p.drawLine(0, y - 1, width(), y - 1);
 		p.drawLine(0, y + 1, width(), y + 1);
 	}
 
-	p.end();
-
+	kDebug() << "drawBackground - end\n";
 	drawScaleBack();
 }
 
 void Fretboard::drawScaleBack()
 {
-	QPainter p;
-	scaleback->resize(width(), height());
+	kDebug() << "drawScaleBack - start\n";
 
-	p.begin(scaleback);
+	if (scaleback != NULL)
+		delete scaleback;
+
+	scaleback = new QPixmap(width(), height());
+	QPainter p(scaleback);
+
 	p.drawPixmap(0, 0, *back);
+	p.setRenderHint(QPainter::Antialiasing);
 
 	// Calculate mode scale steps
 
@@ -301,7 +298,7 @@ void Fretboard::drawScaleBack()
 		now = trk->tune[i] % 12;
 		for (int j = 0; j < trk->frets; j++) {
 			if (step[now]) {
-				p.setBrush(QBrush(QColor::fromRgb(qRgb(239, 207, 0))));
+				p.setBrush(QBrush(QColor(SCALE_COLOR)));
 				int x = (j == 0) ? SCALE_BORDER : (int) (fr[j - 1] + SCALE_BORDER);
 				p.drawRoundRect(x, y, (int) (fr[j] - x - SCALE_BORDER),
 				                STRING_HEIGHT - 2 * SCALE_BORDER,
@@ -312,9 +309,10 @@ void Fretboard::drawScaleBack()
 		y -= STRING_HEIGHT;
 	}
 
-	p.end();
-
-	setPaletteBackgroundPixmap(*scaleback);
+	QPalette palette;
+	palette.setBrush(backgroundRole(), QBrush(*scaleback));
+	setPalette(palette);
+	kDebug() << "drawScaleBack - done\n";
 }
 
 void Fretboard::setTonic(int tonic_)

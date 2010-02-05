@@ -10,18 +10,18 @@
 #include <qpushbutton.h>
 #include <qlabel.h>
 #include <qlayout.h>
+#include <QBoxLayout>
+#include <QHBoxLayout>
+#include <QVBoxLayout>
 //Added by qt3to4:
-#include <Q3BoxLayout>
-#include <Q3HBoxLayout>
-#include <Q3VBoxLayout>
 #include <Q3Frame>
 #include <klocale.h>
 #include <qapplication.h>
 #include <KDialog>
 #include <KVBox>
 
-MelodyEditor::MelodyEditor(TrackView *_tv, QWidget *parent, const char *name)
-	: QWidget(parent, name)
+MelodyEditor::MelodyEditor(TrackView *_tv, QWidget *parent)
+	: QWidget(parent)
 // 			 WType_TopLevel | WStyle_Customize |
 // 	         WStyle_StaysOnTop | WStyle_NormalBorder |
 // 	         WStyle_Title | WStyle_MinMax | WStyle_SysMenu)
@@ -55,10 +55,10 @@ MelodyEditor::MelodyEditor(TrackView *_tv, QWidget *parent, const char *name)
 	QLabel *mode_l = new QLabel(mode, i18n("&Mode:"), this);
 
 	// Full layout
-	Q3BoxLayout *l = new Q3VBoxLayout(this);
+	QBoxLayout *l = new QVBoxLayout(this);
 
 	// Settings box
-	Q3BoxLayout *lsettings = new Q3HBoxLayout(l, 5);
+	QBoxLayout *lsettings = new QHBoxLayout(l, 5);
 	lsettings->addWidget(tonic_l);
 	lsettings->addWidget(tonic);
 	lsettings->addWidget(mode_l);
@@ -80,7 +80,7 @@ MelodyEditor::MelodyEditor(TrackView *_tv, QWidget *parent, const char *name)
 
 // 	installEventFilter(this);
 
-	setCaption(i18n("Melody Constructor"));
+	setCaption(i18n("Melody Editor"));
 }
 
 void MelodyEditor::drawBackground()

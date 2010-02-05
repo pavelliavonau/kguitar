@@ -12,7 +12,7 @@ class QPushButton;
 class MelodyEditor: public QWidget {
 	Q_OBJECT
 public:
-	MelodyEditor(TrackView *, QWidget *parent = 0, const char *name = 0);
+	MelodyEditor(TrackView *, QWidget *parent = 0);
 	void drawBackground();
 
 public slots:
