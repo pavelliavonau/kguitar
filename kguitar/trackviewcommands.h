@@ -36,8 +36,9 @@ public:
 	virtual void undo();
 
 private:
-	int totab, oldtab,   //Tab
-	    x, y, xsel;      //Position
+	int totab, oldtab;   //Tab
+	int x, y, xsel;      //Position
+	int oldflags;
 	bool sel;
 	TabTrack *trk;
 	TrackView *tv;
