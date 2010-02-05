@@ -1291,10 +1291,7 @@ void TrackView::insertTab(int num)
 {
 	int totab = num;
 
-	if (curt->c[curt->x].flags & FLAG_ARC)
-		curt->c[curt->x].flags -= FLAG_ARC;
-
-	// Allow making two-digit fret numbers pressing two keys sequentally
+	// Allow making two-digit fret numbers pressing two keys sequentially
 	if ((lastnumber != -1) && (lastnumber * 10 + num <= curt->frets)) {
 		totab = lastnumber * 10 + num;
 		lastnumber = -1;
