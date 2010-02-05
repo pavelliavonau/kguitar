@@ -72,7 +72,7 @@ void TrackView::SetLengthCommand::undo()
 }
 
 TrackView::InsertTabCommand::InsertTabCommand(TrackView *_tv, TabTrack *&_trk, int t)
-	: QUndoCommand(i18n("Insert tab"))
+	: QUndoCommand()
 {
 	setText(i18n("Insert tab %1").arg(QString::number(t)));
 	//Store important data
@@ -84,16 +84,19 @@ TrackView::InsertTabCommand::InsertTabCommand(TrackView *_tv, TabTrack *&_trk, i
 	sel = trk->sel;
     totab = t;
 	oldtab = trk->c[x].a[y];
+	oldflags = trk->c[x].flags;
 }
 
 void TrackView::InsertTabCommand::redo()
 {
+	trk->c[x].flags &= ~FLAG_ARC;
+
 	trk->x = x;
 	trk->y = y;
 	trk->sel = FALSE;
 	trk->c[x].a[y] = totab;
-	tv->repaintCurrentBar();
 
+	tv->repaintCurrentBar();
 	emit tv->songChanged();
 }
 
@@ -104,7 +107,9 @@ void TrackView::InsertTabCommand::undo()
 	trk->xsel = xsel;
 	trk->sel = sel;
 	trk->c[x].a[y] = oldtab;
+
 	tv->repaintCurrentBar();
+	emit tv->songChanged();
 }
 
 TrackView::MoveFingerCommand::MoveFingerCommand(TrackView *_tv, TabTrack *&_trk,
