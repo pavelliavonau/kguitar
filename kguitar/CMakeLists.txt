@@ -15,7 +15,7 @@ set(kguitar_PART_SRCS
 	ui/chord/strumming.cpp
 	ui/chord/chordanalyzer.cpp
 	trackview.cpp
-	setsong.cpp
+	ui/setsong.cpp
 	data/tabsong.cpp
 	data/tabtrack.cpp
 	data/tabcolumn.cpp
@@ -63,6 +63,7 @@ set(kguitar_PART_SRCS
 kde4_add_ui_files(kguitar_PART_SRCS
 	settabmidibase.ui
 	ui/rhythmeditor.ui
+	ui/setsong.ui
 )
 
 kde4_add_plugin(kguitarpart WITH_PREFIX ${kguitar_PART_SRCS})

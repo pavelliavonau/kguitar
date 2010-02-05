@@ -13,7 +13,7 @@
 #include "settrack.h"
 #include "settabfret.h"
 #include "settabdrum.h"
-#include "setsong.h"
+#include "ui/setsong.h"
 #include "ui/chord/chordeditor.h"
 #include "ui/chord/chordlistitem.h"
 #include "songprint.h"
@@ -322,7 +322,7 @@ void SongView::songProperties()
 {
 	SetSong ss(m_song->info, m_song->tempo, ro);
 
-	if (ss.exec())
+	if (ss.exec() && !ro)
 		cmdHist->push(new SetSongPropCommand(this, ss.info(), ss.tempo()));
 }
 
