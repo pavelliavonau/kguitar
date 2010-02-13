@@ -68,9 +68,7 @@ SongView::SongView(KXMLGUIClient *_XMLGUIClient, QUndoStack *_cmdHist,
 	split->setOrientation(Qt::Vertical);
 
 #ifdef WITH_TSE3
-//	GREYFIX
-//	tv = new TrackView(m_song, _XMLGUIClient, _cmdHist, scheduler, split);
-	tv = new TrackView(m_song, _XMLGUIClient, _cmdHist, 0, split);
+	tv = new TrackView(m_song, _XMLGUIClient, _cmdHist, midiScheduler(), split);
 	connect(playThread, SIGNAL(finished()), tv, SLOT(disablePlaybackCursor()));
 #else
 	tv = new TrackView(m_song, _XMLGUIClient, _cmdHist, split);

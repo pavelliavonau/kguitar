@@ -43,24 +43,30 @@ void PlaybackTracker::init()
 		try {
 			scheduler = factory.createScheduler();
 			kdDebug() << "MIDI Scheduler created" << endl;
-		} catch (TSE3::MidiSchedulerError e) {
-			kdDebug() << "cannot create MIDI Scheduler" << endl;
-		}
 
-		if (!scheduler) {
-			kdDebug() << "ERROR opening MIDI device / Music can't be played" << endl;
+			if (!scheduler) {
+				kdError() << "ERROR opening MIDI device / Music can't be played" << endl;
 //			midiInUse = FALSE;
 //			return FALSE;
-		}
+			}
 
-		metronome = new TSE3::Metronome;
-		transport = new TSE3::Transport(metronome, scheduler);
-		transport->attachCallback(this);
+			metronome = new TSE3::Metronome;
+			transport = new TSE3::Transport(metronome, scheduler);
+			transport->attachCallback(this);
+		} catch (const TSE3::Error &e) {
+			kdError() << "cannot create MIDI Scheduler" << endl;
+			scheduler = NULL;
+		}
 	}
 }
 
 void PlaybackTracker::playSong(TSE3::Song *song, int startClock)
 {
+	if (!scheduler) {
+		kdWarning() << "PlaybackTracker::playSong - no scheduler";
+		return;
+	}
+
 	if (this->song)
 		delete this->song;
 
@@ -79,6 +85,11 @@ void PlaybackTracker::playSong(TSE3::Song *song, int startClock)
 
 bool PlaybackTracker::stop()
 {
+	if (!scheduler) {
+		kdWarning() << "PlaybackTracker::stopPlay - no scheduler";
+		return false;
+	}
+
 	kdDebug() << "PlaybackTracker::stopPlay" << endl;
 	if (isRunning()) {
 		midiStop = true;
@@ -124,6 +135,11 @@ void PlaybackTracker::run()
 
 void PlaybackTracker::playAllNoteOff()
 {
+	if (!scheduler) {
+		kdWarning() << "PlaybackTracker::playAllNoteOff - no scheduler";
+		return;
+	}
+
 	kdDebug() << "starting panic on stop" << endl;
 	TSE3::Panic panic;
 	panic.setAllNotesOff(TRUE);
