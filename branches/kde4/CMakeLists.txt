@@ -39,6 +39,9 @@ endif(TSE3_FOUND)
 
 set(WITH_TSE3 ${TSE3_FOUND})
 
+# TSE3 requires exceptions enabled
+set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} ${KDE4_ENABLE_EXCEPTIONS}")
+
 add_subdirectory(doc)
 add_subdirectory(kguitar)
 add_subdirectory(kguitar_shell)
@@ -46,3 +49,4 @@ add_subdirectory(icons)
 
 configure_file(config.h.in kguitar/config.h)
 configure_file(config.h.in kguitar_shell/config.h)
+
