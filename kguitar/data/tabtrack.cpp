@@ -279,6 +279,43 @@ TabTrack::TabTrack(TrackMode _tm, QString _name, int _channel,
 	xsel = 0;
 }
 
+TabTrack::TabTrack(TabTrack *trk)
+{
+	tm = trk->tm;
+	name = trk->name;
+	channel = trk->channel;
+	bank = trk->bank;
+	patch = trk->patch;
+	string = trk->string;
+	frets = trk->frets;
+
+	for (int i = 0; i < MAX_STRINGS; i++)
+		tune[i] = trk->tune[i];
+
+	// GREYFIX: add real copying of "c" and "b" data here
+	c.resize(1);
+	b.resize(1);
+
+	for (int i = 0; i < MAX_STRINGS; i++) {
+		c[0].a[i] = -1;
+		c[0].e[i] = 0;
+	}
+	c[0].l = 120;
+	c[0].flags = 0;
+
+	b[0].start = 0;
+	b[0].time1 = 4;
+	b[0].time2 = 4;
+	b[0].keysig = 0;
+
+	x = 0;
+	xb = 0;
+	y = 0;
+
+	sel = FALSE;
+	xsel = 0;
+}
+
 // Pretty sophisticated expression that determines if we can omit the time sig
 bool TabTrack::showBarSig(int n)
 {

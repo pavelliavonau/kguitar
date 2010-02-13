@@ -44,6 +44,11 @@ public:
 			 int _bank, uchar _patch, char _string, char _frets);
 
 	/**
+	 * Copy constructor
+	 */
+	TabTrack(TabTrack *trk);
+
+	/**
 	 * Array of columns.
 	 */
 	Q3MemArray<TabColumn> c;
