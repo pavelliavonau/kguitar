@@ -28,6 +28,8 @@ public:
 	void Transport_MidiOut(TSE3::MidiCommand c);
 	void Transport_MidiIn(TSE3::MidiCommand c);
 
+	TSE3::MidiScheduler* midiScheduler() { return scheduler; };
+
 protected:
 	void run();
 

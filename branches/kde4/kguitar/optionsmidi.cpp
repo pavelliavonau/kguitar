@@ -54,6 +54,9 @@ void OptionsMidi::fillMidiBox()
 	std::vector<int> portNums;
 	if (!sch)
 		return;
+
+	kdDebug() << "OptionsMidi::fillMidiBox: starting to fill";
+
 	sch->portNumbers(portNums);
 
 	midiport->clear();

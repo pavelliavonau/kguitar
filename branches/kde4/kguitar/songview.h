@@ -4,6 +4,7 @@
 #include "config.h"
 
 #include <qwidget.h>
+#include "playbacktracker.h"
 
 class TrackView;
 class TrackList;
@@ -16,7 +17,6 @@ class QPrinter;
 class SongPrint;
 class TabTrack;
 class MelodyEditor;
-class PlaybackTracker;
 
 #ifdef WITH_TSE3
 #include <tse3/MidiScheduler.h>
@@ -41,8 +41,7 @@ public:
 
 	TabSong *song() { return m_song; }
 #ifdef WITH_TSE3
-	// GREYFIX
-	TSE3::MidiScheduler* midiScheduler() { return 0; }
+	TSE3::MidiScheduler* midiScheduler() { return playThread->midiScheduler(); }
 #endif
 
 	// Forwards declarations of all undo/redo commands
