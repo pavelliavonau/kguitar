@@ -40,6 +40,7 @@ private:
 	void readBarProperties();
 	void readTrackProperties();
 	void readTabs();
+	void readBar(TabTrack *trk, int j);
 	void readColumn(TabTrack *trk, int x);
 	void readColumnEffects(TabTrack *trk, int x);
 	void readNote(TabTrack *trk, int x, int y);

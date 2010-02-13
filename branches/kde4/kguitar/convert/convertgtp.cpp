@@ -444,6 +444,11 @@ void ConvertGtp::readTrackProperties()
 
 		// Fill remembered values from defaults
 		trk->patch = trackPatch[i];
+
+		// If it's GP5, create a full copy of this track: we
+		// will use it to simulate "voice 2".
+		if (versionMajor >= 5)
+			song->t.append(new TabTrack(trk));
 	}
 
 	kdDebug() << "end all tracks pos: " << stream->device()->pos() << "\n";
@@ -459,8 +464,6 @@ void ConvertGtp::readTrackProperties()
 
 void ConvertGtp::readTabs()
 {
-	int x;
-
 	currentStage = QString("readTabs");
 
 	for (int tr = 0; tr < numTracks; tr++) {
@@ -471,25 +474,47 @@ void ConvertGtp::readTabs()
 
 	for (int j = 0; j < numBars; j++) {
 		for (int tr = 0; tr < numTracks; tr++) {
-			TabTrack *trk = song->t.at(tr);
-			int numBeats = readDelphiInteger();
-			kdDebug() << "TRACK " << tr << ", BAR " << j << ", numBeats " << numBeats << " (position: " << stream->device()->pos() << ")\n";
-
-			if (numBeats < 0 || (strongChecks && numBeats > 128))
-				throw QString("Track %1, bar %2, insane number of beats: %3").arg(tr).arg(j).arg(numBeats);
-
-			x = trk->c.size();
-			trk->c.resize(trk->c.size() + numBeats);
-			trk->b[j].time1 = bars[j].time1;
-			trk->b[j].time2 = bars[j].time2;
-			trk->b[j].keysig = bars[j].keysig;
-			trk->b[j].start = x;
-
-			for (int k = 0; k < numBeats; k++) {
-				readColumn(trk, x);
-				x++;
+			TabTrack *trk;
+			// Guitar Pro 5 includes support for "multiple
+			// voices", namely 2. We will translate them
+			// into 2 separate tracks (later we will
+			// destroy empty tracks).
+			if (versionMajor >= 5) {
+				for (int voice = 0; voice < 2; voice++) {
+					currentStage = QString("readTabs: track %1, bar %2, voice %3").arg(tr).arg(j).arg(voice);
+					trk = song->t.at(tr * 2 + voice);
+					kdDebug() << "TRACK " << tr << " (voice " << voice << "), BAR " << j << " (position: " << stream->device()->pos() << ")\n";
+					readBar(trk, j);
+				}
+			} else {
+				currentStage = QString("readTabs: track %1, bar %2").arg(tr).arg(j);
+				trk = song->t.at(tr);
+				kdDebug() << "TRACK " << tr << ", BAR " << j << " (position: " << stream->device()->pos() << ")\n";
+				readBar(trk, j);
 			}
 		}
+	}
+}
+
+void ConvertGtp::readBar(TabTrack *trk, int j)
+{
+	int x;
+	int numBeats = readDelphiInteger();
+	kdDebug() << "numBeats " << numBeats << " (position: " << stream->device()->pos() << ")\n";
+
+	if (numBeats < 0 || (strongChecks && numBeats > 128))
+		throw QString("insane number of beats: %1").arg(numBeats);
+	
+	x = trk->c.size();
+	trk->c.resize(trk->c.size() + numBeats);
+	trk->b[j].time1 = bars[j].time1;
+	trk->b[j].time2 = bars[j].time2;
+	trk->b[j].keysig = bars[j].keysig;
+	trk->b[j].start = x;
+	
+	for (int k = 0; k < numBeats; k++) {
+		readColumn(trk, x);
+		x++;
 	}
 }
 
@@ -499,6 +524,9 @@ void ConvertGtp::readColumn(TabTrack *trk, int x)
 	Q_INT8 length, volume, pan, chorus, reverb, phase, tremolo;
 
 	trk->c[x].flags = 0;
+
+	if (num != 0)
+		kdWarning() << "prefix != 0";
 
 	(*stream) >> beat_bitmask;   // beat bitmask
 
@@ -587,7 +615,7 @@ void ConvertGtp::readColumn(TabTrack *trk, int x)
 		kdDebug() << "trailing byte: " << num << "\n";
 		if (num == 7 || num == 8 || num == 10)
 			skipBytes(1);
-		skipBytes(2);
+		skipBytes(1);
 	}
 }
 
