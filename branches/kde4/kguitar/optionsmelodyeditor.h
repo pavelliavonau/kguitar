@@ -5,7 +5,6 @@
 #include "global.h"
 #include <ksharedconfig.h>
 
-class Q3VButtonGroup;
 class QRadioButton;
 class QComboBox;
 class QCheckBox;
@@ -20,7 +19,6 @@ public slots:
 	virtual void defaultBtnClicked();
 
 private:
-	Q3VButtonGroup *inlayGroup, *woodGroup;
 	QRadioButton *inlay[6], *wood[4];
 	QComboBox *mouseAction[3];
 	QCheckBox *mouseAdvance[3];
