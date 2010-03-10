@@ -1096,10 +1096,10 @@ Translation is done by:
 <title>How to obtain &kguitar;</title>
 
 <para>
-Latest version of &kguitar;, as well as the latest development news
-and information can always be obtained from <ulink
-url="http://kguitar.sourceforge.net/">&kguitar;'s homepage</ulink>. Or
-look for kguitar or similar package in your favorite distribution.
+The latest version of &kguitar; can be obtained by typing:
+<screen>
+<prompt>%</prompt> <userinput>svn co https://kguitar.svn.net/svnroot/kguitar/branches/kde4 kguitar</userinput>
+</screen>
 </para>
 
 </sect1>
@@ -1108,7 +1108,7 @@ look for kguitar or similar package in your favorite distribution.
 <title>Requirements</title>
 
 <para>
-In order to successfully use &kguitar;, you need KDE 3.x. TSE3 (Trax
+In order to successfully use &kguitar;, you need KDE 4.x. TSE3 (Trax
 Sequencer Engine 3) library is very recommended for all MIDI-related
 capabilities of &kguitar;. There are no special hardware requirements,
 though having MIDI synthesizer (either full-blown external keyboard or
@@ -1128,18 +1128,25 @@ url="http://tse3.sourceforge.net/">TSE3 home page</ulink>.
 
 <para>
 In order to compile and install &kguitar; on your system, type the
-following in the base directory of the &kguitar; distribution:
+following in the base directory of the &kguitar; distribution as an
+ordinary user:
 <screen width="40">
-<prompt>%</prompt> <userinput>./configure</userinput>
+<prompt>%</prompt> <userinput>cmake .</userinput>
 <prompt>%</prompt> <userinput>make</userinput>
+And then as root:
 <prompt>%</prompt> <userinput>make install</userinput>
 </screen>
 </para>
 
 <para>
-Since &kguitar; uses autoconf and automake you should have not trouble
+Since &kguitar; uses cmake you should have not trouble
 compiling it. Should you run into problems please report them to
 &kguitar; team.
+</para>
+
+<para>
+NOTE: These instructions are written purely for people building on
+a Unix like Operating System
 </para>
 
 </sect1>
