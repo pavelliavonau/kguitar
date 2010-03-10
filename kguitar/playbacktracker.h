@@ -1,7 +1,7 @@
 #ifndef PLAYBACKTRACKER_H
 #define PLAYBACKTRACKER_H
 #include <config.h>
-//#ifdef WITH_TSE3
+#ifdef WITH_TSE3
 
 #include <tse3/Transport.h>
 #include <tse3/Song.h>
@@ -48,5 +48,5 @@ private:
 	bool midiStop;
 };
 
-//#endif // WITH_TSE3
+#endif // WITH_TSE3
 #endif // PLAYBACKTRACKER_H
