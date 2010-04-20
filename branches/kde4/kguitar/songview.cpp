@@ -31,11 +31,10 @@
 #include <qlayout.h>
 #include <qlineedit.h>
 #include <qcombobox.h>
-#include <q3textedit.h>
+#include <ktextedit.h>
 #include <qdir.h>
-//Added by qt3to4:
-#include <Q3BoxLayout>
-#include <Q3VBoxLayout>
+#include <QBoxLayout>
+#include <QVBoxLayout>
 #include <QApplication>
 
 #ifdef WITH_TSE3
@@ -96,7 +95,7 @@ SongView::SongView(KXMLGUIClient *_XMLGUIClient, QUndoStack *_cmdHist,
 	// was changed in TrackView
 	connect(tv, SIGNAL(songChanged()), this, SIGNAL(songChanged()));
 
-	Q3BoxLayout *l = new Q3VBoxLayout(this);
+	QBoxLayout *l = new QVBoxLayout(this);
 	l->addWidget(split);
 
 	cmdHist = _cmdHist;

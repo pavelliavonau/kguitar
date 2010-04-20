@@ -14,12 +14,11 @@
 #include <kconfigdialog.h>
 
 #include <qlayout.h>
-#include <q3buttongroup.h>
+#include <qbuttongroup.h>
 #include <qradiobutton.h>
 #include <qcheckbox.h>
-//Added by qt3to4:
-#include <Q3VBoxLayout>
-#include <Q3Frame>
+#include <QVBoxLayout>
+#include <QFrame>
 
 Options::Options(
 #ifdef WITH_TSE3
@@ -67,7 +66,7 @@ Options::Options(
 	// GREYTODO: delete if not needed
 //	for (int i = 0; i < OPTIONS_PAGES_NUM; i++) {
 //		if (optWidget[i]) {
-//			Q3VBoxLayout *l = new Q3VBoxLayout(optPage[i]);
+//			QVBoxLayout *l = new QVBoxLayout(optPage[i]);
 //			l->addWidget(optWidget[i]);
 //		}
 //	}
