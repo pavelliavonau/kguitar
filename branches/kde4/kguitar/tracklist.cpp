@@ -61,12 +61,17 @@ void TrackList::contentsMousePressEvent(QMouseEvent *e)
 		QWidget *tmpWidget = 0;
 		tmpWidget = xmlGUIClient->factory()->container("tracklistpopup", xmlGUIClient);
 
-		if (!tmpWidget || !tmpWidget->inherits("KPopupMenu")) {
-			kdDebug() << "TrackList::contentsMousePressEvent => wrong container widget" << endl;
+		if (!tmpWidget) {
+			kdDebug() << "TrackList::contentsMousePressEvent => no container widget" << endl;
 			return;
 		}
 
-		KMenu *menu(static_cast<KMenu*>(tmpWidget));
+		if (!tmpWidget->inherits("QMenu")) {
+			kdDebug() << "TrackList::contentsMousePressEvent => container widget is not QMenu" << endl;
+			return;
+		}
+
+		QMenu *menu(static_cast<QMenu*>(tmpWidget));
 		menu->popup(QCursor::pos());
 	}
 
