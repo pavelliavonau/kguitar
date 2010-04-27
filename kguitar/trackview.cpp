@@ -1321,12 +1321,17 @@ void TrackView::mousePressEvent(QMouseEvent *e)
 		QWidget *tmpWidget = 0;
 		tmpWidget = xmlGUIClient->factory()->container("trackviewpopup", xmlGUIClient);
 
-		if (!tmpWidget || !tmpWidget->inherits("KPopupMenu")) {
-			kdDebug() << "TrackView::mousePressEvent => wrong container widget" << endl;
+		if (!tmpWidget) {
+			kdDebug() << "TrackView::contentsMousePressEvent => no container widget" << endl;
 			return;
 		}
 
-		KMenu *menu(static_cast<KMenu*>(tmpWidget));
+		if (!tmpWidget->inherits("QMenu")) {
+			kdDebug() << "TrackView::contentsMousePressEvent => container widget is not QMenu" << endl;
+			return;
+		}
+
+		QMenu *menu(static_cast<QMenu*>(tmpWidget));
 		menu->popup(QCursor::pos());
 	}
 
