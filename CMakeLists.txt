@@ -24,7 +24,7 @@ mark_as_advanced(TSE3_INCLUDE_DIR)
 find_library(TSE3_LIBRARY NAMES tse3)
 mark_as_advanced(TSE3_LIBRARY)
 
-# handle the QUIETLY and REQUIRED arguments and set TSE3_FOUND to TRUE if 
+# handle the QUIETLY and REQUIRED arguments and set TSE3_FOUND to TRUE if
 # all listed variables are TRUE
 include(FindPackageHandleStandardArgs)
 find_package_handle_standard_args(TSE3 DEFAULT_MSG TSE3_LIBRARY TSE3_INCLUDE_DIR)
@@ -32,19 +32,22 @@ find_package_handle_standard_args(TSE3 DEFAULT_MSG TSE3_LIBRARY TSE3_INCLUDE_DIR
 if(TSE3_FOUND)
 	set(TSE3_LIBRARIES ${TSE3_LIBRARY})
 	set(TSE3_INCLUDE_DIRS ${TSE3_INCLUDE_DIR})
-else(TSE3_FOUND)
-	set(TSE3_LIBRARIES)
-	set(TSE3_INCLUDE_DIRS)
 endif(TSE3_FOUND)
 
 # ======================================================================
 
-set(WITH_TSE3 ${TSE3_FOUND})
+option(WITH_TSE3 "Build KGuitar with TSE3 midi sequencer support" ${TSE3_FOUND})
+if(WITH_TSE3 AND NOT TSE3_FOUND)
+	message(FATAL_ERROR "WITH_TSE3 enabled but not found")
+endif(WITH_TSE3 AND NOT TSE3_FOUND)
+if(WITH_TSE3)
+	# for moc can properly generate playbacktracker.h
+	add_definitions(-DWITH_TSE3=1)
+endif(WITH_TSE3)
 
-# TSE3 requires exceptions enabled
+# TSE3 and other code requires exceptions enabled
 set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} ${KDE4_ENABLE_EXCEPTIONS}")
 
-add_subdirectory(doc)
 add_subdirectory(kguitar)
 add_subdirectory(kguitar_shell)
 add_subdirectory(icons)

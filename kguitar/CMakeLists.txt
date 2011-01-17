@@ -72,8 +72,10 @@ target_link_libraries(kguitarpart
 	${KDE4_KDEUI_LIBS}
 	${KDE4_KPARTS_LIBS}
 	${KDE4_KDE3SUPPORT_LIBS}
-	${TSE3_LIBRARIES}
 )
+if(WITH_TSE3)
+	target_link_libraries(kguitarpart ${TSE3_LIBRARIES})
+endif(WITH_TSE3)
 
 install(FILES kguitar_part.desktop DESTINATION ${XDG_APPS_INSTALL_DIR})
 install(FILES kguitar_part.rc DESTINATION ${DATA_INSTALL_DIR}/kguitarpart)

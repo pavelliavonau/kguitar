@@ -28,13 +28,11 @@ OptionsMidi::OptionsMidi(KSharedConfigPtr &conf, QWidget *parent, const char *na
 	midiport = new QTableWidget(this);
 //	midiport->setSorting(-1); // no text sorting
 	midiport->setFrameStyle(QFrame::Panel | QFrame::Sunken);
-	midiport->insertColumn(0);
-	midiport->insertColumn(1);
-	midiport->setHorizontalHeaderLabels(QStringList() << QString(i18n("Port")) << QString(i18n("Info")));
+	midiport->setColumnCount(2);
 
 	fillMidiBox();
 
-	QLabel *midiport_l = new QLabel(i18n("MIDI &output port"), midiport);
+	QLabel *midiport_l = new QLabel(i18n("MIDI output port"), midiport);
 
 	QPushButton *midirefresh = new QPushButton(i18n("&Refresh"), this);
 	connect(midirefresh, SIGNAL(clicked()), SLOT(fillMidiBox()));
@@ -60,16 +58,16 @@ void OptionsMidi::fillMidiBox()
 	sch->portNumbers(portNums);
 
 	midiport->clear();
-
-	QTableWidgetItem *lastItem = NULL;
+	midiport->setHorizontalHeaderLabels(QStringList() << QString(i18n("Port")) << QString(i18n("Info")));
+	midiport->setRowCount(portNums.size());
 
 	for (size_t i = 0; i < sch->numPorts(); i++) {
-		lastItem = new QTableWidgetItem(
-			midiport, lastItem, QString::number(portNums[i]),
-			sch->portName(portNums[i])
-		);
+		QTableWidgetItem *port = new QTableWidgetItem(QString::number(portNums[i]));
+		QTableWidgetItem *info = new QTableWidgetItem(sch->portName(portNums[i]));
+		midiport->setItem(i, 0, port);
+		midiport->setItem(i, 1, info);
 		if (Settings::midiPort() == portNums[i])
-			midiport->setCurrentItem(lastItem);
+			midiport->setCurrentItem(port);
 	}
 #endif
 }
