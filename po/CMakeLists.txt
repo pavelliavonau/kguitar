@@ -1,0 +1,5 @@
+find_package(Gettext REQUIRED)
+set (LANGS de;es;fr;it;ru)
+foreach(lang ${LANGS})
+	add_subdirectory(${lang})
+endforeach(lang)
