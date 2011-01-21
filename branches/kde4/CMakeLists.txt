@@ -51,6 +51,7 @@ set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} ${KDE4_ENABLE_EXCEPTIONS}")
 add_subdirectory(kguitar)
 add_subdirectory(kguitar_shell)
 add_subdirectory(icons)
+add_subdirectory(po)
 
 configure_file(config.h.in kguitar/config.h)
 configure_file(config.h.in kguitar_shell/config.h)
