@@ -369,6 +369,7 @@ void SongView::stopPlay()
 #ifdef WITH_TSE3
 bool SongView::initMidi()
 {
+	return TRUE;
 }
 #endif
 
