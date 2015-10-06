@@ -11,7 +11,7 @@ msgstr ""
 "Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
 "Language-Team: LANGUAGE <LL@li.org>\n"
 "MIME-Version: 1.0\n"
-"Content-Type: text/plain; charset=CHARSET\n"
+"Content-Type: text/plain; charset=UTF-8\n"
 "Content-Transfer-Encoding: ENCODING\n"
 
 #: application.cpp:133
@@ -203,7 +203,7 @@ msgstr ""
 #: application.cpp:274
 #, fuzzy
 msgid "Song Properties..."
-msgstr "Propiedades de la canción"
+msgstr "Propiedades de la canciÃ³n"
 
 #: application.cpp:275
 #, fuzzy
@@ -221,11 +221,11 @@ msgid ""
 "Are you sure you want to use jazz notes?"
 msgstr ""
 "Los nombres de las notas de Jazz son muy especiales\n"
-"y sólo deben ser usadas si realmente sabes lo que estas\n"
-"haciendo. Un uso de estos nombres sin un propósito llevaría\n"
-"a confusión a cualquiera que no tenga conocimiento de Jazz\n"
+"y sÃ³lo deben ser usadas si realmente sabes lo que estas\n"
+"haciendo. Un uso de estos nombres sin un propÃ³sito llevarÃ­a\n"
+"a confusiÃ³n a cualquiera que no tenga conocimiento de Jazz\n"
 "\n"
-"¿Estas seguro de querer usar notas de Jazz?"
+"Â¿Estas seguro de querer usar notas de Jazz?"
 
 #: application.cpp:329 application.cpp:337 application.cpp:377
 #: application.cpp:388 application.cpp:399 kguitar_shell.cpp:83
@@ -269,7 +269,7 @@ msgstr ""
 
 #: chord.cpp:169
 msgid "Root"
-msgstr "Raíz"
+msgstr "RaÃ­z"
 
 #: chord.cpp:170
 msgid "Inv #1"
@@ -393,7 +393,7 @@ msgstr ""
 #: filebrowser.cpp:156
 #, fuzzy
 msgid "Title:"
-msgstr "&Título"
+msgstr "&TÃ­tulo"
 
 #: filebrowser.cpp:161
 #, fuzzy
@@ -508,11 +508,11 @@ msgstr "Alteraciones"
 
 #: options.cpp:65
 msgid "-/+ symbols"
-msgstr "símbolos -/+"
+msgstr "sÃ­mbolos -/+"
 
 #: options.cpp:66
 msgid "b/# symbols"
-msgstr "símbolos b/#"
+msgstr "sÃ­mbolos b/#"
 
 #: options.cpp:82
 msgid "MusiXTeX Export"
@@ -600,7 +600,7 @@ msgstr ""
 
 #: setsong.cpp:18
 msgid "&Title:"
-msgstr "&Título"
+msgstr "&TÃ­tulo"
 
 #: setsong.cpp:19
 msgid "&Author:"
@@ -616,7 +616,7 @@ msgstr "&Comentarios"
 
 #: setsong.cpp:54
 msgid "Song properties"
-msgstr "Propiedades de la canción"
+msgstr "Propiedades de la canciÃ³n"
 
 #: settabfret.cpp:23
 msgid "Tuning:"
@@ -834,7 +834,7 @@ msgstr ""
 
 #: timesig.cpp:25
 msgid "&Beats per measure:"
-msgstr "&Tiempos por compás"
+msgstr "&Tiempos por compÃ¡s"
 
 #: timesig.cpp:26
 msgid "Beat &value:"
