@@ -5,7 +5,7 @@
 ChordAnalyzer::ChordAnalyzer(QString name)
 {
 	// Memorize name
-	this->name = name.replace(" ", "").replace("(", "").replace(")", "").upper();
+	this->name = name.replace(" ", "").replace("(", "").replace(")", "").toUpper();
 
 	// Reset the steps info
 	for (int i = 0; i < 6; i++) {

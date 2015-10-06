@@ -79,7 +79,7 @@ TrackView::TrackView(TabSong *s, KXMLGUIClient *_XMLGUIClient, QUndoStack *_cmdH
                      QWidget *parent, const char *name): Q3GridView(parent, name)
 {
 	setFrameStyle(Panel | Sunken);
-	setBackgroundMode(Qt::PaletteBase);
+	setBackgroundRole(QPalette::Base);
 
 	setFocusPolicy(Qt::StrongFocus);
 
@@ -95,21 +95,21 @@ TrackView::TrackView(TabSong *s, KXMLGUIClient *_XMLGUIClient, QUndoStack *_cmdH
 	if (normalFont->pointSize() == -1) {
 		normalFont->setPixelSize((int) ((double) normalFont->pixelSize() * NORMAL_FONT_FACTOR));
 	} else {
-		normalFont->setPointSizeFloat(normalFont->pointSizeFloat() * NORMAL_FONT_FACTOR);
+		normalFont->setPointSizeF(normalFont->pointSizeF() * NORMAL_FONT_FACTOR);
 	}
 
 	smallCaptionFont = new QFont(*normalFont);
 	if (smallCaptionFont->pointSize() == -1) {
 		smallCaptionFont->setPixelSize((int) ((double) smallCaptionFont->pixelSize() * SMALL_CAPTION_FONT_FACTOR));
 	} else {
-		smallCaptionFont->setPointSizeFloat(smallCaptionFont->pointSizeFloat() * SMALL_CAPTION_FONT_FACTOR);
+		smallCaptionFont->setPointSizeF(smallCaptionFont->pointSizeF() * SMALL_CAPTION_FONT_FACTOR);
 	}
 
 	timeSigFont = new QFont(*normalFont);
 	if (timeSigFont->pointSize() == -1) {
 		timeSigFont->setPixelSize((int) ((double) timeSigFont->pixelSize() * TIME_SIG_FONT_FACTOR));
 	} else {
-		timeSigFont->setPointSizeFloat(timeSigFont->pointSizeFloat() * TIME_SIG_FONT_FACTOR);
+		timeSigFont->setPointSizeF(timeSigFont->pointSizeF() * TIME_SIG_FONT_FACTOR);
 	}
 	timeSigFont->setBold(TRUE);
 
@@ -179,7 +179,7 @@ void TrackView::selectTrack(TabTrack *trk)
 
 void TrackView::selectBar(uint n)
 {
-	if (n != (uint) curt->xb && n < curt->b.size()) {
+	if (n != (uint) curt->xb && n < (uint) curt->b.size()) {
 		curt->x = curt->b[n].start;
 		curt->xb = n;
 		ensureCurrentVisible();
@@ -489,7 +489,7 @@ void TrackView::paintCell(QPainter *p, int r, int c)
 	int selx2coord = -1;
 	selxcoord = -1;
 
-	if (bn >= curt->b.size())  return;
+	if (bn >= (uint) curt->b.size())  return;
 
 	trp->setPainter(p);
 	// LVIFIX: initmetrics may be expensive but depends on p, init only once ?
@@ -1068,11 +1068,11 @@ void TrackView::moveLeft()
 
 void TrackView::moveRight()
 {
-	if (((uint) (curt->x + 1)) == curt->c.size()) {
+	if ((curt->x + 1) == curt->c.size()) {
 		cmdHist->push(new AddColumnCommand(this, curt));
 		emit columnChanged();
 	} else {
-		if (curt->b.size() == (uint) curt->xb + 1)
+		if (curt->b.size() == curt->xb + 1)
 			curt->x++;
 		else {
 			if (curt->b[curt->xb + 1].start == curt->x + 1) {

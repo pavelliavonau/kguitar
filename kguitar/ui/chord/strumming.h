@@ -12,7 +12,7 @@ class QLabel;
 class Strumming: public QDialog {
 	Q_OBJECT
 public:
-	Strumming(int default_scheme, QWidget *parent=0, const char *name=0);
+	Strumming(int default_scheme, QWidget *parent=0);
 	int scheme();
 
 private slots:

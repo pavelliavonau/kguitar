@@ -14,14 +14,14 @@ class QComboBox;
 class SetTabFret: public QWidget {
     Q_OBJECT
 public:
-    SetTabFret(QWidget *parent=0, const char *name=0);
+    SetTabFret(QWidget *parent=0);
 
-    void setString(int n) { st->setValue(n); };
-    void setFrets(int n) { fr->setValue(n); };
-    void setTune(uchar x, uchar n) { tuner[x]->setValue(n); };
-    int string() { return st->value(); };
-    int frets() { return fr->value(); };
-    uchar tune(uchar x) { return tuner[x]->value(); };
+    void setString(int n) { st->setValue(n); }
+    void setFrets(int n) { fr->setValue(n); }
+    void setTune(uchar x, uchar n) { tuner[x]->setValue(n); }
+    int string() { return st->value(); }
+    int frets() { return fr->value(); }
+    uchar tune(uchar x) { return tuner[x]->value(); }
 
 public slots:
     void setLibTuning(int n);

@@ -13,8 +13,8 @@
 #include <kconfig.h>
 #include <kconfiggroup.h>
 
-OptionsMelodyEditor::OptionsMelodyEditor(KSharedConfigPtr &conf, QWidget *parent, const char *name)
-	: OptionsPage(conf, parent, name)
+OptionsMelodyEditor::OptionsMelodyEditor(KSharedConfigPtr &conf, QWidget *parent)
+	: OptionsPage(conf, parent)
 {
 	// GREYFIX!!!
 	int globalMelodyEditorWood;

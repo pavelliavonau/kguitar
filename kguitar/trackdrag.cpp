@@ -61,13 +61,13 @@ void TrackDrag::setTrack(TabTrack *trk)
 	s << (Q_UINT8) trk->b[0].time1; // Time signature itself
 	s << (Q_UINT8) trk->b[0].time2;
 
-	for (uint x = 0; x < trk->c.size(); x++) {
-		if (bar+1 < trk->b.size()) {	// This bar's not last
+	for (int x = 0; x < trk->c.size(); x++) {
+		if (bar+1 < (uint)trk->b.size()) {	// This bar's not last
 			if (trk->b[bar+1].start == x)
 				bar++;				// Time for next bar
 		}
 
-		if ((bar < trk->b.size()) && (trk->b[bar].start == x)) {
+		if ((bar < (uint)trk->b.size()) && (trk->b[bar].start == x)) {
 			s << (Q_UINT8) 'B';     // New bar event
 			s << (Q_UINT8) 0;
 		}
@@ -232,7 +232,7 @@ bool TrackDrag::decode(const QMimeSource *e, TabTrack *&trk)
 				s >> cn;
 			break;
 		}
-	} while ((!finished) && (!s.eof()));
+	} while ((!finished) && (!s.atEnd()));
 
 	newtrk->x = 0;
 	newtrk->xb = 0;

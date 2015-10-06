@@ -21,7 +21,6 @@ public slots:
 	void setTonic(int);
 	void setMode(int);
 	void drawBackground();
-	void drawScaleBack();
 
 signals:
 	void buttonPress(int, int, Qt::ButtonState);
@@ -38,6 +37,7 @@ protected:
 private:
 	void handleMouse(QMouseEvent *);
 	void recalculateSizes();
+	void drawScaleBack();
 
 	TabTrack *trk;
 	double fr[MAX_FRETS + 1]; // Proper physical fret positions

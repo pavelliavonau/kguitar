@@ -21,7 +21,7 @@ class SongView;
 class SongView::SetSongPropCommand: public QUndoCommand {
 public:
 	SetSongPropCommand(SongView *_song, QMap<QString, QString> _info, int _tempo);
-	virtual ~SetSongPropCommand() {};
+	virtual ~SetSongPropCommand() {}
 
 	virtual void redo();
 	virtual void undo();
@@ -39,7 +39,7 @@ class SongView::SetTrackPropCommand: public QUndoCommand {
 public:
 	SetTrackPropCommand(TrackView *_tv, TrackList *_tl, TrackPane *_tp,
 						TabTrack *_trk, TabTrack *_newtrk);
-	virtual ~SetTrackPropCommand() {};
+	virtual ~SetTrackPropCommand() {}
 
 	virtual void redo();
 	virtual void undo();
@@ -65,7 +65,7 @@ private:
 class SongView::InsertTabsCommand: public QUndoCommand {
 public:
 	InsertTabsCommand(TrackView *_tv, TabTrack *_trk, TabTrack *_tabs);
-	virtual ~InsertTabsCommand() {};
+	virtual ~InsertTabsCommand() {}
 
 	virtual void redo();
 	virtual void undo();

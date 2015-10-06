@@ -82,12 +82,20 @@ QSizePolicy Fretboard::sizePolicy()
 void Fretboard::setTrack(TabTrack *_trk)
 {
 	trk = _trk;
+	if(trk->trackMode() != TabTrack::FretTab) {
+	    setFixedHeight(0);
+	    return;
+	}
+
 	setFixedHeight(trk->string * STRING_HEIGHT);
 	recalculateSizes();
 }
 
 void Fretboard::paintEvent(QPaintEvent *)
 {
+    if(trk->trackMode() != TabTrack::FretTab)
+        return;
+
 	QPainter p(this);
 	p.setRenderHint(QPainter::Antialiasing);
 	p.setBrush(QBrush(QColor(FINGER_COLOR)));
@@ -114,6 +122,9 @@ void Fretboard::mouseMoveEvent(QMouseEvent *e)
 
 void Fretboard::handleMouse(QMouseEvent *e)
 {
+  if(trk->trackMode() != TabTrack::FretTab)
+    return;
+
 	int y = trk->string - (e->y() / STRING_HEIGHT) - 1;
 	int x = 0;
 	if (e->x() > fr[0]) {
@@ -141,6 +152,9 @@ void Fretboard::resizeEvent(QResizeEvent *)
 // Funky fret physical sizes calculation
 void Fretboard::recalculateSizes()
 {
+    if(trk->trackMode() != TabTrack::FretTab)
+        return;
+
 	double l = width() - ZERO_FRET_WIDTH;
 
 	// Step 1: get fret sizes according to iterative algorithm
@@ -159,6 +173,9 @@ void Fretboard::recalculateSizes()
 // Draw background according to new widget sizes
 void Fretboard::drawBackground()
 {
+  if(trk->trackMode() != TabTrack::FretTab)
+    return;
+
 	kDebug() << "drawBackground - start\n";
 
 	if (back != NULL)

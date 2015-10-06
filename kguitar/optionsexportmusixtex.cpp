@@ -5,15 +5,13 @@
 #include <qradiobutton.h>
 #include <qcheckbox.h>
 #include <qlayout.h>
-//Added by qt3to4:
-#include <Q3VBoxLayout>
 
 #include <klocale.h>
 #include <kconfig.h>
 #include <kconfiggroup.h>
 
-OptionsExportMusixtex::OptionsExportMusixtex(KSharedConfigPtr &conf, QWidget *parent, const char *name)
-	: OptionsPage(conf, parent, name)
+OptionsExportMusixtex::OptionsExportMusixtex(KSharedConfigPtr &conf, QWidget *parent)
+	: OptionsPage(conf, parent)
 {
 	// Create option widgets
 
@@ -36,7 +34,7 @@ OptionsExportMusixtex::OptionsExportMusixtex(KSharedConfigPtr &conf, QWidget *pa
 
 	// Set widget layout
 
-	Q3VBoxLayout *box = new Q3VBoxLayout(this);
+	QVBoxLayout *box = new QVBoxLayout(this);
 	box->addWidget(layoutGroup);
 	box->addWidget(tabSizeGroup);
 	box->addWidget(exportModeGroup);

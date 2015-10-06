@@ -5,7 +5,6 @@
 
 #include <qfile.h>
 #include <q3textstream.h>
-#include <q3valuelist.h>
 
 ConvertXml::ConvertXml(TabSong *song): ConvertBase(song), QXmlDefaultHandler()
 {
@@ -29,7 +28,7 @@ bool ConvertXml::load(QString fileName)
 {
 	MusicXMLErrorHandler errHndlr;
 	QFile xmlFile(fileName);
-	QXmlInputSource source(xmlFile);
+	QXmlInputSource source(&xmlFile);
 	QXmlSimpleReader reader;
 	reader.setContentHandler(this);
 	reader.setErrorHandler(&errHndlr);
@@ -159,12 +158,14 @@ static bool allocStrFrt(int pitch, TabTrack * trk, int col,
 
 // helpers for NMusicXMLExport::calcDivisions
 
-typedef Q3ValueList<int> IntVector;
+typedef QList<int> IntVector;
 static IntVector integers;
 static IntVector primes;
 
 static void addInt(int len) {
-	IntVector::Iterator it = integers.find(len);
+	int i = integers.indexOf(len);
+	// TODO: test this change and refactor it
+	IntVector::Iterator it = i == -1 ? integers.end() : (integers.begin()+i);
 	if (it == integers.end()) {
 		integers.append(len);
 	}
@@ -174,8 +175,8 @@ static void addInt(int len) {
 
 static bool canDivideBy(int div) {
 	bool res = true;
-	for (unsigned int i = 0; i < integers.count(); i++) {
-		if ((integers[i] <= 1) || ((integers[i] % div) != 0)) {
+	for (auto i: integers) {
+		if ((i <= 1) || ((i % div) != 0)) {
 			res = false;
 		}
 	}
@@ -185,8 +186,8 @@ static bool canDivideBy(int div) {
 // divide all integers by div
 
 static void divideBy(int div) {
-	for (unsigned int i = 0; i < integers.count(); i++) {
-		integers[i] /= div;
+	for (auto& i: integers) {
+		i /= div;
 	}
 }
 
@@ -202,7 +203,6 @@ static void divideBy(int div) {
 
 void ConvertXml::calcDivisions() {
 //	cout << "ConvertXml::calcDivisions()" << endl;
-	IntVector::Iterator it;
 
 	// init
 	integers.clear();
@@ -216,15 +216,14 @@ void ConvertXml::calcDivisions() {
 // need to use note and rest duration as exported to MusicXML
 // thus match ConvertXml::write's main loop
 
-	TabTrack *trk;
 	// loop over all tracks
-	for (unsigned int it = 0; it < song->t.count(); it++) {
-		trk = song->t.at(it);
+	for (auto trk : song->t) {
+
 		trk->calcVoices();	// LVIFIX: is this necessary ?
 //		cout << "part id=P" << it+1 << endl;
 
 		// loop over all bars
-		for (uint ib = 0; ib < trk->b.size(); ib++) {
+		for (int ib = 0; ib < trk->b.size(); ib++) {
 //			cout << "measure number=" << ib + 1 << endl;
 
 			// loop over all voices in this bar
@@ -234,8 +233,7 @@ void ConvertXml::calcDivisions() {
 				if ((i == 1) || trk->hasMultiVoices()) {
 //					cout << "voice number=" << i + 1 << endl;
 					// loop over all columns in this bar
-					for (int x = trk->b[ib].start;
-							x <= trk->lastColumn(ib); /* nothing */) {
+					for (int x = trk->b[ib].start; x <= trk->lastColumn(ib); /* nothing */) {
 /*
 						int tp;
 						int dt;
@@ -264,9 +262,9 @@ void ConvertXml::calcDivisions() {
 	} // end for (unsigned int it = 0; ...
 
 	// do it: divide by all primes as often as possible
-	for (unsigned int u = 0; u < primes.count(); u++) {
-		while (canDivideBy(primes[u])) {
-			divideBy(primes[u]);
+	for (auto& u : primes) {
+		while (canDivideBy(u)) {
+			divideBy(u);
 		}
 	}
 
@@ -536,10 +534,10 @@ int ConvertXml::writeCol(Q3TextStream& os, TabTrack * trk, int x, int v, bool wr
 	int nCols = 1;				// # columns used (default 1)
 	int nNotes = 0;				// # notes printed in this column
 	int nRests = 0;				// # rests printed in this column
-	int res;
+	//int res;
 
 	// LVIFIX: error handling ?
-	res = trk->getNoteTypeAndDots(x, v, length, dots, triplet);
+	//res = trk->getNoteTypeAndDots(x, v, length, dots, triplet);
 /*
 	if (!wrt) {
 		cout
@@ -566,7 +564,7 @@ int ConvertXml::writeCol(Q3TextStream& os, TabTrack * trk, int x, int v, bool wr
 	bool tieStart = FALSE;
 	bool tieStop  = FALSE;
 	int  xt = x;				// x where tie starts
-	if (((unsigned)(x+1) < trk->c.size()) && (trk->c[x+1].flags & FLAG_ARC)) {
+	if ((x+1 < trk->c.size()) && (trk->c[x+1].flags & FLAG_ARC)) {
 		tieStart = TRUE;
 	}
 	if ((x > 0) && (trk->c[x].flags & FLAG_ARC)) {
@@ -620,13 +618,13 @@ int ConvertXml::writeCol(Q3TextStream& os, TabTrack * trk, int x, int v, bool wr
 			// MusicXML requires both the <hammer-on>/<pull-off> and <slur>
 			// EFFECT_SLIDE is assumed to mean a slide on the fretboard
 			// (not a bottleneck slide). Use a <glissando> in MusicXML.
-			bool legStart = (((unsigned)(x+1) < trk->c.size())
+			bool legStart = ((x+1 < trk->c.size())
 							  && (trk->c[x].e[i] == EFFECT_LEGATO));
 			bool legStop  = ((x > 0)
 							  && (trk->c[x-1].e[i] == EFFECT_LEGATO));
 			QString legStartType;
 			QString legStopType;
-			if (((unsigned)(x+1) < trk->c.size())
+			if ((x+1 < trk->c.size())
 				&& (trk->c[x].a[i] < trk->c[x+1].a[i])) {
 				legStartType = "hammer-on";
 			} else {
@@ -638,7 +636,7 @@ int ConvertXml::writeCol(Q3TextStream& os, TabTrack * trk, int x, int v, bool wr
 			} else {
 				legStopType = "pull-off";
 			}
-			bool sliStart = (((unsigned)(x+1) < trk->c.size())
+			bool sliStart = ((x+1 < trk->c.size())
 							  && (trk->c[x].e[i] == EFFECT_SLIDE));
 			bool sliStop  = ((x>0)
 							  && (trk->c[x-1].e[i] == EFFECT_SLIDE));
@@ -1251,7 +1249,7 @@ bool ConvertXml::addNote()
 			trk->c[x-1].e[kgStr] = EFFECT_LETRING;
 			// stop ringing at column x+ncols-1 (if it exists)
 			// needed only if x-1 has note and x+ncols-1 hasn't
-			if ((unsigned) x < (trk->c.size() - ncols + 1)) {
+			if (x < (trk->c.size() - ncols + 1)) {
 				if (trk->c[x+ncols-1].a[kgStr] < 0) {
 					trk->c[x+ncols-1].e[kgStr] = EFFECT_STOPRING;
 				}

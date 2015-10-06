@@ -1,22 +1,22 @@
 #ifndef TRACKPANE_H
 #define TRACKPANE_H
 
-#include <q3table.h>
-//Added by qt3to4:
+#include <QScrollArea>
 #include <QMouseEvent>
 
 class TabSong;
 class TabTrack;
 
-class TrackPane: public Q3ScrollView {
+class TrackPane: public QWidget {
 	Q_OBJECT
 
 public:
-	TrackPane(TabSong *s, int hh, int rh, QWidget *parent = 0, const char *name = 0);
+	TrackPane(TabSong *s, int hh, int rh, QWidget *parent = 0);
 	void updateList();
+//	virtual QSize sizeHint() const override;
 
 public slots:
-	void repaintTrack(TabTrack *);
+	//void repaintTrack(TabTrack *);
 	void repaintCurrentTrack();
 	void syncVerticalScroll(int, int);
 
@@ -25,8 +25,12 @@ signals:
 	void barSelected(uint);
 
 protected:
-	virtual void drawContents(QPainter *, int clipx, int clipy, int clipw, int cliph);
-	virtual void mousePressEvent(QMouseEvent *e);
+	virtual void paintEvent(QPaintEvent *) override;
+	virtual void mousePressEvent(QMouseEvent *e) override;
+	//virtual void resizeEvent(QResizeEvent *) override;
+
+	int contentsX(){ return /*viewport()->x()*/0; }
+	int contentsY(){ return /*viewport()->y()*/0; }
 
 private:
 	TabSong *song;

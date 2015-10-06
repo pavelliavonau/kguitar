@@ -34,7 +34,7 @@ QString ConvertGtp::readDelphiString()
 	}
 
 	if (c) {
-		stream->readRawBytes(c, l);
+		stream->readRawData(c, l);
 		c[l] = 0;
 		str = QString::fromLocal8Bit(c);
 		free(c);
@@ -54,7 +54,7 @@ QString ConvertGtp::readPascalString(int maxlen)
 	c = (char *) malloc(l + 5);
 
 	if (c) {
-		stream->readRawBytes(c, l);
+		stream->readRawData(c, l);
 		c[l] = 0;
 		str = QString::fromLocal8Bit(c);
 		free(c);
@@ -76,7 +76,7 @@ QString ConvertGtp::readWordPascalString()
 	c = (char *) malloc(l + 5);
 
 	if (c) {
-		stream->readRawBytes(c, l);
+		stream->readRawData(c, l);
 		c[l] = 0;
 		str = QString::fromLocal8Bit(c);
 		free(c);
@@ -149,7 +149,7 @@ void ConvertGtp::readChord()
 	}
 
 	// Unknown bytes
-	stream->readRawBytes(garbage, 36);
+	stream->readRawData(garbage, 36);
 
 	kdDebug() << "after chord, position: " << stream->device()->pos() << "\n";
 }
@@ -418,7 +418,11 @@ void ConvertGtp::readTrackProperties()
 		readDelphiInteger();                 // GREYFIX: MIDI port
 		trk->channel = readDelphiInteger();  // MIDI channel 1
 		midiChannel2 = readDelphiInteger();  // GREYFIX: MIDI channel 2
-		trk->frets = readDelphiInteger();    // Frets
+		trk->frets = readDelphiInteger();    // Frets		
+
+		if(trk->frets == 'W')
+		    trk->setTrackMode(TabTrack::DrumTab);
+
 		capo = readDelphiInteger();          // GREYFIX: Capo
 		color = readDelphiInteger();         // GREYFIX: Color
 
@@ -802,7 +806,7 @@ bool ConvertGtp::load(QString fileName)
 			i18n("Guitar Pro import error:") + QString("\n") +
 			msg + QString("\n") +
 			i18n("Stage: %1").arg(currentStage) + QString("\n") +
-			i18n("File position: %1/%2").arg(f.at()).arg(f.size());
+			i18n("File position: %1/%2").arg(f.pos()).arg(f.size());
 	}
 
 	f.close();

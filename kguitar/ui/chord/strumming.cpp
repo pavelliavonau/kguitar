@@ -7,51 +7,45 @@
 #include <qlabel.h>
 #include <qpushbutton.h>
 #include <qcombobox.h>
-//Added by qt3to4:
-#include <Q3VBoxLayout>
-#include <Q3Frame>
-#include <Q3GridLayout>
-#include <Q3HBoxLayout>
 
-Strumming::Strumming(int default_scheme, QWidget *parent, const char *name)
-	: QDialog(parent, name, TRUE)
+Strumming::Strumming(int default_scheme, QWidget *parent)
+	: QDialog(parent)
 {
-	Q3VBoxLayout *l = new Q3VBoxLayout(this, 10);
+	setModal(true);
+	QVBoxLayout *l = new QVBoxLayout(this);
 
-	Q3GridLayout *g = new Q3GridLayout(1, 2, 10);
+	QGridLayout *g = new QGridLayout;
 	l->addLayout(g);
 
 	// STRUMMING OPTIONS CONTROLS
 
-	pattern = new QComboBox(FALSE, this);
+	pattern = new QComboBox(this);
 	for (int i = 0; lib_strum[i].len[0]; i++)
-		pattern->insertItem(i18n(lib_strum[i].name));
-	pattern->setCurrentItem(default_scheme);
+		pattern->addItem(i18n(lib_strum[i].name.toUtf8()));
+	pattern->setCurrentIndex(default_scheme);
 	connect(pattern, SIGNAL(highlighted(int)), SLOT(updateComment(int)));
 
-	QLabel *pattern_l = new QLabel(pattern, i18n("Strum &pattern:"), this);
+	QLabel *pattern_l = new QLabel(i18n("Strum &pattern:"), this);
+	pattern_l->setBuddy(pattern);
 
 	g->addWidget(pattern_l, 0, 0);
 	g->addWidget(pattern, 0, 1);
 
-	g->addRowSpacing(0, 30);
-
-	g->addColSpacing(0, 80);
-	g->addColSpacing(1, 200);
-	g->setColStretch(1, 1);
+	g->setColumnStretch(1, 1);
 
 	// COMMENT BOX
 
 	comment = new QLabel(this);
-	comment->setFrameStyle(Q3Frame::Box | Q3Frame::Sunken);
-	comment->setAlignment(Qt::WordBreak);
+	comment->setFrameStyle(QFrame::Box | QFrame::Sunken);
+	comment->setAlignment(Qt::AlignJustify);
+	comment->setWordWrap(true);
 	comment->setMinimumSize(150, 85);
 	updateComment(0);
 	l->addWidget(comment);
 
 	// DIALOG BUTTONS
 
-	Q3HBoxLayout *butt = new Q3HBoxLayout();
+	QHBoxLayout *butt = new QHBoxLayout();
 	l->addLayout(butt);
 
 	QPushButton *ok = new QPushButton(i18n("OK"), this);
@@ -65,16 +59,16 @@ Strumming::Strumming(int default_scheme, QWidget *parent, const char *name)
 
 	l->activate();
 
-	setCaption(i18n("Strumming pattern"));
+	setWindowTitle(i18n("Strumming pattern"));
 	resize(0, 0);
 }
 
 int Strumming::scheme()
 {
-	return pattern->currentItem();
+	return pattern->currentIndex();
 }
 
 void Strumming::updateComment(int n)
 {
-	comment->setText(i18n(lib_strum[n].description));
+	comment->setText(i18n(lib_strum[n].description.toUtf8()));
 }

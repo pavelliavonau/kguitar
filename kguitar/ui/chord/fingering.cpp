@@ -12,8 +12,8 @@
 #include <QMouseEvent>
 #include <Q3Frame>
 
-Fingering::Fingering(TabTrack *p, QWidget *parent, const char *name):
-    Q3Frame(parent, name)
+Fingering::Fingering(TabTrack *p, QWidget *parent):
+    Q3Frame(parent)
 {
 	parm = p;
 
@@ -22,10 +22,13 @@ Fingering::Fingering(TabTrack *p, QWidget *parent, const char *name):
 	setFixedSize(parm->string * SCALE + 2 * BORDER + FRETTEXT + SCROLLER,
 	             NUMFRETS * SCALE + SCALE + 2 * BORDER + 2 * SPACER + NOTES);
 	setFrameStyle(Panel | Sunken);
-	setBackgroundMode(Qt::PaletteBase);
 
-	ff = new QScrollBar(1, parm->frets-NUMFRETS + 1, 1, 5, 1,
-	                    Qt::Vertical, this);
+	ff = new QScrollBar(this);
+	ff->setMinimum(1);
+	ff->setMaximum(parm->frets-NUMFRETS + 1);
+	ff->setSingleStep(5);
+	ff->setValue(1);
+	ff->setOrientation(Qt::Vertical);
 	ff->setGeometry(width() - SCROLLER, 0, SCROLLER, height());
 	connect(ff, SIGNAL(valueChanged(int)), SLOT(setFirstFret(int)));
 

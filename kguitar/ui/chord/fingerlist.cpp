@@ -13,8 +13,8 @@
 
 #define FRET_NUMBER_FONT_FACTOR 0.7
 
-FingerList::FingerList(TabTrack *p, QWidget *parent, const char *name)
-	: Q3GridView(parent, name)
+FingerList::FingerList(TabTrack *p, QWidget *parent)
+	: Q3GridView(parent)
 {
 	parm = p;
 
@@ -22,7 +22,7 @@ FingerList::FingerList(TabTrack *p, QWidget *parent, const char *name)
 	setHScrollBarMode(AlwaysOff);
 
 	setFrameStyle(Panel | Sunken);
-	setBackgroundMode(Qt::PaletteBase);
+	setBackgroundRole(QPalette::Base);
 	setFocusPolicy(Qt::StrongFocus);
 	num = 0; curSel = -1; oldCol = 0; oldRow = 0;
 
@@ -36,7 +36,7 @@ FingerList::FingerList(TabTrack *p, QWidget *parent, const char *name)
 	if (fretNumberFont->pointSize() == -1) {
 		fretNumberFont->setPixelSize((int) ((double) fretNumberFont->pixelSize() * FRET_NUMBER_FONT_FACTOR));
 	} else {
-		fretNumberFont->setPointSizeFloat(fretNumberFont->pointSizeFloat() * FRET_NUMBER_FONT_FACTOR);
+		fretNumberFont->setPointSizeF(fretNumberFont->pointSizeF() * FRET_NUMBER_FONT_FACTOR);
 	}
 
 	repaint();

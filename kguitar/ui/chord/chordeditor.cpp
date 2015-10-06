@@ -46,16 +46,18 @@ int stemplate[][6] = {{-1,2, 0, 0, 0, 0 },   // C
                       {2, 1, 1, 0, 0, 0 },   // Cdim
                       {0, 2, 0, 0, 0, 0 }};  // C5
 
-ChordEditor::ChordEditor(TabTrack *p, QWidget *parent, const char *name)
-	: QDialog(parent, name, TRUE)
+ChordEditor::ChordEditor(TabTrack *p, QWidget *parent)
+	: QDialog(parent)
 {
+	setModal(true);
 	initChordSelector(p);
 }
 
 #ifdef WITH_TSE3
-ChordEditor::ChordEditor(TSE3::MidiScheduler *_scheduler, TabTrack *p, QWidget *parent,
-                             const char *name): QDialog(parent, name, TRUE)
+ChordEditor::ChordEditor(TSE3::MidiScheduler *_scheduler, TabTrack *p, QWidget *parent)
+	: QDialog(parent)
 {
+	setModal(true);
 	kdDebug() << k_funcinfo << endl;
 
 	initChordSelector(p);
@@ -91,9 +93,9 @@ void ChordEditor::initChordSelector(TabTrack *p)
 // 	tonic->setMinimumWidth(tonic->maxItemWidth());
 	connect(tonic, SIGNAL(currentRowChanged(int)), SLOT(findChords()));
 
-	bassnote = new QComboBox(FALSE, this);
+	bassnote = new QComboBox(this);
 	for (int i = 0; i < 12; i++)
-		bassnote->insertItem(Settings::noteName(i));
+		bassnote->addItem(Settings::noteName(i));
 
 	step3 = new QListWidget(this);
 	step3->addItem("M");
@@ -138,40 +140,40 @@ void ChordEditor::initChordSelector(TabTrack *p)
 		cnote[i] = new QLabel(this);
 		cnote[i]->setAlignment(Qt::AlignCenter);
 
-		st[i] = new QComboBox(FALSE, this);
+		st[i] = new QComboBox(this);
 		if (i > 0)
-			st[i]->insertItem("x");
+			st[i]->addItem("x");
 		if ((i == 2) || (i >= 4)) {
-			st[i]->insertItem(Settings::flatName());
-			st[i]->insertItem("0");
-			st[i]->insertItem(Settings::sharpName());
+			st[i]->addItem(Settings::flatName());
+			st[i]->addItem("0");
+			st[i]->addItem(Settings::sharpName());
 		}
 		if (i > 0)  {
 			connect(st[i], SIGNAL(activated(int)), SLOT(findSelection()));
 			connect(st[i], SIGNAL(activated(int)), SLOT(findChords()));
 		} else {
-			st[i]->insertItem("0");
+			st[i]->addItem("0");
 			st[i]->setEnabled(FALSE);
 		}
 	}
 
-	st[1]->insertItem("2");
-	st[1]->insertItem(Settings::flatName());
-	st[1]->insertItem("3");
-	st[1]->insertItem("4");
+	st[1]->addItem("2");
+	st[1]->addItem(Settings::flatName());
+	st[1]->addItem("3");
+	st[1]->addItem("4");
 
-	st[3]->insertItem("6");
-	st[3]->insertItem(Settings::flatName());
-	st[3]->insertItem("7");
+	st[3]->addItem("6");
+	st[3]->addItem(Settings::flatName());
+	st[3]->addItem("7");
 
-	inv = new QComboBox(FALSE, this);
-	inv->insertItem(i18n("Root"));
-	inv->insertItem(i18n("Inv #1"));
-	inv->insertItem(i18n("Inv #2"));
-	inv->insertItem(i18n("Inv #3"));
-	inv->insertItem(i18n("Inv #4"));
-	inv->insertItem(i18n("Inv #5"));
-	inv->insertItem(i18n("Inv #6"));
+	inv = new QComboBox(this);
+	inv->addItem(i18n("Root"));
+	inv->addItem(i18n("Inv #1"));
+	inv->addItem(i18n("Inv #2"));
+	inv->addItem(i18n("Inv #3"));
+	inv->addItem(i18n("Inv #4"));
+	inv->addItem(i18n("Inv #5"));
+	inv->addItem(i18n("Inv #6"));
 	connect(inv, SIGNAL(activated(int)), SLOT(findChords()));
 
 	complexity = new QGroupBox(this);
@@ -202,11 +204,11 @@ void ChordEditor::initChordSelector(TabTrack *p)
 
 	chordNameAnalyze = new QPushButton(i18n("&Analyze"), this);
 	connect(chordNameAnalyze, SIGNAL(clicked()), SLOT(analyzeChordName()));
-	chordNameAnalyze->setAccel(QKeySequence(Qt::SHIFT + Qt::Key_Return));
+	chordNameAnalyze->setShortcut(QKeySequence(Qt::SHIFT + Qt::Key_Return));
 
 	chordNameQuickInsert = new QPushButton(i18n("&Quick Insert"), this);
 	connect(chordNameQuickInsert, SIGNAL(clicked()), SLOT(quickInsert()));
-	chordNameQuickInsert->setAccel(QKeySequence(Qt::CTRL + Qt::Key_Return));
+	chordNameQuickInsert->setShortcut(QKeySequence(Qt::CTRL + Qt::Key_Return));
 
 	strumbut = new QPushButton(i18n("&Strum..."), this);
 	connect(strumbut, SIGNAL(clicked()), SLOT(askStrum()));
@@ -238,23 +240,23 @@ void ChordEditor::initChordSelector(TabTrack *p)
 	lchord->addWidget(fnglist, 1);
 
 	// Chord selection (template-based) layout
-	QGridLayout *lselect = new QGridLayout(3, 3, 5);
+	QGridLayout *lselect = new QGridLayout();
 	lchedit->addLayout(lselect);
 
-	lselect->addMultiCellWidget(tonic, 0, 2, 0, 0);
-	lselect->addColSpacing(0, 40);
+	lselect->addWidget(tonic, 0, 0, 3, 1);
 
 	lselect->addWidget(step3, 0, 1);
 	lselect->addWidget(inv, 2, 1);
 
-	lselect->addMultiCellWidget(stephigh, 0, 1, 2, 2);
+	lselect->addWidget(stephigh, 0, 2, 2, 1);
 	lselect->addWidget(bassnote, 2, 2);
 
 	// Complexity selection
 	QBoxLayout *lcomplexity = new QVBoxLayout();
 	for (int i = 0; i < 3; i++)
 		lcomplexity->addWidget(complexer[i]);
-	lselect->addLayout(lcomplexity, 1, 1);
+	complexity->setLayout(lcomplexity);
+	lselect->addWidget(complexity, 1, 1);
 
 	// Chord icon showing layout
 	QBoxLayout *lshow = new QVBoxLayout();
@@ -267,19 +269,16 @@ void ChordEditor::initChordSelector(TabTrack *p)
 	lanalyze->addWidget(chords);
 
 	// Steps editor layout
-	QGridLayout *lsteps = new QGridLayout(3, 7, 0);
+	QGridLayout *lsteps = new QGridLayout();
 	lshow->addLayout(lsteps);
 
-	lsteps->addRowSpacing(0, 15);
-	lsteps->addRowSpacing(1, 20);
-	lsteps->addRowSpacing(2, 15);
-	lsteps->setColStretch(0, 1);
+	lsteps->setColumnStretch(0, 1);
 
 	for (int i = 0; i < 7; i++) {
 		lsteps->addWidget(stlabel[i], 0, i);
 		lsteps->addWidget(st[i], 1, i);
 		lsteps->addWidget(cnote[i], 2, i);
-		lsteps->setColStretch(i, 1);
+		lsteps->setColumnStretch(i, 1);
 	}
 
 	// Strumming and buttons stuff layout
@@ -295,7 +294,7 @@ void ChordEditor::initChordSelector(TabTrack *p)
 
 	l->activate();
 
-	setCaption(i18n("Chord Constructor"));
+	setWindowTitle(i18n("Chord Constructor"));
 }
 
 void ChordEditor::askStrum()
@@ -387,8 +386,8 @@ void ChordEditor::playMidi()
 void ChordEditor::detectChord()
 {
 	bool cn[12];
-	int i, j, numnotes, noteok, bassiest = 255, bass;
-	QString name;
+	int i, j, numnotes, noteok, /*bassiest = 255,*/ bass = 0;
+	//QString name;
 	int s3, s5, s7, s9, s11, s13;
 
 	for (i = 0; i < 12; i++)
@@ -486,10 +485,10 @@ void ChordEditor::detectChord()
 void ChordEditor::setStep3(int n)
 {
 	switch (n) {
-	case 0: st[1]->setCurrentItem(3); break;				// Major
-	case 1: st[1]->setCurrentItem(2); break;				// Minor
-	case 2: st[1]->setCurrentItem(1); break;				// Sus2
-	case 3: st[1]->setCurrentItem(4); break;				// Sus4
+	case 0: st[1]->setCurrentIndex(3); break;				// Major
+	case 1: st[1]->setCurrentIndex(2); break;				// Minor
+	case 2: st[1]->setCurrentIndex(1); break;				// Sus2
+	case 3: st[1]->setCurrentIndex(4); break;				// Sus4
 	}
 
 	findSelection();
@@ -502,7 +501,7 @@ void ChordEditor::setStepsFromChord()
 
 	tonic->setCurrentRow(it->tonic());
 	for (int i = 0; i < 6; i++)
-		st[i + 1]->setCurrentItem(it->step(i));
+		st[i + 1]->setCurrentIndex(it->step(i));
 
 	findSelection();
 	findChords();
@@ -515,7 +514,7 @@ void ChordEditor::setHighSteps(int j)
 
 	for (int i = 0; i < 6; i++)
 		if (stemplate[j][i] != -1)
-			st[i + 1]->setCurrentItem(stemplate[j][i]);
+			st[i + 1]->setCurrentIndex(stemplate[j][i]);
 
 	findSelection();
 	findChords();
@@ -527,7 +526,7 @@ void ChordEditor::findSelection()
 {
 	bool ok = TRUE;
 
-	switch (st[1]->currentItem()) {
+	switch (st[1]->currentIndex()) {
 	case 0: step3->clearSelection(); break;           // no3
 	case 1: step3->setCurrentRow(2); break;           // Sus2
 	case 2: step3->setCurrentRow(1); break;           // Minor
@@ -539,7 +538,7 @@ void ChordEditor::findSelection()
 		ok = TRUE;
 		for (int i = 0; i < 6; i++) {
 			if ((stemplate[j][i] != -1) &&
-				(stemplate[j][i] != st[i + 1]->currentItem())) {
+				(stemplate[j][i] != st[i + 1]->currentIndex())) {
 				ok = FALSE;
 				break;
 			}
@@ -568,21 +567,21 @@ bool ChordEditor::calculateNotesFromSteps(int need[], int &notenum)
 	need[0] = t;
 	cnote[0]->setText(Settings::noteName(t));
 
-	switch (st[1]->currentItem()) {
+	switch (st[1]->currentIndex()) {
 	case 1: need[1] = (t + 2) % 12; notenum++; break; // 2
 	case 2: need[1] = (t + 3) % 12; notenum++; break; // 3-
 	case 3: need[1] = (t + 4) % 12; notenum++; break; // 3+
 	case 4: need[1] = (t + 5) % 12; notenum++; break; // 4
 	}
 
-	if (st[1]->currentItem()!=0) {
+	if (st[1]->currentIndex()!=0) {
 		cnote[1]->setText(Settings::noteName(need[1]));
 	} else {
 		cnote[1]->clear();
 	}
 
 	for (int i = 1; i < 6; i++) {
-		int j = st[i + 1]->currentItem();
+		int j = st[i + 1]->currentIndex();
 		if (j) {
 			need[notenum] = (t + toneshift[i] + (j - 2)) % 12;
 			cnote[i + 1]->setText(Settings::noteName(need[notenum]));
@@ -633,8 +632,8 @@ void ChordEditor::findChords()
 
 	// CHECKING THE INVERSION NUMBER RANGE
 
-	if (inv->currentItem() >= notenum)
-		inv->setCurrentItem(0);
+	if (inv->currentIndex() >= notenum)
+		inv->setCurrentIndex(0);
 
 	int span = 3; // maximal fingerspan
 
@@ -717,7 +716,7 @@ void ChordEditor::findChords()
 				}
 			}
 
-			if ((k==notenum) && (max-min<span) && (bass%12==need[inv->currentItem()])) {
+			if ((k==notenum) && (max-min<span) && (bass%12==need[inv->currentIndex()])) {
 				for (j=0;j<parm->string;j++)
 					app[j]=hfret[j][ind[j]];
 				if (complexer[0]->isChecked()) {

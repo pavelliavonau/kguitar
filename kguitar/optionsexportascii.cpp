@@ -6,16 +6,13 @@
 #include <qlabel.h>
 #include <qcheckbox.h>
 #include <qlayout.h>
-//Added by qt3to4:
-#include <Q3VBoxLayout>
-#include <Q3HBoxLayout>
 
 #include <klocale.h>
 #include <kconfig.h>
 #include <kconfiggroup.h>
 
-OptionsExportAscii::OptionsExportAscii(KSharedConfigPtr &conf, QWidget *parent, const char *name)
-	: OptionsPage(conf, parent, name)
+OptionsExportAscii::OptionsExportAscii(KSharedConfigPtr &conf, QWidget *parent)
+	: OptionsPage(conf, parent)
 {
 	// Create option widgets
 
@@ -26,20 +23,24 @@ OptionsExportAscii::OptionsExportAscii(KSharedConfigPtr &conf, QWidget *parent, 
 	duration[3] = new QRadioButton(i18n("One blank") + " = 1/16", durationGroup);
 	duration[4] = new QRadioButton(i18n("One blank") + " = 1/32", durationGroup);
 
-	pageWidth = new QSpinBox(1, 1024 * 1024, 1, this);
-	QLabel *pageWidth_l = new QLabel(pageWidth, i18n("Page &width:"), this);
+	pageWidth = new QSpinBox(this);
+	pageWidth->setRange(1, 1024 * 1024);
+	QLabel *pageWidth_l = new QLabel(i18n("Page &width:"), this);
+	pageWidth_l->setBuddy(pageWidth);
 
 	always = new QCheckBox(i18n("Always show this dialog on export"), this);
 
 	// Set widget layout
 
-	Q3VBoxLayout *box = new Q3VBoxLayout(this);
+	QVBoxLayout *box = new QVBoxLayout(this);
 	box->addWidget(durationGroup);
 
-	Q3HBoxLayout *pageWidthBox = new Q3HBoxLayout(box);
+	QHBoxLayout *pageWidthBox = new QHBoxLayout();
 	pageWidthBox->addWidget(pageWidth_l);
 	pageWidthBox->addWidget(pageWidth);
 	pageWidthBox->addStretch(1);
+
+	box->addLayout(pageWidthBox);
 
 	box->addStretch(1);
 	box->addWidget(always);

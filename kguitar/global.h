@@ -16,5 +16,8 @@ QString midi_patch_name(int);
 
 extern QString drum_abbr[128];
 
+#pragma GCC diagnostic ignored "-Wsign-compare"
+#pragma GCC diagnostic ignored "-Wunused-but-set-variable"
+
 
 

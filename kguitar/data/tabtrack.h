@@ -3,8 +3,7 @@
 
 #include "global.h"
 
-#include <q3memarray.h>
-#include <qrect.h>
+#include <QRect>
 
 #ifdef WITH_TSE3
 #include <tse3/PhraseEdit.h>
@@ -51,12 +50,12 @@ public:
 	/**
 	 * Array of columns.
 	 */
-	Q3MemArray<TabColumn> c;
+	QVector<TabColumn> c;
 
 	/**
 	 * Array of bars.
 	 */
-	Q3MemArray<TabBar> b;
+	QVector<TabBar> b;
 
 	/**
 	 * Number of strings

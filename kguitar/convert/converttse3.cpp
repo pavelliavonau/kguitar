@@ -11,7 +11,7 @@ bool ConvertTse3::save(QString fileName)
 {
 #ifdef WITH_TSE3
 	TSE3::TSE3MDL mdl("KGuitar", 2);
-	mdl.save((const char *) fileName.local8Bit(), song->midiSong());
+	mdl.save((const char *) fileName.toLocal8Bit(), song->midiSong());
 	// GREYFIX: pretty ugly unicode string to standard string hack
 	return TRUE;
 #else

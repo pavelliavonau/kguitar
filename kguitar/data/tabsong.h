@@ -3,9 +3,7 @@
 
 #include "global.h"
 
-#include <q3ptrlist.h>
 #include <qstring.h>
-#include <q3textstream.h>
 #include <qmap.h>
 
 #ifdef WITH_TSE3

@@ -28,7 +28,7 @@ class SongView: public QWidget {
 	Q_OBJECT
 public:
 	SongView(KXMLGUIClient *_XMLGUIClient, QUndoStack *_cmdHist,
-	         QWidget *parent = 0, const char *name = 0);
+		 QWidget *parent = 0);
 	~SongView();
 	void refreshView();
 	void print(QPrinter *printer);
@@ -68,7 +68,7 @@ public slots:
 	void slotPaste();
 	void slotSelectAll();
 
-	void setReadOnly(bool _ro) { ro = _ro; };
+	void setReadOnly(bool _ro) { ro = _ro; }
 
 	void playbackColumn(int track, int advance);
 

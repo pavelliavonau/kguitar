@@ -10,7 +10,7 @@ class QRadioButton;
 class OptionsMusicTheory: public OptionsPage {
 	Q_OBJECT
 public:
-	OptionsMusicTheory(KSharedConfigPtr& conf, QWidget *parent = 0, const char *name = 0);
+	OptionsMusicTheory(KSharedConfigPtr& conf, QWidget *parent = 0);
 	virtual void applyBtnClicked();
 	virtual void defaultBtnClicked();
 

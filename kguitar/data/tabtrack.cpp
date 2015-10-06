@@ -1015,7 +1015,7 @@ void  TabTrack::calcStepAltOct()
 					QString tmpnam = " ";
 					accSt.getNote(tune[i] + c[t].a[i],
 									tmpnam, tmpalt, tmpoct, tmpacc);
-					c[t].stp[i] = tmpnam.at(0).latin1();
+					c[t].stp[i] = tmpnam.at(0).toLatin1();
 					c[t].alt[i] = tmpalt;
 					c[t].oct[i] = tmpoct;
 					c[t].acc[i] = tmpacc;
@@ -1029,7 +1029,7 @@ void  TabTrack::calcStepAltOct()
 
 void  TabTrack::calcVoices()
 {
-	int t;
+	uint t;
 	// initialize all data
 	for (t = 0; t < c.size(); t++) {
 		for (int i = 0; i < string; i++) {

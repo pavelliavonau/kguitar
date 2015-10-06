@@ -26,15 +26,13 @@ class QLabel;
 class QListWidget;
 class FingerList;
 class TabTrack;
-class Strumming;
 
 class ChordEditor: public QDialog {
 	Q_OBJECT
 public:
-	ChordEditor(TabTrack *p, QWidget *parent = 0, const char *name = 0);
+	ChordEditor(TabTrack *p, QWidget *parent = 0);
 #ifdef WITH_TSE3
-	ChordEditor(TSE3::MidiScheduler *_scheduler, TabTrack *p, QWidget *parent = 0,
-	              const char *name = 0);
+	ChordEditor(TSE3::MidiScheduler *_scheduler, TabTrack *p, QWidget *parent = 0);
 #endif
 
 	void initChordSelector(TabTrack *p);

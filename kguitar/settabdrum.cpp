@@ -5,12 +5,13 @@
 //Added by qt3to4:
 #include <QResizeEvent>
 
-SetTabDrum::SetTabDrum(QWidget *parent, const char *name)
-	: QWidget(parent, name)
+SetTabDrum::SetTabDrum(QWidget *parent)
+        : QWidget(parent)
 {
     // Controls
 
-	dr = new QSpinBox(1, MAX_STRINGS, 1, this);
+	dr = new QSpinBox(this);
+	dr->setRange(1, MAX_STRINGS);
 	connect(dr, SIGNAL(valueChanged(int)), SLOT(stringChanged(int)));
 	dr->setGeometry(90, 20, 40, 20);
 

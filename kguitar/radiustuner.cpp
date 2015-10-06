@@ -5,8 +5,8 @@
 #include <QPaintEvent>
 #include <QResizeEvent>
 
-RadiusTuner::RadiusTuner(QWidget *parent, const char *name)
-	: QWidget(parent, name)
+RadiusTuner::RadiusTuner(QWidget *parent)
+	: QWidget(parent)
 {
 	val = new NoteSpinBox(this);
 	connect(val, SIGNAL(valueChanged(int)), SLOT(update()));

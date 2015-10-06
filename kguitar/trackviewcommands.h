@@ -4,16 +4,13 @@
 #include "global.h"
 #include "data/tabtrack.h"
 #include "trackview.h"
-#include <k3command.h>
 #include <QUndoCommand>
-//Added by qt3to4:
-#include <Q3MemArray>
 
 // Set the duration for the notes
 class TrackView::SetLengthCommand: public QUndoCommand {
 public:
 	SetLengthCommand(TrackView *_tv, TabTrack *&_trk, int l);
-	virtual ~SetLengthCommand() {};
+	virtual ~SetLengthCommand() {}
 
 	virtual void redo();
 	virtual void undo();
@@ -30,7 +27,7 @@ private:
 class TrackView::InsertTabCommand: public QUndoCommand {
 public:
 	InsertTabCommand(TrackView *_tv, TabTrack *&_trk, int t);
-	virtual ~InsertTabCommand() {};
+	virtual ~InsertTabCommand() {}
 
 	virtual void redo();
 	virtual void undo();
@@ -48,7 +45,7 @@ private:
 class TrackView::MoveFingerCommand: public QUndoCommand {
 public:
 	MoveFingerCommand(TrackView *_tv, TabTrack *&_trk, int _from, int _to, int _tune);
-	virtual ~MoveFingerCommand() {};
+	virtual ~MoveFingerCommand() {}
 
 	virtual void redo();
 	virtual void undo();
@@ -64,7 +61,7 @@ private:
 class TrackView::AddFXCommand: public QUndoCommand {
 public:
 	AddFXCommand(TrackView *_tv, TabTrack *&_trk, char _fx);
-	virtual ~AddFXCommand() {};
+	virtual ~AddFXCommand() {}
 
 	virtual void redo();
 	virtual void undo();
@@ -81,7 +78,7 @@ private:
 class TrackView::SetFlagCommand: public QUndoCommand {
 public:
 	SetFlagCommand(TrackView *_tv, TabTrack *&_trk, int _flag);
-	virtual ~SetFlagCommand() {};
+	virtual ~SetFlagCommand() {}
 
 	virtual void redo();
 	virtual void undo();
@@ -100,7 +97,7 @@ private:
 class TrackView::DeleteNoteCommand : public QUndoCommand {
 public:
 	DeleteNoteCommand(TrackView *_tv, TabTrack *&_trk);
-	virtual ~DeleteNoteCommand() {};
+	virtual ~DeleteNoteCommand() {}
 
 	virtual void redo();
 	virtual void undo();
@@ -118,7 +115,7 @@ private:
 class TrackView::AddColumnCommand: public QUndoCommand {
 public:
 	AddColumnCommand(TrackView *_tv, TabTrack *&_trk);
-	virtual ~AddColumnCommand() {};
+	virtual ~AddColumnCommand() {}
 
 	virtual void redo();
 	virtual void undo();
@@ -136,7 +133,7 @@ class TrackView::DeleteColumnCommand: public QUndoCommand {
 public:
 	DeleteColumnCommand(TrackView *_tv, TabTrack *&_trk);
 	DeleteColumnCommand(QString name, TrackView *_tv, TabTrack *&_trk);
-	virtual ~DeleteColumnCommand() {};
+	virtual ~DeleteColumnCommand() {}
 
 	virtual void redo();
 	virtual void undo();
@@ -144,7 +141,7 @@ public:
 private:
 	int x, y, xsel;
 	uint p_delta, p_del, p_start;
-	Q3MemArray<TabColumn> c;
+	QVector<TabColumn> c;
 	bool p_all, sel;
 	TabTrack *trk;
 	TrackView *tv;
@@ -154,7 +151,7 @@ private:
 class TrackView::SetTimeSigCommand : public QUndoCommand {
 public:
 	SetTimeSigCommand(TrackView *_tv, TabTrack *&_trk, bool _toend, int _time1, int _time2);
-	virtual ~SetTimeSigCommand() {};
+	virtual ~SetTimeSigCommand() {}
 
 	virtual void redo();
 	virtual void undo();
@@ -162,7 +159,7 @@ public:
 private:
 	int x, y, xb, xsel, time1, time2;
 	bool sel, toend;
-	Q3MemArray<TabBar> b;
+	QVector<TabBar> b;
 	TabTrack *trk;
 	TrackView *tv;
 };
@@ -171,7 +168,7 @@ private:
 class TrackView::InsertColumnCommand: public QUndoCommand {
 public:
 	InsertColumnCommand(TrackView *_tv, TabTrack *&_trk);
-	virtual ~InsertColumnCommand() {};
+	virtual ~InsertColumnCommand() {}
 
 	virtual void redo();
 	virtual void undo();
@@ -187,7 +184,7 @@ private:
 class TrackView::InsertStrumCommand: public QUndoCommand {
 public:
 	InsertStrumCommand(TrackView *_tv, TabTrack *&_trk, int _sch, int *_chord);
-	virtual ~InsertStrumCommand() {};
+	virtual ~InsertStrumCommand() {}
 
 	virtual void redo();
 	virtual void undo();
@@ -195,7 +192,7 @@ public:
 private:
 	int sch, x, y, xsel, len, toadd;
 	int chord[MAX_STRINGS];
-	Q3MemArray<TabColumn> c;
+	QVector<TabColumn> c;
 	bool sel;
 	TabTrack *trk;
 	TrackView *tv;

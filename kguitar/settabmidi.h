@@ -3,7 +3,7 @@
 
 #include "ui_settabmidibase.h"
 
-class SetTabMidi: public KDialog {
+class SetTabMidi: public QWidget {
 	Q_OBJECT
 
 public:

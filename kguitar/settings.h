@@ -4,7 +4,6 @@
 #include "global.h"
 #include <ksharedconfig.h>
 
-class KConfig;
 class QString;
 
 /**

@@ -63,12 +63,12 @@ public:
 	class InsertRhythm;
 
 public slots:
-	void setLength1() { setLength(480); };
-	void setLength2() { setLength(240); };
-	void setLength4() { setLength(120); };
-	void setLength8() { setLength(60); };
-	void setLength16() { setLength(30); };
-	void setLength32() { setLength(15); };
+	void setLength1() { setLength(480); }
+	void setLength2() { setLength(240); }
+	void setLength4() { setLength(120); }
+	void setLength8() { setLength(60); }
+	void setLength16() { setLength(30); }
+	void setLength32() { setLength(15); }
 	void keySig();
 	void timeSig();
 	void linkPrev();

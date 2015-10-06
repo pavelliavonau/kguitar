@@ -13,8 +13,6 @@
 #include <QBoxLayout>
 #include <QHBoxLayout>
 #include <QVBoxLayout>
-//Added by qt3to4:
-#include <Q3Frame>
 #include <klocale.h>
 #include <qapplication.h>
 #include <KDialog>
@@ -30,11 +28,11 @@ MelodyEditor::MelodyEditor(TrackView *_tv, QWidget *parent)
 
 	fb = new Fretboard(tv->trk(), this);
 
-	tonic = new QComboBox(FALSE, this);
+	tonic = new QComboBox(this);
 	for (int i = 0; i < 12; i++)
-		tonic->insertItem(Settings::noteName(i));
+		tonic->addItem(Settings::noteName(i));
 
-	mode = new QComboBox(FALSE, this);
+	mode = new QComboBox(this);
 	mode->addItem(i18n("<no mode>"));
 	mode->addItem(i18n("Pentatonic"));
 	mode->addItem(i18n("Natural Major"));
@@ -51,20 +49,26 @@ MelodyEditor::MelodyEditor(TrackView *_tv, QWidget *parent)
 
 	options = new QPushButton(i18n("Options..."), this);
 
-	QLabel *tonic_l = new QLabel(tonic, i18n("&Tonic:"), this);
-	QLabel *mode_l = new QLabel(mode, i18n("&Mode:"), this);
+	QLabel *tonic_l = new QLabel(i18n("&Tonic:"), this);
+	tonic_l->setBuddy(tonic);
+
+	QLabel *mode_l = new QLabel(i18n("&Mode:"), this);
+	mode_l->setBuddy(mode);
 
 	// Full layout
 	QBoxLayout *l = new QVBoxLayout(this);
 
 	// Settings box
-	QBoxLayout *lsettings = new QHBoxLayout(l, 5);
+	QBoxLayout *lsettings = new QHBoxLayout();
+	lsettings->setSpacing(5);
 	lsettings->addWidget(tonic_l);
 	lsettings->addWidget(tonic);
 	lsettings->addWidget(mode_l);
 	lsettings->addWidget(mode);
 	lsettings->addStretch(1);
 	lsettings->addWidget(options);
+
+	l->addLayout(lsettings);
 
 	// Fretboard box
 	l->addWidget(fb);
@@ -80,7 +84,7 @@ MelodyEditor::MelodyEditor(TrackView *_tv, QWidget *parent)
 
 // 	installEventFilter(this);
 
-	setCaption(i18n("Melody Editor"));
+	setWindowTitle(i18n("Melody Editor"));
 }
 
 void MelodyEditor::drawBackground()
@@ -97,7 +101,7 @@ void MelodyEditor::optionsDialog()
             KDialog::Apply|KDialog::Cancel);
 	KVBox *box = new KVBox(&opDialog);
 	opDialog.setMainWidget(box);
-	OptionsMelodyEditor op(Settings::config, (Q3Frame *) box);
+	OptionsMelodyEditor op(Settings::config, (QFrame *) box);
 	connect(&opDialog, SIGNAL(defaultClicked()), &op, SLOT(defaultBtnClicked()));
 	connect(&opDialog, SIGNAL(okClicked()), &op, SLOT(applyBtnClicked()));
 	connect(&opDialog, SIGNAL(applyClicked()), &op, SLOT(applyBtnClicked()));

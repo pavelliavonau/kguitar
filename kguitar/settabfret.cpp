@@ -28,21 +28,22 @@ int defaultByString[MAX_STRINGS] =
 	  0,
 	  0 };
 
-SetTabFret::SetTabFret(QWidget *parent, const char *name)
-	: QWidget(parent, name)
+SetTabFret::SetTabFret(QWidget *parent)
+        : QWidget(parent)
 {
     // Controls
 
-    lib = new QComboBox(FALSE, this);
+    lib = new QComboBox(this);
     connect(lib, SIGNAL(highlighted(int)), SLOT(setLibTuning(int)));
 
     for (int i = 0; lib_tuning[i].strings; i++)
-		lib->insertItem(i18n(lib_tuning[i].name));
+        lib->addItem(i18n(lib_tuning[i].name.toUtf8()));
 
     QLabel *lib_l = new QLabel(i18n("Tuning:"), this);
     lib_l->setGeometry(10, 20, 80, 20);
 
-    st = new QSpinBox(1, MAX_STRINGS, 1, this);
+    st = new QSpinBox(this);
+    st->setRange(1, MAX_STRINGS);
     connect(st, SIGNAL(valueChanged(int)), SLOT(stringChanged(int)));
     connect(st, SIGNAL(valueChanged(int)), SLOT(tuneChanged()));
     st->setGeometry(90, 50, 40, 20);
@@ -50,7 +51,8 @@ SetTabFret::SetTabFret(QWidget *parent, const char *name)
     QLabel *st_l = new QLabel(i18n("Strings:"), this);
     st_l->setGeometry(10, 50, 50, 20);
 
-    fr = new QSpinBox(1, MAX_FRETS, 1, this);
+    fr = new QSpinBox(this);
+    fr->setRange(1, MAX_FRETS);
     fr->setGeometry(190, 50, 40, 20);
 
     QLabel *fr_l = new QLabel(i18n("Frets:"), this);
@@ -117,7 +119,7 @@ void SetTabFret::tuneChanged()
 		}
     }
 
-    lib->setCurrentItem(found);
+    lib->setCurrentIndex(found);
 }
 
 void SetTabFret::resizeEvent(QResizeEvent *)

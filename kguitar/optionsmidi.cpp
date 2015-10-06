@@ -13,13 +13,13 @@
 #include <kconfiggroup.h>
 
 #ifdef WITH_TSE3
-OptionsMidi::OptionsMidi(TSE3::MidiScheduler *_sch, KSharedConfigPtr &conf, QWidget *parent, const char *name)
-	: OptionsPage(conf, parent, name)
+OptionsMidi::OptionsMidi(TSE3::MidiScheduler *_sch, KSharedConfigPtr &conf, QWidget *parent)
+	: OptionsPage(conf, parent)
 {
 	sch = _sch;
 #else
-OptionsMidi::OptionsMidi(KSharedConfigPtr &conf, QWidget *parent, const char *name)
-	: OptionsPage(conf, parent, name)
+OptionsMidi::OptionsMidi(KSharedConfigPtr &conf, QWidget *parent)
+	: OptionsPage(conf, parent)
 {
 #endif
 

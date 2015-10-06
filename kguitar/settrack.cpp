@@ -52,7 +52,7 @@ SetTrack::SetTrack(TabTrack *trk, QWidget *parent)
 	//	patch->setDisabled(isBrowserView);
 	mode->setCurrentIndex(trk->trackMode());
 	//	mode->setDisabled(isBrowserView);
-	connect(mode, SIGNAL(highlighted(int)), SLOT(selectTrackMode(int)));
+	connect(mode, SIGNAL(activated(int)), SLOT(selectTrackMode(int)));
 
 	track = trk;
 

@@ -79,11 +79,11 @@ bool ConvertTex::saveToTab(Q3TextStream &s)
 	flatnote = FALSE;
 	for (int i = 0; i < trk->string; i++) {
 		nn[i] = Settings::noteName(trk->tune[i] % 12);
-		if ((nn[i].contains("#", FALSE) == 1) && (nn[i].length() == 2)) {
+		if ((nn[i].contains("#", Qt::CaseInsensitive) == 1) && (nn[i].length() == 2)) {
 			nn[i] = nn[i].left(1) + "$\\sharp$";
 			flatnote = TRUE;
 		}
-		if ((nn[i].contains("b", FALSE) == 1) && (nn[i].length() == 2)) {
+		if ((nn[i].contains("b", Qt::CaseInsensitive) == 1) && (nn[i].length() == 2)) {
 			nn[i] = nn[i].left(1) + "$\\flat$";
 			flatnote = TRUE;
 		}
@@ -384,6 +384,7 @@ QString ConvertTex::tab(bool chord, int string, int fret)
 
 QString ConvertTex::getNote(QString note, int duration, bool dot)
 {
+  Q_UNUSED(note)
 	(void)duration;(void)dot;
 	return "";
 }

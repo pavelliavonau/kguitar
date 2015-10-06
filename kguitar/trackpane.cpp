@@ -2,21 +2,20 @@
 
 #include "data/tabsong.h"
 
-#include <qpainter.h>
-#include <qdrawutil.h>
-#include <qstyle.h>
-//Added by qt3to4:
+#include <QPainter>
+//#include <qdrawutil.h>
+#include <QStyle>
 #include <QMouseEvent>
 #include <QStyleOption>
 
-TrackPane::TrackPane(TabSong *s, int hh, int cs, QWidget *parent, const char *name)
-	: Q3ScrollView(parent, name)
+TrackPane::TrackPane(TabSong *s, int hh, int cs, QWidget *parent)
+	: QWidget(parent)
 {
 	song = s;
 
 //	setTableFlags(Tbl_autoHScrollBar | Tbl_smoothScrolling);
-	setFrameStyle(Panel | Sunken);
-	setBackgroundMode(Qt::PaletteBase);
+	//setFrameStyle(Panel | Sunken);
+	setBackgroundRole(QPalette::Light);
 
 	//	setFocusPolicy(QWidget::StrongFocus);
 
@@ -26,52 +25,89 @@ TrackPane::TrackPane(TabSong *s, int hh, int cs, QWidget *parent, const char *na
 	updateList();
 
 	show();
+
+	updateGeometry();
 }
 
 void TrackPane::updateList()
 {
-	resizeContents(song->maxLen() * cellSide, song->t.count() * cellSide + headerHeight);
-	update();
+  resize(song->maxLen() * cellSide, song->t.count() * cellSide + headerHeight);
+ // update();
+  updateGeometry();
 }
 
+//QSize TrackPane::sizeHint() const
+//{
+//  int w = song->maxLen() * cellSide;
+//  int h = song->t.count() * cellSide + headerHeight;
+
+//  QWidget* p = static_cast<QWidget*>(parent());
+//  int pw = p->width();
+//  int ph = p->height();
+
+//  if(pw > w)
+//    w = pw;
+
+//  if(ph > h)
+//    h = ph;
+
+//  qDebug() << "----------- w " << w;
+
+//  return QSize(w, h);
+//}
+
 // Draws that pretty squares for track pane.
-void TrackPane::drawContents(QPainter *p, int clipx, int clipy, int clipw, int /*cliph*/)
+void TrackPane::paintEvent(QPaintEvent * e)
 {
-	int x1 = clipx / cellSide - 1;
-	int x2 = (clipx + clipw) / cellSide + 2;
+  QWidget::paintEvent(e);
 
-	int py = headerHeight;
+  QPainter rp(this);
 
-	foreach (TabTrack *trk, song->t) {
-		int px = x1 * cellSide;
-		for (int i = x1; i <= x2; i++) {
-			if (trk->barStatus(i)) {
-				QStyleOption option;
-				option.initFrom(this);
-				style()->drawPrimitive(QStyle::PE_FrameButtonBevel, &option, p, this);
-				// GREYTODO: port this rect
-//				                      QRect(px, py, cellSide, cellSide), colorGroup());
-			}
-			if (trk->xb == i) {
-				QStyleOptionFocusRect option;
-				option.initFrom(this);
-				style()->drawPrimitive(QStyle::PE_FrameFocusRect, &option, p, this);
-				// GREYTODO: port this rect
-//				                      QRect(px, py, cellSide, cellSide), colorGroup());
-			}
-			px += cellSide;
-		}
-		py += cellSide;
-	}
+//  rp.setBrush(Qt::SolidPattern);
+//  rp.setPen(Qt::black);
+//  rp.drawRect(0,0,100,100);
+  QPainter* p = &rp;
+  QRect clip = e->rect();
+  int clipx = clip.x();
+  int clipy = clip.y();
+  int clipw = clip.width();
 
-	// Draw header, covering some tracks if necessary
-	if (clipy < contentsY() + headerHeight) {
-		// GREYTODO: port
-//		style()->drawPrimitive(QStyle::PE_HeaderSection, p,
-//		                      QRect(x1 * cellSide, contentsY(),
-//		                            x2 * cellSide, contentsY() + headerHeight),
-//		                      colorGroup());
-	}
+  int x1 = clipx / cellSide - 1;
+  int x2 = (clipx + clipw) / cellSide + 2;
+
+  int py = headerHeight;
+
+  foreach (TabTrack *trk, song->t) {
+          int px = x1 * cellSide;
+          for (int i = x1; i <= x2; i++) {
+                  if (trk->barStatus(i)) {
+                          QStyleOption option;
+                          option.initFrom(this);
+                          option.rect = QRect(px, py, cellSide, cellSide);
+                          style()->drawPrimitive(QStyle::PE_FrameButtonBevel, &option, p, this);
+                          p->drawRect(option.rect);
+                  }
+                  if (trk->xb == i) {
+                          QStyleOptionFocusRect option;
+                          option.initFrom(this);
+                          option.rect = QRect(px, py, cellSide, cellSide);
+                          style()->drawPrimitive(QStyle::PE_FrameFocusRect, &option, p, this);
+                          p->drawRect(option.rect);
+                  }
+                  px += cellSide;
+          }
+          py += cellSide;
+  }
+
+  // Draw header, covering some tracks if necessary
+  if (clipy < contentsY() + headerHeight) {
+          QStyleOptionHeader option;
+          option.initFrom(this);
+          option.rect = QRect(x1 * cellSide, contentsY(),
+                              x2 * cellSide, contentsY() + headerHeight);
+          style()->drawControl(QStyle::CE_HeaderSection, &option, p, this);
+  }
+
 }
 
 void TrackPane::mousePressEvent(QMouseEvent *e)
@@ -90,17 +126,25 @@ void TrackPane::mousePressEvent(QMouseEvent *e)
 	}
 }
 
-void TrackPane::repaintTrack(TabTrack *trk)
-{
-	repaintContents();
-}
+//void TrackPane::resizeEvent(QResizeEvent *)
+//{
+//  updateGeometry();
+//}
+
+//void TrackPane::repaintTrack(TabTrack *trk)
+//{
+//	Q_UNUSED(trk);
+//	//repaintContents();
+//	repaint();
+//}
 
 void TrackPane::repaintCurrentTrack()
 {
-	repaintContents();
+	repaint();
+	//repaintContents();
 }
 
 void TrackPane::syncVerticalScroll(int /* x */, int y)
 {
-	scrollBy(0, y - contentsY());
+  scroll(0, y - contentsY());
 }

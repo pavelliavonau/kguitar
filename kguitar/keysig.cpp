@@ -58,15 +58,16 @@ SetKeySig::SetKeySig(int keySig, QWidget *parent)
 		<< i18n("6 flats")  + " (Gb/Ebm)"
 		<< i18n("7 flats")  + " (Cb/Abm)";
 
-	sig = new QComboBox(TRUE, page);
-	sig->setEditable(false);
-	sig->setInsertionPolicy(QComboBox::NoInsertion);
-	sig->insertStringList(signatures);
-	sig->setCurrentItem(7 - keySig);
+	sig = new QComboBox(page);
+	sig->setInsertPolicy(QComboBox::NoInsertion);
+	sig->insertItems(sig->count(),signatures);
+	sig->setCurrentIndex(7 - keySig);
 
-	QLabel *sig_l = new QLabel(sig, i18n("Flats / sharps:"), page);
+	QLabel *sig_l = new QLabel(i18n("Flats / sharps:"), page);
+	sig_l->setBuddy(sig);
 
-	QHBoxLayout *l = new QHBoxLayout(page, 0, spacingHint());
+	QHBoxLayout *l = new QHBoxLayout(page);
+	l->setSpacing(spacingHint());
     l->addWidget(sig_l);
 	l->addWidget(sig);
     l->activate();
@@ -76,5 +77,5 @@ SetKeySig::SetKeySig(int keySig, QWidget *parent)
 // use 7 - sig->currentItem() to get the key number
 int SetKeySig::keySignature()
 {
-	return 7 - sig->currentItem();
+        return 7 - sig->currentIndex();
 }

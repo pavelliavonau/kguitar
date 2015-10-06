@@ -14,7 +14,7 @@
 class OptionsPage: public QWidget {
 	Q_OBJECT
 public:
-	OptionsPage(KSharedConfigPtr &conf, QWidget *parent = 0, const char *name = 0);
+	OptionsPage(KSharedConfigPtr &conf, QWidget *parent = 0);
 
 public slots:
 	/**

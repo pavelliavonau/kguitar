@@ -59,7 +59,7 @@ bool ConvertKg::save(QString fileName)
 	QDataStream s(&f);
 
 	// HEADER SIGNATURE
-	s.writeRawBytes("KG\0", 3);
+	s.writeRawData("KG\0", 3);
 
 	// VERSION SIGNATURE
 	s << (Q_UINT8) 2;
@@ -164,7 +164,7 @@ bool ConvertKg::load(QString fileName)
 
 	// HEADER SIGNATURE
 	char hdr[4];
-	s.readRawBytes(hdr, 3); // should be KG\0 header
+	s.readRawData(hdr, 3); // should be KG\0 header
 	if (!((hdr[0] == 'K') && (hdr[1] == 'G') && (hdr[2] == 0)))
 		return FALSE;
 
@@ -315,7 +315,7 @@ bool ConvertKg::load(QString fileName)
 					s >> cn;
 				break;
 			}
-		} while ((!finished) && (!s.eof()));
+		} while ((!finished) && (!s.atEnd()));
 
 		ct->x = 0;
 		ct->xb = 0;

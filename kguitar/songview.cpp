@@ -36,6 +36,7 @@
 #include <QBoxLayout>
 #include <QVBoxLayout>
 #include <QApplication>
+#include <Q3Header>
 
 #ifdef WITH_TSE3
 #include <tse3/MidiScheduler.h>
@@ -51,7 +52,7 @@
 #endif
 
 SongView::SongView(KXMLGUIClient *_XMLGUIClient, QUndoStack *_cmdHist,
-				   QWidget *parent, const char *name): QWidget(parent, name)
+				   QWidget *parent): QWidget(parent)
 {
 #ifdef WITH_TSE3
 	playThread = new PlaybackTracker();
@@ -65,6 +66,7 @@ SongView::SongView(KXMLGUIClient *_XMLGUIClient, QUndoStack *_cmdHist,
 
 	split = new QSplitter(this);
 	split->setOrientation(Qt::Vertical);
+	split->setChildrenCollapsible(false);
 
 #ifdef WITH_TSE3
 	tv = new TrackView(m_song, _XMLGUIClient, _cmdHist, midiScheduler(), split);
@@ -75,10 +77,13 @@ SongView::SongView(KXMLGUIClient *_XMLGUIClient, QUndoStack *_cmdHist,
 
 	splitv = new QSplitter(split);
  	splitv->setOrientation(Qt::Horizontal);
+        splitv->setChildrenCollapsible(false);
 
 	tl = new TrackList(m_song, _XMLGUIClient, splitv);
 	tl->setSelected(tl->firstChild(), TRUE);
-	tp = new TrackPane(m_song, tl->header()->height(), tl->firstChild()->height(), splitv);
+	QScrollArea* scroll = new QScrollArea( splitv );
+	tp = new TrackPane(m_song, tl->header()->height(), tl->firstChild()->height(), scroll);
+	scroll->setWidget(tp);
 
 	me = new MelodyEditor(tv, split);
 
@@ -89,7 +94,11 @@ SongView::SongView(KXMLGUIClient *_XMLGUIClient, QUndoStack *_cmdHist,
 	connect(tv, SIGNAL(barChanged()), tp, SLOT(repaintCurrentTrack()));
 
 	// synchronize tracklist and trackpane at vertical scrolling
-	connect(tl, SIGNAL(contentsMoving(int, int)), tp, SLOT(syncVerticalScroll(int, int)));
+	// TODO: port to Qt4
+//	connect(tl, SIGNAL(contentsMoving(int, int)),[scroll](int dx,int dy) {
+//	    scroll->scrollContentsBy(0, dy);
+//	  });
+	    //tp, SLOT(syncVerticalScroll(int, int)));
 
 	// let higher-level widgets know that we have a changed song if it
 	// was changed in TrackView
@@ -164,7 +173,7 @@ void SongView::trackDelete()
 			newsel = m_song->t.at(n - 1);
 		}
 
-		m_song->t.remove(tv->trk());
+		m_song->t.removeAll(tv->trk());
 		tv->setCurrentTrack(newsel);
 		tv->updateRows();
 		tv->repaintContents();
@@ -233,50 +242,49 @@ void SongView::trackBassLine()
 bool SongView::trackProperties()
 {
 	bool res = FALSE;
-	TabTrack *newtrk = new TabTrack(*(tv->trk()));
-	SetTrack *st = new SetTrack(newtrk);
+	TabTrack newtrk(*(tv->trk()));
+	SetTrack st(&newtrk);
 
-	if (st->exec()) {
-		newtrk->name = st->title->text();
-		newtrk->channel = st->channel->value();
-		newtrk->bank = st->bank->value();
-		newtrk->patch = st->patch->value();
-		newtrk->setTrackMode((TabTrack::TrackMode) st->mode->currentItem());
+	if (st.exec()) {
+		newtrk.name = st.title->text();
+		newtrk.channel = st.channel->value();
+		newtrk.bank = st.bank->value();
+		newtrk.patch = st.patch->value();
+		newtrk.setTrackMode((TabTrack::TrackMode) st.mode->currentIndex());
 
 		// Fret tab
-		if (st->mode->currentItem() == TabTrack::FretTab) {
-			SetTabFret *fret = (SetTabFret *) st->modespec;
-			newtrk->string = fret->string();
-			newtrk->frets = fret->frets();
-			for (int i = 0; i < newtrk->string; i++)
-				newtrk->tune[i] = fret->tune(i);
+		if (st.mode->currentIndex() == TabTrack::FretTab) {
+			SetTabFret *fret = (SetTabFret *) st.modespec;
+			newtrk.string = fret->string();
+			newtrk.frets = fret->frets();
+			for (int i = 0; i < newtrk.string; i++)
+				newtrk.tune[i] = fret->tune(i);
 		}
 
 		// Drum tab
-		if (st->mode->currentItem() == TabTrack::DrumTab) {
-			SetTabDrum *drum = (SetTabDrum *) st->modespec;
-			newtrk->string = drum->drums();
-			newtrk->frets = 0;
-			for (int i = 0; i < newtrk->string; i++)
-				newtrk->tune[i] = drum->tune(i);
+		if (st.mode->currentIndex() == TabTrack::DrumTab) {
+			SetTabDrum *drum = (SetTabDrum *) st.modespec;
+			newtrk.string = drum->drums();
+			newtrk.frets = 0;
+			for (int i = 0; i < newtrk.string; i++)
+				newtrk.tune[i] = drum->tune(i);
 		}
 
 		// Check that cursor position won't fall over the track limits
-		if (newtrk->y >= newtrk->string)
-			newtrk->y = newtrk->string - 1;
+		if (newtrk.y >= newtrk.string)
+			newtrk.y = newtrk.string - 1;
 
-		cmdHist->push(new SetTrackPropCommand(tv, tl, tp, tv->trk(), newtrk));
+		cmdHist->push(new SetTrackPropCommand(tv, tl, tp, tv->trk(), &newtrk));
 		res = TRUE;
 	}
 
-	delete st;
-	delete newtrk;
 	return res;
 }
 
 // Sets track's properties called from trackNew
 bool SongView::setTrackProperties()
 {
+  // TODO: reduce copypaiste with previous function
 	bool res = FALSE;
 	SetTrack *st = new SetTrack(tv->trk());
 
@@ -285,10 +293,10 @@ bool SongView::setTrackProperties()
 		tv->trk()->channel = st->channel->value();
 		tv->trk()->bank = st->bank->value();
 		tv->trk()->patch = st->patch->value();
-		tv->trk()->setTrackMode((TabTrack::TrackMode) st->mode->currentItem());
+		tv->trk()->setTrackMode((TabTrack::TrackMode) st->mode->currentIndex());
 
 		// Fret tab
-		if (st->mode->currentItem() == TabTrack::FretTab) {
+		if (st->mode->currentIndex() == TabTrack::FretTab) {
 			SetTabFret *fret = (SetTabFret *) st->modespec;
 			tv->trk()->string = fret->string();
 			tv->trk()->frets = fret->frets();
@@ -297,7 +305,7 @@ bool SongView::setTrackProperties()
 		}
 
 		// Drum tab
-		if (st->mode->currentItem() == TabTrack::DrumTab) {
+		if (st->mode->currentIndex() == TabTrack::DrumTab) {
 			SetTabDrum *drum = (SetTabDrum *) st->modespec;
 			tv->trk()->string = drum->drums();
 			tv->trk()->frets = 0;

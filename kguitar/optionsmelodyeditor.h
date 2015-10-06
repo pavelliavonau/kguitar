@@ -12,7 +12,7 @@ class QCheckBox;
 class OptionsMelodyEditor: public OptionsPage {
 	Q_OBJECT
 public:
-	OptionsMelodyEditor(KSharedConfigPtr &conf, QWidget *parent = 0, const char *name = 0);
+	OptionsMelodyEditor(KSharedConfigPtr &conf, QWidget *parent = 0);
 
 public slots:
 	virtual void applyBtnClicked();

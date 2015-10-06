@@ -3,7 +3,6 @@
 
 #include <kconfig.h>
 #include <qfile.h>
-#include <q3textstream.h>
 
 #ifdef WITH_TSE3
 #include <tse3/Track.h>
@@ -24,7 +23,7 @@ bool ConvertMidi::save(QString fileName)
 {
 #ifdef WITH_TSE3
 	TSE3::MidiFileExport exp;
-	exp.save((const char *) fileName.local8Bit(), song->midiSong());
+	exp.save((const char *) fileName.toLocal8Bit(), song->midiSong());
 	// GREYFIX: pretty ugly unicode string to standard string hack
 	return TRUE;
 #else

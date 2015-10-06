@@ -19,14 +19,14 @@ typedef struct {
 class FingerList: public Q3GridView {
 	Q_OBJECT
 public:
-	FingerList(TabTrack *p, QWidget *parent = 0, const char *name = 0);
+	FingerList(TabTrack *p, QWidget *parent = 0);
 	~FingerList();
 
 	void addFingering(const int a[MAX_STRINGS]);
 	void clear();
 	void beginSession();
 	void endSession();
-	int count() { return appl.count(); };
+	int count() { return appl.count(); }
 	void selectFirst();
 
 signals:

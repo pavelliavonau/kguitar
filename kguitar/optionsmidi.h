@@ -14,9 +14,9 @@ class OptionsMidi: public OptionsPage {
 	Q_OBJECT
 public:
 #ifdef WITH_TSE3
-	OptionsMidi(TSE3::MidiScheduler *, KSharedConfigPtr&, QWidget *parent = 0, const char *name = 0);
+	OptionsMidi(TSE3::MidiScheduler *, KSharedConfigPtr&, QWidget *parent = 0);
 #else
-	OptionsMidi(KSharedConfigPtr &, QWidget *parent = 0, const char *name = 0);
+	OptionsMidi(KSharedConfigPtr &, QWidget *parent = 0);
 #endif
 	virtual void applyBtnClicked();
 	virtual void defaultBtnClicked();

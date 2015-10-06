@@ -1,7 +1,7 @@
 #include "optionspage.h"
 
-OptionsPage::OptionsPage(KSharedConfigPtr &conf, QWidget *parent, const char *name)
-	: QWidget(parent, name)
+OptionsPage::OptionsPage(KSharedConfigPtr &conf, QWidget *parent)
+	: QWidget(parent)
 {
 	config = conf.data();
 }

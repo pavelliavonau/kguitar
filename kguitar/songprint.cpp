@@ -177,7 +177,7 @@ static void fontInfo(QFont * f)
 {
 	QFont lf = *f;
 	QFontInfo fi = QFontInfo(lf);
-	bool b = fi.exactMatch();
+//	bool b = fi.exactMatch();
 	QString s = fi.family();
 	if (s.isNull()) s = "(null)";
 // 	kdDebug()
@@ -188,12 +188,12 @@ static void fontInfo(QFont * f)
 // 	<< endl;
 }
 
-static bool fontIsExactMatch(QFont * f)
-{
-	QFont lf = *f;
-	QFontInfo fi = QFontInfo(lf);
-	return fi.exactMatch();
-}
+//static bool fontIsExactMatch(QFont * f)
+//{
+//	QFont lf = *f;
+//	QFontInfo fi = QFontInfo(lf);
+//	return fi.exactMatch();
+//}
 
 // initialize fonts
 

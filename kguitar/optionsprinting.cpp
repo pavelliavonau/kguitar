@@ -4,15 +4,13 @@
 #include <q3buttongroup.h>
 #include <qradiobutton.h>
 #include <qlayout.h>
-//Added by qt3to4:
-#include <Q3HBoxLayout>
 
 #include <klocale.h>
 #include <kconfig.h>
 #include <kconfiggroup.h>
 
-OptionsPrinting::OptionsPrinting(KSharedConfigPtr &conf, QWidget *parent, const char *name)
-	: OptionsPage(conf, parent, name)
+OptionsPrinting::OptionsPrinting(KSharedConfigPtr &conf, QWidget *parent)
+	: OptionsPage(conf, parent)
 {
 	// Create option widgets
 
@@ -24,7 +22,7 @@ OptionsPrinting::OptionsPrinting(KSharedConfigPtr &conf, QWidget *parent, const 
 
 	// Set widget layout
 
-    Q3HBoxLayout *box = new Q3HBoxLayout(this);
+    QHBoxLayout *box = new QHBoxLayout(this);
 	box->addWidget(styleGroup);
 	box->activate();
 

@@ -12,7 +12,7 @@ class TabTrack;
 class Fingering: public Q3Frame {
 	Q_OBJECT
 public:
-	Fingering(TabTrack *p, QWidget *parent = 0, const char *name = 0);
+	Fingering(TabTrack *p, QWidget *parent = 0);
 
 	void setFinger(int string, int fret);
 

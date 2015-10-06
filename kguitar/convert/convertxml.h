@@ -5,7 +5,6 @@
 #include <qxml.h>
 #include <q3ptrvector.h>
 //Added by qt3to4:
-#include <Q3TextStream>
 #include "accidentals.h"
 
 class TabSong;
