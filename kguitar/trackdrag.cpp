@@ -3,32 +3,17 @@
 
 #include <kdebug.h>
 
-#include <q3dragobject.h>
-#include <qbuffer.h>
-//#include <qdatastream.h>
+#include <QBuffer>
+#include <QMimeData>
 
 
-TrackDrag::TrackDrag(TabTrack *trk, QWidget *dragSource, const char *name) :
-	Q3StoredDrag("application/x-kguitar-snippet", dragSource, name)
-{
-	setTrack(trk);
-}
+QString TrackDrag::TRACK_MIME_TYPE = "application/x-kguitar-snippet";
 
-
-TrackDrag::TrackDrag(QWidget *dragSource, const char *name) :
-	Q3StoredDrag("application/x-kguitar-snippet", dragSource, name)
-{
-}
-
-TrackDrag::~TrackDrag()
-{
-}
-
-void TrackDrag::setTrack(TabTrack *trk)
+QByteArray TrackDrag::encode(TabTrack *trk)
 {
 	if (trk == NULL) {
 		kdDebug() << "TrackDrag::setTrack() >>>>>> trk == NULL" << endl;
-		return;  // ALINXFIX: Write in buffer "NULLTRACK"
+		return QByteArray();  // ALINXFIX: Write in buffer "NULLTRACK"
 	}
 
 	// Save to buffer
@@ -105,15 +90,15 @@ void TrackDrag::setTrack(TabTrack *trk)
 
 	buffer.close();
 
-	setEncodedData(buffer.buffer());
+	return buffer.buffer();
 }
 
-bool TrackDrag::canDecode(const QMimeSource *e)
+bool TrackDrag::canDecode(const QMimeData *e)
 {
-	return e->provides("application/x-kguitar-snippet");
+	return e->hasFormat(TRACK_MIME_TYPE);
 }
 
-bool TrackDrag::decode(const QMimeSource *e, TabTrack *&trk)
+bool TrackDrag::decode(const QMimeData *e, TabTrack *&trk)
 {
 	trk = NULL;
 
@@ -122,7 +107,7 @@ bool TrackDrag::decode(const QMimeSource *e, TabTrack *&trk)
 		return FALSE;
 	}
 
-	QByteArray b = e->encodedData("application/x-kguitar-snippet");
+	QByteArray b = e->data(TRACK_MIME_TYPE);
 
 	if (!b.size()) //No data
 		return FALSE;

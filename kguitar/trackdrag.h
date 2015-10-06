@@ -1,21 +1,21 @@
 #ifndef TRACKDRAG_H
 #define TRACKDRAG_H
 
-#include <q3dragobject.h>
+#include <QString>
+#include <QByteArray>
 
 class TabTrack;
+class QMimeData;
 
-class TrackDrag: public Q3StoredDrag {
-	Q_OBJECT
+class TrackDrag
+{
 public:
-	TrackDrag(TabTrack *trk, QWidget *dragSource = 0, const char *name = 0);
-	TrackDrag(QWidget *dragSource = 0, const char *name = 0);
-	~TrackDrag();
 
-	virtual void setTrack(TabTrack *trk);
+	static QByteArray encode(TabTrack *trk);
+	static bool canDecode(const QMimeData *e);
+	static bool decode(const QMimeData *e, TabTrack *&trk);
 
-	static bool canDecode(const QMimeSource *e);
-	static bool decode(const QMimeSource *e, TabTrack *&trk);
+	static QString TRACK_MIME_TYPE;
 };
 
 #endif

@@ -323,6 +323,18 @@ bool SongView::setTrackProperties()
 	return res;
 }
 
+void SongView::copySelTabsToClipboard()
+{
+  if (!tv->trk()->sel) {
+    KMessageBox::error(this, i18n("There is no selection!"));
+    return;
+  }
+
+  QMimeData* mdata = new QMimeData;
+  mdata->setData( TrackDrag::TRACK_MIME_TYPE, TrackDrag::encode( highlightedTabs() ) );
+  QApplication::clipboard()->setMimeData( mdata );
+}
+
 void SongView::songProperties()
 {
 	SetSong ss(m_song->info, m_song->tempo, ro);
@@ -383,30 +395,21 @@ bool SongView::initMidi()
 
 void SongView::slotCut()
 {
-	if (!tv->trk()->sel){
-		KMessageBox::error(this, i18n("There is no selection!"));
-		return;
-	}
+	copySelTabsToClipboard();
 
-	QApplication::clipboard()->setData(new TrackDrag(highlightedTabs()));
 	tv->deleteColumn(i18n("Cut to clipboard"));
 }
 
 void SongView::slotCopy()
 {
-	if (!tv->trk()->sel){
-		KMessageBox::error(this, i18n("There is no selection!"));
-		return;
-	}
-
-	QApplication::clipboard()->setData(new TrackDrag(highlightedTabs()));
+	copySelTabsToClipboard();
 }
 
 void SongView::slotPaste()
 {
 	TabTrack *trk;
 
-	if (TrackDrag::decode(QApplication::clipboard()->data(), trk))
+        if (TrackDrag::decode(QApplication::clipboard()->mimeData(), trk))
         insertTabs(trk);
 
 	tv->repaintContents();

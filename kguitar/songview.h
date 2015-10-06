@@ -79,6 +79,7 @@ private:
 	TabTrack *highlightedTabs();
 	void insertTabs(TabTrack* trk);
 	bool setTrackProperties();
+	void copySelTabsToClipboard();
 
 	QSplitter *split, *splitv;
 	TabSong *m_song;
