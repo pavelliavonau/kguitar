@@ -1,9 +1,10 @@
 #include "optionsprinting.h"
 #include "settings.h"
 
-#include <q3buttongroup.h>
-#include <qradiobutton.h>
-#include <qlayout.h>
+#include <QRadioButton>
+#include <QVBoxLayout>
+#include <QButtonGroup>
+#include <QGroupBox>
 
 #include <klocale.h>
 #include <kconfig.h>
@@ -14,29 +15,46 @@ OptionsPrinting::OptionsPrinting(KSharedConfigPtr &conf, QWidget *parent)
 {
 	// Create option widgets
 
-	styleGroup = new Q3VButtonGroup(i18n("Style"), this);
-	style[0] = new QRadioButton(i18n("Tabulature"), styleGroup);
-	style[1] = new QRadioButton(i18n("Notes"), styleGroup);
-	style[2] = new QRadioButton(i18n("Tabulature (full) and notes"), styleGroup);
-	style[3] = new QRadioButton(i18n("Tabulature (minimum) and notes (not implemented)"), styleGroup);
+	QVBoxLayout *box = new QVBoxLayout;
+	styleButtons = new QButtonGroup(this);
 
-	// Set widget layout
+	QRadioButton* button = new QRadioButton(i18n("Tabulature"));
+	styleButtons->addButton(button, 0);
+	box->addWidget(button);
 
-    QHBoxLayout *box = new QHBoxLayout(this);
-	box->addWidget(styleGroup);
+	button = new QRadioButton(i18n("Notes"));
+	styleButtons->addButton(button, 1);
+	box->addWidget(button);
+
+	button = new QRadioButton(i18n("Tabulature (full) and notes"));
+	styleButtons->addButton(button, 2);
+	box->addWidget(button);
+
+	button = new QRadioButton(i18n("Tabulature (minimum) and notes (not implemented)"));
+	styleButtons->addButton(button, 3);
+	box->addWidget(button);
+
+	box->addStretch();
 	box->activate();
 
-	// Fill in current config
+	styleGroup = new QGroupBox(i18n("Style"), this);
+	styleGroup->setLayout(box);
 
-	styleGroup->setButton(Settings::printingStyle());
+	// Set widget layout
+	box = new QVBoxLayout;
+	box->addWidget(styleGroup);
+	setLayout(box);
+
+	// Fill in current config
+	styleButtons->button(Settings::printingStyle())->setChecked(true);
 }
 
 void OptionsPrinting::defaultBtnClicked()
 {
-	styleGroup->setButton(0);
+	styleButtons->button(0)->setChecked(true);
 }
 
 void OptionsPrinting::applyBtnClicked()
 {
-	config->group("Printing").writeEntry("Style", styleGroup->id(styleGroup->selected()));
+	config->group("Printing").writeEntry("Style", styleButtons->id(styleButtons->checkedButton()));
 }

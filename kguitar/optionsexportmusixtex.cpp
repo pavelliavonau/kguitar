@@ -1,10 +1,11 @@
 #include "optionsexportmusixtex.h"
 #include "settings.h"
 
-#include <q3buttongroup.h>
-#include <qradiobutton.h>
-#include <qcheckbox.h>
-#include <qlayout.h>
+#include <QRadioButton>
+#include <QCheckBox>
+#include <QVBoxLayout>
+#include <QGroupBox>
+#include <QButtonGroup>
 
 #include <klocale.h>
 #include <kconfig.h>
@@ -13,22 +14,54 @@
 OptionsExportMusixtex::OptionsExportMusixtex(KSharedConfigPtr &conf, QWidget *parent)
 	: OptionsPage(conf, parent)
 {
+	QVBoxLayout *vbox = new QVBoxLayout;
+
 	// Create option widgets
 
-	Q3VButtonGroup *layoutGroup = new Q3VButtonGroup(i18n("MusiXTeX Layout"), this);
+	QGroupBox *layoutGroup = new QGroupBox(i18n("MusiXTeX Layout"), this);
 	showBarNumber  = new QCheckBox(i18n("Show Bar Number"), layoutGroup);
 	showStr        = new QCheckBox(i18n("Show Tuning"), layoutGroup);
 	showPageNumber = new QCheckBox(i18n("Show Page Number"), layoutGroup);
 
-	exportModeGroup = new Q3VButtonGroup(i18n("Export as..."), this);
-	exportMode[0] = new QRadioButton(i18n("Tabulature"), exportModeGroup);
-	exportMode[1] = new QRadioButton(i18n("Notes"), exportModeGroup);
+	vbox->addWidget(showBarNumber);
+	vbox->addWidget(showStr);
+	vbox->addWidget(showPageNumber);
+	layoutGroup->setLayout(vbox);
 
-	tabSizeGroup = new Q3VButtonGroup(i18n("Tab Size"), this);
-	tabSize[0] = new QRadioButton(i18n("Smallest"), tabSizeGroup);
-	tabSize[1] = new QRadioButton(i18n("Small"), tabSizeGroup);
-	tabSize[2] = new QRadioButton(i18n("Normal"), tabSizeGroup);
-	tabSize[3] = new QRadioButton(i18n("Big"), tabSizeGroup);
+	vbox = new QVBoxLayout;
+
+	exportModeGroup = new QGroupBox(i18n("Export as..."), this);
+	exportMode = new QButtonGroup(this);
+	QRadioButton* button = new QRadioButton(i18n("Tabulature"), exportModeGroup);
+	exportMode->addButton(button, 0);
+	vbox->addWidget(button);
+
+	button = new QRadioButton(i18n("Notes"), exportModeGroup);
+	exportMode->addButton(button, 1);
+	vbox->addWidget(button);
+	vbox->addStretch();
+
+	exportModeGroup->setLayout(vbox);
+
+	vbox = new QVBoxLayout;
+
+	tabSizeGroup = new QGroupBox(i18n("Tab Size"), this);
+	tabSize = new QButtonGroup(this);
+	button = new QRadioButton(i18n("Smallest"), tabSizeGroup);
+	tabSize->addButton(button, 0);
+	vbox->addWidget(button);
+	button = new QRadioButton(i18n("Small"), tabSizeGroup);
+	tabSize->addButton(button, 1);
+	vbox->addWidget(button);
+	button = new QRadioButton(i18n("Normal"), tabSizeGroup);
+	tabSize->addButton(button, 2);
+	vbox->addWidget(button);
+	button = new QRadioButton(i18n("Big"), tabSizeGroup);
+	tabSize->addButton(button, 3);
+	vbox->addWidget(button);
+	vbox->addStretch();
+
+	tabSizeGroup->setLayout(vbox);
 
 	always = new QCheckBox(i18n("Always show this dialog on export"), this);
 
@@ -44,30 +77,30 @@ OptionsExportMusixtex::OptionsExportMusixtex(KSharedConfigPtr &conf, QWidget *pa
 
 	// Fill in current config
 
-	tabSizeGroup->setButton(Settings::texTabSize());
+	tabSize->button(Settings::texTabSize())->setChecked(true);
 	showBarNumber->setChecked(Settings::texShowBarNumber());
 	showStr->setChecked(Settings::texShowStr());
 	showPageNumber->setChecked(Settings::texShowPageNumber());
-	exportModeGroup->setButton(Settings::texExportMode());
+	exportMode->button(Settings::texExportMode())->setChecked(true);
 	always->setChecked(config->group("MusiXTeX").readEntry("AlwaysShow", TRUE));
 }
 
 void OptionsExportMusixtex::defaultBtnClicked()
 {
-	tabSizeGroup->setButton(2);
+	tabSize->button(2)->setChecked(true);
 	showBarNumber->setChecked(TRUE);
 	showStr->setChecked(TRUE);
 	showPageNumber->setChecked(TRUE);
-	exportModeGroup->setButton(0);
+	exportMode->button(0)->setChecked(true);
 }
 
 void OptionsExportMusixtex::applyBtnClicked()
 {
 	KConfigGroup g = config->group("MusiXTeX");
-	g.writeEntry("TabSize", tabSizeGroup->id(tabSizeGroup->selected()));
+	g.writeEntry("TabSize", tabSize->id(tabSize->checkedButton()));
 	g.writeEntry("ShowBarNumber", showBarNumber->isChecked());
 	g.writeEntry("ShowStr", showStr->isChecked());
 	g.writeEntry("ShowPageNumber", showPageNumber->isChecked());
-	g.writeEntry("ExportMode", exportModeGroup->id(exportModeGroup->selected()));
+	g.writeEntry("ExportMode", exportMode->id(exportMode->checkedButton()));
 	g.writeEntry("AlwaysShow", always->isChecked());
 }

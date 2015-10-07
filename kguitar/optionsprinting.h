@@ -4,19 +4,19 @@
 #include "optionspage.h"
 #include "global.h"
 
-class Q3ButtonGroup;
-class QRadioButton;
+class QButtonGroup;
+class QGroupBox;
 
 class OptionsPrinting: public OptionsPage {
 	Q_OBJECT
 public:
 	OptionsPrinting(KSharedConfigPtr &conf, QWidget *parent = 0);
-	virtual void applyBtnClicked();
-	virtual void defaultBtnClicked();
+	virtual void applyBtnClicked() override;
+	virtual void defaultBtnClicked() override;
 
 private:
-    Q3ButtonGroup *styleGroup;
-    QRadioButton *style[4];
+    QGroupBox *styleGroup;
+    QButtonGroup *styleButtons;
 };
 
 #endif

@@ -4,21 +4,21 @@
 #include "optionspage.h"
 #include "global.h"
 
-class Q3VButtonGroup;
+class QGroupBox;
 class QCheckBox;
-class QRadioButton;
+class QButtonGroup;
 
 class OptionsExportMusixtex: public OptionsPage {
 	Q_OBJECT
 public:
 	OptionsExportMusixtex(KSharedConfigPtr &conf, QWidget *parent = 0);
-	virtual void applyBtnClicked();
-	virtual void defaultBtnClicked();
+	virtual void applyBtnClicked() override;
+	virtual void defaultBtnClicked() override;
 
 private:
-	Q3VButtonGroup *tabSizeGroup, *exportModeGroup;
+	QGroupBox *tabSizeGroup, *exportModeGroup;
 	QCheckBox *showBarNumber, *showStr, *showPageNumber;
-	QRadioButton *tabSize[4], *exportMode[2];
+	QButtonGroup *tabSize, *exportMode;
 	QCheckBox *always;
 };
 

@@ -4,8 +4,8 @@
 #include "optionspage.h"
 #include "global.h"
 
-class Q3VButtonGroup;
-class QRadioButton;
+class QGroupBox;
+class QButtonGroup;
 class QSpinBox;
 class QCheckBox;
 
@@ -19,12 +19,12 @@ class OptionsExportAscii: public OptionsPage {
 	Q_OBJECT
 public:
 	OptionsExportAscii(KSharedConfigPtr &config, QWidget *parent = 0);
-	virtual void applyBtnClicked();
-	virtual void defaultBtnClicked();
+	virtual void applyBtnClicked() override;
+	virtual void defaultBtnClicked() override;
 
 private:
-	Q3VButtonGroup *durationGroup;
-	QRadioButton *duration[5];
+	QGroupBox *durationGroup;
+	QButtonGroup *duration;
 	QSpinBox *pageWidth;
 	QCheckBox *always;
 };

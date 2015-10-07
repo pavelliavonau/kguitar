@@ -1,11 +1,12 @@
 #include "optionsexportascii.h"
 
-#include <q3buttongroup.h>
-#include <qradiobutton.h>
-#include <qspinbox.h>
-#include <qlabel.h>
-#include <qcheckbox.h>
-#include <qlayout.h>
+#include <QSpinBox>
+#include <QLabel>
+#include <QCheckBox>
+#include <QRadioButton>
+#include <QGroupBox>
+#include <QButtonGroup>
+#include <QVBoxLayout>
 
 #include <klocale.h>
 #include <kconfig.h>
@@ -14,14 +15,32 @@
 OptionsExportAscii::OptionsExportAscii(KSharedConfigPtr &conf, QWidget *parent)
 	: OptionsPage(conf, parent)
 {
+	QVBoxLayout *vbox = new QVBoxLayout;
 	// Create option widgets
 
-	durationGroup = new Q3VButtonGroup(i18n("&Duration Display"), this);
-	duration[0] = new QRadioButton(i18n("Fixed one blank"), durationGroup);
-	duration[1] = new QRadioButton(i18n("One blank") + " = 1/4", durationGroup);
-	duration[2] = new QRadioButton(i18n("One blank") + " = 1/8", durationGroup);
-	duration[3] = new QRadioButton(i18n("One blank") + " = 1/16", durationGroup);
-	duration[4] = new QRadioButton(i18n("One blank") + " = 1/32", durationGroup);
+	durationGroup = new QGroupBox(i18n("&Duration Display"), this);
+	duration = new QButtonGroup(this);
+	QRadioButton* button = new QRadioButton(i18n("Fixed one blank"), durationGroup);
+	duration->addButton(button, 0);
+	vbox->addWidget(button);
+
+	button = new QRadioButton(i18n("One blank") + " = 1/4", durationGroup);
+	duration->addButton(button, 1);
+	vbox->addWidget(button);
+
+	button = new QRadioButton(i18n("One blank") + " = 1/8", durationGroup);
+	duration->addButton(button, 2);
+	vbox->addWidget(button);
+
+	button = new QRadioButton(i18n("One blank") + " = 1/16", durationGroup);
+	duration->addButton(button, 3);
+	vbox->addWidget(button);
+
+	button = new QRadioButton(i18n("One blank") + " = 1/32", durationGroup);
+	duration->addButton(button, 4);
+	vbox->addWidget(button);
+
+	durationGroup->setLayout(vbox);
 
 	pageWidth = new QSpinBox(this);
 	pageWidth->setRange(1, 1024 * 1024);
@@ -48,14 +67,14 @@ OptionsExportAscii::OptionsExportAscii(KSharedConfigPtr &conf, QWidget *parent)
 
 	// Fill in current config
 	KConfigGroup g = config->group("ASCII");
-	durationGroup->setButton(g.readEntry("DurationDisplay", 3));
+	duration->button(g.readEntry("DurationDisplay", 3))->setChecked(true);
 	pageWidth->setValue(g.readEntry("PageWidth", 72));
 	always->setChecked(g.readEntry("AlwaysShow", TRUE));
 }
 
 void OptionsExportAscii::defaultBtnClicked()
 {
-	durationGroup->setButton(3);
+	duration->button(3)->setChecked(true);
 	pageWidth->setValue(72);
 	always->setChecked(TRUE);
 }
@@ -63,7 +82,7 @@ void OptionsExportAscii::defaultBtnClicked()
 void OptionsExportAscii::applyBtnClicked()
 {
 	KConfigGroup g = config->group("ASCII");
-	g.writeEntry("DurationDisplay", durationGroup->id(durationGroup->selected()));
+	g.writeEntry("DurationDisplay", duration->id(duration->checkedButton()));
 	g.writeEntry("PageWidth", pageWidth->value());
 	g.writeEntry("AlwaysShow", always->isChecked());
 }
