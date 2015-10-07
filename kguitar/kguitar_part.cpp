@@ -46,7 +46,6 @@
 #include <qstatusbar.h>
 #include <qclipboard.h>
 
-#include <q3buttongroup.h>
 #include <qradiobutton.h>
 #include <qfileinfo.h>
 #include <QPrintDialog>

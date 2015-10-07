@@ -5,7 +5,7 @@
 //Added by qt3to4:
 #include <QResizeEvent>
 #include <QMouseEvent>
-#include <Q3MemArray>
+#include <QVector>
 #include "global.h"
 
 #define ICONCHORD	   50
@@ -41,7 +41,7 @@ private:
 	enum { SCALE=6, CIRCLE=5, CIRCBORD=1, BORDER=1, SPACER=1, FRETTEXT=9 };
 
 	int num, perRow;
-	Q3MemArray<fingering> appl;
+	QVector<fingering> appl;
 
 	int curSel, oldCol, oldRow;
 	TabTrack *parm;

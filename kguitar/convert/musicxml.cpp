@@ -87,7 +87,6 @@
 #include "data/tabtrack.h"
 
 #include <qstring.h>
-#include <q3valuelist.h>
 
 #include "convertxml.h"
 
