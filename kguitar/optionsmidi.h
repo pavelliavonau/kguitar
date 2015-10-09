@@ -18,14 +18,14 @@ public:
 #else
 	OptionsMidi(KSharedConfigPtr &, QWidget *parent = 0);
 #endif
-	virtual void applyBtnClicked();
-	virtual void defaultBtnClicked();
+	virtual void applyBtnClicked() override;
+	virtual void defaultBtnClicked() override;
 
 protected slots:
 	void fillMidiBox();
 
 private:
-	QTableWidget *midiport;
+	QTableWidget *midiPortsTableWidget;
 #ifdef WITH_TSE3
 	TSE3::MidiScheduler *sch;
 #endif

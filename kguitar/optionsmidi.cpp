@@ -11,6 +11,7 @@
 #include <QFrame>
 #include <kconfig.h>
 #include <kconfiggroup.h>
+#include <QHeaderView>
 
 #ifdef WITH_TSE3
 OptionsMidi::OptionsMidi(TSE3::MidiScheduler *_sch, KSharedConfigPtr &conf, QWidget *parent)
@@ -25,14 +26,19 @@ OptionsMidi::OptionsMidi(KSharedConfigPtr &conf, QWidget *parent)
 
 	// Create option widgets
 
-	midiport = new QTableWidget(this);
+	midiPortsTableWidget = new QTableWidget(this);
 //	midiport->setSorting(-1); // no text sorting
-	midiport->setFrameStyle(QFrame::Panel | QFrame::Sunken);
-	midiport->setColumnCount(2);
+	midiPortsTableWidget->setFrameStyle(QFrame::Panel | QFrame::Sunken);
+	midiPortsTableWidget->setColumnCount(2);
+	midiPortsTableWidget->setSelectionBehavior(QAbstractItemView::SelectRows);
+	midiPortsTableWidget->setSelectionMode(QAbstractItemView::SingleSelection);
+	midiPortsTableWidget->setEditTriggers(QAbstractItemView::NoEditTriggers);
+	midiPortsTableWidget->horizontalHeader()->setStretchLastSection(true);
+	midiPortsTableWidget->verticalHeader()->setResizeMode(QHeaderView::Fixed);
 
 	fillMidiBox();
 
-	QLabel *midiport_l = new QLabel(i18n("MIDI output port"), midiport);
+	QLabel *midiport_l = new QLabel(i18n("MIDI output port"), midiPortsTableWidget);
 
 	QPushButton *midirefresh = new QPushButton(i18n("&Refresh"), this);
 	connect(midirefresh, SIGNAL(clicked()), SLOT(fillMidiBox()));
@@ -41,7 +47,7 @@ OptionsMidi::OptionsMidi(KSharedConfigPtr &conf, QWidget *parent)
 
 	QVBoxLayout *midivb = new QVBoxLayout(this);
 	midivb->addWidget(midiport_l);
-	midivb->addWidget(midiport, 1);
+	midivb->addWidget(midiPortsTableWidget, 1);
 	midivb->addWidget(midirefresh);
 	midivb->activate();
 }
@@ -57,17 +63,17 @@ void OptionsMidi::fillMidiBox()
 
 	sch->portNumbers(portNums);
 
-	midiport->clear();
-	midiport->setHorizontalHeaderLabels(QStringList() << QString(i18n("Port")) << QString(i18n("Info")));
-	midiport->setRowCount(portNums.size());
+	midiPortsTableWidget->clear();
+	midiPortsTableWidget->setHorizontalHeaderLabels(QStringList() << QString(i18n("Port")) << QString(i18n("Info")));
+	midiPortsTableWidget->setRowCount(portNums.size());
 
 	for (size_t i = 0; i < sch->numPorts(); i++) {
 		QTableWidgetItem *port = new QTableWidgetItem(QString::number(portNums[i]));
 		QTableWidgetItem *info = new QTableWidgetItem(sch->portName(portNums[i]));
-		midiport->setItem(i, 0, port);
-		midiport->setItem(i, 1, info);
+		midiPortsTableWidget->setItem(i, 0, port);
+		midiPortsTableWidget->setItem(i, 1, info);
 		if (Settings::midiPort() == portNums[i])
-			midiport->setCurrentItem(port);
+			midiPortsTableWidget->setCurrentItem(port);
 	}
 #endif
 }
@@ -78,6 +84,6 @@ void OptionsMidi::defaultBtnClicked()
 
 void OptionsMidi::applyBtnClicked()
 {
-	if (midiport->currentItem())
-		config->group("MIDI").writeEntry("Port", midiport->currentItem()->text().toInt());
+  if (midiPortsTableWidget->selectionModel()->hasSelection())
+    config->group("MIDI").writeEntry("Port", midiPortsTableWidget->item(midiPortsTableWidget->currentRow(), 0)->text().toInt());
 }
