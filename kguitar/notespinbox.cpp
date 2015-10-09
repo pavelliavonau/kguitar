@@ -7,7 +7,7 @@ NoteSpinBox::NoteSpinBox(QWidget *parent):
   setRange(0, 255);
 }
 
-QString NoteSpinBox::mapValueToText(int v)
+QString NoteSpinBox::textFromValue(int v) const
 {
 	QString tmp;
 
@@ -17,18 +17,14 @@ QString NoteSpinBox::mapValueToText(int v)
 	return tmp;
 }
 
-int NoteSpinBox::mapTextToValue(bool *ok)
+int NoteSpinBox::valueFromText(const QString &text) const
 {
-	if (!ok)
-		return 0;
-
-	QString t = text();
 	QString nn;
 
-	if ((t[1] == '#') || (t[1] == 'b')) {
-		nn = t.left(2);
+	if ((text[1] == '#') || (text[1] == 'b')) {
+		nn = text.left(2);
 	} else {
-		nn = t.left(1);
+		nn = text.left(1);
 	}
 
 	int cn = -1;
@@ -37,7 +33,7 @@ int NoteSpinBox::mapTextToValue(bool *ok)
 		if (nn == Settings::noteName(i))
 			cn = i;
 
-	nn = t.right(1);
+	nn = text.right(1);
 	int oct = nn.toInt();
 
 	return oct * 12 + cn;

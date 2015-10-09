@@ -20,8 +20,8 @@ public:
 	NoteSpinBox(QWidget *parent=0);
 private:
 
-	virtual QString mapValueToText(int v);
-	virtual int mapTextToValue(bool *ok);
+	virtual QString textFromValue(int v) const override;
+	virtual int valueFromText(const QString &text) const override;
 
 	// QAbstractSpinBox interface
 protected:
