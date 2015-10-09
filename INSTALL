@@ -1,0 +1,15 @@
+Basic Installation
+==================
+
+    KGuitar now uses `cmake' in place of the old `configure' shell script.
+`cmake' is used to produce new make files
+
+To make a generic installation on most Unix based systems use the following
+commands as a regular user:
+
+	cmake .
+	make kguitar
+
+And then type the following as root:
+
+	make install

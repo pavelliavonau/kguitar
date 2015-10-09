@@ -1,0 +1,1 @@
+install(DIRECTORY . DESTINATION ${DATA_INSTALL_DIR}/kguitar/pics FILES_MATCHING PATTERN "*.png" PATTERN "*.jpg")
