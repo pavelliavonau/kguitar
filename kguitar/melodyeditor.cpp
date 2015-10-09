@@ -75,7 +75,7 @@ MelodyEditor::MelodyEditor(TrackView *_tv, QWidget *parent)
 
 	connect(fb, SIGNAL(buttonPress(int, int, Qt::ButtonState)),
 	        tv, SLOT(melodyEditorPress(int, int, Qt::ButtonState)));
-	connect(fb, SIGNAL(buttonRelease(ButtonState)), tv, SLOT(melodyEditorRelease(ButtonState)));
+	connect(fb, SIGNAL(buttonRelease(Qt::ButtonState)), tv, SLOT(melodyEditorRelease(Qt::ButtonState)));
 	connect(tv, SIGNAL(trackChanged(TabTrack *)), fb, SLOT(setTrack(TabTrack *)));
 	connect(tv, SIGNAL(columnChanged()), fb, SLOT(update()));
 	connect(options, SIGNAL(clicked()), SLOT(optionsDialog()));

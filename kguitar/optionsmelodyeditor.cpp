@@ -33,9 +33,9 @@ OptionsMelodyEditor::OptionsMelodyEditor(KSharedConfigPtr &conf, QWidget *parent
 	QVBoxLayout *l = new QVBoxLayout(this);
 
 	QGroupBox *designGroup = new QGroupBox(i18n("Design"), this);
-	QHBoxLayout *l_design = new QHBoxLayout(this);
+	QHBoxLayout *l_design = new QHBoxLayout;
 	QGroupBox *inlayGroup = new QGroupBox(i18n("Inlays"), designGroup);
-	QVBoxLayout *l_inlay = new QVBoxLayout(this);
+	QVBoxLayout *l_inlay = new QVBoxLayout;
 
 	inlay[0] = new QRadioButton(i18n("None"), inlayGroup);
 	inlay[1] = new QRadioButton(i18n("Center dots"), inlayGroup);
@@ -52,7 +52,7 @@ OptionsMelodyEditor::OptionsMelodyEditor(KSharedConfigPtr &conf, QWidget *parent
 	inlay[Settings::melodyEditorInlay()]->setChecked(true);
 
 	QGroupBox *woodGroup = new QGroupBox(i18n("Texture"), designGroup);
-	QVBoxLayout *l_wood = new QVBoxLayout(this);
+	QVBoxLayout *l_wood = new QVBoxLayout;
 	wood[0] = new QRadioButton(i18n("Schematic"), woodGroup);
 	wood[1] = new QRadioButton(i18n("Maple"), woodGroup);
 	wood[2] = new QRadioButton(i18n("Rosewood"), woodGroup);
@@ -71,7 +71,7 @@ OptionsMelodyEditor::OptionsMelodyEditor(KSharedConfigPtr &conf, QWidget *parent
 	l->addWidget(designGroup);
 
 	QGroupBox *actionsGroup = new QGroupBox(i18n("Mouse button actions"), this);
-	QFormLayout *l_actions = new QFormLayout(this);
+	QFormLayout *l_actions = new QFormLayout;
 
 	QStringList labels;
 	labels << i18n("Left:") << i18n("Middle:") << i18n("Right:");
