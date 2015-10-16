@@ -119,7 +119,6 @@ void PlaybackTracker::run()
 			if (midiStop)
 				transport->stop();
 			transport->poll();
-			msleep(50);
 //			kdDebug() << "polling...\n";
 		} while (transport->status() != TSE3::Transport::Resting);
 
