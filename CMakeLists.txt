@@ -1,4 +1,4 @@
-cmake_minimum_required(VERSION 2.6)
+cmake_minimum_required(VERSION 2.8)
 
 project(kguitar)
 
@@ -47,6 +47,8 @@ endif(WITH_TSE3)
 
 # TSE3 and other code requires exceptions enabled
 set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} ${KDE4_ENABLE_EXCEPTIONS}")
+
+set(CMAKE_CXX_FLAGS_DEBUG "-g -O0")
 
 include(CheckCXXCompilerFlag)
 CHECK_CXX_COMPILER_FLAG("-std=c++11" COMPILER_SUPPORTS_CXX11)

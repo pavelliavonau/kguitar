@@ -1,3 +1,9 @@
+# The pofiles macro creates in some versions same name targets
+# which since cmake 2.8 leads to target clashes.
+# Hence force the old policy for all po directories.
+# http://public.kitware.com/Bug/view.php?id=12952
+cmake_policy(SET CMP0002 OLD)
+
 find_package(Gettext REQUIRED)
 get_filename_component(DIR ${CMAKE_CURRENT_LIST_FILE} PATH)
 
