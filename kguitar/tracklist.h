@@ -1,15 +1,14 @@
 #ifndef TRACKLIST_H
 #define TRACKLIST_H
 
-#include <q3listview.h>
-//Added by qt3to4:
-#include <QMouseEvent>
+#include <QTableWidget>
 
 class TabSong;
 class TabTrack;
-class Q3ListViewItem;
+class QTableWidgetItem;
 class QMouseEvent;
 class KXMLGUIClient;
+class QMouseEvent;
 
 /**
  * Part of main editor window, shows a list of tracks in a song.
@@ -18,23 +17,28 @@ class KXMLGUIClient;
  * and mouse event handlers to make selection of tracks by mouse
  * possible.
  */
-class TrackList: public Q3ListView {
+class TrackList: public QTableWidget {
 	Q_OBJECT
 
 public:
-	TrackList(TabSong *s, KXMLGUIClient *_XMLGUIClient, QWidget *parent = 0, const char *name = 0);
+	TrackList(TabSong *s, KXMLGUIClient *_XMLGUIClient, QWidget *parent = 0);
 	void updateList();
 
 signals:
 	void trackSelected(TabTrack *);
 
 protected:
-    virtual void contentsMousePressEvent(QMouseEvent *e);
+    virtual void mousePressEvent(QMouseEvent *e) override;
+
+public slots:
+        void selectTrack(TabTrack*);
 
 private slots:
-	void selectNewTrack(Q3ListViewItem *);
+        void selectNewTrack(QTableWidgetItem * current, QTableWidgetItem * previous);
 
 private:
+	void makeHeader();
+
 	TabSong *song;
     KXMLGUIClient *xmlGUIClient;
 };

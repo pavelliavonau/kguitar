@@ -64,7 +64,7 @@ SongView::SongView(KXMLGUIClient *_XMLGUIClient, QUndoStack *_cmdHist,
 	m_song = new TabSong(i18n("Unnamed"), 120);
 	m_song->addEmptyTrack();
 
-	split = new QSplitter(this);
+	split = new QSplitter();
 	split->setOrientation(Qt::Vertical);
 	split->setChildrenCollapsible(false);
 
@@ -80,25 +80,23 @@ SongView::SongView(KXMLGUIClient *_XMLGUIClient, QUndoStack *_cmdHist,
         splitv->setChildrenCollapsible(false);
 
 	tl = new TrackList(m_song, _XMLGUIClient, splitv);
-	tl->setSelected(tl->firstChild(), TRUE);
+	tl->selectRow(0);
 	QScrollArea* scroll = new QScrollArea( splitv );
-	tp = new TrackPane(m_song, tl->header()->height(), tl->firstChild()->height(), scroll);
+	tp = new TrackPane(m_song, tl->horizontalHeader()->height(), tl->verticalHeader()->sectionSize(0), scroll);
 	scroll->setWidget(tp);
 
-	me = new MelodyEditor(tv, split);
+	me = new MelodyEditor(tv);
 
 	connect(tl, SIGNAL(trackSelected(TabTrack *)), tv, SLOT(selectTrack(TabTrack *)));
 	connect(tp, SIGNAL(trackSelected(TabTrack *)), tv, SLOT(selectTrack(TabTrack *)));
+	connect(tp, SIGNAL(trackSelected(TabTrack *)), tl, SLOT(selectTrack(TabTrack *)));
 	connect(tp, SIGNAL(barSelected(uint)), tv, SLOT(selectBar(uint)));
 	connect(tv, SIGNAL(paneChanged()), tp, SLOT(update()));
 	connect(tv, SIGNAL(barChanged()), tp, SLOT(repaintCurrentTrack()));
 
 	// synchronize tracklist and trackpane at vertical scrolling
-	// TODO: port to Qt4
-//	connect(tl, SIGNAL(contentsMoving(int, int)),[scroll](int dx,int dy) {
-//	    scroll->scrollContentsBy(0, dy);
-//	  });
-	    //tp, SLOT(syncVerticalScroll(int, int)));
+	connect(scroll->verticalScrollBar(), SIGNAL(valueChanged(int)), tl->verticalScrollBar(), SLOT(setValue(int)));
+	connect(tl->verticalScrollBar(), SIGNAL(valueChanged(int)), scroll->verticalScrollBar(), SLOT(setValue(int)));
 
 	// let higher-level widgets know that we have a changed song if it
 	// was changed in TrackView
@@ -106,6 +104,9 @@ SongView::SongView(KXMLGUIClient *_XMLGUIClient, QUndoStack *_cmdHist,
 
 	QBoxLayout *l = new QVBoxLayout(this);
 	l->addWidget(split);
+	l->addWidget(me);
+
+	setLayout(l);
 
 	cmdHist = _cmdHist;
 
@@ -132,7 +133,7 @@ void SongView::refreshView()
 	tv->updateRows();
 	tv->repaint();
 	tl->updateList();
-	tl->setSelected(tl->firstChild(), TRUE);
+	tl->selectRow(0);
 	tp->updateList();
 }
 

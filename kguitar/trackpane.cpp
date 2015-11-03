@@ -143,8 +143,3 @@ void TrackPane::repaintCurrentTrack()
 	repaint();
 	//repaintContents();
 }
-
-void TrackPane::syncVerticalScroll(int /* x */, int y)
-{
-  scroll(0, y - contentsY());
-}
