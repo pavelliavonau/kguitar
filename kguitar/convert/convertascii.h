@@ -5,7 +5,7 @@
 #include "convertbase.h"
 
 class TabSong;
-class Q3TextStream;
+class QTextStream;
 
 /**
  * Converter to/from ASCII tabulature format.
@@ -116,7 +116,7 @@ private:
 	/**
 	 * I/O stream, used by converter.
 	 */
-	Q3TextStream *stream;
+	QTextStream *stream;
 };
 
 #endif

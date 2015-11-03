@@ -39,7 +39,7 @@
 
 #include <iostream>		// required for cout and friends
 //Added by qt3to4:
-#include <Q3PointArray>
+#include <QPolygon>
 using namespace std;		// required for cout and friends
 
 #include <qfontmetrics.h>
@@ -574,7 +574,7 @@ void TrackPrint::drawBar(int bn, TabTrack *trk, int es, int& sx, int& sx2)
 				switch (curt->c[t].e[i]) {
 				case EFFECT_HARMONIC:
 					{
-						Q3PointArray a(4);
+						QPolygon a(4);
 						// size of diamond
 						int sz_2 = ysteptb / 4;
 						// leftmost point of diamond
@@ -595,7 +595,7 @@ void TrackPrint::drawBar(int bn, TabTrack *trk, int es, int& sx, int& sx2)
 					break;
 				case EFFECT_ARTHARM:
 					{
-						Q3PointArray a(4);
+						QPolygon a(4);
 						// size of diamond
 						int sz_2 = ysteptb / 4;
 						// leftmost point of diamond
@@ -776,7 +776,7 @@ void TrackPrint::drawBeam(int x1, int x2, int y, char tp, char dir)
 		yh = y + (int) (0.4 * ystepst);
 		yl = y;
 	}
-	Q3PointArray a;
+	QPolygon a;
 	QBrush brush(Qt::black, Qt::SolidPattern);
 	p->setBrush(brush);
 	switch (tp) {

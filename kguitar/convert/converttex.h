@@ -3,11 +3,10 @@
 
 #include "global.h"
 #include "convertbase.h"
-//Added by qt3to4:
-#include <Q3TextStream>
+#include <QTextStream>
 
 class TabSong;
-class Q3TextStream;
+class QTextStream;
 
 /**
  * Converter to/from TEX tabulature format.
@@ -35,8 +34,8 @@ public:
 	virtual bool load(QString fileName);
 
 private:
-	bool saveToTab(Q3TextStream &s);
-	bool saveToNotes(Q3TextStream &s);
+	bool saveToTab(QTextStream &s);
+	bool saveToNotes(QTextStream &s);
 
 	/**
 	 * Insert control sequence

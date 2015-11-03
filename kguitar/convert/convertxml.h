@@ -3,12 +3,10 @@
 
 #include "convertbase.h"
 #include <qxml.h>
-#include <q3ptrvector.h>
-//Added by qt3to4:
 #include "accidentals.h"
 
 class TabSong;
-class Q3TextStream;
+class QTextStream;
 
 /**
  * Converter to/from MusicXML tabulature format.
@@ -35,7 +33,7 @@ public:
 	 */
 	virtual bool load(QString fileName);
 
-	void write(Q3TextStream&);
+	void write(QTextStream&);
 
 	// ---------------------------------------------------------------
 
@@ -52,11 +50,11 @@ private:
 
 	void calcDivisions();
 	QString strAccid(Accidentals::Accid);
-	void writeBeams(Q3TextStream&, TabTrack *, int, int);
-	int writeCol(Q3TextStream&, TabTrack *, int, int, bool);
-	void writePitch(Q3TextStream&, int, QString, QString);
-	void writeStaffDetails(Q3TextStream&, TabTrack *);
-	void writeTime(Q3TextStream&, int, int);
+	void writeBeams(QTextStream&, TabTrack *, int, int);
+	int writeCol(QTextStream&, TabTrack *, int, int, bool);
+	void writePitch(QTextStream&, int, QString, QString);
+	void writeStaffDetails(QTextStream&, TabTrack *);
+	void writeTime(QTextStream&, int, int);
 	int divisions;
 
 	// following variables are used by writeCol only
@@ -67,7 +65,7 @@ private:
 	/**
 	 * I/O stream, used by converter.
 	 */
-	Q3TextStream *stream;
+	QTextStream *stream;
 
 	/**
 	 * Accidentals state
@@ -83,7 +81,7 @@ private:
 	void reportWarning(const QString& err);
 
 	TabTrack * trk;				// pointer to current track
-	Q3PtrVector<QString> partIds;	// part (track) id's
+	QVector<QString> partIds;		// part (track) id's
 	int x;						// current column
 	int bar;					// current bar
 	int iDiv;					// divisions

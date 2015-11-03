@@ -36,7 +36,6 @@
 #include <QBoxLayout>
 #include <QVBoxLayout>
 #include <QApplication>
-#include <Q3Header>
 
 #ifdef WITH_TSE3
 #include <tse3/MidiScheduler.h>
@@ -171,7 +170,7 @@ void SongView::trackDelete()
 			newsel = m_song->t.at(m_song->t.size() - 2);
 		} else {
 			int n = m_song->t.indexOf(tv->trk());
-			newsel = m_song->t.at(n - 1);
+			newsel = m_song->t.at(n > 0 ? n - 1 : 0);
 		}
 
 		m_song->t.removeAll(tv->trk());

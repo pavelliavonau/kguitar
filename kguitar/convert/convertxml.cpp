@@ -4,7 +4,6 @@
 #include "musicxml.h"
 
 #include <qfile.h>
-#include <q3textstream.h>
 
 ConvertXml::ConvertXml(TabSong *song): ConvertBase(song), QXmlDefaultHandler()
 {
@@ -16,7 +15,7 @@ bool ConvertXml::save(QString fileName)
 	QFile f(fileName);
 	if (!f.open(QIODevice::WriteOnly))
 		return FALSE;
-	Q3TextStream s(&f);
+	QTextStream s(&f);
 	write(s);
 
 	f.close();
@@ -251,7 +250,7 @@ void ConvertXml::calcDivisions() {
 							<< " tr=" << tr
 							<< endl;
 */
-						Q3TextStream dummy;
+						QTextStream dummy;
 						x += writeCol(dummy, trk, x, i, false);
 					} // end for (uint x = 0; ....
 				} // end if ((i == 1) || ...
@@ -275,7 +274,7 @@ void ConvertXml::calcDivisions() {
 
 // write tabsong to QTextStream os
 
-void ConvertXml::write(Q3TextStream& os)
+void ConvertXml::write(QTextStream& os)
 {
 	calcDivisions();
 	os << "<?xml version=\"1.0\" encoding=\"UTF-8\" standalone=\"no\"?>"
@@ -416,7 +415,7 @@ QString ConvertXml::strAccid(Accidentals::Accid acc)
 
 // write beam bm at level l to QTextStream os
 
-static void writeBeam(Q3TextStream& os, int l, char bm)
+static void writeBeam(QTextStream& os, int l, char bm)
 {
 	if (bm == 'n') {
 		return;
@@ -436,7 +435,7 @@ static void writeBeam(Q3TextStream& os, int l, char bm)
 
 // write beams of voice v of column x of TabTrack trk to QTextStream os
 
-void ConvertXml::writeBeams(Q3TextStream& os, TabTrack * trk, int x, int v)
+void ConvertXml::writeBeams(QTextStream& os, TabTrack * trk, int x, int v)
 {
 	StemInfo * stxt = 0;
 	if (v == 0) {
@@ -467,7 +466,7 @@ void ConvertXml::writeBeams(Q3TextStream& os, TabTrack * trk, int x, int v)
 // LVIFIX: cause of this is that in a single voice track all notes
 // are allocated to voice 1 to force stem up when printing
 
-int ConvertXml::writeCol(Q3TextStream& os, TabTrack * trk, int x, int v, bool wrt)
+int ConvertXml::writeCol(QTextStream& os, TabTrack * trk, int x, int v, bool wrt)
 {
 	// debug: dump this column
 	/*
@@ -590,8 +589,9 @@ int ConvertXml::writeCol(Q3TextStream& os, TabTrack * trk, int x, int v, bool wr
 				// first note: calc duration etc.
 				// for regular column, include ringing etc.
 				// for column linked to previous, use column length
+				length = trk->c[x].l;
+				dots = trk->c[x].flags & FLAG_DOT;
 				if (trk->c[x].flags & FLAG_ARC) {
-					length = trk->c[x].l;
 					duration = length;
 					// LVIFIX: dot and triplet handling required here ?
 					// E.g. use trk->getNoteTypeAndDots()
@@ -804,7 +804,7 @@ int ConvertXml::writeCol(Q3TextStream& os, TabTrack * trk, int x, int v, bool wr
 
 // write midi note number as step/alter/octave to QTextStream os
 
-void ConvertXml::writePitch(Q3TextStream& os,
+void ConvertXml::writePitch(QTextStream& os,
                                 int n, QString tabs, QString prfx)
 {
 	int alt = 0;
@@ -825,7 +825,7 @@ void ConvertXml::writePitch(Q3TextStream& os,
 
 // write staff details of TabTrack trk to QTextStream os
 
-void ConvertXml::writeStaffDetails(Q3TextStream& os, TabTrack * trk)
+void ConvertXml::writeStaffDetails(QTextStream& os, TabTrack * trk)
 {
 	// note: writePitch uses accSt, which has to be initialized first
 	// Initialize the accidentals
@@ -850,7 +850,7 @@ void ConvertXml::writeStaffDetails(Q3TextStream& os, TabTrack * trk)
 
 // write time signature to QTextStream os
 
-void ConvertXml::writeTime(Q3TextStream& os, int bts, int btt)
+void ConvertXml::writeTime(QTextStream& os, int bts, int btt)
 {
 	os << "\t\t\t\t<time>\n";
 	os << "\t\t\t\t\t<beats>" << bts << "</beats>\n";
@@ -970,8 +970,9 @@ bool ConvertXml::startElement( const QString&, const QString&,
 		QString id = attributes.value("id");
 		int index = -1;
 		for (unsigned int i = 0; i < partIds.size(); i++) {
-			if (id.compare(*partIds.at(i)) == 0) {
+			if (id.compare(partIds.at(i)) == 0) {
 				index = i;
+				break;
 			}
 		}
 		if (index == -1) {
@@ -981,10 +982,7 @@ bool ConvertXml::startElement( const QString&, const QString&,
 			// init vars for track reading
 			x = 0;
 			bar = 0;
-			song->t.at(index);
-			// GREYTODO: check if t.current() here had any meaning?
-			//			trk = song->t.current();
-			trk = song->t.first();
+			trk = song->t.at(index);
 			tEndCur = 0;
 		}
 	} else if (qName == "pull-off") {
@@ -1301,10 +1299,7 @@ bool ConvertXml::addTrack()
 	// LVIFIX: add a single column to empty tracks after loading mxml
 	trk->c.resize(0);
 	// remember part id to track nr mapping
-	QString *sp = new QString(stPid);
-	int sz = partIds.size();
-	partIds.resize(sz+1);
-	partIds.insert(sz, sp);
+	partIds.append(stPid);
 	return TRUE;
 }
 
