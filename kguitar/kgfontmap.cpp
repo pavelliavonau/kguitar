@@ -15,73 +15,43 @@
  * See the file COPYING for more information.
  ***************************************************************************/
 
-
-#include <iostream>		// required for cout and friends
-using namespace std;		// required for cout and friends
-
 #include "kgfontmap.h"
 
 // KgFontMap constructor
 
 KgFontMap::KgFontMap()
 {
-//	cout << "KgFontMap::KgFontMap()";
+	// UTF-16 map of Musical Symbols
+	// http://unicode-table.com/en/blocks/musical-symbols/
 
-/*  // TeX feta 19 map 
-	symToCharMap[Whole_Note]		= 0x0022;
-	symToCharMap[White_NoteHead]		= 0x0023;
-	symToCharMap[Black_NoteHead]		= 0x0024;
-	symToCharMap[Stem]			= 0x0064;
-	symToCharMap[StemInv]			= 0x0065;
-	symToCharMap[Eighth_Flag]		= 0x005A;
-	symToCharMap[Sixteenth_Flag]		= 0x005B;
-	symToCharMap[ThirtySecond_Flag]		= 0x005C;
-	symToCharMap[Eighth_FlagInv]		= 0x005F;
-	symToCharMap[Sixteenth_FlagInv]		= 0x2018;
-	symToCharMap[ThirtySecond_FlagInv]	= 0x0061;
-	symToCharMap[Whole_Rest]		= 0x0025;
-	symToCharMap[Half_Rest]			= 0x0026;
-	symToCharMap[Quarter_Rest]		= 0x0028;
-	symToCharMap[Eighth_Rest]		= 0x0029;
-	symToCharMap[Sixteenth_Rest]		= 0x002A;
-	symToCharMap[ThirtySecond_Rest]		= 0x002B;
-	symToCharMap[Flat_Sign]			= 0x201E;
-	symToCharMap[Natural_Sign]		= 0x201D;
-	symToCharMap[Sharp_Sign]		= 0x201C;
-	symToCharMap[Dot]			= 0x00A7;
-	symToCharMap[G_Clef]			= 0x006A;
-*/
+	symToCharMap[Whole_Note]            = 0xDD5D;
+	symToCharMap[White_NoteHead]        = 0xDD57;
+	symToCharMap[Black_NoteHead]        = 0xDD58;
 
-	// LilyPond feta map
-	symToCharMap[Whole_Note]            = 0x003C;
-	symToCharMap[White_NoteHead]        = 0x003D;
-	symToCharMap[Black_NoteHead]        = 0x003E;
-	symToCharMap[Stem]                  = 0x0082;
-	symToCharMap[StemInv]               = 0x0086;
-	symToCharMap[Eighth_Flag]		    = 0x0082;
-	symToCharMap[Sixteenth_Flag]	    = 0x0083;
-	symToCharMap[ThirtySecond_Flag]	    = 0x0084;
-	symToCharMap[Eighth_FlagInv]	    = 0x0086;
-	symToCharMap[Sixteenth_FlagInv]	    = 0x0089;
-	symToCharMap[ThirtySecond_FlagInv]  = 0x0090;
-	symToCharMap[Whole_Rest]            = 0x0021;
-	symToCharMap[Half_Rest]             = 0x0022;
-	symToCharMap[Quarter_Rest]          = 0x0028;
-	symToCharMap[Eighth_Rest]           = 0x002A;
-	symToCharMap[Sixteenth_Rest]        = 0x002B;
-	symToCharMap[ThirtySecond_Rest]     = 0x002C;
-	symToCharMap[Flat_Sign]             = 0x0033;
-	symToCharMap[Natural_Sign]          = 0x0032;
-	symToCharMap[Sharp_Sign]            = 0x002F;
-	symToCharMap[Dot]                   = 0x003A;
-	symToCharMap[G_Clef]                = 0x0090;
+	symToCharMap[Stem]                  = 0xDD65;
+//	symToCharMap[StemInv]               = 0xDD65;
 
-//	cout << endl;
-//	cout << "symToCharMap.count()=" << symToCharMap.count() << endl;
-//	cout << "symToCharMap=" << endl;
-//	for (int i=0; i<=UndefinedSymbol; i++) {
-//		cout << "i=" << i << " symToCharMap[i]=" << hex << symToCharMap[(Symbol)i].unicode() << dec << endl;
-//	}
+	symToCharMap[Eighth_Flag]	    = 0xDD6E;
+	symToCharMap[Sixteenth_Flag]	    = 0xDD6F;
+	symToCharMap[ThirtySecond_Flag]	    = 0xDD70;
+
+//	symToCharMap[Eighth_FlagInv]	    = 0xDD6E;
+//	symToCharMap[Sixteenth_FlagInv]	    = 0xDD6F;
+//	symToCharMap[ThirtySecond_FlagInv]  = 0xDD70;
+
+	symToCharMap[Whole_Rest]            = 0xDD3B;
+	symToCharMap[Half_Rest]             = 0xDD3C;
+	symToCharMap[Quarter_Rest]          = 0xDD3D;
+	symToCharMap[Eighth_Rest]           = 0xDD3E;
+	symToCharMap[Sixteenth_Rest]        = 0xDD3F;
+	symToCharMap[ThirtySecond_Rest]     = 0xDD40;
+
+	symToCharMap[Flat_Sign]             = 0xDD2D;
+	symToCharMap[Natural_Sign]          = 0xDD2E;
+	symToCharMap[Sharp_Sign]            = 0xDD30;
+	symToCharMap[Dot]                   = 0xDD6D;
+	symToCharMap[Five_Line_Staff]       = 0xDD1A;
+	symToCharMap[G_Clef]                = 0xDD1E;
 }
 
 
@@ -92,11 +62,10 @@ bool KgFontMap::getString(Symbol sym, QString& s) const
 {
 	s = "";
 	bool res = false;
-//	cout << "KgFontMap::getString(" << sym << ")";
 	if (symToCharMap.contains(sym)) {
-		s = symToCharMap[sym];
+		s += QChar(0xD834);
+		s += symToCharMap[sym];
 		res = true;
 	}
-//	cout << " res=" << res << " s[0]=" << hex << s[0].unicode() << dec << endl;
 	return res;
 }

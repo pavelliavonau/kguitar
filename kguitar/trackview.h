@@ -20,6 +20,7 @@ class KXMLGUIClient;
 class QUndoStack;
 class QFont;
 class TrackPrint;
+class SongPrint;
 
 class TrackView: public Q3GridView {
 	Q_OBJECT
@@ -46,7 +47,7 @@ public:
 	void repaintCurrentBar();
 	void repaintCurrentColumn();
 
-	void initFonts(QFont *f4, QFont *f5);
+	SongPrint *buildSongPrintHelper();
 
 	// Forwards declarations of all undo/redo commands
 	class SetLengthCommand;
@@ -195,9 +196,9 @@ signals:
 	void songChanged();
 
 protected:
-	virtual void paintCell(QPainter *, int row, int col);
-	virtual void resizeEvent(QResizeEvent *e);
-	virtual void mousePressEvent(QMouseEvent *e);
+	virtual void paintCell(QPainter *, int row, int col) override;
+	virtual void resizeEvent(QResizeEvent *e) override;
+	virtual void mousePressEvent(QMouseEvent *e) override;
 
 private:
 	bool moveFinger(int from, int to);
@@ -205,6 +206,7 @@ private:
 	int horizDelta(uint n);
 	void insertTab(int num);
 	void melodyEditorAction(int num, int fret, int action);
+	void initFonts();
 
 	void moveLeft();
 	void moveRight();

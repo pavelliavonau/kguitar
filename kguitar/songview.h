@@ -14,7 +14,6 @@ class QSplitter;
 class KXMLGUIClient;
 class QUndoStack;
 class QPrinter;
-class SongPrint;
 class TabTrack;
 class MelodyEditor;
 
@@ -33,7 +32,6 @@ public:
 	void refreshView();
 	void print(QPrinter *printer);
 
-	SongPrint *sp;
 	TrackView *tv;
 	TrackList *tl;
 	TrackPane *tp;

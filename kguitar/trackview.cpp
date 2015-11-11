@@ -28,6 +28,7 @@
 #include <QMouseEvent>
 
 #include "trackprint.h"
+#include "songprint.h"
 
 #include <qspinbox.h>
 #include <qcombobox.h>
@@ -60,9 +61,13 @@
 #define BOTTOMDUR   VERTSPACE+VERTLINE*(s+1)
 #endif
 
-#define NORMAL_FONT_FACTOR              0.8
-#define TIME_SIG_FONT_FACTOR            1.4
-#define SMALL_CAPTION_FONT_FACTOR       0.7
+static const int FONT_SCALE = 11;
+
+static const double NORMAL_FONT_FACTOR            = FONT_SCALE * 0.8;
+static const double TIME_SIG_FONT_FACTOR          = FONT_SCALE * 1.4;
+static const double SMALL_CAPTION_FONT_FACTOR     = FONT_SCALE * 0.7;
+static const double SCORE_FONT_FACTOR             = FONT_SCALE * 2.8;
+static const double SCORE_SIG_FONT_FACTOR         = SCORE_FONT_FACTOR * .45;
 
 // definitions for the "new" drawing code layout
 #define TOPSPTB                         3   // top space tabbar in ysteptb units
@@ -93,28 +98,25 @@ TrackView::TrackView(TabSong *s, KXMLGUIClient *_XMLGUIClient, QUndoStack *_cmdH
 
 	normalFont = new QFont(KGlobalSettings::generalFont());
 	if (normalFont->pointSize() == -1) {
-		normalFont->setPixelSize((int) ((double) normalFont->pixelSize() * NORMAL_FONT_FACTOR));
+		normalFont->setPixelSize((int) NORMAL_FONT_FACTOR);
 	} else {
-		normalFont->setPointSizeF(normalFont->pointSizeF() * NORMAL_FONT_FACTOR);
+		normalFont->setPointSizeF(NORMAL_FONT_FACTOR);
 	}
 
 	smallCaptionFont = new QFont(*normalFont);
 	if (smallCaptionFont->pointSize() == -1) {
-		smallCaptionFont->setPixelSize((int) ((double) smallCaptionFont->pixelSize() * SMALL_CAPTION_FONT_FACTOR));
+		smallCaptionFont->setPixelSize((int) SMALL_CAPTION_FONT_FACTOR);
 	} else {
-		smallCaptionFont->setPointSizeF(smallCaptionFont->pointSizeF() * SMALL_CAPTION_FONT_FACTOR);
+		smallCaptionFont->setPointSizeF(SMALL_CAPTION_FONT_FACTOR);
 	}
 
 	timeSigFont = new QFont(*normalFont);
 	if (timeSigFont->pointSize() == -1) {
-		timeSigFont->setPixelSize((int) ((double) timeSigFont->pixelSize() * TIME_SIG_FONT_FACTOR));
+		timeSigFont->setPixelSize((int) (TIME_SIG_FONT_FACTOR));
 	} else {
-		timeSigFont->setPointSizeF(timeSigFont->pointSizeF() * TIME_SIG_FONT_FACTOR);
+		timeSigFont->setPointSizeF(TIME_SIG_FONT_FACTOR);
 	}
 	timeSigFont->setBold(TRUE);
-
-	fetaFont   = 0;
-	fetaNrFont = 0;
 
 	lastnumber = -1;
 
@@ -132,6 +134,7 @@ TrackView::TrackView(TabSong *s, KXMLGUIClient *_XMLGUIClient, QUndoStack *_cmdH
 	trp->zoomLevel = 10;
 
 
+	initFonts();
 	updateRows();		// depends on trp's font metrics
 }
 
@@ -141,18 +144,27 @@ TrackView::~TrackView()
 	delete smallCaptionFont;
 	delete timeSigFont;
 	delete trp;
+	delete fetaFont;
+	delete fetaNrFont;
 }
 
-void TrackView::initFonts(QFont *f4, QFont *f5)
+void TrackView::initFonts()
 {
 	kdDebug() << "TrackView::initFonts\n";
-	fetaFont   = f4;
-	fetaNrFont = f5;
+	fetaFont   = new QFont("FreeSerif", SCORE_FONT_FACTOR);
+	fetaNrFont = new QFont("FreeSerif", SCORE_SIG_FONT_FACTOR);
+	fetaNrFont->setBold(true);
+
 	trp->initFonts(normalFont, smallCaptionFont, timeSigFont, fetaFont, fetaNrFont);
 
 	QPainter paint(this);
 	trp->setPainter(&paint);
 	trp->initMetrics();
+}
+
+SongPrint* TrackView::buildSongPrintHelper()
+{
+  return new SongPrint(fetaFont, fetaNrFont);
 }
 
 int TrackView::rowBar(int bar)
@@ -517,7 +529,7 @@ void TrackView::paintCell(QPainter *p, int r, int c)
 #endif
 	trp->drawBarLns(width(), curt);
 //	trp->drawKey(bn, curt);	// LVIFIX: make (some more) room between key and time sig
-	bool doDraw = true;
+	bool doDraw = !c ? true : false;
 	bool fbol = true;
 	bool flop = (bn == 0);
 	(void) trp->drawKKsigTsig(bn, curt, doDraw, fbol, flop);

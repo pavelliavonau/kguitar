@@ -18,8 +18,14 @@
 #ifndef TRACKPRINT_H
 #define TRACKPRINT_H
 
+#include "accidentals.h"
+
+#include <QPen>
+
 class KgFontMap;
 class TabTrack;
+class QFont;
+class QPainter;
 
 class TrackPrint
 {
@@ -89,6 +95,7 @@ private:
 	int tabpp;
 	int tsgfw;
 	int tsgpp;
+	int tsgppScore;
 	int nt0fw;
 	int ntlfw;
 	// Fonts used

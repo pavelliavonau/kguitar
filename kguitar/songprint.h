@@ -39,7 +39,7 @@ class TrackPrint;
 
 class SongPrint {
 public:
-	SongPrint();
+	SongPrint(QFont *f4, QFont *f5);
 	~SongPrint();
 	void printSong(QPrinter *printer, TabSong *song);
 	// Fonts used

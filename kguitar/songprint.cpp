@@ -72,15 +72,15 @@
 
 // SongPrint constructor
 
-SongPrint::SongPrint()
+SongPrint::SongPrint(QFont *f4, QFont *f5)
 {
 	p = new QPainter;
 	trp = new TrackPrint;
 	fTBar1  = 0;
 	fTBar2  = 0;
 	fTSig   = 0;
-	fFeta   = 0;
-	fFetaNr = 0;
+	fFeta   = f4;
+	fFetaNr = f5;
 
 	// initialize fonts, must be done before initMetrics
 	// (metrics depend on fonts)
@@ -99,10 +99,10 @@ SongPrint::~SongPrint()
 		delete fTBar2;
 	if (fTSig)
 		delete fTSig;
-	if (fFeta)
-		delete fFeta;
-	if (fFetaNr)
-		delete fFetaNr;
+//	if (fFeta)
+//		delete fFeta;
+//	if (fFetaNr)
+//		delete fFetaNr;
 }
 
 // draw header of song song, page n
@@ -207,13 +207,13 @@ void SongPrint::initFonts()
 	fTSig   = new QFont("Helvetica", 12, QFont::Bold);
 // 	fFeta   = new QFont("TeX feta19", 18);
 // 	fFetaNr = new QFont("TeX feta nummer10", 10);
- 	fFeta   = new QFont("LilyPond feta", 24);
- 	fFetaNr = new QFont("LilyPond feta nummer", 10);
+//        fFeta   = new QFont("FreeSerif", 72);
+//        fFetaNr = new QFont("FreeSerif", 10);
 	fFetaFnd = true;
 
 	fontInfo(fTSig);
-	fontInfo(fFeta);
-	fontInfo(fFetaNr);
+//	fontInfo(fFeta);
+//	fontInfo(fFetaNr);
 
 	// verify font feta is found: if not, printing of notes will be disabled
 // 	if (!fontIsExactMatch(fFeta)) {

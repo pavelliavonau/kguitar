@@ -31,27 +31,34 @@ public:
 		Whole_Note,		// MUSICAL SYMBOL WHOLE NOTE
 		White_NoteHead,		// MUSICAL SYMBOL VOID NOTEHEAD
 		Black_NoteHead,		// MUSICAL SYMBOL NOTEHEAD BLACK
+
 		Stem,			// MUSICAL SYMBOL COMBINING STEM
 		StemInv,		// MUSICAL SYMBOL INVERTED COMBINING STEM NVU
+
 		Eighth_Flag,		// MUSICAL SYMBOL COMBINING FLAG-1
 		Sixteenth_Flag,		// MUSICAL SYMBOL COMBINING FLAG-2
 		ThirtySecond_Flag,	// MUSICAL SYMBOL COMBINING FLAG-3
+
 		Eighth_FlagInv,		// MUSICAL SYMBOL INVERTED COMBINING FLAG-1 NVU
 		Sixteenth_FlagInv,	// MUSICAL SYMBOL INVERTED COMBINING FLAG-2 NVU
 		ThirtySecond_FlagInv,	// MUSICAL SYMBOL INVERTED COMBINING FLAG-3 NVU
+
 		Whole_Rest,		// MUSICAL SYMBOL WHOLE REST
 		Half_Rest,		// MUSICAL SYMBOL HALF REST
 		Quarter_Rest,		// MUSICAL SYMBOL QUARTER REST
 		Eighth_Rest,		// MUSICAL SYMBOL EIGHTH REST
 		Sixteenth_Rest,		// MUSICAL SYMBOL SIXTEENTH REST
 		ThirtySecond_Rest,	// MUSICAL SYMBOL THIRTY-SECOND REST
+
 		Flat_Sign,		// MUSIC FLAT SIGN
 		Natural_Sign,		// MUSIC NATURAL SIGN
 		Sharp_Sign,		// MUSIC SHARP SIGN
 //		DoubleSharp_Sign,	// MUSICAL SYMBOL DOUBLE SHARP not used (yet)
 //		DoubleFlat_Sign,	// MUSICAL SYMBOL DOUBLE FLAT not used (yet)
 		Dot,			// MUSICAL SYMBOL COMBINING AUGMENTATION DOT
+		Five_Line_Staff,	// Musical Symbol Five-Line Staff
 		G_Clef,			// MUSICAL SYMBOL G CLEF
+
 		UndefinedSymbol		// undefined symbol for which getString
 					// returns an empty string
 					// equal to number of symbols in table

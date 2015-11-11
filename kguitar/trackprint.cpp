@@ -35,6 +35,8 @@
 // - xpos/ypos interface
 // - adapt linewidth to resolution of output device
 
+#include "trackprint.h"
+
 #include "settings.h"
 
 #include <iostream>		// required for cout and friends
@@ -45,11 +47,9 @@ using namespace std;		// required for cout and friends
 #include <qfontmetrics.h>
 #include <qpainter.h>
 
-#include "accidentals.h"
 #include "global.h"
 #include "kgfontmap.h"
 #include "data/tabtrack.h"
-#include "trackprint.h"
 
 // TrackPrint constructor. Initialize font metrics with reasonable guesstimates, as required
 // by TrackView::updateRows(). Correct values will later be set by initMetrics.
@@ -970,7 +970,7 @@ int TrackPrint::drawKey(TabTrack *trk, bool doDraw, bool flop)
 			// draw clef
 			p->setFont(*fFeta);
 			// LVIFIX: determine correct location (both clef and key)
-			p->drawText(xpos + tabpp, yposst - ystepst, s);
+			p->drawText(xpos + tabpp, yposst, s);
 		}
 		res = 4 * br8w;		// note: may increase res
 	}
@@ -1112,7 +1112,7 @@ void TrackPrint::drawNtHdCntAt(int x, int y, int t, Accidentals::Accid a)
 	p->setFont(*fFeta);
 	QString s;
 	if (fmp->getString(noteHead, s)) {
-		p->drawText(x - wNote / 2, yposst - ystepst * y / 2, s);
+		p->drawText(x - wNote / 2, yposst - ystepst / 2 * (y - 1), s);
 	}
 	// draw accidentals
 	KgFontMap::Symbol acc = KgFontMap::UndefinedSymbol;	// undefined symbol
@@ -1128,7 +1128,7 @@ void TrackPrint::drawNtHdCntAt(int x, int y, int t, Accidentals::Accid a)
 	}
 	if (acc != KgFontMap::UndefinedSymbol && fmp->getString(acc, s)) {
 		p->drawText((int) (x - 1.4 * wNote) + accxposcor,
-				yposst - ystepst * y / 2, s);
+				yposst - ystepst / 2 * (y - 2), s);
 	}
 }
 
@@ -1194,7 +1194,6 @@ void TrackPrint::drawNtStmCntAt(int x, int yl, int yh, int t, char dir)
 			// draw flag(s)
 			if ((flag != KgFontMap::UndefinedSymbol) && fmp->getString(flag, s)) {
 				int yFlag = yposst - ystepst * yh / 2
-						- (int) (3.5 * ystepst)
 						+ yoffset;
 				p->drawText(xs, yFlag, s);
 			}
@@ -1210,7 +1209,6 @@ void TrackPrint::drawNtStmCntAt(int x, int yl, int yh, int t, char dir)
 			// draw flag(s)
 			if ((flag != KgFontMap::UndefinedSymbol) && fmp->getString(flag, s)) {
 				int yFlag = yposst - ystepst * yl / 2
-						+ (int) (3.5 * ystepst)
 						- yoffset;
 				p->drawText(xs, yFlag, s);
 			}
@@ -1253,7 +1251,7 @@ void TrackPrint::drawRstCntAt(int x, int y, int t)
 	QString s;
 	if (fmp->getString(restSym, s)) {
 		p->setFont(*fFeta);
-		p->drawText(x - wNote / 2, yposst - ystepst * (y + yoffset) / 2, s);
+		p->drawText(x - wNote / 2, yposst /** (y + yoffset) / 2*/, s);
 	}
 }
 
@@ -1264,21 +1262,32 @@ void TrackPrint::drawStLns(int w)
 	const int lstStL = 4;
 	// vertical lines at xpos and xpos+w-1
 	p->setPen(pLnBl);
-	p->drawLine(xpos, yposst,
-				xpos, yposst - lstStL * ystepst);
-	p->drawLine(xpos + w - 1, yposst,
-				xpos + w - 1, yposst - lstStL * ystepst);
-	// horizontal lines from xpos to xpos+w-1
-	for (int i = 0; i < lstStL+1; i++) {
-		p->drawLine(xpos, yposst - i * ystepst,
-					xpos + w - 1, yposst - i * ystepst);
+
+	QString s;
+	fmp->getString(KgFontMap::Five_Line_Staff, s);
+
+	QFontMetrics fm(*fFeta, p->device());
+
+	p->setFont(*fFeta);
+	int x = 0;
+	// horizontal lines
+	while ( x < w ) {
+	    QRect rect = fm.boundingRect( s );
+	    p->drawText(x, yposst /*- ystepst*/, s);
+	    x += rect.width();
 	}
-	if (stTab) {
-		p->drawLine(xpos, yposst,
-					xpos, yposst + (7 + 3) * ystepst);
-		p->drawLine(xpos + w - 1, yposst,
-					xpos + w - 1, yposst + (7 + 3) * ystepst);
-	}
+
+//	p->drawLine(xpos, yposst,
+//				xpos, yposst - lstStL * ystepst);
+//	p->drawLine(xpos + w - 1, yposst,
+//				xpos + w - 1, yposst - lstStL * ystepst);
+
+//	if (stTab) {
+//		p->drawLine(xpos, yposst,
+//					xpos, yposst + (7 + 3) * ystepst);
+//		p->drawLine(xpos + w - 1, yposst,
+//					xpos + w - 1, yposst + (7 + 3) * ystepst);
+//	}
 }
 
 // draw string s centered at x on string n
@@ -1327,16 +1336,16 @@ int TrackPrint::drawTimeSig(int bn, TabTrack *trk, bool doDraw)
 				fm = p->fontMetrics();
 				// calculate vertical position:
 				// exactly halfway between top and bottom string
-				y = yposst - ystepst * 2;
+				y = yposst - ystepst * 2.5;
 				// center the timesig at this height
 				// use spacing of 0.2 * char height
 				time.setNum(trk->b[bn].time1);
 				brth = fm.boundingRect(time).height();
 				y -= (int) (0.1 * brth);
-				p->drawText(xpos + tsgpp, y, time);
+				p->drawText(xpos + tsgppScore, y, time);
 				time.setNum(trk->b[bn].time2);
 				y += (int) (1.2 * brth);
-				p->drawText(xpos + tsgpp, y, time);
+				p->drawText(xpos + tsgppScore, y, time);
 			}
 			if (stTab) {
 				// tab bar
@@ -1457,8 +1466,7 @@ void TrackPrint::initMetrics()
 {
 //	cout << "TrackPrint::initMetrics()" << endl;
 	// determine font-dependent bar metrics
-	p->setFont(*fTBar1);
-	QFontMetrics fm  = p->fontMetrics();
+	QFontMetrics fm(*fTBar1);
 	br8h = fm.boundingRect("8").height();
 	br8w = fm.boundingRect("8").width();
 //	cout << "br8w=" << br8w;
@@ -1474,14 +1482,18 @@ void TrackPrint::initMetrics()
 		tsgfw = (int) (4.5 * br8w);
 		tsgpp = 2 * br8w;
 	}
+
+	fm = QFontMetrics(*fFetaNr);
+	tsgppScore = fm.boundingRect("8").width();
+	if( onScreen )
+	  tsgppScore *= 2;
+
 	// determine font-dependent staff metrics
 	QString s;
 	if (fFeta && fmp->getString(KgFontMap::Black_NoteHead, s)) {
-		QRect r;
-		p->setFont(*fFeta);
-		fm  = p->fontMetrics();
-		r   = fm.boundingRect(s[0]);
-		ystepst = (int) (0.95 * r.height());
+		fm  = QFontMetrics(*fFeta);
+		QRect r = fm.boundingRect(s);
+		ystepst = (int) (0.183 * r.height());
 		wNote   = r.width();
 	} else {
 		ystepst = 0;

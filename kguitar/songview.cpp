@@ -108,15 +108,11 @@ SongView::SongView(KXMLGUIClient *_XMLGUIClient, QUndoStack *_cmdHist,
 	setLayout(l);
 
 	cmdHist = _cmdHist;
-
-	sp = new SongPrint();
-	tv->initFonts(sp->fFeta, sp->fFetaNr);
 }
 
 SongView::~SongView()
 {
 	delete m_song;
-	delete sp;
 
 #ifdef WITH_TSE3
 	delete playThread;
@@ -519,6 +515,7 @@ void SongView::insertTabs(TabTrack* trk)
 
 void SongView::print(QPrinter *printer)
 {
+	QScopedPointer<SongPrint> sp( tv->buildSongPrintHelper() );
 	sp->printSong(printer, m_song);
 }
 
