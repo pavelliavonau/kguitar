@@ -474,7 +474,7 @@ void TrackView::rhythmer()
 int TrackView::horizDelta(uint n)
 {
 #ifdef USE_BOTH_OLD_AND_NEW
-	int res = curt->c[n].fullDuration() * HORCELL / zoomLevel;
+	int res = curt->c[n].fullDuration() * HORCELL / trp->zoomLevel;
 // 	if (res < HORCELL)
 // 		res = HORCELL;
 #else
@@ -638,7 +638,7 @@ void TrackView::paintCell(QPainter *p, int r, int c)
 	}
 
 	p->setFont(*normalFont);
-	p->setBrush(KGlobalSettings::baseColor());
+	p->setBrush(KGlobalSettings::activeTextColor());
 
 	// Drum abbreviations markings
 
@@ -903,7 +903,7 @@ void TrackView::paintCell(QPainter *p, int r, int c)
 	p->drawRect(xpos, VERTSPACE, 1, VERTLINE * s);
 
 	// Draw original cursor (still inverted)
-	p->setRasterOp(Qt::XorROP);
+	p->setCompositionMode(QPainter::RasterOp_SourceXorDestination);
 // 	p->setBrush(KGlobalSettings::highlightColor());
 	if (selxcoord != -1) {
 		p->drawRect(selxcoord, VERTSPACE + (s - curt->y) * VERTLINE - VERTLINE / 2 - 1,
@@ -911,7 +911,7 @@ void TrackView::paintCell(QPainter *p, int r, int c)
 	}
 
 // 	p->setBrush(KGlobalSettings::baseColor());
-	p->setRasterOp(Qt::CopyROP);
+	p->setCompositionMode(QPainter::CompositionMode_Source);
 	p->setBrush(Qt::SolidPattern);
 #endif // USE_BOTH_OLD_AND_NEW
 }
