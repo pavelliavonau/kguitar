@@ -1,15 +1,13 @@
 #ifndef FINGERING_H
 #define FINGERING_H
 
-#include <q3frame.h>
-//Added by qt3to4:
+#include <QAbstractScrollArea>
 #include <QMouseEvent>
 #include "global.h"
 
-class QScrollBar;
 class TabTrack;
 
-class Fingering: public Q3Frame {
+class Fingering: public QAbstractScrollArea {
 	Q_OBJECT
 public:
 	Fingering(TabTrack *p, QWidget *parent = 0);
@@ -28,16 +26,16 @@ signals:
 	void chordChange();
 
 protected:
-	virtual void drawContents(QPainter *);
-	virtual void mouseMoveEvent(QMouseEvent *);
-	virtual void mousePressEvent(QMouseEvent *);
+	// QWidget interface
+	        void paintEvent(QPaintEvent *) override;
+	virtual void mouseMoveEvent(QMouseEvent *) override;
+	virtual void mousePressEvent(QMouseEvent *) override;
 	void         mouseHandle(const QPoint &pos, bool domute);
 
 private:
 	enum { SCALE=20, CIRCLE=16, CIRCBORD=2, BORDER=5, SPACER=3,
 	       FRETTEXT=10, SCROLLER=15, NOTES=20 };
 
-	QScrollBar *ff;
 	TabTrack *parm;
 
 	int appl[MAX_STRINGS];

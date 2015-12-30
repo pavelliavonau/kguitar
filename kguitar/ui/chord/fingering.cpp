@@ -8,12 +8,11 @@
 #include <qbrush.h>
 #include <qstring.h>
 #include <qscrollbar.h>
-//Added by qt3to4:
 #include <QMouseEvent>
-#include <Q3Frame>
+#include <QAbstractScrollArea>
 
 Fingering::Fingering(TabTrack *p, QWidget *parent):
-    Q3Frame(parent)
+    QAbstractScrollArea(parent)
 {
 	parm = p;
 
@@ -23,14 +22,12 @@ Fingering::Fingering(TabTrack *p, QWidget *parent):
 	             NUMFRETS * SCALE + SCALE + 2 * BORDER + 2 * SPACER + NOTES);
 	setFrameStyle(Panel | Sunken);
 
-	ff = new QScrollBar(this);
-	ff->setMinimum(1);
-	ff->setMaximum(parm->frets-NUMFRETS + 1);
-	ff->setSingleStep(5);
-	ff->setValue(1);
-	ff->setOrientation(Qt::Vertical);
-	ff->setGeometry(width() - SCROLLER, 0, SCROLLER, height());
-	connect(ff, SIGNAL(valueChanged(int)), SLOT(setFirstFret(int)));
+	verticalScrollBar()->setMinimum(1);
+	verticalScrollBar()->setMaximum(parm->frets-NUMFRETS + 1);
+	verticalScrollBar()->setSingleStep(5);
+	verticalScrollBar()->setValue(1);
+	verticalScrollBar()->setGeometry(width() - SCROLLER, 0, SCROLLER, height());
+	connect(verticalScrollBar(), SIGNAL(valueChanged(int)), SLOT(setFirstFret(int)));
 
 	clear();
 }
@@ -39,7 +36,7 @@ void Fingering::clear()
 {
 	for (int i = 0; i < parm->string; i++)
 		appl[i] = -1;
-	repaint();
+
 	emit chordChange();
 }
 
@@ -47,7 +44,7 @@ void Fingering::setFinger(int string, int fret)
 {
 	if (appl[string] != fret) {
 		appl[string] = fret;
-		repaint();
+
 		emit chordChange();
 	}
 }
@@ -67,11 +64,11 @@ void Fingering::setFingering(const int a[MAX_STRINGS])
     if (noff)
         f = 1;
 
-    ff->setValue(f);
+    verticalScrollBar()->setValue(f);
 
     for (int i = 0;i < MAX_STRINGS; i++)
         appl[i] = a[i];
-    repaint();
+
     emit chordChange();
 }
 
@@ -83,7 +80,6 @@ void Fingering::setFirstFret(int fret)
 
     lastff = fret;
 
-    repaint();
     emit chordChange();
 }
 
@@ -92,13 +88,15 @@ void Fingering::mouseHandle(const QPoint &pos, bool domute)
     int i = (pos.x() - BORDER - FRETTEXT) / SCALE;
     int j = 0;
     if (pos.y() > BORDER + SCALE + 2 * SPACER)
-        j = (pos.y() - BORDER - SCALE - 2 * SPACER) / SCALE + ff->value();
+        j = (pos.y() - BORDER - SCALE - 2 * SPACER) / SCALE + verticalScrollBar()->value();
 
     if ((domute) && (appl[i] == j))
         j = -1;
 
-    if (!((i < 0) || (i >= parm->string) || (j >= ff->value() + NUMFRETS)))
+    if (!((i < 0) || (i >= parm->string) || (j >= verticalScrollBar()->value() + NUMFRETS)))
         setFinger(i, j);
+
+	viewport()->update();
 }
 
 void Fingering::mouseMoveEvent(QMouseEvent *e)
@@ -112,8 +110,11 @@ void Fingering::mousePressEvent(QMouseEvent *e)
 		mouseHandle(e->pos(), TRUE);
 }
 
-void Fingering::drawContents(QPainter *p)
+void Fingering::paintEvent(QPaintEvent *)
 {
+	QPainter painter(viewport());
+	QPainter* p = &painter;
+
 	int barre, eff;
 
 	p->setRenderHints(QPainter::Antialiasing | QPainter::HighQualityAntialiasing);
@@ -133,7 +134,7 @@ void Fingering::drawContents(QPainter *p)
 	// Beginning fret number
 
 	QString tmp;
-	tmp.setNum(ff->value());
+	tmp.setNum(verticalScrollBar()->value());
 	p->drawText(BORDER - SPACER, BORDER + SCALE + 2 * SPACER, 50, 50, Qt::AlignLeft | Qt::AlignTop, tmp);
 
 	// Vertical lines, fingering and note names
@@ -155,7 +156,7 @@ void Fingering::drawContents(QPainter *p)
 			} else {
 				p->setBrush(Qt::SolidPattern);
 				p->drawEllipse(i * SCALE + BORDER + CIRCBORD + FRETTEXT,
-				               BORDER + SCALE + 2 * SPACER + (appl[i] - ff->value()) * SCALE + CIRCBORD,
+				               BORDER + SCALE + 2 * SPACER + (appl[i] - verticalScrollBar()->value()) * SCALE + CIRCBORD,
 				               CIRCLE, CIRCLE);
 			};
 			p->drawText(BORDER + FRETTEXT + i * SCALE, BORDER + NUMFRETS * SCALE + SCALE + 2 * SPACER,
@@ -170,14 +171,14 @@ void Fingering::drawContents(QPainter *p)
 
 	for (int i = 0; i < NUMFRETS; i++) {
 		barre = 0;
-		while ((appl[parm->string - barre - 1] >= (i + ff->value())) ||
+		while ((appl[parm->string - barre - 1] >= (i + verticalScrollBar()->value())) ||
 		       (appl[parm->string - barre - 1] == -1)) {
 			barre++;
 			if (barre>parm->string - 1)
 				break;
 		}
 
-		while ((appl[parm->string - barre] != (i + ff->value())) && (barre > 1))
+		while ((appl[parm->string - barre] != (i + verticalScrollBar()->value())) && (barre > 1))
 			barre--;
 
 		eff = 0;
