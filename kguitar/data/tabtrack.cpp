@@ -30,7 +30,7 @@ static bool isRest(int t, TabTrack *trk)
 static int tStart(int t, int bn, TabTrack *trk)
 {
 	int tstart = 0;
-	for (uint i = trk->b[bn].start; (int) i < t; i++) {
+	for (uint i = trk->bars()[bn].start; (int) i < t; i++) {
 		// add real duration including dots/triplets
 		tstart += trk->c[i].fullDuration();
 	}
@@ -45,7 +45,7 @@ static int tStart(int t, int bn, TabTrack *trk)
 static bool mustBreakBeam(int t, int bn, TabTrack *trk)
 {
 	int bv = 1;					// this bar's beat value as duration
-	switch (trk->b[bn].time2) {
+	switch (trk->bars()[bn].time2) {
 	case  1: bv = 480; break;
 	case  2: bv = 240; break;
 	case  4: bv = 120; break;
@@ -83,7 +83,7 @@ static char beamL1(int t, int v, int bn, TabTrack *trk)
 		return 'n';
 	}
 
-	int f = trk->b[bn].start;	// first note of bar
+	int f = trk->bars()[bn].start;	// first note of bar
 	int l = trk->lastColumn(bn);// last note of bar
 	int p = 0;					// previous note
 	int n = 0;					// next nnote
@@ -174,7 +174,7 @@ static char beamL2plus(int t, int v, int bn, int lvl, TabTrack *trk)
 	} else {
 		return 'n';
 	}
-	int f = trk->b[bn].start;	// first note of bar
+	int f = trk->bars()[bn].start;	// first note of bar
 	int l = trk->lastColumn(bn);// last note of bar
 	int p = 0;					// previous note
 	int n = 0;					// next next
@@ -385,8 +385,13 @@ bool TabTrack::barStatus(int n)
 // bar, determined with track parameters
 Q_UINT16 TabTrack::currentBarDuration()
 {
+	return barDuration(xb);
+}
+
+Q_UINT16 TabTrack::barDuration(int bn)
+{
 	Q_UINT16 dur = 0;
-	for (int i = b[xb].start; i <= lastColumn(xb); i++)
+	for (int i = b[bn].start; i <= lastColumn(bn); i++)
 		dur += c[i].fullDuration();
 	return dur;
 }
@@ -1264,3 +1269,11 @@ void TabTrack::decodeTimeTracking(TSE3::MidiCommand mc, int &track, int &x)
 	x = (mc.data2 << 7) + mc.data1;
 }
 #endif
+
+TabBar::TabBar(int _start, uchar _time1, uchar _time2, short _keysig)
+	: start(_start)
+	, time1(_time1)
+	, time2(_time2)
+	, keysig(_keysig) {}
+
+bool TabBar::isValid() const { return start != -1; }

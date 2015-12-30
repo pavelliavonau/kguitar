@@ -389,8 +389,11 @@ void ConvertGtp::readTrackProperties()
 // 		if (versionMajor >= 5)
 // 			skipBytes(4);
 
-		song->t.append(new TabTrack(TabTrack::FretTab, 0, 0, 0, 0, 6, 24));
-		TabTrack *trk = song->t.at(i);
+		TabTrack *trk = new TabTrack(TabTrack::FretTab, 0, 0, 0, 0, 6, 24);
+		int count = song->rowCount();
+		song->insertRow(count);
+		auto index = song->index(count, 0);
+		song->setData(index, QVariant::fromValue(trk), TabSong::TrackPtrRole);
 
 		trk->name = readPascalString(40);    // Track name
 		kdDebug() << "Track: " << trk->name << "\n";
@@ -451,8 +454,12 @@ void ConvertGtp::readTrackProperties()
 
 		// If it's GP5, create a full copy of this track: we
 		// will use it to simulate "voice 2".
-		if (versionMajor >= 5)
-			song->t.append(new TabTrack(trk));
+		if (versionMajor >= 5) {
+			int count = song->rowCount();
+			song->insertRow(count);
+			auto index = song->index(count, 0);
+			song->setData(index, QVariant::fromValue(new TabTrack(trk)), TabSong::TrackPtrRole);
+		}
 	}
 
 	kdDebug() << "end all tracks pos: " << stream->device()->pos() << "\n";
@@ -471,12 +478,13 @@ void ConvertGtp::readTabs()
 	currentStage = QString("readTabs");
 
 	for (int tr = 0; tr < numTracks; tr++) {
-		TabTrack *trk = song->t.at(tr);
-		trk->b.resize(numBars);
+		TabTrack *trk = song->index(tr,0).data(TabSong::TrackPtrRole).value<TabTrack*>();
 		trk->c.resize(0);
 	}
 
 	for (int j = 0; j < numBars; j++) {
+		if(!song->hasIndex(0,j))
+			song->insertColumn(j);
 		for (int tr = 0; tr < numTracks; tr++) {
 			TabTrack *trk;
 			// Guitar Pro 5 includes support for "multiple
@@ -486,13 +494,13 @@ void ConvertGtp::readTabs()
 			if (versionMajor >= 5) {
 				for (int voice = 0; voice < 2; voice++) {
 					currentStage = QString("readTabs: track %1, bar %2, voice %3").arg(tr).arg(j).arg(voice);
-					trk = song->t.at(tr * 2 + voice);
+					trk = song->index(tr * 2 + voice, 0).data(TabSong::TrackPtrRole).value<TabTrack*>();
 					kdDebug() << "TRACK " << tr << " (voice " << voice << "), BAR " << j << " (position: " << stream->device()->pos() << ")\n";
 					readBar(trk, j);
 				}
 			} else {
 				currentStage = QString("readTabs: track %1, bar %2").arg(tr).arg(j);
-				trk = song->t.at(tr);
+				trk = song->index(tr,0).data(TabSong::TrackPtrRole).value<TabTrack*>();
 				kdDebug() << "TRACK " << tr << ", BAR " << j << " (position: " << stream->device()->pos() << ")\n";
 				readBar(trk, j);
 			}
@@ -511,10 +519,10 @@ void ConvertGtp::readBar(TabTrack *trk, int j)
 	
 	x = trk->c.size();
 	trk->c.resize(trk->c.size() + numBeats);
-	trk->b[j].time1 = bars[j].time1;
-	trk->b[j].time2 = bars[j].time2;
-	trk->b[j].keysig = bars[j].keysig;
-	trk->b[j].start = x;
+	trk->bars()[j].time1 = bars[j].time1;
+	trk->bars()[j].time2 = bars[j].time2;
+	trk->bars()[j].keysig = bars[j].keysig;
+	trk->bars()[j].start = x;
 	
 	for (int k = 0; k < numBeats; k++) {
 		readColumn(trk, x);
@@ -777,7 +785,7 @@ bool ConvertGtp::load(QString fileName)
 //		song = new TabSong();
 
 		readSignature();
-		song->t.clear();
+		song->removeRows(0, song->rowCount());
 		readSongAttributes();
 	 	readTrackDefaults();
 

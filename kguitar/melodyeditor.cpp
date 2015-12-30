@@ -26,7 +26,7 @@ MelodyEditor::MelodyEditor(TrackView *_tv, QWidget *parent)
 {
 	tv = _tv;
 
-	fb = new Fretboard(tv->trk(), this);
+	fb = new Fretboard(tv, this);
 
 	tonic = new QComboBox(this);
 	for (int i = 0; i < 12; i++)
@@ -71,12 +71,11 @@ MelodyEditor::MelodyEditor(TrackView *_tv, QWidget *parent)
 	l->addLayout(lsettings);
 
 	// Fretboard box
-	l->addWidget(fb);
+    l->addWidget(fb);
 
 	connect(fb, SIGNAL(buttonPress(int, int, Qt::ButtonState)),
 	        tv, SLOT(melodyEditorPress(int, int, Qt::ButtonState)));
 	connect(fb, SIGNAL(buttonRelease(Qt::ButtonState)), tv, SLOT(melodyEditorRelease(Qt::ButtonState)));
-	connect(tv, SIGNAL(trackChanged(TabTrack *)), fb, SLOT(setTrack(TabTrack *)));
 	connect(tv, SIGNAL(columnChanged()), fb, SLOT(update()));
 	connect(options, SIGNAL(clicked()), SLOT(optionsDialog()));
 	connect(tonic, SIGNAL(highlighted(int)), fb, SLOT(setTonic(int)));

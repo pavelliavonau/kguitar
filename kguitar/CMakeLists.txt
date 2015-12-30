@@ -15,6 +15,7 @@ set(kguitar_PART_SRCS
 	ui/chord/strumming.cpp
 	ui/chord/chordanalyzer.cpp
 	trackview.cpp
+	bardelegate.cpp
 	ui/setsong.cpp
 	data/tabsong.cpp
 	data/tabtrack.cpp
@@ -27,6 +28,7 @@ set(kguitar_PART_SRCS
 	radiustuner.cpp
 	notespinbox.cpp
 	timesig.cpp
+	tracklistproxymodel.cpp
 	tracklist.cpp
 	trackpane.cpp
 	trackdrag.cpp

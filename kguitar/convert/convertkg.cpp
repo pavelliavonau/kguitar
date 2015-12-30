@@ -72,12 +72,14 @@ bool ConvertKg::save(QString fileName)
 	s << song->tempo;
 
 	// TRACK DATA
-	s << song->t.count();				// Number of tracks
+	s << song->rowCount();				// Number of tracks
 
 	bool needfx = FALSE;				// Should we write FX event after tab?
 
 	// For every track
-	foreach (TabTrack *trk, song->t) {
+	//foreach (TabTrack *trk, song->t) {
+	for(int row = 0; row < song->rowCount(); row++) {
+		auto trk = song->index(row, 0).data(TabSong::TrackPtrRole).value<TabTrack*>();
 		s << (Q_UINT8) trk->trackMode();// Track properties
 		s << trk->name;
 		s << (Q_UINT8) trk->channel;
@@ -95,25 +97,25 @@ bool ConvertKg::save(QString fileName)
 
 		s << (Q_UINT8) 'S';				// Time signature event
 		s << (Q_UINT8) 3;				// 3 byte event length
-		s << (Q_UINT8) trk->b[0].time1; // Time signature itself
-		s << (Q_UINT8) trk->b[0].time2;
-		s << (Q_INT8) trk->b[0].keysig;
+		s << (Q_UINT8) trk->bars()[0].time1; // Time signature itself
+		s << (Q_UINT8) trk->bars()[0].time2;
+		s << (Q_INT8) trk->bars()[0].keysig;
 
 		for (uint x = 0; x < trk->c.size(); x++) {
-			if (bar+1 < trk->b.size()) {	// This bar's not last
-				if ((uint)trk->b[bar+1].start == x)
+			if (bar+1 < trk->bars().size()) {	// This bar's not last
+				if ((uint)trk->bars()[bar+1].start == x)
 					bar++;				// Time for next bar
 			}
 
-			if ((bar < (uint)trk->b.size()) && ((uint)trk->b[bar].start == x)) {
+			if ((bar < (uint)trk->bars().size()) && ((uint)trk->bars()[bar].start == x)) {
 				s << (Q_UINT8) 'B';     // New bar event
 				s << (Q_UINT8) 0;
-				if ((trk->b[bar].time1 != trk->b[bar - 1].time1) ||
-					(trk->b[bar].time2 != trk->b[bar - 1].time2)) {
+				if ((trk->bars()[bar].time1 != trk->bars()[bar - 1].time1) ||
+					(trk->bars()[bar].time2 != trk->bars()[bar - 1].time2)) {
 					s << (Q_UINT8) 'S'; // New signature
 					s << (Q_UINT8) 2;
-					s << (Q_UINT8) trk->b[bar].time1;
-					s << (Q_UINT8) trk->b[bar].time2;
+					s << (Q_UINT8) trk->bars()[bar].time1;
+					s << (Q_UINT8) trk->bars()[bar].time2;
 				}
 			}
 
@@ -197,7 +199,7 @@ bool ConvertKg::load(QString fileName)
 		return FALSE;
 	}
 
-	song->t.clear();
+	song->removeRows(0, song->rowCount());
 
 	kdDebug() << "Going to read " << cnt << " track(s)..." << endl;
 
@@ -225,7 +227,10 @@ bool ConvertKg::load(QString fileName)
 		kdDebug() << "       bank = " << i16 << ", patch = " << patch << " ..." << endl;
 
 		TabTrack *trk = new TabTrack((TabTrack::TrackMode) tm, tn, channel, i16, patch, string, frets);
-		song->t.append(trk);
+		int count = song->rowCount();
+		song->insertRow(count);
+		auto index = song->index(count, 0);
+		song->setData(index, QVariant::fromValue(trk), TabSong::TrackPtrRole);
 
 		kdDebug() << "Appended a track..." << endl;;
 
@@ -242,10 +247,10 @@ bool ConvertKg::load(QString fileName)
 		TabTrack *ct = trk;
 // uchar tcsize=ct->string+2;
 		ct->c.resize(1);
-		ct->b.resize(1);
-		ct->b[0].start = 0;
-		ct->b[0].time1 = 4;
-		ct->b[0].time2 = 4;
+		ct->bars().resize(1);
+		ct->bars()[0].start = 0;
+		ct->bars()[0].time1 = 4;
+		ct->bars()[0].time2 = 4;
 
 		kdDebug() << "reading events" << endl;;
 		do {
@@ -255,11 +260,11 @@ bool ConvertKg::load(QString fileName)
 			switch (event) {
 			case 'B':                   // Tab bar
 				bar++;
-				ct->b.resize(bar);
-				ct->b[bar-1].start=x;
-				ct->b[bar-1].time1=ct->b[bar-2].time1;
-				ct->b[bar-1].time2=ct->b[bar-2].time2;
-				ct->b[bar-1].keysig=ct->b[bar-2].keysig;
+				ct->bars().resize(bar);
+				ct->bars()[bar-1].start=x;
+				ct->bars()[bar-1].time1=ct->bars()[bar-2].time1;
+				ct->bars()[bar-1].time2=ct->bars()[bar-2].time2;
+				ct->bars()[bar-1].keysig=ct->bars()[bar-2].keysig;
 				break;
 			case 'T':                   // Tab column
 				x++;
@@ -300,10 +305,10 @@ bool ConvertKg::load(QString fileName)
 				ct->c[x-1].setFullDuration(i16);
 				break;
 			case 'S':                   // New time signature
-				s >> cn; ct->b[bar-1].time1 = cn;
-				s >> cn; ct->b[bar-1].time2 = cn;
+				s >> cn; ct->bars()[bar-1].time1 = cn;
+				s >> cn; ct->bars()[bar-1].time2 = cn;
 				if (elength == 3) {
-					s >> cn; ct->b[bar-1].keysig = cn;
+					s >> cn; ct->bars()[bar-1].keysig = cn;
 				}
 				break;
 			case 'X':					// End of track

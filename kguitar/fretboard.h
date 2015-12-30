@@ -9,15 +9,17 @@ class TabTrack;
 class QSizePolicy;
 class QPixmap;
 class QImage;
+class QAbstractItemView;
+class QModelIndex;
 
 class Fretboard: public QWidget {
 	Q_OBJECT
 public:
-	Fretboard(TabTrack *, QWidget *parent = 0);
+	Fretboard(QAbstractItemView* tv, QWidget *parent = 0);
 	~Fretboard();
 
 public slots:
-	void setTrack(TabTrack *);
+	void currentBarChangedSlot(QModelIndex, QModelIndex);
 	void setTonic(int);
 	void setMode(int);
 	void drawBackground();
@@ -39,7 +41,8 @@ private:
 	void recalculateSizes();
 	void drawScaleBack();
 
-	TabTrack *trk;
+	TabTrack *trk();
+	QAbstractItemView* tv;
 	double fr[MAX_FRETS + 1]; // Proper physical fret positions
 	QPixmap *scaleback, *back, *wood;
 	QImage *fret, *zeroFret;

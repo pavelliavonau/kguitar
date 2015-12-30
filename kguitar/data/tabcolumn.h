@@ -49,6 +49,7 @@ struct StemInfo {
  */
 class TabColumn {
 public:
+	TabColumn();
 	int l;                              // Duration of note or chord
 	char a[MAX_STRINGS];                // Number of fret
 	char e[MAX_STRINGS];                // Effect parameter

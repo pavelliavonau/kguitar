@@ -3,8 +3,7 @@
 
 #include "global.h"
 
-#include <q3gridview.h>
-//Added by qt3to4:
+#include <QTableView>
 #include <QResizeEvent>
 #include <QMouseEvent>
 
@@ -15,28 +14,26 @@
 class TabSong;
 class TabTrack;
 class Fretboard;
-class Q3ListViewItem;
 class KXMLGUIClient;
 class QUndoStack;
 class QFont;
 class TrackPrint;
 class SongPrint;
 
-class TrackView: public Q3GridView {
+class TrackView: public QTableView {
 	Q_OBJECT
 public:
 	TrackView(TabSong *s, KXMLGUIClient *_XMLGUIClient, QUndoStack *_cmdHist,
 #ifdef WITH_TSE3
 	          TSE3::MidiScheduler *_scheduler,
 #endif
-			  QWidget *parent = 0, const char *name = 0);
+			  QWidget *parent = nullptr);
 
 	~TrackView();
 
-	TabTrack* trk() { return curt; }
-	void setCurrentTrack(TabTrack*);
+	TabTrack* trk();
 
- 	void setFinger(int num, int fret);
+	void setFinger(int num, int fret);
 	int finger(int num);
 
 	void setX(int x);
@@ -156,8 +153,7 @@ public slots:
 	void melodyEditorPress(int num, int fret, Qt::ButtonState button);
 	void melodyEditorRelease(Qt::ButtonState button);
 
-	void selectTrack(TabTrack *);
-	void selectBar(uint);
+	void currentBarChangedSlot(QModelIndex current, QModelIndex previous);
 	/**
 	 * Checks is current bar is fully visible, and, if it's not, tries
 	 * to do minimal scrolling to ensure the full visibility.
@@ -171,11 +167,6 @@ public slots:
 
 signals:
 	void paneChanged();
-	/**
-	 * Emitted when other track became current and visible, i.e. curt
-	 * itself is changed.
-	 */
-	void trackChanged(TabTrack *);
 	/**
 	 * Emitted when other column became current, i.e. curt->x is
 	 * changed.
@@ -194,11 +185,13 @@ signals:
 	 * thing. Usually it updates "document modified" flag.
 	 */
 	void songChanged();
+	void playbackCursorChanged(bool);
 
 protected:
-	virtual void paintCell(QPainter *, int row, int col) override;
 	virtual void resizeEvent(QResizeEvent *e) override;
 	virtual void mousePressEvent(QMouseEvent *e) override;
+	// QAbstractItemView interface
+	bool isIndexHidden(const QModelIndex &index) const override;
 
 private:
 	bool moveFinger(int from, int to);
@@ -240,8 +233,6 @@ private:
 	TrackPrint *trp;
 	Fretboard *fretboard;
 
-	bool playbackCursor;
-
 #ifdef WITH_TSE3
 	TSE3::MidiScheduler *scheduler;
 #endif
@@ -261,8 +252,5 @@ private:
 
 	char lastnumber;
 	int selxcoord;
-
-	bool viewscore;
 };
-
 #endif

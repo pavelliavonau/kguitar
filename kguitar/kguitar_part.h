@@ -59,7 +59,7 @@ protected slots:
 	 * Updates possibility of actions, depending on freshly selected
 	 * track. For drum track, lots of actions are unavailable.
 	 */
-	void updateToolbars(TabTrack *);
+	void updateToolbars(QModelIndex, QModelIndex);
 
 private:
 	void setupActions();

@@ -7,6 +7,8 @@
 
 #include <klocale.h>
 #include <QList>
+#include "data/tabsong.h"
+#include <QAbstractProxyModel>
 
 extern strummer lib_strum[];
 
@@ -355,7 +357,7 @@ void TrackView::AddColumnCommand::redo()
 {
 	trk->x = x;
 	trk->y = y;
-	trk->xb = trk->b.size() - 1;
+	trk->xb = trk->bars().size() - 1;
 	trk->c.resize(trk->c.size()+1);
 	trk->x++;
 	for (uint i = 0; i < MAX_STRINGS; i++) {
@@ -367,11 +369,14 @@ void TrackView::AddColumnCommand::redo()
 
 	// Check if we need to close this bar and open a new one
 	if (addBar) {
-		trk->b.resize(trk->b.size()+1);
 		trk->xb++;
-		trk->b[trk->xb].start = trk->x;
-		trk->b[trk->xb].time1 = trk->b[trk->xb-1].time1;
-		trk->b[trk->xb].time2 = trk->b[trk->xb-1].time2;
+		TabBar bar;
+		bar.start = trk->x;
+		bar.time1 = trk->bars()[trk->xb-1].time1;
+		bar.time2 = trk->bars()[trk->xb-1].time2;
+		tv->model()->insertColumn(trk->bars().size());
+		auto dataIndex = tv->model()->index(tv->selectionModel()->currentIndex().row(), trk->bars().size() - 1);
+		tv->model()->setData(dataIndex, QVariant::fromValue(bar), TabSong::BarRole);
 		emit tv->barChanged();
 	}
 
@@ -607,9 +612,9 @@ TrackView::SetTimeSigCommand::SetTimeSigCommand(TrackView *_tv, TabTrack *&_trk,
 	time1 = _time1;
 	time2 = _time2;
 
-	b.resize(trk->b.size());
-	for (uint i = 0; i < trk->b.size(); i++)
-		b[i] = trk->b[i];
+	b.resize(trk->bars().size());
+	for (uint i = 0; i < trk->bars().size(); i++)
+		b[i] = trk->bars()[i];
 }
 
 void TrackView::SetTimeSigCommand::redo()
@@ -617,9 +622,9 @@ void TrackView::SetTimeSigCommand::redo()
 	// Sophisticated construction to mark all or only one bar with
 	// new sig, depending on user's selection of checkbox
 
-	for (uint i = xb; i < (toend ? trk->b.size() : trk->xb+1); i++) {
-		trk->b[i].time1 = time1;
-		trk->b[i].time2 = time2;
+	for (uint i = xb; i < (toend ? trk->bars().size() : trk->xb+1); i++) {
+		trk->bars()[i].time1 = time1;
+		trk->bars()[i].time2 = time2;
 	}
 
 	trk->sel = FALSE;
@@ -631,12 +636,12 @@ void TrackView::SetTimeSigCommand::redo()
 void TrackView::SetTimeSigCommand::undo()
 {
 	int k;
-	if (b.size() <= trk->b.size())
+	if (b.size() <= trk->bars().size())
 		k = b.size();
-	else k = trk->b.size();
+	else k = trk->bars().size();
 
 	for (int i = 0; i < k; i++)
-		trk->b[i] = b[i];
+		trk->bars()[i] = b[i];
 
 	trk->x = x;
 	trk->y = y;
@@ -849,7 +854,7 @@ void TrackView::InsertRhythm::redo()
 	}
 
 	emit tv->songChanged();
-	tv->repaintContents();
+	tv->viewport()->update();
 }
 
 void TrackView::InsertRhythm::undo()
@@ -862,5 +867,5 @@ void TrackView::InsertRhythm::undo()
 	trk->c.resize(x + olddur.size());
 
 	emit tv->songChanged();
-	tv->repaintContents();
+	tv->viewport()->update();
 }

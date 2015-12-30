@@ -29,16 +29,18 @@ class QPainter;
 
 class TrackPrint
 {
+	friend class SongPrint;
+
 public:
 	TrackPrint();
 	~TrackPrint();
 	int barExpWidth(int bn, TabTrack *trk);
 	int barWidth(int bn, TabTrack *trk);
 	int colWidth(int cl, TabTrack *trk);
-	void drawBar(int bn, TabTrack *trk, int es, int& sx, int& sx2);
+	void drawBar(int bn, TabTrack *trk, int es, int& sx, int& sx2, bool doDraw = true);
 	void drawBarLns(int w, TabTrack *trk);
 	int drawKKsigTsig(int bn, TabTrack *trk, bool doDraw, bool fbol, bool flop);
-	void drawStLns(int w);
+	void drawStLns(const QRect& rect);
 	int getFirstColOffs(int bn, TabTrack *trk, bool fbol = true);
 	void initFonts(QFont *f1, QFont *f2, QFont *f3, QFont *f4, QFont *f5);
 	void initMetrics();
@@ -47,12 +49,19 @@ public:
 	void initPrStyle(int prStyle);
 	void setOnScreen(bool scrn = TRUE);
 	void setPainter(QPainter *paint);
-
+	QFont *fetaFontPtr(){ return fFeta; }
+	int calcYPosTb(int numOfStrings);
+	int calcYPosSt(int top = 0);
+	int yPosTb() const { return ypostb; }
+	int bottomTbMargin() const;
+	int bottomStMargin() const;
 	// LVIFIX: these probably should not be public
 	// The current write location
 	int xpos;
 	int yposst;					// on the staff
+private:
 	int ypostb;					// on the tab bar
+public:
 	// Variables describing staff dimensions
 	int wNote;					// width 1/4 notehead
 	int ystepst;				// y step from line to line
@@ -65,6 +74,7 @@ public:
 	QPen pLnWh;					// used for white lines
 
 	int zoomLevel;
+	bool viewscore;
 
 private:
 	void drawBeam(int x1, int x2, int y, char tp, char dir);

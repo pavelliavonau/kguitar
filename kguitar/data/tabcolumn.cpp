@@ -3,6 +3,14 @@
 // Gets full real duration of a column, including all effects caused
 // by dots, triplets, etc
 
+TabColumn::TabColumn() {
+	for (uint i = 0; i < MAX_STRINGS; i++) {
+		a[i] = -1;
+		e[i] = 0;
+	}
+	flags = 0;
+}
+
 Q_UINT16 TabColumn::fullDuration()
 {
 	Q_UINT16 len = l;

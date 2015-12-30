@@ -43,16 +43,16 @@ QByteArray TrackDrag::encode(TabTrack *trk)
 
 	s << (Q_UINT8) 'S';				// Time signature event
 	s << (Q_UINT8) 2;				// 2 byte event length
-	s << (Q_UINT8) trk->b[0].time1; // Time signature itself
-	s << (Q_UINT8) trk->b[0].time2;
+	s << (Q_UINT8) trk->bars()[0].time1; // Time signature itself
+	s << (Q_UINT8) trk->bars()[0].time2;
 
 	for (int x = 0; x < trk->c.size(); x++) {
-		if (bar+1 < (uint)trk->b.size()) {	// This bar's not last
-			if (trk->b[bar+1].start == x)
+		if (bar+1 < (uint)trk->bars().size()) {	// This bar's not last
+			if (trk->bars()[bar+1].start == x)
 				bar++;				// Time for next bar
 		}
 
-		if ((bar < (uint)trk->b.size()) && (trk->b[bar].start == x)) {
+		if ((bar < (uint)trk->bars().size()) && (trk->bars()[bar].start == x)) {
 			s << (Q_UINT8) 'B';     // New bar event
 			s << (Q_UINT8) 0;
 		}
@@ -148,10 +148,10 @@ bool TrackDrag::decode(const QMimeData *e, TabTrack *&trk)
 	int x = 0, bar = 1;
 	// uchar tcsize=newtrk->string+2;
 	newtrk->c.resize(1);
-	newtrk->b.resize(1);
-	newtrk->b[0].start = 0;
-	newtrk->b[0].time1 = 4;
-	newtrk->b[0].time2 = 4;
+	newtrk->bars().resize(1);
+	newtrk->bars()[0].start = 0;
+	newtrk->bars()[0].time1 = 4;
+	newtrk->bars()[0].time2 = 4;
 
 	kdDebug() << "TrackDrag::decode >> reading events" << endl;;
 	do {
@@ -161,10 +161,10 @@ bool TrackDrag::decode(const QMimeData *e, TabTrack *&trk)
 		switch (event) {
 		case 'B':                   // Tab bar
 			bar++;
-			newtrk->b.resize(bar);
-			newtrk->b[bar-1].start=x;
-			newtrk->b[bar-1].time1=newtrk->b[bar-2].time1;
-			newtrk->b[bar-1].time2=newtrk->b[bar-2].time2;
+			newtrk->bars().resize(bar);
+			newtrk->bars()[bar-1].start=x;
+			newtrk->bars()[bar-1].time1=newtrk->bars()[bar-2].time1;
+			newtrk->bars()[bar-1].time2=newtrk->bars()[bar-2].time2;
 			break;
 		case 'T':                   // Tab column
 			x++;
@@ -205,8 +205,8 @@ bool TrackDrag::decode(const QMimeData *e, TabTrack *&trk)
 			newtrk->c[x-1].setFullDuration(i16);
 			break;
 		case 'S':                   // New time signature
-			s >> cn; newtrk->b[bar-1].time1 = cn;
-			s >> cn; newtrk->b[bar-1].time2 = cn;
+			s >> cn; newtrk->bars()[bar-1].time1 = cn;
+			s >> cn; newtrk->bars()[bar-1].time2 = cn;
 			break;
 		case 'X':					// End of track
 			finished = TRUE;

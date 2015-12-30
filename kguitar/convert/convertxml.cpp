@@ -216,13 +216,13 @@ void ConvertXml::calcDivisions() {
 // thus match ConvertXml::write's main loop
 
 	// loop over all tracks
-	for (auto trk : song->t) {
-
+	for (auto row = 0; row < song->rowCount(); row++) {
+		TabTrack* trk = song->index(row, 0).data(TabSong::TrackPtrRole).value<TabTrack*>();
 		trk->calcVoices();	// LVIFIX: is this necessary ?
 //		cout << "part id=P" << it+1 << endl;
 
 		// loop over all bars
-		for (int ib = 0; ib < trk->b.size(); ib++) {
+		for (int ib = 0; ib < trk->bars().size(); ib++) {
 //			cout << "measure number=" << ib + 1 << endl;
 
 			// loop over all voices in this bar
@@ -232,7 +232,7 @@ void ConvertXml::calcDivisions() {
 				if ((i == 1) || trk->hasMultiVoices()) {
 //					cout << "voice number=" << i + 1 << endl;
 					// loop over all columns in this bar
-					for (int x = trk->b[ib].start; x <= trk->lastColumn(ib); /* nothing */) {
+					for (int x = trk->bars()[ib].start; x <= trk->lastColumn(ib); /* nothing */) {
 /*
 						int tp;
 						int dt;
@@ -302,9 +302,10 @@ void ConvertXml::write(QTextStream& os)
 	os << "\n";
 	os << "\t<part-list>\n";
 	// loop over all tracks
-	for (unsigned int it = 0; it < song->t.count(); it++) {
+	for (unsigned int it = 0; it < song->rowCount(); it++) {
+		    TabTrack* trk = song->index(it, 0).data(TabSong::TrackPtrRole).value<TabTrack*>();
 		os << "\t\t<score-part id=\"P" << it+1 << "\">\n";
-		os << "\t\t\t<part-name>" << song->t.at(it)->name << "</part-name>\n";
+		os << "\t\t\t<part-name>" << trk->name << "</part-name>\n";
 		// LVIFIX: fill-in real instrument-name instead of "Guitar"
 		// note: in DTD 0.6 score-instrument may appear zero or more times
 		//       within a score-part
@@ -316,11 +317,11 @@ void ConvertXml::write(QTextStream& os)
 		os << "\t\t\t</score-instrument>\n";
 		os << "\t\t\t<midi-instrument id=\"P" << it+1
 		   << "-I" << it+1 << "\">\n";
-		os << "\t\t\t\t<midi-channel>" << song->t.at(it)->channel
+		os << "\t\t\t\t<midi-channel>" << trk->channel
 		   << "</midi-channel>\n";
-		os << "\t\t\t\t<midi-bank>" << song->t.at(it)->bank
+		os << "\t\t\t\t<midi-bank>" << trk->bank
 		   << "</midi-bank>\n";
-		os << "\t\t\t\t<midi-program>" << song->t.at(it)->patch
+		os << "\t\t\t\t<midi-program>" << trk->patch
 		   << "</midi-program>\n";
 		os << "\t\t\t</midi-instrument>\n";
 		os << "\t\t</score-part>\n";
@@ -328,10 +329,10 @@ void ConvertXml::write(QTextStream& os)
 	os << "\t</part-list>\n";
 
 // parts
-	TabTrack *trk;
+	//TabTrack *trk;
 	// loop over all tracks
-	for (unsigned int it = 0; it < song->t.count(); it++) {
-		trk = song->t.at(it);
+	for (unsigned int it = 0; it < song->rowCount(); it++) {
+		TabTrack* trk = song->index(it, 0).data(TabSong::TrackPtrRole).value<TabTrack*>();
 		trk->calcVoices();
 		trk->calcStepAltOct();
 		trk->calcBeams();
@@ -339,18 +340,18 @@ void ConvertXml::write(QTextStream& os)
 		os << "\t<part id=\"P" << it+1 << "\">\n";
 
 		// loop over all bars
-		for (uint ib = 0; ib < trk->b.size(); ib++) {
+		for (uint ib = 0; ib < trk->bars().size(); ib++) {
 			os << "\t\t<measure number=\"" << ib + 1 << "\">\n";
 			if (ib == 0) {
 				// First bar: write all attributes
 				os << "\t\t\t<attributes>\n";
 				os << "\t\t\t\t<divisions>" << divisions << "</divisions>\n";
 				os << "\t\t\t\t<key>\n";
-				os << "\t\t\t\t\t<fifths>" << trk->b[0].keysig << "</fifths>\n";
+				os << "\t\t\t\t\t<fifths>" << trk->bars()[0].keysig << "</fifths>\n";
 				// LVIFX: re-enable when KGuitar supports major/minor modes
 				// os << "\t\t\t\t\t<mode>major</mode>\n";
 				os << "\t\t\t\t</key>\n";
-				writeTime(os, trk->b[0].time1, trk->b[0].time2);
+				writeTime(os, trk->bars()[0].time1, trk->bars()[0].time2);
 				os << "\t\t\t\t<staves>2</staves>\n";
 				os << "\t\t\t\t<clef number=\"1\">\n";
 				os << "\t\t\t\t\t<sign>G</sign>\n";
@@ -374,7 +375,7 @@ void ConvertXml::write(QTextStream& os)
 				// write all voices in multi voice tracks
 				if ((i == 1) || trk->hasMultiVoices()) {
 					// loop over all columns in this bar
-					for (int x = trk->b[ib].start;
+					for (int x = trk->bars()[ib].start;
 							x <= trk->lastColumn(ib); /* nothing */) {
 /*
 						int tp;
@@ -482,7 +483,7 @@ int ConvertXml::writeCol(QTextStream& os, TabTrack * trk, int x, int v, bool wrt
 	*/
 	// end debug: dump this column
 
-	if (trk->b[trk->barNr(x)].start == x) {
+	if (trk->bars()[trk->barNr(x)].start == x) {
 		// do start of bar specific init
 		tEndPrev  = 0;
 		trpCnt    = 0;
@@ -875,7 +876,7 @@ bool ConvertXml::startDocument()
 {
 	// init tabsong
 	song->tempo = 120;			// default start tempo
-	song->t.clear();				// no tracks read yet: clear track list
+	song->removeRows(0, song->rowCount());				// no tracks read yet: clear track list
 	song->info["TITLE"] = "";				// default title
 	song->info["ARTIST"] = "";			// default author
 	song->info["TRANSCRIBER"] = "";		// default transcriber
@@ -953,11 +954,11 @@ bool ConvertXml::startElement( const QString&, const QString&,
 		// (already done in TabTrack's constructor) ?
 		if (trk) {
 			bar++;
-			trk->b.resize(bar);
-			trk->b[bar-1].start=x;
+			trk->bars().resize(bar);
+			trk->bars()[bar-1].start=x;
 			if (bar > 1) {
-				trk->b[bar-1].time1=trk->b[bar-2].time1;
-				trk->b[bar-1].time2=trk->b[bar-2].time2;
+				trk->bars()[bar-1].time1=trk->bars()[bar-2].time1;
+				trk->bars()[bar-1].time2=trk->bars()[bar-2].time2;
 			}
 		}
 		tStartCur = -1;			// undefined
@@ -982,7 +983,7 @@ bool ConvertXml::startElement( const QString&, const QString&,
 			// init vars for track reading
 			x = 0;
 			bar = 0;
-			trk = song->t.at(index);
+			trk = song->index(index, 0).data(TabSong::TrackPtrRole).value<TabTrack*>();
 			tEndCur = 0;
 		}
 	} else if (qName == "pull-off") {
@@ -1025,9 +1026,9 @@ bool ConvertXml::endElement( const QString&, const QString&,
 	} else if (qName == "attributes") {
 		// update this bar's attributes
 		if (trk) {
-			trk->b[bar-1].time1=stBts.toInt();
-			trk->b[bar-1].time2=stBtt.toInt();
-			trk->b[bar-1].keysig=stFif.toInt();
+			trk->bars()[bar-1].time1=stBts.toInt();
+			trk->bars()[bar-1].time2=stBtt.toInt();
+			trk->bars()[bar-1].keysig=stFif.toInt();
 		}
 	} else if (qName == "backup") {
 		tStartCur = -1;
@@ -1293,7 +1294,12 @@ bool ConvertXml::addTrack()
 		6,                      // _string (default value)
 		24                      // _frets (default value)
 	);
-	song->t.append(trk);
+
+	int count = song->rowCount();
+	song->insertRow(count);
+	auto index = song->index(count, 0);
+	song->setData(index, QVariant::fromValue(trk), TabSong::TrackPtrRole);
+
 	// don't want any columns yet, as that would interfere
 	// with the first note's timing
 	// LVIFIX: add a single column to empty tracks after loading mxml

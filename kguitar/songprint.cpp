@@ -366,9 +366,9 @@ void SongPrint::printSong(QPrinter *printer, TabSong *song)
 	uint trkPr = 0;				// tracks printed
 
 	// loop while tracks left in the song
-	while (trkPr < (song->t).count()) {
+	while (trkPr < song->rowCount()) {
 
-		TabTrack *trk = (song->t).at(trkPr);
+		TabTrack *trk = song->index(trkPr,0).data(TabSong::TrackPtrRole).value<TabTrack*>();
 
 		// Determine voices for each note
 		trk->calcVoices();
@@ -380,7 +380,7 @@ void SongPrint::printSong(QPrinter *printer, TabSong *song)
 		trk->calcBeams();
 
 		// print the track header
-		if ((song->t).count() > 1)
+		if (song->rowCount() > 1)
 		{
 			p->setFont(fHdr2);
 			QFontMetrics fm  = p->fontMetrics();
@@ -393,15 +393,15 @@ void SongPrint::printSong(QPrinter *printer, TabSong *song)
 		int bn = 0;					// current bar nr
 
 		// precalculate bar widths
-		QVector<int> bew(trk->b.size());
-		QVector<int> bw(trk->b.size());
-		for (uint bn = 0; bn < trk->b.size(); bn++) {
+		QVector<int> bew(trk->bars().size());
+		QVector<int> bw(trk->bars().size());
+		for (uint bn = 0; bn < trk->bars().size(); bn++) {
 			bew[bn] = trp->barExpWidth(bn, trk);
 			bw[bn]  = trp->barWidth(bn, trk);
 		}
 
 		// loop while bars left in the track
-		while (brsPr < trk->b.size()) {
+		while (brsPr < trk->bars().size()) {
 
 			if (stNts) {
 				// move yposst to the bottom staff line
@@ -413,7 +413,7 @@ void SongPrint::printSong(QPrinter *printer, TabSong *song)
 				// drawStLns(pprw - 1);
 				trp->yposst = yposst;
 				trp->xpos = xpos;
-				trp->drawStLns(pprw - 1);
+				trp->drawStLns(QRect(trp->xpos, yposst, pprw - 1 , ystepst * 4 ));
 				if (stTab) {
 					// move ypostb to the top bar line
 					// (where it would be if there as no staff)
@@ -461,7 +461,7 @@ void SongPrint::printSong(QPrinter *printer, TabSong *song)
 			uint nBarsOnLine = 1;
 			int totWidth = bw[bn];
 			// while bars left and next bar also fits
-			while (bn + nBarsOnLine < trk->b.size()
+			while (bn + nBarsOnLine < trk->bars().size()
 				   && totWidth + bw[bn + nBarsOnLine] < pprw - xpos) {
 				totWidth += bw[bn + nBarsOnLine];
 				nBarsOnLine++;
@@ -469,7 +469,7 @@ void SongPrint::printSong(QPrinter *printer, TabSong *song)
 
 			// print without extra space on last line,
 			// with extra space on all others
-			if (bn + nBarsOnLine >= trk->b.size()) {
+			if (bn + nBarsOnLine >= trk->bars().size()) {
 				// last line, no extra space
 				for (uint i = 0; i < nBarsOnLine; i++) {
 					// LVIFIX: HACK HACK HACK !
@@ -538,7 +538,7 @@ void SongPrint::printSong(QPrinter *printer, TabSong *song)
 				pgNr++;
 				drawPageHdr(pgNr, song);
 				// print the track header
-				if ((song->t).count() > 1)
+				if (song->rowCount() > 1)
 				{
 					p->setFont(fHdr2);
 					QFontMetrics fm  = p->fontMetrics();

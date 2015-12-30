@@ -71,7 +71,7 @@ bool ConvertTex::saveToTab(QTextStream &s)
 	}
 	tsize += "\n";
 
-	TabTrack *trk = song->t.first();
+	TabTrack *trk = song->index(0,0).data(TabSong::TrackPtrRole).value<TabTrack*>();
 
 	// Stuff if globalShowStr=TRUE
 
@@ -217,11 +217,13 @@ bool ConvertTex::saveToTab(QTextStream &s)
 	uint bbar;       // who are bars?
 
 	// For every track
-	foreach (trk, song->t) {
+	//foreach (trk, song->t) {
+	for (int row = 0; row < song->rowCount(); row++) {
+		TabTrack* trk = song->index(row, 0).data(TabSong::TrackPtrRole).value<TabTrack*>();
 		s << "Track " << n << ": " << trk->name;
 		s << "\n";
-		s << "\\generalmeter{\\meterfrac{" << trk->b[0].time1;
-		s << "}{" << trk->b[0].time2 << "}}";
+		s << "\\generalmeter{\\meterfrac{" << trk->bars()[0].time1;
+		s << "}{" << trk->bars()[0].time2 << "}}";
 		s << "\n" << "\n"; // the 2nd LF is very important!!
 		s << tsize;
 
@@ -242,10 +244,10 @@ bool ConvertTex::saveToTab(QTextStream &s)
 		for (uint j = 0; j < trksize; j++) { // for every column (j)
 			tmpline = notes;
 
-			if ((bbar + 1) < (uint)trk->b.size()) { // looking for bars
-				if ((uint)trk->b[bbar + 1].start == j)  bbar++;
+			if ((bbar + 1) < (uint)trk->bars().size()) { // looking for bars
+				if ((uint)trk->bars()[bbar + 1].start == j)  bbar++;
 			}
-			if ((uint)trk->b[bbar].start == j)  s << bar;
+			if ((uint)trk->bars()[bbar].start == j)  s << bar;
 
 			for (int x = 0; x < trk->string; x++) // test how much tabs in this column
 				if (trk->c[j].a[x]>=0)  cho++;
@@ -330,9 +332,10 @@ bool ConvertTex::saveToNotes(QTextStream &s)
 	// TRACK DATA
 	int n = 1;       // Trackcounter
 
-	foreach (TabTrack *trk, song->t) { // For every track
-		s << "\\generalmeter{\\meterfrac{" << trk->b[0].time1;
-		s << "}{" << trk->b[0].time2 << "}}";
+	for (int row = 0; row < song->rowCount(); row++) { // For every track
+		TabTrack* trk = song->index(row, 0).data(TabSong::TrackPtrRole).value<TabTrack*>();
+		s << "\\generalmeter{\\meterfrac{" << trk->bars()[0].time1;
+		s << "}{" << trk->bars()[0].time2 << "}}";
 		s << "\n" << "\n";
 		s << "\\startpiece" << "\n";
 

@@ -14,11 +14,17 @@
  *
  * Stores start column index, time and key signatures.
  */
-typedef struct {
+struct TabBar{
+	TabBar(int _start = -1, uchar _time1 = 0, uchar _time2 = 0, short _keysig = 0);
+
+	bool isValid() const;
+
 	int start;                          // Starting column
 	uchar time1,time2;                  // Time signature
 	short keysig;                       // Key signature
-} TabBar;
+};
+
+Q_DECLARE_METATYPE(TabBar)
 
 #include "tabcolumn.h"
 
@@ -30,6 +36,8 @@ typedef struct {
  * necessary stuff.
  */
 class TabTrack {
+	friend class TabSong;
+
 public:
 	/**
 	 * Enum to designate various track modes.
@@ -55,7 +63,13 @@ public:
 	/**
 	 * Array of bars.
 	 */
+private:
 	QVector<TabBar> b;
+public:
+	// TODO: remove no const version
+	QVector<TabBar>& bars() { return b; }
+
+	const QVector<TabBar>& bars() const { return b; }
 
 	/**
 	 * Number of strings
@@ -100,6 +114,7 @@ public:
 	bool showBarSig(int n);
 	bool barStatus(int n);
 	Q_UINT16 currentBarDuration();
+	Q_UINT16 barDuration(int bn);
 	int trackDuration();
 	Q_UINT16 maxCurrentBarDuration();
 	Q_UINT16 noteDuration(uint t, int i);
@@ -133,5 +148,7 @@ private:
 
 	TrackMode tm;                       // Track mode
 };
+
+Q_DECLARE_METATYPE(TabTrack*)
 
 #endif

@@ -14,6 +14,7 @@ class MelodyEditor: public QWidget {
 public:
 	MelodyEditor(TrackView *, QWidget *parent = 0);
 	void drawBackground();
+	const Fretboard *fretboard() const { return fb; }
 
 public slots:
 	void optionsDialog();

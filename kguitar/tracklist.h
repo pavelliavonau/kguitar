@@ -1,7 +1,7 @@
 #ifndef TRACKLIST_H
 #define TRACKLIST_H
 
-#include <QTableWidget>
+#include <QTableView>
 
 class TabSong;
 class TabTrack;
@@ -17,30 +17,23 @@ class QMouseEvent;
  * and mouse event handlers to make selection of tracks by mouse
  * possible.
  */
-class TrackList: public QTableWidget {
+class TrackList: public QTableView {
 	Q_OBJECT
 
 public:
 	TrackList(TabSong *s, KXMLGUIClient *_XMLGUIClient, QWidget *parent = 0);
 	void updateList();
-
-signals:
-	void trackSelected(TabTrack *);
+	void setSourceSelectionModel(QItemSelectionModel *selectionModel);
 
 protected:
-    virtual void mousePressEvent(QMouseEvent *e) override;
-
-public slots:
-        void selectTrack(TabTrack*);
+	virtual void mousePressEvent(QMouseEvent *e) override;
 
 private slots:
-        void selectNewTrack(QTableWidgetItem * current, QTableWidgetItem * previous);
+	void currentChangedSlot(QModelIndex current, QModelIndex previous);
+	void privateCurrentChangedSlot(QModelIndex current, QModelIndex previous);
 
 private:
-	void makeHeader();
-
-	TabSong *song;
-    KXMLGUIClient *xmlGUIClient;
+	KXMLGUIClient *xmlGUIClient;
+	QItemSelectionModel *sourceSelectionModel;
 };
-
 #endif

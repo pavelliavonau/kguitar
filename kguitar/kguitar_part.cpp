@@ -79,7 +79,7 @@ KGuitarPart::KGuitarPart(QWidget *parentWidget, QObject *parent, const QStringLi
 
 	// SET UP RESPONSES FOR VARIOUS TRACK CHANGES
 
-	connect(sv->tv, SIGNAL(trackChanged(TabTrack *)), SLOT(updateToolbars(TabTrack *)));
+	connect(sv->tv->selectionModel(), SIGNAL(currentChanged(QModelIndex, QModelIndex)), SLOT(updateToolbars(QModelIndex, QModelIndex)));
 // GREYTODO
 //	connect(QApplication::clipboard(), SIGNAL(dataChanged()), SLOT(clipboardDataChanged()));
 	connect(sv->tv, SIGNAL(barChanged()), SLOT(updateStatusBar()));
@@ -171,8 +171,10 @@ bool KGuitarPart::openFile()
 		kdDebug() << "Converter failed with message \"" << msg << "\"\n";
 		KMessageBox::sorry(0, msg, i18n("Loading failed"));
 
-		sv->song()->t.clear();
-		sv->song()->t.append(new TabTrack(TabTrack::FretTab, i18n("Guitar"), 1, 0, 25, 6, 24));
+		sv->song()->removeRows(0, sv->song()->rowCount());
+		int count = sv->song()->rowCount();
+		sv->song()->insertRow(count);
+		sv->song()->setData(sv->song()->index(count,0), QVariant::fromValue(new TabTrack(TabTrack::FretTab, i18n("Guitar"), 1, 0, 25, 6, 24)), TabSong::TrackPtrRole);
 		sv->refreshView();
 		cmdHist->clear();
 
@@ -274,7 +276,7 @@ bool KGuitarPart::saveFile()
 		kdDebug() << "Converter failed with message \"" << msg << "\"\n";
 		KMessageBox::sorry(0, msg, i18n("Loading failed"));
 
-		sv->song()->t.clear();
+		sv->song()->removeRows(0, sv->song()->rowCount());
 		sv->song()->addEmptyTrack();
 		sv->refreshView();
 		cmdHist->clear();
@@ -311,15 +313,18 @@ void KGuitarPart::fileSaveAs()
 
 // Updates possibility of actions, depending on freshly selected
 // track. For drum track, lots of actions are unavailable.
-void KGuitarPart::updateToolbars(TabTrack *)
+void KGuitarPart::updateToolbars(QModelIndex current, QModelIndex)
 {
+	if(!current.isValid())
+		return;
+
 	switch (sv->tv->trk()->trackMode()) {
 	case TabTrack::DrumTab:
 		insChordAct->setEnabled(FALSE);
 		natHarmAct->setEnabled(FALSE);
 		artHarmAct->setEnabled(FALSE);
 		break;
-	default:
+	case TabTrack::FretTab:
 		insChordAct->setEnabled(TRUE);
 		natHarmAct->setEnabled(TRUE);
 		artHarmAct->setEnabled(TRUE);

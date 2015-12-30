@@ -18,6 +18,7 @@
 #include "ui/chord/chordlistitem.h"
 #include "songprint.h"
 #include "melodyeditor.h"
+#include "fretboard.h"
 
 #include <klocale.h>
 #include <kdebug.h>
@@ -36,6 +37,7 @@
 #include <QBoxLayout>
 #include <QVBoxLayout>
 #include <QApplication>
+#include <QScrollBar>
 
 #ifdef WITH_TSE3
 #include <tse3/MidiScheduler.h>
@@ -75,27 +77,33 @@ SongView::SongView(KXMLGUIClient *_XMLGUIClient, QUndoStack *_cmdHist,
 #endif
 
 	splitv = new QSplitter(split);
- 	splitv->setOrientation(Qt::Horizontal);
-        splitv->setChildrenCollapsible(false);
+	splitv->setOrientation(Qt::Horizontal);
+	splitv->setChildrenCollapsible(false);
 
 	tl = new TrackList(m_song, _XMLGUIClient, splitv);
-	tl->selectRow(0);
-	QScrollArea* scroll = new QScrollArea( splitv );
-	tp = new TrackPane(m_song, tl->horizontalHeader()->height(), tl->verticalHeader()->sectionSize(0), scroll);
-	scroll->setWidget(tp);
+//	tl->selectRow(0);
+	tp = new TrackPane(tl->verticalHeader()->sectionSize(0), splitv);
 
+	tp->setModel(m_song);
 	me = new MelodyEditor(tv);
 
-	connect(tl, SIGNAL(trackSelected(TabTrack *)), tv, SLOT(selectTrack(TabTrack *)));
-	connect(tp, SIGNAL(trackSelected(TabTrack *)), tv, SLOT(selectTrack(TabTrack *)));
-	connect(tp, SIGNAL(trackSelected(TabTrack *)), tl, SLOT(selectTrack(TabTrack *)));
-	connect(tp, SIGNAL(barSelected(uint)), tv, SLOT(selectBar(uint)));
+	QItemSelectionModel* s_model = new QItemSelectionModel(m_song, this);
+	tv->setSelectionModel(s_model);
+	tl->setSourceSelectionModel(s_model);
+	tp->setSelectionModel(s_model);
+
+	connect(s_model, SIGNAL(currentChanged(QModelIndex, QModelIndex)), tv,              SLOT(currentBarChangedSlot(QModelIndex, QModelIndex)));
+	connect(s_model, SIGNAL(currentChanged(QModelIndex, QModelIndex)), me->fretboard(), SLOT(currentBarChangedSlot(QModelIndex, QModelIndex)));
 	connect(tv, SIGNAL(paneChanged()), tp, SLOT(update()));
-	connect(tv, SIGNAL(barChanged()), tp, SLOT(repaintCurrentTrack()));
+	connect(tv, SIGNAL(barChanged()), tp->viewport(), SLOT(update()));
+	connect(tv, SIGNAL(barChanged()), tv->viewport(), SLOT(update()));
+
+	s_model->setCurrentIndex(m_song->index(0,0), QItemSelectionModel::Current);
+	me->drawBackground();
 
 	// synchronize tracklist and trackpane at vertical scrolling
-	connect(scroll->verticalScrollBar(), SIGNAL(valueChanged(int)), tl->verticalScrollBar(), SLOT(setValue(int)));
-	connect(tl->verticalScrollBar(), SIGNAL(valueChanged(int)), scroll->verticalScrollBar(), SLOT(setValue(int)));
+	connect(tp->verticalScrollBar(), SIGNAL(valueChanged(int)), tl->verticalScrollBar(), SLOT(setValue(int)));
+	connect(tl->verticalScrollBar(), SIGNAL(valueChanged(int)), tp->verticalScrollBar(), SLOT(setValue(int)));
 
 	// let higher-level widgets know that we have a changed song if it
 	// was changed in TrackView
@@ -124,30 +132,28 @@ SongView::~SongView()
 // or imported.
 void SongView::refreshView()
 {
-	tv->setCurrentTrack(m_song->t.first());
-	tv->updateRows();
-	tv->repaint();
 	tl->updateList();
-	tl->selectRow(0);
-	tp->updateList();
+	tv->selectionModel()->setCurrentIndex(m_song->index(0,0), QItemSelectionModel::Current);
 }
 
 // Creates a new track in the song
 bool SongView::trackNew()
 {
-	TabTrack* oldtr = tv->trk();
+	auto oldindex = tv->selectionModel()->currentIndex();
 	TabTrack* newtr = new TabTrack(TabTrack::FretTab, "", m_song->freeChannel(), 0, 25, 6, 24);
 
-	m_song->t.append(newtr);
-	tv->setCurrentTrack(newtr);
+	int count = m_song->rowCount();
+	m_song->insertRow(count);
+	m_song->setData(m_song->index(count,0),QVariant::fromValue(newtr), TabSong::TrackPtrRole);
+	tv->selectionModel()->setCurrentIndex(m_song->index(count, 0), QItemSelectionModel::Current);
 
 	// Special case - if user declined track properties dialog during
 	// track creation, then he doesn't seem to want the new track, so
 	// we'll destroy it.
 
 	if (!setTrackProperties()) {
-		tv->setCurrentTrack(oldtr);
-		m_song->t.removeLast();
+		tv->selectionModel()->setCurrentIndex(oldindex, QItemSelectionModel::Current);
+		m_song->removeRow(m_song->rowCount() - 1);
 		return FALSE;
 	}
 
@@ -158,23 +164,9 @@ bool SongView::trackNew()
 void SongView::trackDelete()
 {
 	// Check that we won't delete the only last track in the list
-	if (m_song->t.size() > 1) {
-		TabTrack *newsel = 0;
-
-		// If we delete the last track, make sure we'll get the item
-		if (m_song->t.last() == tv->trk()) {
-			newsel = m_song->t.at(m_song->t.size() - 2);
-		} else {
-			int n = m_song->t.indexOf(tv->trk());
-			newsel = m_song->t.at(n > 0 ? n - 1 : 0);
-		}
-
-		m_song->t.removeAll(tv->trk());
-		tv->setCurrentTrack(newsel);
-		tv->updateRows();
-		tv->repaintContents();
-		tl->updateList();
-		tp->updateList();
+	if (m_song->rowCount() > 1) {
+		int current = tv->selectionModel()->currentIndex().row();
+		m_song->removeRow(current);
 
 		//ALINXFIX: until trackDelete will be a command
 		//          do safe things:
@@ -280,7 +272,7 @@ bool SongView::trackProperties()
 // Sets track's properties called from trackNew
 bool SongView::setTrackProperties()
 {
-  // TODO: reduce copypaiste with previous function
+	// TODO: reduce copypaste with previous function
 	bool res = FALSE;
 	SetTrack *st = new SetTrack(tv->trk());
 
@@ -309,7 +301,6 @@ bool SongView::setTrackProperties()
 				tv->trk()->tune[i] = drum->tune(i);
 		}
 
-		tv->selectTrack(tv->trk()); // artificially needed to emit newTrackSelected()
 		tl->updateList();
 		tp->updateList();
 		res = TRUE;
@@ -363,7 +354,9 @@ void SongView::playSong()
 	int startclock = tv->trk()->cursortimer;
 
 	// Init cursors
-	foreach (TabTrack *trk, m_song->t) {
+	for(auto row = 0; row < m_song->rowCount(); row++) {
+		auto index = m_song->index(row, 0);
+		TabTrack* trk = index.data(TabSong::TrackPtrRole).value<TabTrack*>();
 		if (trk->cursortimer < startclock) {
 			trk->x--;
 			trk->updateXB();
@@ -405,10 +398,10 @@ void SongView::slotPaste()
 {
 	TabTrack *trk;
 
-        if (TrackDrag::decode(QApplication::clipboard()->mimeData(), trk))
-        insertTabs(trk);
+	if (TrackDrag::decode(QApplication::clipboard()->mimeData(), trk))
+		insertTabs(trk);
 
-	tv->repaintContents();
+	tv->viewport()->update();
 }
 
 void SongView::slotSelectAll()
@@ -417,7 +410,7 @@ void SongView::slotSelectAll()
 	tv->trk()->x = tv->trk()->c.size() - 1;
 	tv->trk()->sel = TRUE;
 
-	tv->repaintContents();
+	tv->viewport()->update();
 }
 
 TabTrack *SongView::highlightedTabs()
@@ -523,7 +516,8 @@ void SongView::print(QPrinter *printer)
 // thru PlaybackTracker
 void SongView::playbackColumn(int track, int x)
 {
- 	TabTrack *trk = m_song->t.at(track);
+	auto index = m_song->index(track, 0);
+	TabTrack* trk = index.data(TabSong::TrackPtrRole).value<TabTrack*>();
 	if (tv->trk() == trk && trk->x != x)
-		tv->setX(x);
+	tv->setX(x);
 }

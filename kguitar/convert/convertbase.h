@@ -13,8 +13,8 @@
  */
 class ConvertBase {
 public:
-	ConvertBase(TabSong *song) { this->song = song; };
-	virtual ~ConvertBase() {};
+    ConvertBase(TabSong *song) { this->song = song; }
+    virtual ~ConvertBase() {}
 
 	/**
 	 * Called to save current data from TabSong into file named
@@ -29,7 +29,6 @@ public:
 
 protected:
 	TabSong *song;
-
 };
 
 #endif

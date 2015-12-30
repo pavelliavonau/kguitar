@@ -30,8 +30,10 @@ bool ConvertAscii::save(QString fileName)
 	writeHeader();
 
 	// Print out track data
-	for (int i = 0; song->t.size(); i++)
-		writeTrack(song->t.at(i), i + 1);
+	for (int i = 0; song->rowCount(); i++) {
+		TabTrack *trk = song->index(i,0).data(TabSong::TrackPtrRole).value<TabTrack*>();
+		writeTrack(trk, i + 1);
+	}
 
 	f.close();
 
@@ -66,8 +68,8 @@ void ConvertAscii::writeTrack(TabTrack *trk, int n)
 	for (uint x = 0; x < trk->c.size(); x++) {
 
 		// If this bar's not last
-		if (bar + 1 < trk->b.size()) {
-			if ((uint) trk->b[bar+1].start == x) {
+		if (bar + 1 < trk->bars().size()) {
+			if ((uint) trk->bars()[bar+1].start == x) {
 				// Time for next bar
 				bar++;
 				flushBar(trk);

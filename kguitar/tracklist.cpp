@@ -1,5 +1,6 @@
 #include "tracklist.h"
 #include "global.h"
+#include "tracklistproxymodel.h"
 
 #include "data/tabsong.h"
 
@@ -15,9 +16,17 @@
 #include <kxmlguifactory.h>
 
 TrackList::TrackList(TabSong *s, KXMLGUIClient *_XMLGUIClient, QWidget *parent)
-	: QTableWidget(parent)
+	: QTableView(parent)
+	, sourceSelectionModel(nullptr)
 {
-	song = s;
+	auto p = new TrackListProxyModel;
+	p->setSourceModel(s);
+	setModel(p);
+	// TODO: after Qt5 migration refactor with lambdas
+	connect(s, SIGNAL(dataChanged(QModelIndex,QModelIndex)),        p, SLOT(sourceDataChanged(QModelIndex, QModelIndex)));
+	connect(s, SIGNAL(rowsInserted(const QModelIndex &, int, int)), p, SLOT(sourceRowsInserted(const QModelIndex &, int, int)));
+	connect(s, SIGNAL(rowsRemoved(const QModelIndex &, int, int)) , p, SLOT(sourceRowsRemoved(const QModelIndex &, int, int)));
+
 	xmlGUIClient = _XMLGUIClient;
 
 	setFocusPolicy(Qt::StrongFocus);
@@ -27,44 +36,22 @@ TrackList::TrackList(TabSong *s, KXMLGUIClient *_XMLGUIClient, QWidget *parent)
 	setEditTriggers(QAbstractItemView::NoEditTriggers);
 	verticalHeader()->setResizeMode(QHeaderView::ResizeToContents);
 	verticalHeader()->setResizeMode(QHeaderView::Fixed);
+	horizontalHeader()->setResizeMode(QHeaderView::ResizeToContents);
 	setVerticalScrollMode(ScrollPerPixel);
 	setHorizontalScrollMode(ScrollPerPixel);
 	setVerticalScrollBarPolicy(Qt::ScrollBarAlwaysOff);
 	setHorizontalScrollBarPolicy(Qt::ScrollBarAlwaysOn);
 
 	updateList();
-
-	connect(this, SIGNAL(currentItemChanged(QTableWidgetItem *, QTableWidgetItem *)),
-		this, SLOT(selectNewTrack(QTableWidgetItem *, QTableWidgetItem *)));
-
-	show();
 }
 
 void TrackList::updateList()
 {
-	clear();
-
-	makeHeader();
-
-	setRowCount( song->t.size() );
-	// For every track
-	for (int i = 0; i < song->t.size(); i++) {// For every track
-		TabTrack *trk = song->t.at(i);
-
-		setItem(i, 0, new QTableWidgetItem( QString::number( i + 1      ) ) );
-		setItem(i, 1, new QTableWidgetItem( trk->name			  ) );
-		setItem(i, 2, new QTableWidgetItem( QString::number(trk->channel) ) );
-		setItem(i, 3, new QTableWidgetItem( QString::number(trk->bank   ) ) );
-		setItem(i, 4, new QTableWidgetItem( QString::number(trk->patch  ) ) );
-	}
-
-	resizeColumnsToContents();
-
 	int max_w = 0;
-	for(int i = 0; i < columnCount(); ++i)
+	for(int i = 0; i < model()->columnCount(); ++i)
 	{
-	  qDebug() << i;
-	  max_w += columnWidth(i);
+		qDebug() << i;
+		max_w += columnWidth(i);
 	}
 	// TODO: investigate and remove magic offset
 	max_w += verticalHeader()->sizeHint().width() + 6;
@@ -72,19 +59,21 @@ void TrackList::updateList()
 
 
 	int max_h = 0;
-	for(int i = 0; i < rowCount(); ++i)
+	for(int i = 0; i < model()->rowCount(); ++i)
 	{
-	  qDebug() << i;
-	  max_h += rowHeight(i);
+		qDebug() << i;
+		max_h += rowHeight(i);
 	}
 	// TODO: investigate and remove magic offset
 	max_h += horizontalHeader()->sizeHint().height() + horizontalScrollBar()->size().height() + 6;
 	setMaximumHeight(max_h);
+
+	viewport()->update();
 }
 
 void TrackList::mousePressEvent(QMouseEvent *e)
 {
-	QTableWidget::mousePressEvent(e);
+	QTableView::mousePressEvent(e);
 
 	if (e->button() == Qt::RightButton) {
 		QWidget *tmpWidget = nullptr;
@@ -105,30 +94,22 @@ void TrackList::mousePressEvent(QMouseEvent *e)
 	  }
 }
 
-void TrackList::selectTrack(TabTrack * t)
+void TrackList::currentChangedSlot(QModelIndex current, QModelIndex)
 {
-      setCurrentCell(song->t.indexOf(t), 0);
+	selectRow(current.row());
 }
 
-void TrackList::selectNewTrack(QTableWidgetItem *current, QTableWidgetItem *previous)
+void TrackList::privateCurrentChangedSlot(QModelIndex current, QModelIndex)
 {
-	Q_UNUSED(previous)
-	if (!current)
-		return;
-
-	int num = current->row();
-	emit trackSelected(song->t.at(num));
+	auto newCurrentIndex = sourceSelectionModel->model()->index(current.row(),sourceSelectionModel->currentIndex().column());
+	sourceSelectionModel->setCurrentIndex(newCurrentIndex, QItemSelectionModel::Current);
 }
 
-void TrackList::makeHeader()
+void TrackList::setSourceSelectionModel(QItemSelectionModel *selectionModel)
 {
-  QStringList hlabels;
-  hlabels << "N"
-          << i18n("Title")
-          << i18n("Chn")
-          << i18n("Bank")
-          << i18n("Patch");
-
-  setColumnCount( hlabels.size() );
-  setHorizontalHeaderLabels( hlabels );
+	sourceSelectionModel = selectionModel;
+	// from source
+	connect(selectionModel        , SIGNAL(currentChanged(QModelIndex,QModelIndex)), this, SLOT(currentChangedSlot(QModelIndex,QModelIndex)));
+	// to source
+	connect(this->selectionModel(), SIGNAL(currentChanged(QModelIndex,QModelIndex)), this, SLOT(privateCurrentChangedSlot(QModelIndex,QModelIndex)));
 }

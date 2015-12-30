@@ -20,4 +20,7 @@ extern QString drum_abbr[128];
 #pragma GCC diagnostic ignored "-Wunused-but-set-variable"
 
 
-
+// Define if both "old" and "new" drawing code must be used at the same time
+// Undefine to use only the "new" drawing code
+#undef USE_BOTH_OLD_AND_NEW
+// #define USE_BOTH_OLD_AND_NEW

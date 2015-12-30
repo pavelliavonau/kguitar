@@ -51,6 +51,14 @@ using namespace std;		// required for cout and friends
 #include "kgfontmap.h"
 #include "data/tabtrack.h"
 
+// definitions for the "new" drawing code layout
+#define TOPSPTB                         3   // top space tabbar in ysteptb units
+#define BOTSPTB                         3   // bottom space tabbar in ysteptb units
+#define ADDSPST                         1.5 // additional top space staff in ystepst units
+#define TOPSPST                         7.5 // top space staff in ystepst units
+#define BOTSPST                         1.5 // bottom space staff in ystepst units
+#define NLINEST                         5   // number of staff lines
+
 // TrackPrint constructor. Initialize font metrics with reasonable guesstimates, as required
 // by TrackView::updateRows(). Correct values will later be set by initMetrics.
 
@@ -81,7 +89,7 @@ TrackPrint::~TrackPrint()
 int TrackPrint::barExpWidth(int bn, TabTrack *trk)
 {
 	int w = 0;
-	for (uint t = trk->b[bn].start; (int) t <= trk->lastColumn(bn); t++)
+	for (uint t = trk->bars()[bn].start; (int) t <= trk->lastColumn(bn); t++)
 		w += colWidth(t, trk);
 	return w;
 }
@@ -91,18 +99,18 @@ int TrackPrint::barExpWidth(int bn, TabTrack *trk)
 int TrackPrint::barWidth(int bn, TabTrack *trk)
 {
 	if (onScreen)
-		return 480 * br8w * trk->b[bn].time1 / trk->b[bn].time2 / zoomLevel +
+		return 480 * br8w * trk->bars()[bn].time1 / trk->bars()[bn].time2 / zoomLevel +
 			tsgfw + nt0fw + ntlfw + (int) (5.5 * br8w);
 
 	int w = 0;
-	for (uint t = trk->b[bn].start; ((int) t) <= trk->lastColumn(bn); t++)
+	for (uint t = trk->bars()[bn].start; ((int) t) <= trk->lastColumn(bn); t++)
 		w += colWidth(t, trk);
 	// LVIFIX: when KGuitar supports changing the key at the start of any bar,
 	// calculate space for keysig here
 	if (trk->showBarSig(bn))
 		w += tsgfw;				// space for timesig
 	w += nt0fw;					// space before first note
-	int cl = trk->b[bn].start;	// first column of bar
+	int cl = trk->bars()[bn].start;	// first column of bar
 	int wacc = 0;				// width accidental
 	// LVIFIX: replace by hasAccidental(int cl)
 	for (int i = 0; i < trk->string; i++) {
@@ -210,7 +218,7 @@ int TrackPrint::colWidth(int cl, TabTrack *trk)
 // draw bar bn's contents starting at xpos,ypostb adding extra space es
 // also update selection x coordinates for trackview
 
-void TrackPrint::drawBar(int bn, TabTrack *trk, int es, int& sx, int& sx2)
+void TrackPrint::drawBar(int bn, TabTrack *trk, int es, int& sx, int& sx2, bool doDraw)
 {
 //	cout << "TrackPrint::drawBar(" << bn << ", " << trk << ", " << es << ")" << " xpos=";
 
@@ -245,11 +253,11 @@ void TrackPrint::drawBar(int bn, TabTrack *trk, int es, int& sx, int& sx2)
 			y = yposst - ystepst * 2;
 			// center the timesig at this height
 			// use spacing of 0.2 * char height
-			time.setNum(trk->b[bn].time1);
+			time.setNum(trk->bars()[bn].time1);
 			brth = fm.boundingRect(time).height();
 			y -= (int) (0.1 * brth);
 			p->drawText(xpos + tsgpp, y, time);
-			time.setNum(trk->b[bn].time2);
+			time.setNum(trk->bars()[bn].time2);
 			y += (int) (1.2 * brth);
 			p->drawText(xpos + tsgpp, y, time);
 		}
@@ -262,11 +270,11 @@ void TrackPrint::drawBar(int bn, TabTrack *trk, int es, int& sx, int& sx2)
 			y = ypostb - ysteptb * (trk->string - 1) / 2;
 			// center the timesig at this height
 			// use spacing of 0.2 * char height
-			time.setNum(trk->b[bn].time1);
+			time.setNum(trk->bars()[bn].time1);
 			brth = fm.boundingRect(time).height();
 			y -= (int) (0.1 * brth);
 			p->drawText(xpos + tsgpp, y, time);
-			time.setNum(trk->b[bn].time2);
+			time.setNum(trk->bars()[bn].time2);
 			y += (int) (1.2 * brth);
 			p->drawText(xpos + tsgpp, y, time);
 			p->setFont(*fTBar1);
@@ -284,7 +292,7 @@ void TrackPrint::drawBar(int bn, TabTrack *trk, int es, int& sx, int& sx2)
 	// space before first note
 	xpos += nt0fw;
 	bool needWacc = FALSE;
-	int cl = trk->b[bn].start;		// first column of bar
+	int cl = trk->bars()[bn].start;		// first column of bar
 	int wacc = (int) (0.9 * wNote);		// width accidental
 	// LVIFIX: replace by hasAccidental(int cl)
 	for (int i = 0; i < trk->string; i++) {
@@ -305,7 +313,7 @@ void TrackPrint::drawBar(int bn, TabTrack *trk, int es, int& sx, int& sx2)
 	int effvsz = 0;		// effect vertical size (depends on onScreen)
 
 	// loop t over all columns in this bar and print them
-	for (uint t = trk->b[bn].start; (int) t <= trk->lastColumn(bn); t++) {
+	for (uint t = trk->bars()[bn].start; (int) t <= trk->lastColumn(bn); t++) {
 
 		// tie handling
 		int  tt = t;				// t where tie starts
@@ -329,38 +337,41 @@ void TrackPrint::drawBar(int bn, TabTrack *trk, int es, int& sx, int& sx2)
 
 			// Drawing duration marks
 			// Draw connection with previous, if applicable
-			if ((t > 0) && (t > (unsigned) curt->b[bn].start)
+			if ((t > 0) && (t > (unsigned) curt->bars()[bn].start)
 						&& (curt->c[t-1].l == curt->c[t].l))
 				xdelta = lastxpos;
 			else
 				xdelta = xpos + ysteptb / 2;
 
-			p->setPen(pLnBl);
-			switch (curt->c[t].l) {
-			case 15:  // 1/32
-				p->drawLine(xpos,   (int) (ypostb + 1.6 * ysteptb),
-							xdelta, (int) (ypostb + 1.6 * ysteptb));
-			case 30:  // 1/16
-				p->drawLine(xpos,   (int) (ypostb + 1.8 * ysteptb),
-							xdelta, (int) (ypostb + 1.8 * ysteptb));
-			case 60:  // 1/8
-				p->drawLine(xpos,   ypostb + 2 * ysteptb,
-							xdelta, ypostb + 2 * ysteptb);
-			case 120: // 1/4 - a long vertical line, so we need to find the highest note
-				for (i = s;((i >= 0) && (curt->c[t].a[i] == -1)); i--);
+			if(doDraw) {
+				p->setPen(pLnBl);
+				switch (curt->c[t].l) {
+				case 15:  // 1/32
+					p->drawLine(xpos,   (int) (ypostb + 1.6 * ysteptb),
+					xdelta, (int) (ypostb + 1.6 * ysteptb));
+				case 30:  // 1/16
+					p->drawLine(xpos,   (int) (ypostb + 1.8 * ysteptb),
+					            xdelta, (int) (ypostb + 1.8 * ysteptb));
+				case 60:  // 1/8
+					p->drawLine(xpos,   ypostb + 2 * ysteptb,
+					            xdelta, ypostb + 2 * ysteptb);
+				case 120: // 1/4 - a long vertical line, so we need to find the highest note
+					for (i = s;((i >= 0) && (curt->c[t].a[i] == -1)); i--);
 
-				// If it's an empty measure at all - draw the vertical line from bottom
-				if (i < 0)  i = 1;
+					// If it's an empty measure at all - draw the vertical line from bottom
+					if (i < 0)  i = 1;
 
-				p->drawLine(xpos, ypostb - i * ysteptb + ysteptb / 2,
-							xpos, ypostb + 2 * ysteptb);
-				break;		// required to prevent print preview artefact
-			case 240: // 1/2
-				p->drawLine(xpos, ypostb + 1 * ysteptb,
-							xpos, ypostb + 2 * ysteptb);
-			case 480: // whole
-				break;
-			} // end switch (curt->c[t].l)
+					p->drawLine(xpos, ypostb - i * ysteptb + ysteptb / 2,
+					            xpos, ypostb + 2 * ysteptb);
+					break;		// required to prevent print preview artefact
+				case 240: // 1/2
+						p->drawLine(xpos, ypostb + 1 * ysteptb,
+						            xpos, ypostb + 2 * ysteptb);
+						break;
+				case 480: // whole
+						break;
+				} // end switch (curt->c[t].l)
+			}
 
 			// Draw dot is not here, see: "Draw the number column"
 
@@ -370,38 +381,41 @@ void TrackPrint::drawBar(int bn, TabTrack *trk, int es, int& sx, int& sx2)
 			xdelta = colWidth(t, trk);
 			extSpAftNote = (colWidth(t, trk) * es) / barExpWidthLeft;
 
-			// Draw triplet
-			if ((trpCnt == 1) || (trpCnt == 2)) {
-				// draw horizontal line to next note
-				p->drawLine(xpos + xdelta + extSpAftNote,
-							(int) (ypostb + 2.5 * ysteptb),
-							xpos,
-							(int) (ypostb + 2.5 * ysteptb));
-			}
-			if ((trpCnt == 1) || (trpCnt == 3)) {
+			if(doDraw) {
+				// Draw triplet
+				if ((trpCnt == 1) || (trpCnt == 2)) {
+					 // draw horizontal line to next note
+					p->drawLine(xpos + xdelta + extSpAftNote,
+					            (int) (ypostb + 2.5 * ysteptb),
+					            xpos,
+					            (int) (ypostb + 2.5 * ysteptb));
+				}
+				if ((trpCnt == 1) || (trpCnt == 3)) {
 				// draw vertical line
-				p->drawLine(xpos,
-							(int) (ypostb + 2.3 * ysteptb),
-							xpos,
-							(int) (ypostb + 2.5 * ysteptb));
-			}
-			if (trpCnt == 2) {
-				// draw "3"
-				p->setFont(*fTBar2);
-				drawStrCntAt(xpos, -3, "3");
-				p->setFont(*fTBar1);
+					p->drawLine(xpos,
+					            (int) (ypostb + 2.3 * ysteptb),
+					            xpos,
+					            (int) (ypostb + 2.5 * ysteptb));
+				}
+				if (trpCnt == 2) {
+					 // draw "3"
+					p->setFont(*fTBar2);
+					drawStrCntAt(xpos, -3, "3");
+					p->setFont(*fTBar1);
+				}
 			}
 
 			// Draw arcs to backward note
 
 			if (curt->c[t].flags & FLAG_ARC) {
-				if (onScreen) {
-					effvsz = ysteptb;
-				} else {
-					effvsz = ysteptb / 2;
-				}
-				p->drawArc(lastxpos, ypostb + 2 * ysteptb + 1,
-						   xpos - lastxpos, effvsz, 0, -180 * 16);
+					if (onScreen) {
+							effvsz = ysteptb;
+					} else {
+							effvsz = ysteptb / 2;
+					}
+					if(doDraw)
+						p->drawArc(lastxpos, ypostb + 2 * ysteptb + 1,
+						           xpos - lastxpos, effvsz, 0, -180 * 16);
 			}
 
 			// Draw palm muting moved to "draw effects" ...
@@ -469,28 +483,33 @@ void TrackPrint::drawBar(int bn, TabTrack *trk, int es, int& sx, int& sx2)
 				for (int i = 0; i < trk->string; i++) {
 					if ((trk->c[tt].a[i] > -1) && (trk->c[t].v[i] == 0)) {
 						ln = line((QChar) trk->c[tt].stp[i], trk->c[tt].oct[i]);
-						drawNtHdCntAt(xpos, ln, tp, trk->c[tt].acc[i]);
+						if(doDraw)
+							drawNtHdCntAt(xpos, ln, tp, trk->c[tt].acc[i]);
 						nhPrinted++;
 						// Draw dot, must be at odd line -> set lsbit
 						// LVIFIX: add support for double dot
 						QString s;
 						if (dt && fmp->getString(KgFontMap::Dot, s)) {
 							int y = ln | 1;
-							p->setFont(*fFeta);
-							p->drawText((int) (xpos + 0.8 * wNote),
-										yposst - ystepst * y / 2, s);
+							if(doDraw) {
+								p->setFont(*fFeta);
+								p->drawText((int) (xpos + 0.8 * wNote),
+								            yposst - ystepst * y / 2, s);
+							}
 						}
 					}
 				}
 				if (trk->c[t].stl.l1 != 'n') {
 					// note is beamed, don't draw lower stem and flag
-					drawNtStmCntAt(xpos, yl, yh, 0, 'd');
+					if(doDraw)
+						drawNtStmCntAt(xpos, yl, yh, 0, 'd');
 					// remember position
 					trk->c[t].stl.bp.setX((int) (xpos - 0.45 * wNote));
 					int yhd = yposst - (int) (ystepst * ((-0.4 + yl) / 2));
 					trk->c[t].stl.bp.setY(yhd);
 				} else {
-					drawNtStmCntAt(xpos, yl, yh, tp, 'd');
+					if(doDraw)
+						drawNtStmCntAt(xpos, yl, yh, tp, 'd');
 				}
 			}
 			// print voice 1
@@ -501,41 +520,47 @@ void TrackPrint::drawBar(int bn, TabTrack *trk, int es, int& sx, int& sx2)
 				for (int i = 0; i < trk->string; i++) {
 					if ((trk->c[tt].a[i] > -1) && (trk->c[t].v[i] == 1)) {
 						ln = line((QChar) trk->c[tt].stp[i], trk->c[tt].oct[i]);
-						drawNtHdCntAt(xpos, ln, tp, trk->c[tt].acc[i]);
+						if(doDraw)
+							drawNtHdCntAt(xpos, ln, tp, trk->c[tt].acc[i]);
 						nhPrinted++;
 						// Draw dot, must be at odd line -> set lsbit
 						// LVIFIX: add support for double dot
 						QString s;
 						if (dt && fmp->getString(KgFontMap::Dot, s)) {
 							int y = ln | 1;
-							p->setFont(*fFeta);
-							p->drawText((int) (xpos + 0.8 * wNote),
-										yposst - ystepst * y / 2, s);
+							if(doDraw) {
+								p->setFont(*fFeta);
+								p->drawText((int) (xpos + 0.8 * wNote),
+								            yposst - ystepst * y / 2, s);
+							}
 						}
 					}
 				}
 				if (trk->c[t].stu.l1 != 'n') {
 					// note is beamed, don't draw upper stem and flag
-					drawNtStmCntAt(xpos, yl, yh, 0, 'u');
+					if(doDraw)
+						drawNtStmCntAt(xpos, yl, yh, 0, 'u');
 					// remember position
 					trk->c[t].stu.bp.setX((int) (xpos + 0.45 * wNote));
 					int yhd = yposst - (int) (ystepst * ((0.4 + yh) / 2));
 					trk->c[t].stu.bp.setY(yhd);
 				} else {
-					drawNtStmCntAt(xpos, yl, yh, tp, 'u');
+					if(doDraw)
+						drawNtStmCntAt(xpos, yl, yh, tp, 'u');
 				}
 			}
 
 			// if no note printed, print rest
 			if (nhPrinted == 0) {
-				drawRstCntAt(xpos, 4, trk->c[t].l);
+				if(doDraw)
+					drawRstCntAt(xpos, 4, trk->c[t].l);
 			}
 
 		} // end if (stNts ...
 
 		// end drawing notes
 
-		if (stTab) {
+		if (stTab && doDraw) {
 
 			// Draw the number column including effects
 			p->setFont(*fTBar1);
@@ -551,7 +576,7 @@ void TrackPrint::drawBar(int bn, TabTrack *trk, int es, int& sx, int& sx2)
 					// Draw dot
 					if (curt->c[t].flags & FLAG_DOT)
 						note += ".";
-					drawStrCntAt(xpos, i, note);
+						drawStrCntAt(xpos, i, note);
 					// cell width is needed later
 					ew_2 = eraWidth(note) / 2;
 					if (ringing[i]) {
@@ -708,7 +733,7 @@ void TrackPrint::drawBar(int bn, TabTrack *trk, int es, int& sx, int& sx2)
 //	cout << endl;
 
 	// draw beams
-	if (stNts) {
+	if (stNts && doDraw) {
 		drawBeams(bn, 'd', trk);
 		drawBeams(bn, 'u', trk);
 	}
@@ -723,7 +748,7 @@ void TrackPrint::drawBar(int bn, TabTrack *trk, int es, int& sx, int& sx2)
 	}
 
 	// end bar
-	if (stTab) {
+	if (stTab && doDraw) {
 		// show notes still ringing at end of bar
 		for (unsigned int i = 0; i <= s; i++) {
 			if (ringing[i]) {
@@ -733,14 +758,14 @@ void TrackPrint::drawBar(int bn, TabTrack *trk, int es, int& sx, int& sx2)
 			}
 		}
 		// draw vertical line
-		p->drawLine(xpos, ypostb,
-		            xpos, ypostb - (trk->string - 1) * ysteptb);
-	}
-	if (stNts) {
-		// draw vertical line
-		p->drawLine(xpos, yposst,
-		            xpos, yposst - 4 * ystepst);
-	}
+//		p->drawLine(xpos, ypostb,
+//		            xpos, ypostb - (trk->string - 1) * ysteptb);
+    }
+//	if (stNts && doDraw) {
+//		// draw vertical line
+//		p->drawLine(xpos, yposst,
+//		            xpos, yposst - 4 * ystepst);
+//	}
 	// LVIFIX
 	xpos += 1;
 }
@@ -809,7 +834,7 @@ void TrackPrint::drawBeams(int bn, char dir, TabTrack *trk)
 {
 	// cout << "SongPrint::drawBeams(" << bn << ", " << dir << ")" << endl;
 	StemInfo * stxt = 0;
-	for (uint t = trk->b[bn].start; (int) t <= trk->lastColumn(bn); t++) {
+	for (uint t = trk->bars()[bn].start; (int) t <= trk->lastColumn(bn); t++) {
 		/*
 		if (dir != 'd') {
 			stxt = & trk->c[t].stu;
@@ -822,7 +847,7 @@ void TrackPrint::drawBeams(int bn, char dir, TabTrack *trk)
 		*/
 	}
 	int yextr = 0;
-	for (uint t = trk->b[bn].start; (int) t <= trk->lastColumn(bn); t++) {
+	for (uint t = trk->bars()[bn].start; (int) t <= trk->lastColumn(bn); t++) {
 		if (dir != 'd') {
 			stxt = & trk->c[t].stu;
 		} else {
@@ -964,7 +989,7 @@ int TrackPrint::drawKey(TabTrack *trk, bool doDraw, bool flop)
 			res = (int) (2.5 * br8w);
 	}
 
-	if (stNts) {
+	if (stNts && flop) {
 		QString s;
 		if (doDraw && fmp->getString(KgFontMap::G_Clef, s)) {
 			// draw clef
@@ -1003,7 +1028,7 @@ int TrackPrint::drawKeySig(TabTrack *trk, bool doDraw)
 			p->setFont(*fFeta);
 		}
 		int ypos;
-		int sig = trk->b[0].keysig;
+		int sig = trk->bars()[0].keysig;
 		if ((sig <= -8) || (8 <= sig)) {
 			sig = 0;
 		}
@@ -1223,6 +1248,8 @@ void TrackPrint::drawNtStmCntAt(int x, int yl, int yh, int t, char dir)
 
 void TrackPrint::drawRstCntAt(int x, int y, int t)
 {
+	Q_UNUSED(y);
+
 	KgFontMap::Symbol restSym;
 	int yoffset = 0;
 	switch (t) {
@@ -1257,9 +1284,9 @@ void TrackPrint::drawRstCntAt(int x, int y, int t)
 
 // draw staff lines at xpos,yposst width w
 
-void TrackPrint::drawStLns(int w)
+void TrackPrint::drawStLns(const QRect &rect)
 {
-	const int lstStL = 4;
+	//const int lstStL = 4;
 	// vertical lines at xpos and xpos+w-1
 	p->setPen(pLnBl);
 
@@ -1269,12 +1296,12 @@ void TrackPrint::drawStLns(int w)
 	QFontMetrics fm(*fFeta, p->device());
 
 	p->setFont(*fFeta);
-	int x = 0;
+	int x = rect.left();
 	// horizontal lines
-	while ( x < w ) {
-	    QRect rect = fm.boundingRect( s );
-	    p->drawText(x, yposst /*- ystepst*/, s);
-	    x += rect.width();
+	while ( x < rect.right() ) {
+		QRect brect = fm.boundingRect( s );
+		p->drawText(x, yposst /*- ystepst*/, s);
+		x += brect.width();
 	}
 
 //	p->drawLine(xpos, yposst,
@@ -1339,11 +1366,11 @@ int TrackPrint::drawTimeSig(int bn, TabTrack *trk, bool doDraw)
 				y = yposst - ystepst * 2.5;
 				// center the timesig at this height
 				// use spacing of 0.2 * char height
-				time.setNum(trk->b[bn].time1);
+				time.setNum(trk->bars()[bn].time1);
 				brth = fm.boundingRect(time).height();
 				y -= (int) (0.1 * brth);
 				p->drawText(xpos + tsgppScore, y, time);
-				time.setNum(trk->b[bn].time2);
+				time.setNum(trk->bars()[bn].time2);
 				y += (int) (1.2 * brth);
 				p->drawText(xpos + tsgppScore, y, time);
 			}
@@ -1356,11 +1383,11 @@ int TrackPrint::drawTimeSig(int bn, TabTrack *trk, bool doDraw)
 				y = ypostb - ysteptb * (trk->string - 1) / 2;
 				// center the timesig at this height
 				// use spacing of 0.2 * char height
-				time.setNum(trk->b[bn].time1);
+				time.setNum(trk->bars()[bn].time1);
 				brth = fm.boundingRect(time).height();
 				y -= (int) (0.1 * brth);
 				p->drawText(xpos + tsgpp, y, time);
-				time.setNum(trk->b[bn].time2);
+				time.setNum(trk->bars()[bn].time2);
 				y += (int) (1.2 * brth);
 				p->drawText(xpos + tsgpp, y, time);
 				p->setFont(*fTBar1);
@@ -1585,4 +1612,30 @@ void TrackPrint::setOnScreen(bool scrn)
 void TrackPrint::setPainter(QPainter *paint)
 {
 	p = paint;
+}
+
+int TrackPrint::calcYPosTb(int numOfStrings)
+{
+	return ypostb = yposst + (int) ((TOPSPTB + numOfStrings - 0.5) * ysteptb) + bottomStMargin();
+}
+
+int TrackPrint::calcYPosSt(int top)
+{
+	if(!viewscore)
+		return yposst = top;
+	else
+		return yposst = top + (int) ((TOPSPST + NLINEST - 1) * ystepst);
+}
+
+int TrackPrint::bottomTbMargin() const
+{
+	return ysteptb * BOTSPTB;
+}
+
+int TrackPrint::bottomStMargin() const
+{
+	if(viewscore)
+		return ystepst * BOTSPST;
+	else
+		return 0;
 }
