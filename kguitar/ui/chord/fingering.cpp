@@ -69,6 +69,7 @@ void Fingering::setFingering(const int a[MAX_STRINGS])
     for (int i = 0;i < MAX_STRINGS; i++)
         appl[i] = a[i];
 
+	viewport()->update();
     emit chordChange();
 }
 

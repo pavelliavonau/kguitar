@@ -5,73 +5,72 @@
 #include <qpainter.h>
 #include <qcolor.h>
 #include <qstyle.h>
-//Added by qt3to4:
 #include <QResizeEvent>
 #include <QMouseEvent>
 #include <QPalette>
 #include <QStyleOptionFocusRect>
+#include <QStyledItemDelegate>
+#include <QHeaderView>
 
-#define FRET_NUMBER_FONT_FACTOR 0.7
+#define ICONCHORD                50
+#define FRET_NUMBER_FONT_FACTOR  0.7
 
-FingerList::FingerList(TabTrack *p, QWidget *parent)
-	: Q3GridView(parent)
+typedef struct {
+	int f[MAX_STRINGS];
+} fingering;
+
+Q_DECLARE_METATYPE(fingering)
+
+// ============== MODEL ====================
+class FingerListModel : public QAbstractTableModel
 {
-	parm = p;
+public:
+	explicit FingerListModel(QObject *parent = 0)
+		: QAbstractTableModel(parent)
+		, perRow(0)
+		, numRows(0)
+		, numCols(0)
+	{}
 
-	setVScrollBarMode(Auto);
-	setHScrollBarMode(AlwaysOff);
+	enum FingerListModelRoles {
+		FingeringRole = Qt::UserRole
+	};
 
-	setFrameStyle(Panel | Sunken);
-	setBackgroundRole(QPalette::Base);
-	setFocusPolicy(Qt::StrongFocus);
-	num = 0; curSel = -1; oldCol = 0; oldRow = 0;
+	void beginSession();
+	void endSession();
+	void addFingering(const int a[MAX_STRINGS]);
+	void clear();
+	int count();
+	void resetNumRows();
+	void resetNumCols();
 
-	setCellWidth(ICONCHORD);
-	setCellHeight(ICONCHORD);
+	int perRow, num;
 
-	setMinimumSize(ICONCHORD + 2, ICONCHORD + 2);
-	resize(width(), 3 * ICONCHORD + 2);
+	// QAbstractItemModel interface
+public:
+	int rowCount(const QModelIndex &parent = QModelIndex()) const override;
+	int columnCount(const QModelIndex &parent = QModelIndex()) const override;
+	QVariant data(const QModelIndex &index, int role) const override;
 
-	fretNumberFont = new QFont(font());
-	if (fretNumberFont->pointSize() == -1) {
-		fretNumberFont->setPixelSize((int) ((double) fretNumberFont->pixelSize() * FRET_NUMBER_FONT_FACTOR));
-	} else {
-		fretNumberFont->setPointSizeF(fretNumberFont->pointSizeF() * FRET_NUMBER_FONT_FACTOR);
-	}
+private:
+	int numRows, numCols;
+	QVector<fingering> appl;
+};
 
-	repaint();
-}
-
-FingerList::~FingerList()
-{
-	delete fretNumberFont;
-}
-
-// Begins new "session" for fingering list, i.e. clears it and
-// prepares for adding new chords.
-void FingerList::beginSession()
+void FingerListModel::beginSession()
 {
 	clear();
 }
 
-// Ends adding "session" for the list, setting proper number of
-// columns / rows, updating it, etc.
-void FingerList::endSession()
+void FingerListModel::endSession()
 {
 	// num is overral number of chord fingerings. If it's 0 - then there are no
 	// fingerings. In the appl array, indexes should be ranged from 0 to (num-1)
-	setNumRows((num - 1) / perRow + 1);
-	repaintContents();
+	resetNumRows();
+	resetNumCols();
 }
 
-void FingerList::clear()
-{
-	appl.resize(0);
-	num = 0; curSel = -1;
-	oldCol = 0; oldRow = 0;
-}
-
-void FingerList::addFingering(const int a[MAX_STRINGS])
+void FingerListModel::addFingering(const int a[])
 {
 	appl.resize((num + 1) * MAX_STRINGS);
 
@@ -81,76 +80,138 @@ void FingerList::addFingering(const int a[MAX_STRINGS])
 	num++;
 }
 
-void FingerList::resizeEvent(QResizeEvent *e)
+void FingerListModel::clear()
 {
-	Q3GridView::resizeEvent(e);
-	perRow = width() / ICONCHORD;
-	setNumCols(perRow);
-	setNumRows((num - 1) / perRow + 1);
+	beginResetModel();
+
+	appl.resize(0);
+	num = 0;
+	numRows = 0;
+	numCols = 0;
+
+	endResetModel();
 }
 
-void FingerList::mousePressEvent(QMouseEvent *e)
+int FingerListModel::count()
 {
-	int col = columnAt(e->x());
-	int row = rowAt(e->y() + contentsY());
+	return appl.count();
+}
 
-	int n = row * perRow + col;
+void FingerListModel::resetNumRows()
+{
+	int numRows_ = (num - 1) / (perRow - 1) + 1;
 
-	if ((n >= 0) && (n < num)) {
-		curSel = row * perRow + col;
-		repaintCell(oldRow, oldCol);
-		repaintCell(row, col);
-		oldCol = col;
-		oldRow = row;
-		emit chordSelected(appl[curSel].f);
+	if( numRows == numRows_ || appl.isEmpty() )
+		return;
+
+	if( numRows < numRows_) {
+		beginInsertRows(QModelIndex(), numRows, numRows_ - 1);
+
+		numRows = numRows_;
+
+		endInsertRows();
+	} else {
+		beginRemoveRows(QModelIndex(), 0, numRows - numRows_ - 1);
+
+		numRows = numRows_;
+
+		endRemoveRows();
 	}
 }
 
-void FingerList::selectFirst()
+void FingerListModel::resetNumCols()
 {
-	emit chordSelected(appl[0].f);
+	int numCols_ = perRow - 1;
+	if( num < numCols_ )
+		numCols_ = num;
+
+	if( numCols == numCols_ || appl.isEmpty() )
+		return;
+
+	if( numCols < numCols_ ) {
+		beginInsertColumns(QModelIndex(), numCols, numCols_ - 1);
+
+		numCols = numCols_;
+
+		endInsertColumns();
+	} else {
+		beginRemoveColumns(QModelIndex(), 0, numCols - numCols_ - 1);
+
+		numCols = numCols_;
+
+		endRemoveColumns();
+	}
 }
 
-void FingerList::paintCell(QPainter *p, int row, int col)
+int FingerListModel::rowCount(const QModelIndex &) const
 {
-	int n = row * perRow + col;
+	return numRows;
+}
 
-	if (n < num) {
-		int barre, eff;
-		QColor back = palette().color(QPalette::Base);
-		QColor fore = palette().color(QPalette::Text);
+int FingerListModel::columnCount(const QModelIndex &) const
+{
+	return numCols;
+}
 
-		// Selection painting
+QVariant FingerListModel::data(const QModelIndex &index, int role) const
+{
+	int fingeringIndex = index.column() + index.row() * (perRow - 1);
+	if(fingeringIndex >= num)
+		return QVariant();
 
-		if (curSel == n) {
-			back = palette().color(QPalette::Highlight);
-			fore = palette().color(QPalette::HighlightedText);
+	if(role == FingeringRole)
+		return QVariant::fromValue(appl[fingeringIndex]);
 
-			p->setBrush(back);
-			p->setPen(Qt::NoPen);
-			p->drawRect(0, 0, ICONCHORD - 1, ICONCHORD - 1);
+	return QVariant();
+}
 
-			if (hasFocus()) {
-				p->setBrush(Qt::NoBrush);
-				p->setPen(fore);
-				QStyleOptionFocusRect option;
-				option.initFrom(this);
-				option.backgroundColor = palette().color(QPalette::Highlight);
-				style()->drawPrimitive(QStyle::PE_FrameFocusRect, &option, p, this);
-				// GREYTODO: port these rects?
-// 				                       QRect(0, 0, ICONCHORD - 1, ICONCHORD - 1),
-// 				                       colorGroup());
-			}
-		}
+namespace {
+	// ============== DELEGATE ====================
+	class FingerListDelegate : public QStyledItemDelegate
+	{
+	public:
+		explicit FingerListDelegate(TabTrack *parm_, QObject *parent = 0);
+		~FingerListDelegate();
+		enum {
+			SCALE=6,
+			CIRCLE=5,
+			CIRCBORD=1,
+			BORDER=1,
+			SPACER=1,
+			FRETTEXT=9
+		};
+		// QAbstractItemDelegate interface
+	public:
+		void paint(QPainter *painter, const QStyleOptionViewItem &option, const QModelIndex &index) const override;
+
+	private:
+		QFont *fretNumberFont;
+		TabTrack *parm;
+	};
+
+	void FingerListDelegate::paint(QPainter *p, const QStyleOptionViewItem &option, const QModelIndex &index) const
+	{
+		QVariant variantData = index.data(FingerListModel::FingeringRole);
+		if(!variantData.isValid())
+			return;
+
+		fingering f = variantData.value<fingering>();
+
+
+		QStyledItemDelegate::paint(p, option, index);
+
+		QColor back = option.palette.color(QPalette::Base);
+		QColor fore = option.palette.color(QPalette::Text);
 
 		p->setPen(fore);
 
 		// Horizontal lines
 
 		for (int i = 0; i <= NUMFRETS; i++)
-			p->drawLine(SCALE/2+BORDER+FRETTEXT,BORDER+SCALE+2*SPACER+i*SCALE,
-			            SCALE/2+BORDER+parm->string*SCALE-SCALE+FRETTEXT,
-			            BORDER+SCALE+2*SPACER+i*SCALE);
+			p->drawLine((SCALE/2+BORDER+FRETTEXT) + option.rect.left(),
+			            BORDER+SCALE+2*SPACER+i*SCALE + option.rect.top(),
+			            SCALE/2+BORDER+parm->string*SCALE-SCALE+FRETTEXT + option.rect.left(),
+			            BORDER+SCALE+2*SPACER+i*SCALE + option.rect.top());
 
 		// Beginning fret number
 
@@ -158,9 +219,9 @@ void FingerList::paintCell(QPainter *p, int row, int col)
 		bool noff = TRUE;
 
 		for (int i = 0; i < parm->string; i++) {
-			if ((appl[n].f[i] < firstFret) && (appl[n].f[i] > 0))
-				firstFret = appl[n].f[i];
-			if (appl[n].f[i] > 5)
+			if ((f.f[i] < firstFret) && (f.f[i] > 0))
+				firstFret = f.f[i];
+			if (f.f[i] > 5)
 				noff = FALSE;
 		}
 
@@ -171,32 +232,38 @@ void FingerList::paintCell(QPainter *p, int row, int col)
 			QString fs;
 			fs.setNum(firstFret);
 			p->setFont(*fretNumberFont);
-			p->drawText(BORDER, BORDER + SCALE + 2 * SPACER, 50, 50,
+			p->drawText(BORDER + option.rect.left(), BORDER + SCALE + 2 * SPACER + option.rect.top(), 50, 50,
 			            Qt::AlignLeft | Qt::AlignTop, fs);
 		}
 
 		// Vertical lines and fingering
 
 		for (int i = 0; i < parm->string; i++) {
-			p->drawLine(i * SCALE + BORDER + SCALE / 2 + FRETTEXT,
-			            BORDER + SCALE + 2 * SPACER,
-			            i * SCALE + BORDER + SCALE / 2 + FRETTEXT,
-			            BORDER + SCALE + 2 * SPACER + NUMFRETS * SCALE);
-			if (appl[n].f[i] == -1) {
-				p->drawLine(i*SCALE+BORDER+CIRCBORD+FRETTEXT,BORDER+CIRCBORD,
-				            i*SCALE+BORDER+SCALE-CIRCBORD+FRETTEXT,
-				            BORDER+SCALE-CIRCBORD);
-				p->drawLine(i*SCALE+BORDER+SCALE-CIRCBORD+FRETTEXT,BORDER+CIRCBORD,
-				            i*SCALE+BORDER+CIRCBORD+FRETTEXT,BORDER+SCALE-CIRCBORD);
-			} else if (appl[n].f[i]==0) {
+			p->drawLine(i * SCALE + BORDER + SCALE / 2 + FRETTEXT + option.rect.left(),
+			            BORDER + SCALE + 2 * SPACER + option.rect.top(),
+			            i * SCALE + BORDER + SCALE / 2 + FRETTEXT + option.rect.left(),
+			            BORDER + SCALE + 2 * SPACER + NUMFRETS * SCALE + option.rect.top());
+			if (f.f[i] == -1) {
+				p->drawLine(i*SCALE+BORDER+CIRCBORD+FRETTEXT + option.rect.left(),
+				            BORDER+CIRCBORD + option.rect.top(),
+				            i*SCALE+BORDER+SCALE-CIRCBORD+FRETTEXT + option.rect.left(),
+				            BORDER+SCALE-CIRCBORD + option.rect.top());
+				p->drawLine(i*SCALE+BORDER+SCALE-CIRCBORD+FRETTEXT + option.rect.left(),
+				            BORDER+CIRCBORD + option.rect.top(),
+				            i*SCALE+BORDER+CIRCBORD+FRETTEXT + option.rect.left(),
+				            BORDER+SCALE-CIRCBORD + option.rect.top());
+			} else if (f.f[i]==0) {
 				p->setBrush(back);
-				p->drawEllipse(i*SCALE+BORDER+CIRCBORD+FRETTEXT,BORDER+CIRCBORD,
-				               CIRCLE,CIRCLE);
+				p->drawEllipse(i*SCALE+BORDER+CIRCBORD+FRETTEXT + option.rect.left(),
+				               BORDER+CIRCBORD + option.rect.top(),
+				               CIRCLE,
+				               CIRCLE);
 			} else {
 				p->setBrush(fore);
-				p->drawEllipse(i*SCALE+BORDER+CIRCBORD+FRETTEXT,
-				               BORDER+SCALE+2*SPACER+(appl[n].f[i]-firstFret)*SCALE+
-				               CIRCBORD,CIRCLE,CIRCLE);
+				p->drawEllipse(i*SCALE+BORDER+CIRCBORD+FRETTEXT + option.rect.left(),
+				               BORDER+SCALE+2*SPACER+(f.f[i]-firstFret)*SCALE+CIRCBORD + option.rect.top(),
+				               CIRCLE,
+				               CIRCLE);
 			}
 		}
 
@@ -204,28 +271,30 @@ void FingerList::paintCell(QPainter *p, int row, int col)
 
 		p->setBrush(fore);
 
+		int barre, eff;
+
 		for (int i = 0; i < NUMFRETS; i++) {
 			barre = 0;
-			while ((appl[n].f[parm->string - barre - 1] >= (i + firstFret)) ||
-			       (appl[n].f[parm->string - barre - 1] == -1)) {
+			while ((f.f[parm->string - barre - 1] >= (i + firstFret)) ||
+				   (f.f[parm->string - barre - 1] == -1)) {
 				barre++;
 				if (barre > parm->string - 1)
 					break;
 			}
 
-			while ((appl[n].f[parm->string-barre]!=(i+firstFret)) && (barre>1))
+			while ((f.f[parm->string-barre]!=(i+firstFret)) && (barre>1))
 				barre--;
 
 			eff = 0;
 			for (int j = parm->string-barre; j < parm->string; j++) {
-				if (appl[n].f[j] != -1)
+				if (f.f[j] != -1)
 					eff++;
 			}
 
 			if (eff > 2) {
 				p->drawRect((parm->string-barre) * SCALE + SCALE / 2 +
-				            BORDER + FRETTEXT,
-				            BORDER + SCALE + 2 * SPACER + i * SCALE + CIRCBORD,
+				            BORDER + FRETTEXT + option.rect.left(),
+				            BORDER + SCALE + 2 * SPACER + i * SCALE + CIRCBORD + option.rect.top(),
 				            (barre - 1) * SCALE, CIRCLE);
 			}
 		}
@@ -233,4 +302,94 @@ void FingerList::paintCell(QPainter *p, int row, int col)
 		p->setBrush(Qt::NoBrush);
 		p->setPen(Qt::SolidLine);
 	}
+
+	FingerListDelegate::FingerListDelegate(TabTrack *parm_, QObject *parent)
+		: QStyledItemDelegate(parent)
+		, parm(parm_)
+	{
+		fretNumberFont = new QFont(/*font()*/);
+		if (fretNumberFont->pointSize() == -1) {
+			fretNumberFont->setPixelSize((int) ((double) fretNumberFont->pixelSize() * FRET_NUMBER_FONT_FACTOR));
+		} else {
+			fretNumberFont->setPointSizeF(fretNumberFont->pointSizeF() * FRET_NUMBER_FONT_FACTOR);
+		}
+	}
+
+	FingerListDelegate::~FingerListDelegate()
+	{
+		delete fretNumberFont;
+	}
+}
+
+FingerList::FingerList(TabTrack *p, QWidget *parent)
+	: QTableView(parent)
+	, flmodel(nullptr)
+{
+	//setHorizontalScrollBarPolicy(Qt::ScrollBarAlwaysOff);
+
+	setFrameStyle(Panel | Sunken);
+	setBackgroundRole(QPalette::Base);
+	setFocusPolicy(Qt::StrongFocus);
+	setShowGrid(false);
+	horizontalHeader()->setResizeMode(QHeaderView::Fixed);
+	verticalHeader()->setResizeMode(QHeaderView::Fixed);
+	horizontalHeader()->setDefaultSectionSize(ICONCHORD);
+	verticalHeader()->setDefaultSectionSize(ICONCHORD);
+	horizontalHeader()->hide();
+	verticalHeader()->hide();
+	setSelectionMode(SingleSelection);
+
+	setItemDelegate(new FingerListDelegate(p, this));
+	flmodel = new FingerListModel(this);
+	setModel(flmodel);
+
+	setMinimumSize(ICONCHORD + 2, ICONCHORD + 2);
+	resize(width(), 3 * ICONCHORD + 2);
+
+	connect(selectionModel(),SIGNAL(currentChanged(const QModelIndex &, const QModelIndex &)),SLOT(currentChangedSlot(const QModelIndex &, const QModelIndex &)));
+
+	repaint();
+}
+
+// Begins new "session" for fingering list, i.e. clears it and
+// prepares for adding new chords.
+void FingerList::beginSession()
+{
+	flmodel->beginSession();
+}
+
+// Ends adding "session" for the list, setting proper number of
+// columns / rows, updating it, etc.
+void FingerList::endSession()
+{
+	// num is overral number of chord fingerings. If it's 0 - then there are no
+	// fingerings. In the appl array, indexes should be ranged from 0 to (num-1)
+	flmodel->endSession();
+	viewport()->update();
+}
+
+int FingerList::count() { return flmodel->count(); }
+
+void FingerList::addFingering(const int a[MAX_STRINGS])
+{
+	flmodel->addFingering(a);
+}
+// TODO: known bug : wrong behaviour of selection during resizing
+void FingerList::resizeEvent(QResizeEvent *e)
+{
+	QTableView::resizeEvent(e);
+	flmodel->perRow = viewport()->width() / ICONCHORD + 1;
+	flmodel->endSession();
+}
+
+void FingerList::selectFirst()
+{
+	fingering f = model()->data(model()->index(0, 0), FingerListModel::FingeringRole).value<fingering>();
+	emit chordSelected(f.f);
+}
+
+void FingerList::currentChangedSlot(const QModelIndex &current, const QModelIndex &)
+{
+	fingering f = current.data( FingerListModel::FingeringRole ).value<fingering>();
+	emit chordSelected(f.f);
 }
