@@ -25,8 +25,8 @@ public slots:
 	void drawBackground();
 
 signals:
-	void buttonPress(int, int, Qt::ButtonState);
-	void buttonRelease(Qt::ButtonState);
+	void buttonPress(int, int, Qt::MouseButton);
+	void buttonRelease(Qt::MouseButton);
 
 protected:
 	virtual void paintEvent(QPaintEvent *);

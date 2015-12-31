@@ -11,9 +11,9 @@ TabColumn::TabColumn() {
 	flags = 0;
 }
 
-Q_UINT16 TabColumn::fullDuration()
+quint16 TabColumn::fullDuration()
 {
-	Q_UINT16 len = l;
+	quint16 len = l;
 	if (flags & FLAG_DOT)  len += len / 2;
 	if (flags & FLAG_TRIPLET)  len = len * 2 / 3;
 	return len;
@@ -22,7 +22,7 @@ Q_UINT16 TabColumn::fullDuration()
 // Sets the dots, triplets, base duration, etc, based on full
 // duration, deriving right combination via trying several ones
 
-void TabColumn::setFullDuration(Q_UINT16 len)
+void TabColumn::setFullDuration(quint16 len)
 {
 	int test = 480;
 

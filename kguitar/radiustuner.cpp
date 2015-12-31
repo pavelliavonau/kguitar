@@ -27,7 +27,7 @@ void RadiusTuner::paintEvent(QPaintEvent *)
 {
 	QPainter paint(this);
 
-	int maxd = QMIN(width(), height()-20);
+	int maxd = qMin(width(), height()-20);
 	int v = val->value()-12;
 	if (v < 0)  v = 0;
 	if (v > 103)  v = 103;

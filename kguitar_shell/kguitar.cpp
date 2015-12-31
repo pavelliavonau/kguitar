@@ -14,7 +14,6 @@
 #include <kurl.h>
 #include <klocale.h>
 #include <krecentfilesaction.h>
-#include <k3command.h>
 #include <ktoolbar.h>
 #include <ktoggleaction.h>
 
@@ -61,9 +60,6 @@ KGuitar::KGuitar(): KParts::MainWindow()
 
 	// Alternative method of loading KGuitarPart when we do static linking
  	// kgpart = new KGuitarPart(this, "kguitarpart", this, "kguitarpart", NULL);
-
-	// undo / redo
-	cmdHistory = new K3CommandHistory(actionCollection());
 
 	setCaption(i18n("Unnamed"));
 

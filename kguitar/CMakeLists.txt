@@ -3,8 +3,6 @@
 #########################################################################
 #kde_module_LTLIBRARIES = libkguitarpart.la
 
-add_definitions (-DQT3_SUPPORT -DQT3_SUPPORT_WARNINGS)
-
 set(kguitar_PART_SRCS
 	kguitar_part.cpp
 	songview.cpp
@@ -73,7 +71,6 @@ kde4_add_plugin(kguitarpart WITH_PREFIX ${kguitar_PART_SRCS})
 target_link_libraries(kguitarpart
 	${KDE4_KDEUI_LIBS}
 	${KDE4_KPARTS_LIBS}
-	${KDE4_KDE3SUPPORT_LIBS}
 )
 if(WITH_TSE3)
 	target_link_libraries(kguitarpart ${TSE3_LIBRARIES})

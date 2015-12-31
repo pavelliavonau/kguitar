@@ -287,7 +287,7 @@ void TrackView::ensureCurrentVisible()
 // Process a mouse press of fret "fret" in current column on string
 // "num". Depending on given "button" mouse state flags, additional
 // things may happen.
-void TrackView::melodyEditorPress(int num, int fret, Qt::ButtonState button = Qt::NoButton)
+void TrackView::melodyEditorPress(int num, int fret, Qt::MouseButton button = Qt::NoButton)
 {
 	if (button & Qt::LeftButton)
 		melodyEditorAction(num, fret, 0);
@@ -332,7 +332,7 @@ void TrackView::melodyEditorAction(int num, int fret, int action)
 // Process a mouse release in melody editor. Depending on given
 // "button" mouse state flags, additional things, such as proceeding
 // to next column, may happen.
-void TrackView::melodyEditorRelease(Qt::ButtonState button)
+void TrackView::melodyEditorRelease(Qt::MouseButton button)
 {
 	if (((button & Qt::LeftButton)  && (Settings::melodyEditorAdvance(0))) ||
 		((button & Qt::MidButton)   && (Settings::melodyEditorAdvance(1))) ||

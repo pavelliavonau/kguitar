@@ -23,7 +23,7 @@ SetTimeSig::SetTimeSig(int t1, int t2, QWidget *parent)
 	m_time1->setValue(t1);
 
 	m_time2 = new QComboBox(page);
-	m_time2->setInsertPolicy(QComboBox::NoInsertion);
+	m_time2->setInsertPolicy(QComboBox::NoInsert);
 	m_time2->addItem("1");
 	m_time2->addItem("2");
 	m_time2->addItem("4");

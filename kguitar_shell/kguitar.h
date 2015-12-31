@@ -7,7 +7,6 @@ class KRecentFilesAction;
 class KToggleAction;
 class KAction;
 class KActionCollection;
-class K3CommandHistory;
 
 /**
  * This is the KGuitar application "Shell". It has a menubar, toolbar,
@@ -54,7 +53,6 @@ private:
 	KParts::ReadWritePart *kgpart;
 	KRecentFilesAction *openRecentAct;
 	KToggleAction *showMainTBAct, *showEditTBAct, *showStatusbarAct;
-	K3CommandHistory *cmdHistory;
 };
 
 #endif

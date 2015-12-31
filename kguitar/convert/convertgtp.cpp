@@ -18,7 +18,7 @@ void ConvertGtp::skipBytes(int n)
 QString ConvertGtp::readDelphiString()
 {
 	QString str;
-	Q_UINT8 l;
+	quint8 l;
 	char *c;
 
 	int maxl = readDelphiInteger();
@@ -46,7 +46,7 @@ QString ConvertGtp::readDelphiString()
 QString ConvertGtp::readPascalString(int maxlen)
 {
 	QString str;
-	Q_UINT8 l;
+	quint8 l;
 	char *c;
 
 	(*stream) >> l;
@@ -87,7 +87,7 @@ QString ConvertGtp::readWordPascalString()
 
 int ConvertGtp::readDelphiInteger()
 {
-	Q_UINT8 x;
+	quint8 x;
 	int r;
 	if (stream->device()->atEnd())  throw QString("readDelphiInteger: EOF");
 	(*stream) >> x; r = x;
@@ -102,7 +102,7 @@ int ConvertGtp::readDelphiInteger()
 
 void ConvertGtp::readChromaticGraph()
 {
-	Q_UINT8 num;
+	quint8 num;
 	int n;
 
 	// GREYFIX: currently just skips over chromatic graph
@@ -119,7 +119,7 @@ void ConvertGtp::readChromaticGraph()
 void ConvertGtp::readChord()
 {
 	int x1, x2, x3, x4;
-	Q_UINT8 num;
+	quint8 num;
 	QString text;
 	char garbage[50];
 	// GREYFIX: currently just skips over chord diagram
@@ -197,7 +197,7 @@ void ConvertGtp::readSongAttributes()
 {
 	QString s;
 
-	Q_UINT8 num;
+	quint8 num;
 
 	currentStage = QString("readSongAttributes: song->info");
 
@@ -260,7 +260,7 @@ void ConvertGtp::readSongAttributes()
 
 void ConvertGtp::readTrackDefaults()
 {
-	Q_UINT8 num, volume, pan, chorus, reverb, phase, tremolo;
+	quint8 num, volume, pan, chorus, reverb, phase, tremolo;
 	currentStage = QString("readTrackDefaults");
 
 	for (int i = 0; i < TRACK_MAX_NUMBER * 2; i++) {
@@ -292,7 +292,7 @@ void ConvertGtp::readTrackDefaults()
 
 void ConvertGtp::readBarProperties()
 {
-	Q_UINT8 bar_bitmask, num;
+	quint8 bar_bitmask, num;
 
 	int time1 = 4;
 	int time2 = 4;
@@ -371,7 +371,7 @@ void ConvertGtp::readBarProperties()
 
 void ConvertGtp::readTrackProperties()
 {
-	Q_UINT8 num;
+	quint8 num;
 	int strings, midiChannel2, capo, color;
 
 	currentStage = QString("readTrackProperties");
@@ -532,8 +532,8 @@ void ConvertGtp::readBar(TabTrack *trk, int j)
 
 void ConvertGtp::readColumn(TabTrack *trk, int x)
 {
-	Q_UINT8 beat_bitmask, strings, num;
-	Q_INT8 length, volume, pan, chorus, reverb, phase, tremolo;
+	quint8 beat_bitmask, strings, num;
+	qint8 length, volume, pan, chorus, reverb, phase, tremolo;
 
 	trk->c[x].flags = 0;
 
@@ -633,7 +633,7 @@ void ConvertGtp::readColumn(TabTrack *trk, int x)
 
 void ConvertGtp::readColumnEffects(TabTrack *trk, int x)
 {
-	Q_UINT8 fx_bitmask1 = 0, fx_bitmask2 = 0, num;
+	quint8 fx_bitmask1 = 0, fx_bitmask2 = 0, num;
 
 	(*stream) >> fx_bitmask1;
 	if (versionMajor >= 4) {
@@ -689,7 +689,7 @@ void ConvertGtp::readColumnEffects(TabTrack *trk, int x)
 
 void ConvertGtp::readNote(TabTrack *trk, int x, int y)
 {
-	Q_UINT8 note_bitmask, variant, num, mod_mask1, mod_mask2;
+	quint8 note_bitmask, variant, num, mod_mask1, mod_mask2;
 
 	(*stream) >> note_bitmask;               // note bitmask
 	(*stream) >> variant;                    // variant

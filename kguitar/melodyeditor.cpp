@@ -73,9 +73,9 @@ MelodyEditor::MelodyEditor(TrackView *_tv, QWidget *parent)
 	// Fretboard box
     l->addWidget(fb);
 
-	connect(fb, SIGNAL(buttonPress(int, int, Qt::ButtonState)),
-	        tv, SLOT(melodyEditorPress(int, int, Qt::ButtonState)));
-	connect(fb, SIGNAL(buttonRelease(Qt::ButtonState)), tv, SLOT(melodyEditorRelease(Qt::ButtonState)));
+	connect(fb, SIGNAL(buttonPress(int, int, Qt::MouseButton)),
+	        tv, SLOT(melodyEditorPress(int, int, Qt::MouseButton)));
+	connect(fb, SIGNAL(buttonRelease(Qt::MouseButton)), tv, SLOT(melodyEditorRelease(Qt::MouseButton)));
 	connect(tv, SIGNAL(columnChanged()), fb, SLOT(update()));
 	connect(options, SIGNAL(clicked()), SLOT(optionsDialog()));
 	connect(tonic, SIGNAL(highlighted(int)), fb, SLOT(setTonic(int)));

@@ -71,13 +71,13 @@ public:
 	 * Calculates and returns full duration of this column,
 	 * i.e. multiplied by all necessary 2/3, 3/2 coffiecients.
 	 */
-	Q_UINT16 fullDuration();
+	quint16 fullDuration();
 
 	/**
 	 * Sets full duration (i.e. "l" + determines automatically all
 	 * necessary flags for 2/3 and 3/2 coefficients.
 	 */
-	void setFullDuration(Q_UINT16 len);
+	void setFullDuration(quint16 len);
 
 	uint effectFlags();
 };

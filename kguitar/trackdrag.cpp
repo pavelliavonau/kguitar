@@ -26,25 +26,25 @@ QByteArray TrackDrag::encode(TabTrack *trk)
 	//          this stuff is the same as "save_to_kg"
 	//************Start***********
 	bool needfx = FALSE;				// Should we write FX event after tab?
-	s << (Q_UINT8) trk->trackMode();// Track properties
+	s << (quint8) trk->trackMode();// Track properties
 	s << trk->name;
-	s << (Q_UINT8) trk->channel;
-	s << (Q_UINT16) trk->bank;
-	s << (Q_UINT8) trk->patch;
-	s << (Q_UINT8) trk->string;
-	s << (Q_UINT8) trk->frets;
+	s << (quint8) trk->channel;
+	s << (quint16) trk->bank;
+	s << (quint8) trk->patch;
+	s << (quint8) trk->string;
+	s << (quint8) trk->frets;
 	for (int i = 0; i<trk->string; i++)
-		s << (Q_UINT8) trk->tune[i];
+		s << (quint8) trk->tune[i];
 
 	// TRACK EVENTS
 
-	Q_UINT8 tcsize = trk->string+2;
+	quint8 tcsize = trk->string+2;
 	uint bar = 1;
 
-	s << (Q_UINT8) 'S';				// Time signature event
-	s << (Q_UINT8) 2;				// 2 byte event length
-	s << (Q_UINT8) trk->bars()[0].time1; // Time signature itself
-	s << (Q_UINT8) trk->bars()[0].time2;
+	s << (quint8) 'S';				// Time signature event
+	s << (quint8) 2;				// 2 byte event length
+	s << (quint8) trk->bars()[0].time1; // Time signature itself
+	s << (quint8) trk->bars()[0].time2;
 
 	for (int x = 0; x < trk->c.size(); x++) {
 		if (bar+1 < (uint)trk->bars().size()) {	// This bar's not last
@@ -53,40 +53,40 @@ QByteArray TrackDrag::encode(TabTrack *trk)
 		}
 
 		if ((bar < (uint)trk->bars().size()) && (trk->bars()[bar].start == x)) {
-			s << (Q_UINT8) 'B';     // New bar event
-			s << (Q_UINT8) 0;
+			s << (quint8) 'B';     // New bar event
+			s << (quint8) 0;
 		}
 
 		if (trk->c[x].flags & FLAG_ARC) {
-			s << (Q_UINT8) 'L';		// Continue of previous event
-			s << (Q_UINT8) 2;		// Size of event
+			s << (quint8) 'L';		// Continue of previous event
+			s << (quint8) 2;		// Size of event
 			s << trk->c[x].fullDuration(); // Duration
 		} else {
-			s << (Q_UINT8) 'T';		// Tab column events
-			s << (Q_UINT8) tcsize;	// Size of event
+			s << (quint8) 'T';		// Tab column events
+			s << (quint8) tcsize;	// Size of event
 			needfx = FALSE;
 			for (int i = 0;i < trk->string; i++) {
-				s << (Q_INT8) trk->c[x].a[i];
+				s << (qint8) trk->c[x].a[i];
 				if (trk->c[x].e[i])
 					needfx = TRUE;
 			}
 			s << trk->c[x].fullDuration(); // Duration
 			if (needfx) {
-				s << (Q_UINT8) 'E'; // Effect event
-				s << (Q_UINT8) trk->string; // Size of event
+				s << (quint8) 'E'; // Effect event
+				s << (quint8) trk->string; // Size of event
 				for (int i = 0; i < trk->string; i++)
-					s << (Q_UINT8) trk->c[x].e[i];
+					s << (quint8) trk->c[x].e[i];
 			}
 			if (trk->c[x].flags) {
-				s << (Q_UINT8) 'F'; // Flag event
-				s << (Q_UINT8) 1;   // Size of event
-				s << (Q_UINT8) trk->c[x].flags;
+				s << (quint8) 'F'; // Flag event
+				s << (quint8) 1;   // Size of event
+				s << (quint8) trk->c[x].flags;
 			}
 		}
 	}
 
-	s << (Q_UINT8) 'X';				// End of track marker
-	s << (Q_UINT8) 0;				// Length of end track event
+	s << (quint8) 'X';				// End of track marker
+	s << (quint8) 0;				// Length of end track event
 
 	buffer.close();
 
@@ -120,9 +120,9 @@ bool TrackDrag::decode(const QMimeData *e, TabTrack *&trk)
 	//ALINXFIX: Move this stuff to share it with TabSong::save_to_kg
 	//          this stuff is the same as "save_to_kg"
 	//************Start***********
-	Q_UINT16 i16;
-	Q_UINT8 channel, patch, string, frets, tm, event, elength;
-	Q_INT8 cn;
+	quint16 i16;
+	quint8 channel, patch, string, frets, tm, event, elength;
+	qint8 cn;
 	QString tn;
 
 	s >> tm; // Track properties (Track mode)

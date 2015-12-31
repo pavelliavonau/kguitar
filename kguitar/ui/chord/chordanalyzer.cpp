@@ -39,7 +39,7 @@ bool ChordAnalyzer::analyze()
 	pos = 1;
 
 	// Try to fix tonic with sharps and flats
-	while (name[pos] != QChar::null) {
+	while (name[pos] != QChar::Null) {
 		if (name[pos] == 'B')  {
 			tonic = (tonic - 1) % 12;
 		} else if (name[pos] == '#')  {
@@ -55,7 +55,7 @@ bool ChordAnalyzer::analyze()
 	step[1] = 2;
 
 	// Main analyze loop - ! REMEMBER, UPPERCASE !
-	while (name[pos] != QChar::null) {
+	while (name[pos] != QChar::Null) {
 		int oldpos = pos;
 
 		// Check "maj7" for dominant seventh

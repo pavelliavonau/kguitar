@@ -62,7 +62,7 @@ bool ConvertKg::save(QString fileName)
 	s.writeRawData("KG\0", 3);
 
 	// VERSION SIGNATURE
-	s << (Q_UINT8) 2;
+	s << (quint8) 2;
 
 	// HEADER SONG DATA
 	s << song->info["TITLE"];
@@ -80,26 +80,26 @@ bool ConvertKg::save(QString fileName)
 	//foreach (TabTrack *trk, song->t) {
 	for(int row = 0; row < song->rowCount(); row++) {
 		auto trk = song->index(row, 0).data(TabSong::TrackPtrRole).value<TabTrack*>();
-		s << (Q_UINT8) trk->trackMode();// Track properties
+		s << (quint8) trk->trackMode();// Track properties
 		s << trk->name;
-		s << (Q_UINT8) trk->channel;
-		s << (Q_UINT16) trk->bank;
-		s << (Q_UINT8) trk->patch;
-		s << (Q_UINT8) trk->string;
-		s << (Q_UINT8) trk->frets;
+		s << (quint8) trk->channel;
+		s << (quint16) trk->bank;
+		s << (quint8) trk->patch;
+		s << (quint8) trk->string;
+		s << (quint8) trk->frets;
 		for (int i = 0; i<trk->string; i++)
-			s << (Q_UINT8) trk->tune[i];
+			s << (quint8) trk->tune[i];
 
 		// TRACK EVENTS
 
-		Q_UINT8 tcsize = trk->string+2;
+		quint8 tcsize = trk->string+2;
 		uint bar = 1;
 
-		s << (Q_UINT8) 'S';				// Time signature event
-		s << (Q_UINT8) 3;				// 3 byte event length
-		s << (Q_UINT8) trk->bars()[0].time1; // Time signature itself
-		s << (Q_UINT8) trk->bars()[0].time2;
-		s << (Q_INT8) trk->bars()[0].keysig;
+		s << (quint8) 'S';				// Time signature event
+		s << (quint8) 3;				// 3 byte event length
+		s << (quint8) trk->bars()[0].time1; // Time signature itself
+		s << (quint8) trk->bars()[0].time2;
+		s << (qint8) trk->bars()[0].keysig;
 
 		for (uint x = 0; x < trk->c.size(); x++) {
 			if (bar+1 < trk->bars().size()) {	// This bar's not last
@@ -108,47 +108,47 @@ bool ConvertKg::save(QString fileName)
 			}
 
 			if ((bar < (uint)trk->bars().size()) && ((uint)trk->bars()[bar].start == x)) {
-				s << (Q_UINT8) 'B';     // New bar event
-				s << (Q_UINT8) 0;
+				s << (quint8) 'B';     // New bar event
+				s << (quint8) 0;
 				if ((trk->bars()[bar].time1 != trk->bars()[bar - 1].time1) ||
 					(trk->bars()[bar].time2 != trk->bars()[bar - 1].time2)) {
-					s << (Q_UINT8) 'S'; // New signature
-					s << (Q_UINT8) 2;
-					s << (Q_UINT8) trk->bars()[bar].time1;
-					s << (Q_UINT8) trk->bars()[bar].time2;
+					s << (quint8) 'S'; // New signature
+					s << (quint8) 2;
+					s << (quint8) trk->bars()[bar].time1;
+					s << (quint8) trk->bars()[bar].time2;
 				}
 			}
 
 			if (trk->c[x].flags & FLAG_ARC) {
-				s << (Q_UINT8) 'L';		// Continue of previous event
-				s << (Q_UINT8) 2;		// Size of event
+				s << (quint8) 'L';		// Continue of previous event
+				s << (quint8) 2;		// Size of event
 				s << trk->c[x].fullDuration(); // Duration
 			} else {
-				s << (Q_UINT8) 'T';		// Tab column events
-				s << (Q_UINT8) tcsize;	// Size of event
+				s << (quint8) 'T';		// Tab column events
+				s << (quint8) tcsize;	// Size of event
 				needfx = FALSE;
 				for (int i = 0;i < trk->string; i++) {
-					s << (Q_INT8) trk->c[x].a[i];
+					s << (qint8) trk->c[x].a[i];
 					if (trk->c[x].e[i])
 						needfx = TRUE;
 				}
 				s << trk->c[x].fullDuration(); // Duration
 				if (needfx) {
-					s << (Q_UINT8) 'E'; // Effect event
-					s << (Q_UINT8) trk->string; // Size of event
+					s << (quint8) 'E'; // Effect event
+					s << (quint8) trk->string; // Size of event
 					for (int i = 0; i < trk->string; i++)
-						s << (Q_UINT8) trk->c[x].e[i];
+						s << (quint8) trk->c[x].e[i];
 				}
 				if (trk->c[x].effectFlags()) {
-					s << (Q_UINT8) 'F'; // Flag event
-					s << (Q_UINT8) 1;   // Size of event
-					s << (Q_UINT8) trk->c[x].effectFlags();
+					s << (quint8) 'F'; // Flag event
+					s << (quint8) 1;   // Size of event
+					s << (quint8) trk->c[x].effectFlags();
 				}
 			}
 		}
 
-		s << (Q_UINT8) 'X';				// End of track marker
-		s << (Q_UINT8) 0;				// Length of end track event
+		s << (quint8) 'X';				// End of track marker
+		s << (quint8) 0;				// Length of end track event
 	}
 
 	f.close();
@@ -171,7 +171,7 @@ bool ConvertKg::load(QString fileName)
 		return FALSE;
 
 	// FILE VERSION NUMBER
-	Q_UINT8 ver;
+	quint8 ver;
 	s >> ver; // version 2 files are unicode KDE2 files
 	if ((ver < 1) || (ver > 2))
 		return FALSE;
@@ -203,9 +203,9 @@ bool ConvertKg::load(QString fileName)
 
 	kdDebug() << "Going to read " << cnt << " track(s)..." << endl;
 
-	Q_UINT16 i16;
-	Q_UINT8 channel, patch, string, frets, tm, event, elength;
-	Q_INT8 cn;
+	quint16 i16;
+	quint8 channel, patch, string, frets, tm, event, elength;
+	qint8 cn;
 	QString tn;
 
 	for (int i = 0; i < cnt; i++) {

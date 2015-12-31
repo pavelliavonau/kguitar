@@ -150,8 +150,8 @@ public slots:
 	void zoomOut();
 	void zoomLevelDialog();
 
-	void melodyEditorPress(int num, int fret, Qt::ButtonState button);
-	void melodyEditorRelease(Qt::ButtonState button);
+	void melodyEditorPress(int num, int fret, Qt::MouseButton button);
+	void melodyEditorRelease(Qt::MouseButton button);
 
 	void currentBarChangedSlot(QModelIndex current, QModelIndex previous);
 	/**

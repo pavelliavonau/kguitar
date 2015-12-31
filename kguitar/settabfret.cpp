@@ -96,7 +96,7 @@ void SetTabFret::stringChanged(int n)
     }
     oldst = n;
 
-    setMinimumSize(QMAX(330, 20 + RADTUNER_W * n), 90+RADTUNER_H);
+    setMinimumSize(qMax(330, 20 + RADTUNER_W * n), 90+RADTUNER_H);
     reposTuners();
 }
 

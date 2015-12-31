@@ -59,7 +59,7 @@ SetKeySig::SetKeySig(int keySig, QWidget *parent)
 		<< i18n("7 flats")  + " (Cb/Abm)";
 
 	sig = new QComboBox(page);
-	sig->setInsertPolicy(QComboBox::NoInsertion);
+	sig->setInsertPolicy(QComboBox::NoInsert);
 	sig->insertItems(sig->count(),signatures);
 	sig->setCurrentIndex(7 - keySig);
 

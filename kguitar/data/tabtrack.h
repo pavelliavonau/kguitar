@@ -113,11 +113,11 @@ public:
 	int lastColumn(int n);
 	bool showBarSig(int n);
 	bool barStatus(int n);
-	Q_UINT16 currentBarDuration();
-	Q_UINT16 barDuration(int bn);
+	quint16 currentBarDuration();
+	quint16 barDuration(int bn);
 	int trackDuration();
-	Q_UINT16 maxCurrentBarDuration();
-	Q_UINT16 noteDuration(uint t, int i);
+	quint16 maxCurrentBarDuration();
+	quint16 noteDuration(uint t, int i);
 	int noteNrCols(uint t, int i);
 	int findCStart(int t, int & dur);
 	int findCEnd(int t, int & dur);

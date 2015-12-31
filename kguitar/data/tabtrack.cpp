@@ -383,14 +383,14 @@ bool TabTrack::barStatus(int n)
 
 // Returns a cumulative duration of all columns that belong to current
 // bar, determined with track parameters
-Q_UINT16 TabTrack::currentBarDuration()
+quint16 TabTrack::currentBarDuration()
 {
 	return barDuration(xb);
 }
 
-Q_UINT16 TabTrack::barDuration(int bn)
+quint16 TabTrack::barDuration(int bn)
 {
-	Q_UINT16 dur = 0;
+	quint16 dur = 0;
 	for (int i = b[bn].start; i <= lastColumn(bn); i++)
 		dur += c[i].fullDuration();
 	return dur;
@@ -408,16 +408,16 @@ int TabTrack::trackDuration()
 
 // Calculates and returns maximum current bar duration, based on time
 // signature
-Q_UINT16 TabTrack::maxCurrentBarDuration()
+quint16 TabTrack::maxCurrentBarDuration()
 {
 	return 4 * 120 * b[xb].time1 / b[xb].time2;
 }
 
 // Returns the duration of the note in column t and string i
 // Ringing and bar end are taken into account
-Q_UINT16 TabTrack::noteDuration(uint t, int i)
+quint16 TabTrack::noteDuration(uint t, int i)
 {
-	Q_UINT16 dur = 0;
+	quint16 dur = 0;
 	for (int j = 0; j < noteNrCols(t, i); j++)
 		dur += c[t + j].fullDuration();
 	return dur;
