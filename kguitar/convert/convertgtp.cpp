@@ -127,31 +127,31 @@ void ConvertGtp::readChord()
 	// GREYFIX: chord diagram
 	x1 = readDelphiInteger();
 	if (x1 != 257)
-		kdWarning() << "Chord INT1=" << x1 << ", not 257\n";
+		kWarning() << "Chord INT1=" << x1 << ", not 257\n";
 	x2 = readDelphiInteger();
 	if (x2 != 0)
-		kdWarning() << "Chord INT2=" << x2 << ", not 0\n";
+		kWarning() << "Chord INT2=" << x2 << ", not 0\n";
 	x3 = readDelphiInteger();
-	kdDebug() << "Chord INT3: " << x3 << "\n"; // FF FF FF FF if there is diagram
+	kDebug() << "Chord INT3: " << x3 << "\n"; // FF FF FF FF if there is diagram
 	x4 = readDelphiInteger();
 	if (x4 != 0)
-		kdWarning() << "Chord INT4=" << x4 << ", not 0\n";
+		kWarning() << "Chord INT4=" << x4 << ", not 0\n";
 	(*stream) >> num;
 	if (num != 0)
-		kdWarning() << "Chord BYTE5=" << (int) num << ", not 0\n";
+		kWarning() << "Chord BYTE5=" << (int) num << ", not 0\n";
 	text = readPascalString(25);
-	kdDebug() << "Chord diagram: " << text << "\n";
+	kDebug() << "Chord diagram: " << text << "\n";
 
 	// Chord diagram parameters - for every string
 	for (int i = 0; i < STRING_MAX_NUMBER; i++) {
 		x1 = readDelphiInteger();
-		kdDebug() << x1 << "\n";
+		kDebug() << x1 << "\n";
 	}
 
 	// Unknown bytes
 	stream->readRawData(garbage, 36);
 
-	kdDebug() << "after chord, position: " << stream->device()->pos() << "\n";
+	kDebug() << "after chord, position: " << stream->device()->pos() << "\n";
 }
 
 void ConvertGtp::readSignature()
@@ -159,7 +159,7 @@ void ConvertGtp::readSignature()
 	currentStage = QString("readSignature");
 
 	QString s = readPascalString(30);        // Format string
-	kdDebug() << "GTP format: \"" << s << "\"\n";
+	kDebug() << "GTP format: \"" << s << "\"\n";
 
 	// Parse version string
 	if (s == "FICHIER GUITARE PRO v1") {
@@ -245,7 +245,7 @@ void ConvertGtp::readSongAttributes()
 
 	currentStage = QString("readSongAttributes: tempo");
 	song->tempo = readDelphiInteger();       // Tempo
-	kdDebug() << "tempo: " << song->tempo << "\n";
+	kDebug() << "tempo: " << song->tempo << "\n";
 
 	if (versionMajor > 5 || (versionMajor == 5 && versionMinor > 0))
 		skipBytes(1);
@@ -271,7 +271,7 @@ void ConvertGtp::readTrackDefaults()
 		(*stream) >> reverb;                 // GREYFIX: reverb
 		(*stream) >> phase;                  // GREYFIX: phase
 		(*stream) >> tremolo;                // GREYFIX: tremolo
-		kdDebug() << "=== TrackDefaults: " << i <<
+		kDebug() << "=== TrackDefaults: " << i <<
 			" (patch=" << trackPatch[i] <<
 			" vol=" << (int) volume <<
 			" p=" << (int) pan <<
@@ -280,9 +280,9 @@ void ConvertGtp::readTrackDefaults()
 			" tr=" << (int) tremolo << "\n";
 
 		(*stream) >> num;                    // 2 byte padding: must be 00 00
-		if (num != 0)  kdDebug() << QString("1 of 2 byte padding: there is %1, must be 0\n").arg(num);
+		if (num != 0)  kDebug() << QString("1 of 2 byte padding: there is %1, must be 0\n").arg(num);
 		(*stream) >> num;
-		if (num != 0)  kdDebug() << QString("2 of 2 byte padding: there is %1, must be 0\n").arg(num);
+		if (num != 0)  kDebug() << QString("2 of 2 byte padding: there is %1, must be 0\n").arg(num);
 	}
 
 	// Some weird padding, filled with FFs
@@ -301,23 +301,23 @@ void ConvertGtp::readBarProperties()
 	bars.resize(numBars);
 
 	currentStage = QString("readBarProperties");
-	kdDebug() << "readBarProperties(): start\n";
+	kDebug() << "readBarProperties(): start\n";
 
 	for (int i = 0; i < numBars; i++) {
 		(*stream) >> bar_bitmask;                    // bar property bitmask
 		if (bar_bitmask != 0)
-			kdDebug() << "BAR #" << i << " - flags " << (int) bar_bitmask << "\n";
+			kDebug() << "BAR #" << i << " - flags " << (int) bar_bitmask << "\n";
 		// GREYFIX: new_time_numerator
 		if (bar_bitmask & 0x01) {
 			(*stream) >> num;
 			time1 = num;
-			kdDebug() << "new time1 signature: " << time1 << ":" << time2 << "\n";
+			kDebug() << "new time1 signature: " << time1 << ":" << time2 << "\n";
 		}
 		// GREYFIX: new_time_denominator
 		if (bar_bitmask & 0x02) {
 			(*stream) >> num;
 			time2 = num;
-			kdDebug() << "new time2 signature: " << time1 << ":" << time2 << "\n";
+			kDebug() << "new time2 signature: " << time1 << ":" << time2 << "\n";
 		}
 
 		// Since GP5, time signature changes also brings new
@@ -329,33 +329,33 @@ void ConvertGtp::readBarProperties()
 
 		// GREYFIX: begin repeat
 		if (bar_bitmask & 0x04) {
-			kdDebug() << "begin repeat\n";
+			kDebug() << "begin repeat\n";
 		}
 		// GREYFIX: number_of_repeats
 		if (bar_bitmask & 0x08) {
 			(*stream) >> num;
-			kdDebug() << "end repeat " << (int) num << "x\n";
+			kDebug() << "end repeat " << (int) num << "x\n";
 		}
 		// GREYFIX: alternative_ending_to
 		if (bar_bitmask & 0x10) {
 			(*stream) >> num;
-			kdDebug() << "alternative ending to " << (int) num << "\n";
+			kDebug() << "alternative ending to " << (int) num << "\n";
 		}
 		// GREYFIX: new section
 		if (bar_bitmask & 0x20) {
 			QString text = readDelphiString();
 			readDelphiInteger(); // color?
-			kdDebug() << "new section: " << text << "\n";
+			kDebug() << "new section: " << text << "\n";
 		}
 		if (bar_bitmask & 0x40) {
 			(*stream) >> num;                // GREYFIX: alterations_number
 			keysig = num;
 			(*stream) >> num;                // GREYFIX: minor
-			kdDebug() << "new key signature (" << keysig << ", " << num << ")\n";
+			kDebug() << "new key signature (" << keysig << ", " << num << ")\n";
 		}
 		// GREYFIX: double bar
 		if (bar_bitmask & 0x80) {
-			kdDebug() << "double bar\n";
+			kDebug() << "double bar\n";
 		}
 
 		bars[i].time1 = time1;
@@ -366,7 +366,7 @@ void ConvertGtp::readBarProperties()
 		if (versionMajor >= 5)
 			skipBytes(3);
 	}
-	kdDebug() << "readBarProperties(): end\n";
+	kDebug() << "readBarProperties(): end\n";
 }
 
 void ConvertGtp::readTrackProperties()
@@ -375,16 +375,16 @@ void ConvertGtp::readTrackProperties()
 	int strings, midiChannel2, capo, color;
 
 	currentStage = QString("readTrackProperties");
-	kdDebug() << "readTrackProperties(): start\n";
+	kDebug() << "readTrackProperties(): start\n";
 
 // 	if (versionMajor >= 5)
 // 		skipBytes(3);
 
 	for (int i = 0; i < numTracks; i++) {
-		kdDebug() << "start track pos: " << stream->device()->pos() << "\n";
+		kDebug() << "start track pos: " << stream->device()->pos() << "\n";
 
 		(*stream) >> num;                    // GREYFIX: simulations bitmask
-		kdDebug() << "Simulations: " << num << "\n";
+		kDebug() << "Simulations: " << num << "\n";
 
 // 		if (versionMajor >= 5)
 // 			skipBytes(4);
@@ -396,11 +396,11 @@ void ConvertGtp::readTrackProperties()
 		song->setData(index, QVariant::fromValue(trk), TabSong::TrackPtrRole);
 
 		trk->name = readPascalString(40);    // Track name
-		kdDebug() << "Track: " << trk->name << "\n";
+		kDebug() << "Track: " << trk->name << "\n";
 
 		// Tuning information
 
-		kdDebug() << "pos: " << stream->device()->pos() << "\n";
+		kDebug() << "pos: " << stream->device()->pos() << "\n";
 
 		strings = readDelphiInteger();
 		if (strings <= 0 || strings > STRING_MAX_NUMBER)  throw QString("Track %1: insane # of strings (%2)\n").arg(i).arg(strings);
@@ -432,14 +432,14 @@ void ConvertGtp::readTrackProperties()
 		if (versionMajor >= 5) {
 			if (versionMajor > 5 || (versionMajor == 5 && versionMinor > 0)) {
 				skipBytes(49);
-				kdDebug() << "additional track string1: " << readDelphiString();
-				kdDebug() << "additional track string2: " << readDelphiString();
+				kDebug() << "additional track string1: " << readDelphiString();
+				kDebug() << "additional track string2: " << readDelphiString();
 			} else {
 				skipBytes(41);
 			}
 		}
 
-		kdDebug() <<
+		kDebug() <<
 			"MIDI #" << trk->channel << "/" << (int) midiChannel2 << ", " <<
 			(int) trk->string << " strings, " <<
 			(int) trk->frets << " frets, capo " <<
@@ -462,7 +462,7 @@ void ConvertGtp::readTrackProperties()
 		}
 	}
 
-	kdDebug() << "end all tracks pos: " << stream->device()->pos() << "\n";
+	kDebug() << "end all tracks pos: " << stream->device()->pos() << "\n";
 
 	if (versionMajor >= 5) {
 		skipBytes(1);
@@ -470,7 +470,7 @@ void ConvertGtp::readTrackProperties()
 // 			skipBytes(1);
 	}
 
-	kdDebug() << "readTrackProperties(): end\n";
+	kDebug() << "readTrackProperties(): end\n";
 }
 
 void ConvertGtp::readTabs()
@@ -495,13 +495,13 @@ void ConvertGtp::readTabs()
 				for (int voice = 0; voice < 2; voice++) {
 					currentStage = QString("readTabs: track %1, bar %2, voice %3").arg(tr).arg(j).arg(voice);
 					trk = song->index(tr * 2 + voice, 0).data(TabSong::TrackPtrRole).value<TabTrack*>();
-					kdDebug() << "TRACK " << tr << " (voice " << voice << "), BAR " << j << " (position: " << stream->device()->pos() << ")\n";
+					kDebug() << "TRACK " << tr << " (voice " << voice << "), BAR " << j << " (position: " << stream->device()->pos() << ")\n";
 					readBar(trk, j);
 				}
 			} else {
 				currentStage = QString("readTabs: track %1, bar %2").arg(tr).arg(j);
 				trk = song->index(tr,0).data(TabSong::TrackPtrRole).value<TabTrack*>();
-				kdDebug() << "TRACK " << tr << ", BAR " << j << " (position: " << stream->device()->pos() << ")\n";
+				kDebug() << "TRACK " << tr << ", BAR " << j << " (position: " << stream->device()->pos() << ")\n";
 				readBar(trk, j);
 			}
 		}
@@ -512,7 +512,7 @@ void ConvertGtp::readBar(TabTrack *trk, int j)
 {
 	int x;
 	int numBeats = readDelphiInteger();
-	kdDebug() << "numBeats " << numBeats << " (position: " << stream->device()->pos() << ")\n";
+	kDebug() << "numBeats " << numBeats << " (position: " << stream->device()->pos() << ")\n";
 
 	if (numBeats < 0 || (strongChecks && numBeats > 128))
 		throw QString("insane number of beats: %1").arg(numBeats);
@@ -538,7 +538,7 @@ void ConvertGtp::readColumn(TabTrack *trk, int x)
 	trk->c[x].flags = 0;
 
 	if (num != 0)
-		kdWarning() << "prefix != 0";
+		kWarning() << "prefix != 0";
 
 	(*stream) >> beat_bitmask;   // beat bitmask
 
@@ -558,13 +558,13 @@ void ConvertGtp::readColumn(TabTrack *trk, int x)
 	//  3 = 1/32 => 15            0
 
 	(*stream) >> length;            // length
-	kdDebug() << "beat_bitmask: " << (int) beat_bitmask << "; length: " << length << "\n";
+	kDebug() << "beat_bitmask: " << (int) beat_bitmask << "; length: " << length << "\n";
 
 	trk->c[x].l = (1 << (3 - length)) * 15;
 
 	if (beat_bitmask & 0x20) {
 		int tuple = readDelphiInteger();
-		kdDebug() << "Tuple: " << tuple << "\n"; // GREYFIX: t for tuples
+		kDebug() << "Tuple: " << tuple << "\n"; // GREYFIX: t for tuples
 		if (!(tuple == 3 || (tuple >= 5 && tuple <= 7) || (tuple >= 9 && tuple <= 13)))  throw QString("Insane tuple t: %1").arg(tuple);
 	}
 
@@ -572,7 +572,7 @@ void ConvertGtp::readColumn(TabTrack *trk, int x)
 		readChord();
 
 	if (beat_bitmask & 0x04) {
-		kdDebug() << "Text: " << readDelphiString() << "\n"; // GREYFIX: text with a beat
+		kDebug() << "Text: " << readDelphiString() << "\n"; // GREYFIX: text with a beat
 	}
 
 	// GREYFIX: column-wide effects
@@ -620,11 +620,11 @@ void ConvertGtp::readColumn(TabTrack *trk, int x)
 			tmp += '0' + trk->c[x].a[y];
 		}
 	}
-	kdDebug() << "[" << tmp << "]\n";
+	kDebug() << "[" << tmp << "]\n";
 
 	if (versionMajor >= 5) {
 		(*stream) >> num;
-		kdDebug() << "trailing byte: " << num << "\n";
+		kDebug() << "trailing byte: " << num << "\n";
 		if (num == 7 || num == 8 || num == 10)
 			skipBytes(1);
 		skipBytes(1);
@@ -638,9 +638,9 @@ void ConvertGtp::readColumnEffects(TabTrack *trk, int x)
 	(*stream) >> fx_bitmask1;
 	if (versionMajor >= 4) {
 		(*stream) >> fx_bitmask2;
-		kdDebug() << "column-wide fx: " << (int) fx_bitmask1 << "/" << (int) fx_bitmask2 << "\n";
+		kDebug() << "column-wide fx: " << (int) fx_bitmask1 << "/" << (int) fx_bitmask2 << "\n";
 	} else {
-		kdDebug() << "column-wide fx: " << (int) fx_bitmask1 << "\n";
+		kDebug() << "column-wide fx: " << (int) fx_bitmask1 << "\n";
 	}
 	
 	if (fx_bitmask1 & 0x20) {      // GREYFIX: string torture
@@ -663,12 +663,12 @@ void ConvertGtp::readColumnEffects(TabTrack *trk, int x)
 		}
 	}
 	if (fx_bitmask1 & 0x04) {      // GP3 column-wide natural harmonic
-		kdDebug() << "GP3 column-wide natural harmonic\n";
+		kDebug() << "GP3 column-wide natural harmonic\n";
 		for (int y = 0; y < trk->string; y++)
 			trk->c[x].e[y] |= EFFECT_HARMONIC;
 	}
 	if (fx_bitmask1 & 0x08) {      // GP3 column-wide artificial harmonic
-		kdDebug() << "GP3 column-wide artificial harmonic\n";
+		kDebug() << "GP3 column-wide artificial harmonic\n";
 		for (int y = 0; y < trk->string; y++)
 			trk->c[x].e[y] |= EFFECT_ARTHARM;
         }
@@ -695,7 +695,7 @@ void ConvertGtp::readNote(TabTrack *trk, int x, int y)
 	(*stream) >> variant;                    // variant
 
 	if (note_bitmask) {
-		kdDebug() << "note_bitmask: " << (int) note_bitmask << "\n";
+		kDebug() << "note_bitmask: " << (int) note_bitmask << "\n";
 	}
 
 	if (note_bitmask & 0x01) {               // GREYFIX: note != beat
@@ -732,9 +732,9 @@ void ConvertGtp::readNote(TabTrack *trk, int x, int y)
 		(*stream) >> mod_mask1;
 		if (versionMajor >= 4) {
 			(*stream) >> mod_mask2;
-			kdDebug() << "note mod: mask1=" << mod_mask1 << " mask2=" << mod_mask2 << "\n";
+			kDebug() << "note mod: mask1=" << mod_mask1 << " mask2=" << mod_mask2 << "\n";
 		} else {
-			kdDebug() << "note mod: mask1=" << mod_mask1 << "\n";
+			kDebug() << "note mod: mask1=" << mod_mask1 << "\n";
 		}
 		if (mod_mask1 & 0x01) {
 			readChromaticGraph();            // GREYFIX: bend graph
@@ -791,11 +791,11 @@ bool ConvertGtp::load(QString fileName)
 
 	 	numBars = readDelphiInteger();           // Number of bars
 		if (numBars <= 0 || (strongChecks && numBars > 16384))  throw QString("Insane number of bars: %1").arg(numBars);
-		kdDebug() << "Bars: " << numBars << "\n";
+		kDebug() << "Bars: " << numBars << "\n";
 
 	 	numTracks = readDelphiInteger();         // Number of tracks
 		if (numTracks <= 0 || (strongChecks && numTracks > 32))  throw QString("Insane number of tracks: %1").arg(numTracks);
-		kdDebug() << "Tracks: " << numTracks << "\n";
+		kDebug() << "Tracks: " << numTracks << "\n";
 
 	 	readBarProperties();
 	 	readTrackProperties();
@@ -805,9 +805,9 @@ bool ConvertGtp::load(QString fileName)
 		if (!f.atEnd()) {
 			int ex = readDelphiInteger();            // Exit code: 00 00 00 00
 			if (ex != 0)
-				kdWarning() << "File not ended with 00 00 00 00\n";
+				kWarning() << "File not ended with 00 00 00 00\n";
 			if (!f.atEnd())
-				kdWarning() << "File not ended - there's more data!\n";
+				kWarning() << "File not ended - there's more data!\n";
 		}
 	} catch (QString msg) {
 		throw

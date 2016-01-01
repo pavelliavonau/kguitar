@@ -33,11 +33,12 @@ KGuitar::KGuitar(): KParts::MainWindow()
 	// this routine will find and load our Part.  it finds the Part by
 	// name which is a bad idea usually.. but it's alright in this
 	// case since our Part is made for this Shell
-	KLibFactory *factory = KLibLoader::self()->factory("libkguitarpart");
+	KPluginLoader loader("kguitarpart");
+	KLibFactory *factory = loader.factory();
 	if (factory) {
 		// now that the Part is loaded, we cast it to a Part to get
 		// our hands on it
-		kgpart = static_cast<KParts::ReadWritePart *>(factory->create(this, "KGuitarPart"));
+		kgpart = factory->create<KParts::ReadWritePart>(this);
 
 		if (kgpart) {
 			// tell the KParts::MainWindow that this is indeed the main widget

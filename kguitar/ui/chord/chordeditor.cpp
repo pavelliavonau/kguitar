@@ -58,16 +58,16 @@ ChordEditor::ChordEditor(TSE3::MidiScheduler *_scheduler, TabTrack *p, QWidget *
 	: QDialog(parent)
 {
 	setModal(true);
-	kdDebug() << k_funcinfo << endl;
+	kDebug() << k_funcinfo << endl;
 
 	initChordSelector(p);
 	scheduler = _scheduler;
 
 	if (scheduler) {
 		play->setEnabled(TRUE);
-		kdDebug() << "   Found MidiScheduler" << endl;
+		kDebug() << "   Found MidiScheduler" << endl;
 	} else {
-		kdDebug() << "   No MidiScheduler found" << endl;
+		kDebug() << "   No MidiScheduler found" << endl;
 	}
 }
 #endif

@@ -179,7 +179,7 @@ static void fontInfo(QFont * f)
 //	bool b = fi.exactMatch();
 	QString s = fi.family();
 	if (s.isNull()) s = "(null)";
-// 	kdDebug()
+// 	kDebug()
 // 	<< "f=" << f <<
 // 	<< (b ? " exact match" : " not matched")
 // 	<< " family=" << s
@@ -219,7 +219,7 @@ void SongPrint::initFonts()
 // 	if (!fontIsExactMatch(fFeta)) {
 // 		delete fFeta;
 // 		fFeta = 0;
-// 		kdWarning() << "KGuitar: could not find feta font, cannot show or print score\n";
+// 		kWarning() << "KGuitar: could not find feta font, cannot show or print score\n";
 // 	}
 }
 

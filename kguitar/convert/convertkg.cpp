@@ -184,24 +184,24 @@ bool ConvertKg::load(QString fileName)
 	s >> song->tempo;
 
 	if (song->tempo < 0) {
-		kdDebug() << "Bad tempo" << endl;
+		kDebug() << "Bad tempo" << endl;
 		return FALSE;
 	}
 
-	kdDebug() << "Read headers..." << endl;
+	kDebug() << "Read headers..." << endl;
 
 	// TRACK DATA
 	int cnt;
 	s >> cnt; // Track count
 
 	if (cnt <= 0) {
-		kdDebug() << "Bad track count" << endl;
+		kDebug() << "Bad track count" << endl;
 		return FALSE;
 	}
 
 	song->removeRows(0, song->rowCount());
 
-	kdDebug() << "Going to read " << cnt << " track(s)..." << endl;
+	kDebug() << "Going to read " << cnt << " track(s)..." << endl;
 
 	quint16 i16;
 	quint8 channel, patch, string, frets, tm, event, elength;
@@ -223,8 +223,8 @@ bool ConvertKg::load(QString fileName)
 		if (string > MAX_STRINGS)
 			return FALSE;
 
-		kdDebug() << "Read a track of " << string << " strings," << endl;
-		kdDebug() << "       bank = " << i16 << ", patch = " << patch << " ..." << endl;
+		kDebug() << "Read a track of " << string << " strings," << endl;
+		kDebug() << "       bank = " << i16 << ", patch = " << patch << " ..." << endl;
 
 		TabTrack *trk = new TabTrack((TabTrack::TrackMode) tm, tn, channel, i16, patch, string, frets);
 		int count = song->rowCount();
@@ -232,14 +232,14 @@ bool ConvertKg::load(QString fileName)
 		auto index = song->index(count, 0);
 		song->setData(index, QVariant::fromValue(trk), TabSong::TrackPtrRole);
 
-		kdDebug() << "Appended a track..." << endl;;
+		kDebug() << "Appended a track..." << endl;;
 
 		for (int j = 0; j < string; j++) {
 			s >> cn;
 			trk->tune[j] = cn;
 		}
 
-		kdDebug() << "Read the tuning..." << endl;;
+		kDebug() << "Read the tuning..." << endl;;
 
 		bool finished = FALSE;
 
@@ -252,7 +252,7 @@ bool ConvertKg::load(QString fileName)
 		ct->bars()[0].time1 = 4;
 		ct->bars()[0].time2 = 4;
 
-		kdDebug() << "reading events" << endl;;
+		kDebug() << "reading events" << endl;;
 		do {
 			s >> event;
 			s >> elength;
@@ -280,7 +280,7 @@ bool ConvertKg::load(QString fileName)
 				break;
 			case 'E':                   // Effects of prev column
 				if (x == 0) {			// Ignore if there were no tab cols
-					kdDebug() << "Warning: FX column with no tab columns, ignoring..." << endl;
+					kDebug() << "Warning: FX column with no tab columns, ignoring..." << endl;
 					break;
 				}
 				for (int k = 0; k < string; k++) {
@@ -290,7 +290,7 @@ bool ConvertKg::load(QString fileName)
 				break;
 			case 'F':                   // Flag of prev column
 				if (x == 0) {			// Ignore if there were no tab cols
-					kdDebug() << "Warning: flag with no tab columns, ignoring..." << endl;
+					kDebug() << "Warning: flag with no tab columns, ignoring..." << endl;
 					break;
 				}
 				s >> cn; ct->c[x-1].flags = cn;
@@ -315,7 +315,7 @@ bool ConvertKg::load(QString fileName)
 				finished = TRUE;
 				break;
 			default:
-				kdDebug() << "Warning: unknown event " << event << " Skipping..." << endl;
+				kDebug() << "Warning: unknown event " << event << " Skipping..." << endl;
 				for (int k = 0; k < elength; k++)
 					s >> cn;
 				break;

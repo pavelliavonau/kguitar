@@ -67,7 +67,7 @@ int main(int argc, char **argv)
 				widget->load(args->url(i));
 
 				if (saveFile != NULL) {
-					kdDebug() << "Saving as " << saveFile << "...\n";
+					kDebug() << "Saving as " << saveFile << "...\n";
 					widget->saveURL(KCmdLineArgs::makeURL(saveFile.toUtf8()));
 				} else {
 					widget->show();

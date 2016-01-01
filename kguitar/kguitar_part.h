@@ -23,7 +23,7 @@ class ConvertBase;
 class KGuitarPart: public KParts::ReadWritePart {
 	Q_OBJECT
 public:
-	KGuitarPart(QWidget *parentWidget,QObject *parent, const QStringList &);
+	KGuitarPart(QWidget *parentWidget, QObject *parent, const QVariantList &);
 	virtual ~KGuitarPart();
 
 	/**

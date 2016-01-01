@@ -61,7 +61,11 @@ else()
         message(STATUS "The compiler ${CMAKE_CXX_COMPILER} has no C++11 support. Please use a different C++ compiler.")
 endif()
 
-add_definitions(-D_DEFAULT_SOURCE)
+add_definitions(
+    -D_DEFAULT_SOURCE
+    -DQT_DEPRECATED_WARNINGS
+    -DKDE_DEPRECATED_WARNINGS
+    )
 
 add_subdirectory(kguitar)
 add_subdirectory(kguitar_shell)

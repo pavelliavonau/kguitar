@@ -91,7 +91,7 @@ void RhythmEditor::quantize()
 
 		if (!d)  d = 15; // we don't support stuff less than 1/32th of a bar
 
-		kdDebug() << "t=" << t << ", L4=" << L4 << ", so it looks like " << d;
+		kDebug() << "t=" << t << ", L4=" << L4 << ", so it looks like " << d;
 
 		quantized->addItem(QString::number(d));
 
@@ -99,7 +99,7 @@ void RhythmEditor::quantize()
 		sumL4 += newL4;
 		L4 = sumL4 / i;
 
-		kdDebug() << "newL4=" << newL4 << ", so shift works, now L4=" << L4;
+		kDebug() << "newL4=" << newL4 << ", so shift works, now L4=" << L4;
 	}
 
 	tempo->setValue(int(60000.0 / L4));

@@ -29,7 +29,9 @@
 #include <kaction.h>
 #include <kactioncollection.h>
 #include <kfiledialog.h>
-#include <kparts/genericfactory.h>
+#include <KAboutData>
+#include <KLocale>
+#include <KPluginFactory>
 #include <kstandardaction.h>
 #include <kmessagebox.h>
 #include <kvbox.h>
@@ -52,14 +54,17 @@
 
 #include <QUndoStack>
 
-typedef KParts::GenericFactory<KGuitarPart> KGuitarPartFactory;
-K_EXPORT_COMPONENT_FACTORY(libkguitarpart, KGuitarPartFactory)
+K_PLUGIN_FACTORY(KGuitarPartFactory,
+                 registerPlugin<KGuitarPart>();
+                )
+K_EXPORT_PLUGIN(KGuitarPartFactory("kguitarpart"))
+K_EXPORT_PLUGIN_VERSION(0.7)
 
 // Global variables - real declarations
 
 QString drum_abbr[128];
 
-KGuitarPart::KGuitarPart(QWidget *parentWidget, QObject *parent, const QStringList & /*args*/)
+KGuitarPart::KGuitarPart(QWidget *parentWidget, QObject *parent, const QVariantList & /*args*/)
     : KParts::ReadWritePart(parent)
 {
 	// we need an instance
@@ -168,7 +173,7 @@ bool KGuitarPart::openFile()
 	try {
 		if (converter)  success = converter->load(localFilePath());
 	} catch (QString msg) {
-		kdDebug() << "Converter failed with message \"" << msg << "\"\n";
+		kDebug() << "Converter failed with message \"" << msg << "\"\n";
 		KMessageBox::sorry(0, msg, i18n("Loading failed"));
 
 		sv->song()->removeRows(0, sv->song()->rowCount());
@@ -260,8 +265,8 @@ bool KGuitarPart::saveFile()
 
 	QFileInfo *fi = new QFileInfo(url().fileName());
 	QString ext = fi->suffix().toLower();
-	kdDebug() << "URL is " << url() << endl;
-	kdDebug() << "Trying to save to " << localFilePath() << endl;
+	kDebug() << "URL is " << url() << endl;
+	kDebug() << "Trying to save to " << localFilePath() << endl;
 
 	bool success = FALSE;
 
@@ -273,7 +278,7 @@ bool KGuitarPart::saveFile()
 			return FALSE;
 		}
 	} catch (QString msg) {
-		kdDebug() << "Converter failed with message \"" << msg << "\"\n";
+		kDebug() << "Converter failed with message \"" << msg << "\"\n";
 		KMessageBox::sorry(0, msg, i18n("Loading failed"));
 
 		sv->song()->removeRows(0, sv->song()->rowCount());

@@ -152,7 +152,7 @@ TabTrack *TrackView::trk()
 
 void TrackView::initFonts()
 {
-	kdDebug() << "TrackView::initFonts\n";
+	kDebug() << "TrackView::initFonts\n";
 	fetaFont   = new QFont("FreeSerif", SCORE_FONT_FACTOR);
 	fetaNrFont = new QFont("FreeSerif", SCORE_SIG_FONT_FACTOR);
 	fetaNrFont->setBold(true);
@@ -904,12 +904,12 @@ void TrackView::mousePressEvent(QMouseEvent *e)
 		tmpWidget = xmlGUIClient->factory()->container("trackviewpopup", xmlGUIClient);
 
 		if (!tmpWidget) {
-			kdDebug() << "TrackView::contentsMousePressEvent => no container widget" << endl;
+			kDebug() << "TrackView::contentsMousePressEvent => no container widget" << endl;
 			return;
 		}
 
 		if (!tmpWidget->inherits("QMenu")) {
-			kdDebug() << "TrackView::contentsMousePressEvent => container widget is not QMenu" << endl;
+			kDebug() << "TrackView::contentsMousePressEvent => container widget is not QMenu" << endl;
 			return;
 		}
 

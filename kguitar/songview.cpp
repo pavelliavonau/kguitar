@@ -200,10 +200,10 @@ void SongView::trackBassLine()
 
 			if ((ChordListItem *) cs.chords->item(0)) {
 				note = ((ChordListItem *) cs.chords->item(0))->tonic();
-				kdDebug() << "Column " << i << ", detected tonic " << Settings::noteName(note) << endl;
+				kDebug() << "Column " << i << ", detected tonic " << Settings::noteName(note) << endl;
 			} else {
 				note = -1;
-				kdDebug() << "Column " << i << ", EMPTY " << endl;
+				kDebug() << "Column " << i << ", EMPTY " << endl;
 			}
 
 			for (uint k = 0; k < MAX_STRINGS; k++) {
@@ -333,14 +333,14 @@ void SongView::songProperties()
 void SongView::playSong()
 {
 #ifdef WITH_TSE3
-	kdDebug() << "SongView::playSong" << endl;
+	kDebug() << "SongView::playSong" << endl;
 
 	// Try to stop a running song, return if we invoked stopping
 	if (playThread->stop())
 		return;
 
 //	if (!scheduler) {
-//		kdDebug() << "SongView::playSong: Scheduler not open from the beginning!" << endl;
+//		kDebug() << "SongView::playSong: Scheduler not open from the beginning!" << endl;
 //		if (!initMidi()) {
 //			KMessageBox::error(this, i18n("Error opening MIDI device!"));
 //			midiInUse = FALSE;
@@ -461,11 +461,11 @@ TabTrack *SongView::highlightedTabs()
 
 void SongView::insertTabs(TabTrack* trk)
 {
-	kdDebug() << "SongView::insertTabs(TabTrack* trk) " << endl;
+	kDebug() << "SongView::insertTabs(TabTrack* trk) " << endl;
 
 	if (!trk)
-		kdDebug() << "   trk == NULL" << endl;
-	else kdDebug() << "   trk with data" << endl;
+		kDebug() << "   trk == NULL" << endl;
+	else kDebug() << "   trk with data" << endl;
 
 	//ALINXFIX: Make it more flexible. (songviewcommands.cpp)
 	QString msg(i18n("There are some problems:\n\n"));

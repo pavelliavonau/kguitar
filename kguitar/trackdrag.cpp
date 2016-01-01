@@ -12,7 +12,7 @@ QString TrackDrag::TRACK_MIME_TYPE = "application/x-kguitar-snippet";
 QByteArray TrackDrag::encode(TabTrack *trk)
 {
 	if (trk == NULL) {
-		kdDebug() << "TrackDrag::setTrack() >>>>>> trk == NULL" << endl;
+		kDebug() << "TrackDrag::setTrack() >>>>>> trk == NULL" << endl;
 		return QByteArray();  // ALINXFIX: Write in buffer "NULLTRACK"
 	}
 
@@ -103,7 +103,7 @@ bool TrackDrag::decode(const QMimeData *e, TabTrack *&trk)
 	trk = NULL;
 
 	if (!canDecode(e)) {
-		kdDebug() << "TrackDrag::decode(...) >> can't decode QMimeSource!!" << endl;
+		kDebug() << "TrackDrag::decode(...) >> can't decode QMimeSource!!" << endl;
 		return FALSE;
 	}
 
@@ -153,7 +153,7 @@ bool TrackDrag::decode(const QMimeData *e, TabTrack *&trk)
 	newtrk->bars()[0].time1 = 4;
 	newtrk->bars()[0].time2 = 4;
 
-	kdDebug() << "TrackDrag::decode >> reading events" << endl;;
+	kDebug() << "TrackDrag::decode >> reading events" << endl;;
 	do {
 		s >> event;
 		s >> elength;
@@ -180,7 +180,7 @@ bool TrackDrag::decode(const QMimeData *e, TabTrack *&trk)
 			break;
 		case 'E':                   // Effects of prev column
 			if (x == 0) {			// Ignore if there were no tab cols
-				kdDebug() << "TrackDrag::decode >> Warning: FX column with no tab columns, ignoring..." << endl;
+				kDebug() << "TrackDrag::decode >> Warning: FX column with no tab columns, ignoring..." << endl;
 				break;
 			}
 			for (int k = 0; k < string; k++) {
@@ -190,7 +190,7 @@ bool TrackDrag::decode(const QMimeData *e, TabTrack *&trk)
 			break;
 		case 'F':                   // Flag of prev column
 			if (x == 0) {			// Ignore if there were no tab cols
-				kdDebug() << "TrackDrag::decode >> Warning: flag with no tab columns, ignoring..." << endl;
+				kDebug() << "TrackDrag::decode >> Warning: flag with no tab columns, ignoring..." << endl;
 				break;
 			}
 			s >> cn; newtrk->c[x-1].flags = cn;
@@ -212,7 +212,7 @@ bool TrackDrag::decode(const QMimeData *e, TabTrack *&trk)
 			finished = TRUE;
 			break;
 		default:
-			kdDebug() << "TrackDrag::decode >> Warning: unknown event " << event << " Skipping..." << endl;
+			kDebug() << "TrackDrag::decode >> Warning: unknown event " << event << " Skipping..." << endl;
 			for (int k = 0; k < elength; k++)
 				s >> cn;
 			break;
