@@ -1,6 +1,7 @@
 #include "rhythmeditor.h"
 
 #include <kdebug.h>
+#include <KLocale>
 
 RhythmEditor::RhythmEditor(QWidget *parent) :
 	QDialog(parent)

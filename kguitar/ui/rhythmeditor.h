@@ -2,6 +2,7 @@
 #define RHYTHMEDITOR_H
 
 #include "ui_rhythmeditor.h"
+#include <QTime>
 
 class RhythmEditor : public QDialog, private Ui::RhythmEditor {
 	Q_OBJECT
