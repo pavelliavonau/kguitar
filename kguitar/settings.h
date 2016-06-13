@@ -28,19 +28,19 @@ public:
 
 	/*
 	 * Returns name of maj7 step as stated in currently selected
-	 * naming convertion.
+	 * naming conversion.
 	 */
 	static QString maj7Name();
 
 	/*
 	 * Returns symbol to represent flats as stated in currently
-	 * selected naming convertion.
+	 * selected naming conversion.
 	 */
 	static QString flatName();
 
 	/*
 	 * Returns symbol to represent sharps as stated in currently
-	 * selected naming convertion.
+	 * selected naming conversion.
 	 */
 	static QString sharpName();
 

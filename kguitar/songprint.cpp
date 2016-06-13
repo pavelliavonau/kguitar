@@ -18,7 +18,7 @@
 // LVIFIX: HACK HACK HACK ! means that xpos/ypos handling needs rethinking
 
 // Notes on vertical spacing:
-// Assuming we can accomodate notes one octave above (stem up) and below
+// Assuming we can accommodate notes one octave above (stem up) and below
 // (stem down) the staff, height required is 4 * ystepst (staff)
 // + 2 * 7 * ystepst (space above and below). Vertical spacing between
 // staffs of between staff and tabbar is 3 * ystepst.
