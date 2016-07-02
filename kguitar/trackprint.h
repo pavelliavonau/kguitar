@@ -47,7 +47,7 @@ public:
 	void initPens();
 	void initPrStyle();
 	void initPrStyle(int prStyle);
-	void setOnScreen(bool scrn = TRUE);
+	void setOnScreen(bool scrn = true);
 	void setPainter(QPainter *paint);
 	QFont *fetaFontPtr(){ return fFeta; }
 	int calcYPosTb(int numOfStrings);

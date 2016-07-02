@@ -181,7 +181,7 @@ void ChordEditor::initChordSelector(TabTrack *p)
 	complexer[1] = new QRadioButton(i18n("Rare"), complexity);
 	complexer[2] = new QRadioButton(i18n("All"), complexity);
 	complexer[0]->setChecked(true);
-	connect(complexity, SIGNAL(clicked(int)), SLOT(findChords()));
+	connect(complexity, &QGroupBox::clicked, this, &ChordEditor::findChords);
 
 	// CHORD ANALYZER
 

@@ -19,6 +19,8 @@
 #include <qcheckbox.h>
 #include <QVBoxLayout>
 #include <QFrame>
+#include <QDialogButtonBox>
+#include <QPushButton>
 
 Options::Options(
 #ifdef WITH_TSE3
@@ -27,8 +29,23 @@ Options::Options(
                  KSharedConfigPtr &config, QWidget *parent)
 	: KPageDialog(parent)
 {
-	setCaption(i18n("Configure"));
-	setButtons(Help|Default|Ok|Apply|Cancel);
+	setWindowTitle(i18n("Configure"));
+
+	QDialogButtonBox* buttonBox = new QDialogButtonBox(QDialogButtonBox::Ok
+	                                                 | QDialogButtonBox::Cancel
+	                                                 | QDialogButtonBox::Apply
+	                                                 | QDialogButtonBox::RestoreDefaults
+	                                                 | QDialogButtonBox::Help,
+	                                                   this);
+
+	connect(buttonBox, &QDialogButtonBox::accepted, this, &QDialog::accept);
+	connect(buttonBox, &QDialogButtonBox::rejected, this, &QDialog::reject);
+	connect(buttonBox->button(QDialogButtonBox::RestoreDefaults), &QPushButton::clicked, this, &Options::defaultBtnClicked);
+	connect(buttonBox->button(QDialogButtonBox::Apply)          , &QPushButton::clicked, this, &Options::applyBtnClicked);
+	connect(buttonBox->button(QDialogButtonBox::Ok)             , &QPushButton::clicked, this, &Options::applyBtnClicked);
+
+	setButtonBox(buttonBox);
+
 	setFaceType(KPageDialog::Tree);
 	KPageWidgetItem *optPage[OPTIONS_PAGES_NUM];
 
@@ -70,10 +87,6 @@ Options::Options(
 //			l->addWidget(optWidget[i]);
 //		}
 //	}
-
-	connect(this, SIGNAL(defaultClicked()), SLOT(defaultBtnClicked()));
-	connect(this, SIGNAL(okClicked()), SLOT(applyBtnClicked()));
-	connect(this, SIGNAL(applyClicked()), SLOT(applyBtnClicked()));
 }
 
 // Saves options back from dialog to memory

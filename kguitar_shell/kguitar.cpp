@@ -16,6 +16,8 @@
 #include <krecentfilesaction.h>
 #include <ktoolbar.h>
 #include <ktoggleaction.h>
+#include <kparts/readwritepart.h>
+#include <KConfigGroup>
 
 #include <QApplication>
 
@@ -83,12 +85,12 @@ void KGuitar::setupActions()
 	KStandardAction::openNew(this, SLOT(fileNew()), actionCollection());
 	KStandardAction::open(this, SLOT(fileOpen()), actionCollection());
 
-	openRecentAct = KStandardAction::openRecent(this, SLOT(load(const KUrl&)), actionCollection());
+	openRecentAct = KStandardAction::openRecent(this, SLOT(load(const QUrl&)), actionCollection());
 	openRecentAct->setMaxItems(5);
 
 	KStandardAction::quit(qApp, SLOT(closeAllWindows()), actionCollection());
 
-	setStandardToolBarMenuEnabled(TRUE);
+	setStandardToolBarMenuEnabled(true);
 	KStandardAction::configureToolbars(this, SLOT(configureToolbars()), actionCollection());
 
 	createStandardStatusBarAction();
@@ -97,7 +99,7 @@ void KGuitar::setupActions()
 }
 
 // Call KPart's URL opening and maintain recent files list
-void KGuitar::load(const KUrl& url)
+void KGuitar::load(const QUrl& url)
 {
 	bool ret = kgpart->openUrl(url);
 	if (ret)

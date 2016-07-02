@@ -331,8 +331,8 @@ FingerList::FingerList(TabTrack *p, QWidget *parent)
 	setBackgroundRole(QPalette::Base);
 	setFocusPolicy(Qt::StrongFocus);
 	setShowGrid(false);
-	horizontalHeader()->setResizeMode(QHeaderView::Fixed);
-	verticalHeader()->setResizeMode(QHeaderView::Fixed);
+	horizontalHeader()->setSectionResizeMode(QHeaderView::Fixed);
+	verticalHeader()->setSectionResizeMode(QHeaderView::Fixed);
 	horizontalHeader()->setDefaultSectionSize(ICONCHORD);
 	verticalHeader()->setDefaultSectionSize(ICONCHORD);
 	horizontalHeader()->hide();

@@ -19,6 +19,8 @@ extern QString drum_abbr[128];
 #pragma GCC diagnostic ignored "-Wsign-compare"
 #pragma GCC diagnostic ignored "-Wunused-but-set-variable"
 
+#define FALSE false
+#define TRUE true
 
 // Define if both "old" and "new" drawing code must be used at the same time
 // Undefine to use only the "new" drawing code

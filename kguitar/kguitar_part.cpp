@@ -24,12 +24,10 @@
 // KDE system things
 #include "kguitar_part.h"
 
-#include "kguitar_part.moc"
-
 #include <kaction.h>
 #include <kactioncollection.h>
 #include <kfiledialog.h>
-#include <KAboutData>
+#include <K4AboutData>
 #include <KLocale>
 #include <KPluginFactory>
 #include <kstandardaction.h>
@@ -42,6 +40,7 @@
 #include <KConfig>
 #include <KGlobal>
 #include <KSharedConfigPtr>
+#include <KIcon>
 
 #include <qpixmap.h>
 #include <qnamespace.h>
@@ -53,12 +52,17 @@
 #include <QPrintDialog>
 
 #include <QUndoStack>
+#include <KExportPlugin>
+#include <KDialog>
+#include <KUrl>
 
 K_PLUGIN_FACTORY(KGuitarPartFactory,
                  registerPlugin<KGuitarPart>();
                 )
 K_EXPORT_PLUGIN(KGuitarPartFactory("kguitarpart"))
 K_EXPORT_PLUGIN_VERSION(0.7)
+
+#include "kguitar_part.moc"
 
 // Global variables - real declarations
 
@@ -68,7 +72,7 @@ KGuitarPart::KGuitarPart(QWidget *parentWidget, QObject *parent, const QVariantL
     : KParts::ReadWritePart(parent)
 {
 	// we need an instance
-	setComponentData(KGuitarPartFactory::componentData());
+	setComponentName(QStringLiteral("kguitarpart"),"KGuitar Core Plugin");
 
 	Settings::config = KGlobal::mainComponent().config();
 
@@ -142,9 +146,9 @@ void KGuitarPart::setModified(bool modified)
 	ReadWritePart::setModified(modified);
 }
 
-KAboutData *KGuitarPart::createAboutData()
+K4AboutData *KGuitarPart::createAboutData()
 {
-	KAboutData *aboutData = new KAboutData("kguitarpart", 0, ki18n("KGuitarPart"), VERSION);
+	K4AboutData *aboutData = new K4AboutData("kguitarpart", 0, ki18n("KGuitarPart"), VERSION);
 	aboutData->addAuthor(ki18n("KGuitar development team"), KLocalizedString(), 0);
 	return aboutData;
 }
@@ -470,14 +474,14 @@ void KGuitarPart::setupActions()
 	(void) KStandardAction::zoom(sv->tv, SLOT(zoomLevelDialog()), actionCollection());
 
 	viewMelodyEditorAct = new KToggleAction(i18n("Show Melody Editor"), this);
-	viewMelodyEditorAct->setShortcut(Qt::SHIFT + Qt::Key_M);
-	viewMelodyEditorAct->setIcon(KIcon("melodyeditor"));
+	viewMelodyEditorAct->setIcon(QIcon::fromTheme("melodyeditor"));
 	actionCollection()->addAction("view_melodyEditor", viewMelodyEditorAct);
+	actionCollection()->setDefaultShortcut(viewMelodyEditorAct, Qt::SHIFT + Qt::Key_M);
 	connect(viewMelodyEditorAct, SIGNAL(triggered(bool)), SLOT(viewMelodyEditor()));
 
-	viewScoreAct = new KToggleAction(KIcon("score"), i18n("Show Score"), this);
-	viewScoreAct->setShortcut(Qt::SHIFT + Qt::Key_S);
+	viewScoreAct = new KToggleAction(QIcon::fromTheme("score"), i18n("Show Score"), this);
 	actionCollection()->addAction("view_score", viewScoreAct);
+	actionCollection()->setDefaultShortcut(viewScoreAct, Qt::SHIFT + Qt::Key_S);
 	connect(viewScoreAct, SIGNAL(triggered(bool)), this, SLOT(viewScore()));
 
 	// TRACK ACTIONS
@@ -516,7 +520,7 @@ void KGuitarPart::setupActions()
 	setupAction(natHarmAct, i18n("Natural harmonic"), "fx_harmonic", Qt::Key_H, sv->tv, SLOT(addHarmonic()), "fx_nat_harm");
 	setupAction(artHarmAct, i18n("Artificial harmonic"), "fx_harmonic", Qt::Key_R, sv->tv, SLOT(addArtHarm()), "fx_art_harm");
 	setupAction(palmMuteAct, i18n("Palm muting"), "fx_palmmute", Qt::Key_M, sv->tv, SLOT(palmMute()), "fx_palmmute");
-	KAction *deadNoteAct;
+	QAction *deadNoteAct;
 	setupAction(deadNoteAct, i18n("Dead note"), 0, Qt::Key_X, sv->tv, SLOT(deadNote()), "deadnote");
 
  	// SET UP MIDI-PLAY
@@ -566,27 +570,27 @@ void KGuitarPart::setupActions()
 void KGuitarPart::setupAction(QString text, const char *icon, QKeySequence key,
         QWidget *target, const char *slot, const char *name)
 {
-	KAction *act = actionCollection()->addAction(name, target, slot);
-	act->setShortcut(key);
+	QAction *act = actionCollection()->addAction(name, target, slot);
+	actionCollection()->setDefaultShortcut(act, key);
 	act->setText(text);
 	if (icon != 0)
-		act->setIcon(KIcon(icon));
+		act->setIcon(QIcon::fromTheme(icon));
 }
 
-void KGuitarPart::setupAction(KAction *&act, QString text, const char *icon,
+void KGuitarPart::setupAction(QAction *&act, QString text, const char *icon,
                               QKeySequence key, QWidget *target, const char *slot, const char *name)
 {
 	act = actionCollection()->addAction(name, target, slot);
-	act->setShortcut(key);
+	actionCollection()->setDefaultShortcut(act, key);
 	act->setText(text);
 	if (icon != 0)
-		act->setIcon(KIcon(icon));
+		act->setIcon(QIcon::fromTheme(icon));
 }
 
 void KGuitarPart::setupKey(const char *name, QString text, QKeySequence key, QWidget *target, const char *slot)
 {
-	KAction *act = actionCollection()->addAction(name, target, slot);
-	act->setShortcut(key);
+	QAction *act = actionCollection()->addAction(name, target, slot);
+	actionCollection()->setDefaultShortcut(act, key);
 	act->setText(text);
 }
 

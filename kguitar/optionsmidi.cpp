@@ -34,7 +34,7 @@ OptionsMidi::OptionsMidi(KSharedConfigPtr &conf, QWidget *parent)
 	midiPortsTableWidget->setSelectionMode(QAbstractItemView::SingleSelection);
 	midiPortsTableWidget->setEditTriggers(QAbstractItemView::NoEditTriggers);
 	midiPortsTableWidget->horizontalHeader()->setStretchLastSection(true);
-	midiPortsTableWidget->verticalHeader()->setResizeMode(QHeaderView::Fixed);
+	midiPortsTableWidget->verticalHeader()->setSectionResizeMode(QHeaderView::Fixed);
 
 	fillMidiBox();
 

@@ -2,12 +2,15 @@
 #define KGUITAR_H
 
 #include <kparts/mainwindow.h>
+#include <KDELibs4Support/kurl.h>
 
 class KRecentFilesAction;
 class KToggleAction;
-class KAction;
 class KActionCollection;
-
+namespace KParts
+{
+class ReadWritePart;
+}
 /**
  * This is the KGuitar application "Shell". It has a menubar, toolbar,
  * and statusbar but relies on the "Part" to do all the real work.
@@ -22,7 +25,7 @@ public:
 
 public slots:
 	void saveURL(const KUrl& url);
-	void load(const KUrl& url);
+	void load(const QUrl &url);
 
 protected slots:
 	void fileNew();

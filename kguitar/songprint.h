@@ -32,6 +32,7 @@ class QPainter;
 class TabSong;
 class TabTrack;
 class TrackPrint;
+class QPrinter;
 
 /***************************************************************************
  * class SongPrint

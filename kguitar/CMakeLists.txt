@@ -60,24 +60,25 @@ set(kguitar_PART_SRCS
 	ui/rhythmeditor.cpp
 )
 
-kde4_add_ui_files(kguitar_PART_SRCS
+qt5_wrap_ui(kguitar_PART_SRCS
 	settabmidibase.ui
 	ui/rhythmeditor.ui
 	ui/setsong.ui
 )
 
-kde4_add_plugin(kguitarpart WITH_PREFIX ${kguitar_PART_SRCS})
+add_library(kguitarpart ${kguitar_PART_SRCS})
 
 target_link_libraries(kguitarpart
-	${KDE4_KDEUI_LIBS}
-	${KDE4_KPARTS_LIBS}
+	KF5::Parts
+	KF5::KDELibs4Support
 )
+
 if(WITH_TSE3)
 	target_link_libraries(kguitarpart ${TSE3_LIBRARIES})
 endif(WITH_TSE3)
 
 install(FILES kguitar_part.desktop DESTINATION ${XDG_APPS_INSTALL_DIR})
-install(FILES kguitar_part.rc DESTINATION ${DATA_INSTALL_DIR}/kguitarpart)
+install(FILES kguitar_part.rc DESTINATION ${KXMLGUI_INSTALL_DIR}/kguitarpart)
 
 install(TARGETS kguitarpart DESTINATION ${PLUGIN_INSTALL_DIR})
 

@@ -1,16 +1,15 @@
 #ifndef KGUITARPART_H
 #define KGUITARPART_H
 
-#include <kparts/part.h>
+#include <kparts/readwritepart.h>
 
 #include "songview.h"
 
 #include "global.h"
 
-class KAction;
 class KToggleAction;
 class QUndoStack;
-class KAboutData;
+class K4AboutData;
 class ConvertBase;
 
 /**
@@ -40,7 +39,7 @@ public:
 	/**
 	 * Provide "About..." credits data, required by KPart
 	 */
-	static KAboutData *createAboutData();
+	static K4AboutData *createAboutData();
 
 public slots:
 	void filePrint();
@@ -65,7 +64,7 @@ private:
 	void setupActions();
 	void setupAction(QString text, const char *icon,
 	                 QKeySequence key, QWidget *target, const char *slot, const char *name);
-	void setupAction(KAction *&act, QString text, const char *icon,
+	void setupAction(QAction *&act, QString text, const char *icon,
 	                 QKeySequence key, QWidget *target, const char *slot, const char *name);
 	void setupKey(const char *name, QString text, QKeySequence key, QWidget *target, const char *slot);
 
@@ -92,7 +91,7 @@ private:
 	// It would then have to be passed down to SongPrint via SongView.
 	// KPrinter *printer;
 
-	KAction *confTBAct,
+	QAction *confTBAct,
 		*trkNewAct, *trkDeleteAct, *trkBassLineAct, *trkPropAct, *insChordAct,
 		*keySigAct, *timeSigAct, *arcAct, *legatoAct, *natHarmAct, *artHarmAct,
 		*palmMuteAct, *slideAct, *letRingAct, *saveOptionAct, *confKeyAct,
@@ -104,8 +103,8 @@ private:
 protected:
 	virtual bool openFile();
 	virtual bool saveFile();
-	KAction *save;
-	KAction *paste;
+	QAction *save;
+	QAction *paste;
 };
 
 #endif

@@ -1,11 +1,38 @@
-cmake_minimum_required(VERSION 2.8)
-
 project(kguitar)
 
-find_package(KDE4 REQUIRED)
-include(KDE4Defaults)
+cmake_minimum_required(VERSION 2.8.12 FATAL_ERROR)
+set (QT_MIN_VERSION "5.5.0")
 
-include_directories(${KDE4_INCLUDES} ${QT_INCLUDES})
+set(CMAKE_VERBOSE_MAKEFILE ON)
+
+find_package(ECM 1.7.0 REQUIRED CONFIG)
+set(CMAKE_MODULE_PATH ${ECM_MODULE_PATH} ${ECM_KDE_MODULE_DIR})
+
+include(KDEInstallDirs)
+include(KDECompilerSettings)
+include(KDECMakeSettings)
+include(FeatureSummary)
+include(ECMAddAppIcon)
+include(ECMInstallIcons)
+
+# TODO: determine required modules
+find_package(Qt5 ${QT_MIN_VERSION} REQUIRED NO_MODULE COMPONENTS Core Widgets Xml)
+find_package(KF5 REQUIRED COMPONENTS
+    Config
+#    ConfigWidgets
+#    DBusAddons
+#    DocTools
+#    IconThemes
+    I18n
+#    IdleTime
+#    Notifications
+#    NotifyConfig
+#    TextWidgets
+#    XmlGui
+#    WindowSystem
+    KDELibs4Support
+    Parts
+    )
 
 # ======================================================================
 
@@ -46,9 +73,9 @@ if(WITH_TSE3)
 endif(WITH_TSE3)
 
 # TSE3 and other code requires exceptions enabled
-set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} ${KDE4_ENABLE_EXCEPTIONS}")
+kde_enable_exceptions()
 
-set(CMAKE_CXX_FLAGS_DEBUG "-g -O0")
+set(CMAKE_CXX_FLAGS_DEBUG "${CMAKE_CXX_FLAGS_DEBUG} -g -O0")
 
 include(CheckCXXCompilerFlag)
 CHECK_CXX_COMPILER_FLAG("-std=c++11" COMPILER_SUPPORTS_CXX11)
@@ -72,6 +99,8 @@ add_subdirectory(kguitar_shell)
 add_subdirectory(icons)
 add_subdirectory(doc)
 add_subdirectory(po)
+
+feature_summary(WHAT ALL INCLUDE_QUIET_PACKAGES FATAL_ON_MISSING_REQUIRED_PACKAGES)
 
 configure_file(config.h.in kguitar/config.h)
 configure_file(config.h.in kguitar_shell/config.h)

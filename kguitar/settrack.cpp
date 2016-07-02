@@ -8,12 +8,19 @@
 #include <QFormLayout>
 #include <knuminput.h>
 #include <qcombobox.h>
+#include <QDialogButtonBox>
 
 SetTrack::SetTrack(TabTrack *trk, QWidget *parent)
 	: KPageDialog(parent)
 {
-	setCaption(i18n("Track properties"));
-	setButtons(Ok | Cancel);
+	setWindowTitle(i18n("Track properties"));
+	QDialogButtonBox* buttonBox = new QDialogButtonBox(QDialogButtonBox::Ok
+	                                                 | QDialogButtonBox::Cancel, this);
+
+	connect(buttonBox, &QDialogButtonBox::accepted, this, &QDialog::accept);
+	connect(buttonBox, &QDialogButtonBox::rejected, this, &QDialog::reject);
+
+	setButtonBox(buttonBox);
 	setFaceType(Tabbed);
 
 	//////////////////////////////////////////////////////////////////

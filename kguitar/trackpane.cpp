@@ -45,8 +45,8 @@ TrackPane::TrackPane(int cs, QWidget *parent)
 	setBackgroundRole(QPalette::Light);
 
 	setFocusPolicy(Qt::StrongFocus);
-	horizontalHeader()->setResizeMode(QHeaderView::Fixed);
-	verticalHeader()->setResizeMode(QHeaderView::Fixed);
+	horizontalHeader()->setSectionResizeMode(QHeaderView::Fixed);
+	verticalHeader()->setSectionResizeMode(QHeaderView::Fixed);
 	horizontalHeader()->setDefaultSectionSize(cs);
 	verticalHeader()->setDefaultSectionSize(cs);
 	setVerticalScrollMode(ScrollPerPixel);

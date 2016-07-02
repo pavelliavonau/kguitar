@@ -6,6 +6,7 @@
 #include <klocale.h>
 #include <kdebug.h>
 #include "kguitar.h"
+#include <K4AboutData>
 
 #ifdef WITH_TSE3
 static const char description[] = I18N_NOOP("A stringed instrument tabulature editor (with MIDI support via TSE3)");
@@ -17,9 +18,9 @@ static const char version[] = VERSION;
 
 int main(int argc, char **argv)
 {
-	KAboutData about(
+	K4AboutData about(
 		"kguitar", 0, ki18n("KGuitar"), version,
-		ki18n(description), KAboutData::License_GPL,
+		ki18n(description), K4AboutData::License_GPL,
 		ki18n("(C) 2000-2009 by KGuitar Development Team"),
 		KLocalizedString(), 0, "http://kguitar.sourceforge.net"
 	);

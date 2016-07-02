@@ -1,4 +1,5 @@
 #include "setsong.h"
+#include <KI18n/KLocalizedString>
 
 SetSong::SetSong(QMap<QString, QString> info, int _tempo, bool ro, QWidget *parent):
 	KDialog(parent)

@@ -38,6 +38,7 @@
 #include <QVBoxLayout>
 #include <QApplication>
 #include <QScrollBar>
+#include <QMimeData>
 
 #ifdef WITH_TSE3
 #include <tse3/MidiScheduler.h>

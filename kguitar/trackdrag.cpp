@@ -5,6 +5,7 @@
 
 #include <QBuffer>
 #include <QMimeData>
+#include <QDataStream>
 
 
 QString TrackDrag::TRACK_MIME_TYPE = "application/x-kguitar-snippet";

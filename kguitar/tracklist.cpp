@@ -34,9 +34,9 @@ TrackList::TrackList(TabSong *s, KXMLGUIClient *_XMLGUIClient, QWidget *parent)
 	setSelectionBehavior(QAbstractItemView::SelectRows);
 	setSelectionMode(QAbstractItemView::SingleSelection);
 	setEditTriggers(QAbstractItemView::NoEditTriggers);
-	verticalHeader()->setResizeMode(QHeaderView::ResizeToContents);
-	verticalHeader()->setResizeMode(QHeaderView::Fixed);
-	horizontalHeader()->setResizeMode(QHeaderView::ResizeToContents);
+	verticalHeader()->setSectionResizeMode(QHeaderView::ResizeToContents);
+	verticalHeader()->setSectionResizeMode(QHeaderView::Fixed);
+	horizontalHeader()->setSectionResizeMode(QHeaderView::ResizeToContents);
 	setVerticalScrollMode(ScrollPerPixel);
 	setHorizontalScrollMode(ScrollPerPixel);
 	setVerticalScrollBarPolicy(Qt::ScrollBarAlwaysOff);

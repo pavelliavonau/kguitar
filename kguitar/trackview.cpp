@@ -67,8 +67,8 @@ TrackView::TrackView(TabSong *s, KXMLGUIClient *_XMLGUIClient, QUndoStack *_cmdH
 
 	setFocusPolicy(Qt::StrongFocus);
 
-	horizontalHeader()->setResizeMode(QHeaderView::ResizeToContents);
-	verticalHeader()->setResizeMode(QHeaderView::ResizeToContents);
+	horizontalHeader()->setSectionResizeMode(QHeaderView::ResizeToContents);
+	verticalHeader()->setSectionResizeMode(QHeaderView::ResizeToContents);
 	setVerticalScrollMode(ScrollPerPixel);
 	setHorizontalScrollMode(ScrollPerPixel);
 
