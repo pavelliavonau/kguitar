@@ -29,16 +29,16 @@
 #include <qlabel.h>
 #include <qlayout.h>
 #include <QHBoxLayout>
+#include <QDialogButtonBox>
 
 SetKeySig::SetKeySig(int keySig, QWidget *parent)
-	: KDialog(parent)
+	: QDialog(parent)
 {
-	setCaption(i18n("Key signature"));
-	setButtons(Ok | Cancel);
+	setWindowTitle(i18n("Key signature"));
 	setModal(true);
 
-	QWidget *page = new QWidget(this);
-	setMainWidget(page);
+	QDialogButtonBox* buttonBox = new QDialogButtonBox(QDialogButtonBox::Ok
+	                                                 | QDialogButtonBox::Cancel);
 
 	QStringList signatures;
 	signatures
@@ -58,19 +58,26 @@ SetKeySig::SetKeySig(int keySig, QWidget *parent)
 		<< i18n("6 flats")  + " (Gb/Ebm)"
 		<< i18n("7 flats")  + " (Cb/Abm)";
 
-	sig = new QComboBox(page);
+	sig = new QComboBox();
 	sig->setInsertPolicy(QComboBox::NoInsert);
 	sig->insertItems(sig->count(),signatures);
 	sig->setCurrentIndex(7 - keySig);
 
-	QLabel *sig_l = new QLabel(i18n("Flats / sharps:"), page);
+	QLabel *sig_l = new QLabel(i18n("Flats / sharps:"));
 	sig_l->setBuddy(sig);
 
-	QHBoxLayout *l = new QHBoxLayout(page);
-	l->setSpacing(spacingHint());
-    l->addWidget(sig_l);
+	QHBoxLayout *l = new QHBoxLayout();
+	l->addWidget(sig_l);
 	l->addWidget(sig);
-    l->activate();
+	l->activate();
+
+	QVBoxLayout *mainLayout = new QVBoxLayout(this);
+	mainLayout->addLayout(l);
+	mainLayout->addWidget(buttonBox);
+	setLayout(mainLayout);
+
+	connect(buttonBox, &QDialogButtonBox::accepted, this, &QDialog::accept);
+	connect(buttonBox, &QDialogButtonBox::rejected, this, &QDialog::reject);
 }
 
 // note that sig->currentItem() return 0 for "7 sharps", 1 for "6 sharps" etc.

@@ -24,15 +24,12 @@
 // KDE system things
 #include "kguitar_part.h"
 
-#include <kaction.h>
 #include <kactioncollection.h>
-#include <kfiledialog.h>
-#include <K4AboutData>
+#include <QFileDialog>
 #include <KLocale>
 #include <KPluginFactory>
 #include <kstandardaction.h>
 #include <kmessagebox.h>
-#include <kvbox.h>
 #include <ktoggleaction.h>
 #include <QPrinter>
 #include <kdeprintdialog.h>
@@ -53,8 +50,9 @@
 
 #include <QUndoStack>
 #include <KExportPlugin>
-#include <KDialog>
 #include <KUrl>
+#include <QVBoxLayout>
+#include <QPushButton>
 
 K_PLUGIN_FACTORY(KGuitarPartFactory,
                  registerPlugin<KGuitarPart>();
@@ -74,7 +72,7 @@ KGuitarPart::KGuitarPart(QWidget *parentWidget, QObject *parent, const QVariantL
 	// we need an instance
 	setComponentName(QStringLiteral("kguitarpart"),"KGuitar Core Plugin");
 
-	Settings::config = KGlobal::mainComponent().config();
+	Settings::config = KComponentData::mainComponent().config();
 
 	cmdHist = new QUndoStack();
 
@@ -146,12 +144,12 @@ void KGuitarPart::setModified(bool modified)
 	ReadWritePart::setModified(modified);
 }
 
-K4AboutData *KGuitarPart::createAboutData()
-{
-	K4AboutData *aboutData = new K4AboutData("kguitarpart", 0, ki18n("KGuitarPart"), VERSION);
-	aboutData->addAuthor(ki18n("KGuitar development team"), KLocalizedString(), 0);
-	return aboutData;
-}
+//K4AboutData *KGuitarPart::createAboutData()
+//{
+//	K4AboutData *aboutData = new K4AboutData("kguitarpart", 0, ki18n("KGuitarPart"), VERSION);
+//	aboutData->addAuthor(ki18n("KGuitar development team"), KLocalizedString(), 0);
+//	return aboutData;
+//}
 
 // Reimplemented method from KParts to open file m_file
 bool KGuitarPart::openFile()
@@ -207,20 +205,28 @@ bool KGuitarPart::openFile()
 bool KGuitarPart::exportOptionsDialog(QString ext)
 {
 	OptionsPage *op;
-	KDialog opDialog;
-	opDialog.setCaption(i18n("Additional Export Options"));
-	opDialog.setButtons(KDialog::Help|KDialog::Default|KDialog::Ok|KDialog::Cancel);
+	QDialog opDialog;
+	opDialog.setWindowTitle(i18n("Additional Export Options"));
 
-	KVBox *box = new KVBox(&opDialog);
-	opDialog.setMainWidget(box);
+	QDialogButtonBox* buttonBox = new QDialogButtonBox(QDialogButtonBox::Ok
+	                                                 | QDialogButtonBox::Cancel
+	                                                 | QDialogButtonBox::RestoreDefaults
+	                                                 | QDialogButtonBox::Help,
+	                                                   &opDialog);
+
+	QVBoxLayout *box = new QVBoxLayout(&opDialog);
+	opDialog.setLayout(box);
 
 	if (ext == "tab") {
-		op = new OptionsExportAscii(Settings::config, box);
+		op = new OptionsExportAscii(Settings::config);
 	} else if (ext == "tex") {
-		op = new OptionsExportMusixtex(Settings::config, box);
+		op = new OptionsExportMusixtex(Settings::config);
 	} else {
 		return TRUE;
 	}
+
+	box->addWidget(op);
+	box->addWidget(buttonBox);
 
 	// Skip the dialog if a user has set the appropriate option
 // GREYTODO
@@ -230,8 +236,10 @@ bool KGuitarPart::exportOptionsDialog(QString ext)
 		return TRUE;
 	}
 */
-	connect(&opDialog, SIGNAL(defaultClicked()), op, SLOT(defaultBtnClicked()));
-	connect(&opDialog, SIGNAL(okClicked()), op, SLOT(applyBtnClicked()));
+	connect(buttonBox, &QDialogButtonBox::accepted, &opDialog, &QDialog::accept);
+	connect(buttonBox, &QDialogButtonBox::rejected, &opDialog, &QDialog::reject);
+	connect(buttonBox->button(QDialogButtonBox::RestoreDefaults), &QPushButton::clicked, op, &OptionsPage::defaultBtnClicked);
+	connect(buttonBox->button(QDialogButtonBox::Ok)             , &QPushButton::clicked, op, &OptionsPage::applyBtnClicked);
 // GREYTODO: from example - needed here?
 //   connect( widget, SIGNAL( changed( bool ) ), dialog, SLOT( enableButtonApply( bool ) ) );
 
@@ -314,7 +322,7 @@ void KGuitarPart::fileSaveAs()
 		"*.xml|" + i18n("MusicXML files") + " (*.xml)\n"
 		"*.tex|" + i18n("MusiXTeX") + " (*.tex)\n"
 		"*|" + i18n("All files");
-	QString file_name = KFileDialog::getSaveFileName(KUrl(), filter);
+	QString file_name = QFileDialog::getSaveFileName(nullptr, QString(), QString(), filter);
 
 	if (file_name.isEmpty() == false)
 		saveAs(file_name);
@@ -354,7 +362,7 @@ void KGuitarPart::filePrint()
 
 void KGuitarPart::options()
 {
-	KSharedConfigPtr config = KGlobal::mainComponent().config();
+	KSharedConfigPtr config = KComponentData::mainComponent().config();
 	Options op(
 #ifdef WITH_TSE3
 		sv->midiScheduler(),

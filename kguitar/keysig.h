@@ -18,12 +18,12 @@
 #ifndef KEYSIG_H
 #define KEYSIG_H
 
-#include <kdialog.h>
+#include <QDialog>
 #include "global.h"
 
 class QComboBox;
 
-class SetKeySig: public KDialog {
+class SetKeySig: public QDialog {
 	Q_OBJECT
 
 public:

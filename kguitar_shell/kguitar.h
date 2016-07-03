@@ -2,7 +2,7 @@
 #define KGUITAR_H
 
 #include <kparts/mainwindow.h>
-#include <KDELibs4Support/kurl.h>
+#include <QUrl>
 
 class KRecentFilesAction;
 class KToggleAction;
@@ -24,7 +24,7 @@ public:
 	virtual ~KGuitar();
 
 public slots:
-	void saveURL(const KUrl& url);
+	void saveURL(const QUrl& url);
 	void load(const QUrl &url);
 
 protected slots:

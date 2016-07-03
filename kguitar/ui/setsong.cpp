@@ -1,16 +1,27 @@
 #include "setsong.h"
 #include <KI18n/KLocalizedString>
+#include <QDialogButtonBox>
+#include <QVBoxLayout>
 
 SetSong::SetSong(QMap<QString, QString> info, int _tempo, bool ro, QWidget *parent):
-	KDialog(parent)
+	QDialog(parent)
 {
+	setWindowTitle(i18n("Song Properties"));
+	setModal(true);
+
 	QWidget *mainWidget = new QWidget(this);
 	setupUi(mainWidget);
-	setMainWidget(mainWidget);
 
-	setCaption(i18n("Song Properties"));
-	setModal(true);
-	setButtons(Ok | Cancel);
+	QDialogButtonBox* buttonBox = new QDialogButtonBox(QDialogButtonBox::Ok
+	                                                 | QDialogButtonBox::Cancel, this);
+
+	QVBoxLayout* l = new QVBoxLayout();
+	l->addWidget(mainWidget);
+	l->addWidget(buttonBox);
+	this->setLayout(l);
+
+	connect(buttonBox, &QDialogButtonBox::accepted, this, &QDialog::accept);
+	connect(buttonBox, &QDialogButtonBox::rejected, this, &QDialog::reject);
 
 	title->setText(info["TITLE"]);
 	title->setReadOnly(ro);

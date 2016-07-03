@@ -21,7 +21,7 @@
        <item>
         <widget class="QLabel" name="label">
          <property name="text">
-          <string>&amp;Original taps:</string>
+          <string>Ori&amp;ginal taps:</string>
          </property>
          <property name="buddy">
           <cstring>original</cstring>
@@ -40,7 +40,7 @@
          <item>
           <widget class="QLabel" name="label_3">
            <property name="text">
-            <string>T&amp;empo:</string>
+            <string>Te&amp;mpo:</string>
            </property>
            <property name="buddy">
             <cstring>tempo</cstring>
@@ -120,7 +120,7 @@
        <item>
         <widget class="QLabel" name="label_2">
          <property name="text">
-          <string>Q&amp;uantized taps:</string>
+          <string>&amp;Quantized taps:</string>
          </property>
          <property name="buddy">
           <cstring>quantized</cstring>
@@ -135,7 +135,7 @@
     </layout>
    </item>
    <item>
-    <widget class="KDialogButtonBox" name="kdialogbuttonbox">
+    <widget class="QDialogButtonBox" name="buttonBox">
      <property name="standardButtons">
       <set>QDialogButtonBox::Cancel|QDialogButtonBox::Ok</set>
      </property>
@@ -143,13 +143,6 @@
    </item>
   </layout>
  </widget>
- <customwidgets>
-  <customwidget>
-   <class>KDialogButtonBox</class>
-   <extends>QDialogButtonBox</extends>
-   <header>kdialogbuttonbox.h</header>
-  </customwidget>
- </customwidgets>
  <resources/>
  <connections>
   <connection>
@@ -185,34 +178,34 @@
    </hints>
   </connection>
   <connection>
-   <sender>kdialogbuttonbox</sender>
+   <sender>buttonBox</sender>
    <signal>accepted()</signal>
    <receiver>RhythmEditor</receiver>
    <slot>accept()</slot>
    <hints>
     <hint type="sourcelabel">
-     <x>303</x>
-     <y>405</y>
+     <x>242</x>
+     <y>408</y>
     </hint>
     <hint type="destinationlabel">
-     <x>238</x>
-     <y>156</y>
+     <x>242</x>
+     <y>213</y>
     </hint>
    </hints>
   </connection>
   <connection>
-   <sender>kdialogbuttonbox</sender>
+   <sender>buttonBox</sender>
    <signal>rejected()</signal>
    <receiver>RhythmEditor</receiver>
    <slot>reject()</slot>
    <hints>
     <hint type="sourcelabel">
-     <x>416</x>
-     <y>404</y>
+     <x>242</x>
+     <y>408</y>
     </hint>
     <hint type="destinationlabel">
-     <x>328</x>
-     <y>127</y>
+     <x>242</x>
+     <y>213</y>
     </hint>
    </hints>
   </connection>

@@ -6,7 +6,7 @@
 #include "data/tabtrack.h"
 
 class QLineEdit;
-class KIntNumInput;
+class QSpinBox;
 class QComboBox;
 class SetTabFret;
 class SetTabDrum;
@@ -19,7 +19,7 @@ public:
     SetTrack(TabTrack *trk, QWidget *parent = 0);
 
     QLineEdit *title;
-    KIntNumInput *channel, *bank, *patch;
+    QSpinBox *channel, *bank, *patch;
 	QComboBox *mode;
 	KPageWidgetItem *modeSpecPage;
     QWidget *modespec;

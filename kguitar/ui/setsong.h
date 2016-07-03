@@ -1,12 +1,12 @@
 #ifndef SETSONG_H
 #define SETSONG_H
 
-#include <KDialog>
+#include <QDialog>
 #include <QMap>
 
 #include "ui_setsong.h"
 
-class SetSong: public KDialog, private Ui::SetSong {
+class SetSong: public QDialog, private Ui::SetSong {
 	Q_OBJECT
 
 public:

@@ -69,6 +69,7 @@ qt5_wrap_ui(kguitar_PART_SRCS
 add_library(kguitarpart ${kguitar_PART_SRCS})
 
 target_link_libraries(kguitarpart
+	Qt5::PrintSupport
 	KF5::Parts
 	KF5::KDELibs4Support
 )
@@ -77,7 +78,7 @@ if(WITH_TSE3)
 	target_link_libraries(kguitarpart ${TSE3_LIBRARIES})
 endif(WITH_TSE3)
 
-install(FILES kguitar_part.desktop DESTINATION ${XDG_APPS_INSTALL_DIR})
+install(FILES org.kde.kguitar_part.desktop DESTINATION ${XDG_APPS_INSTALL_DIR})
 install(FILES kguitar_part.rc DESTINATION ${KXMLGUI_INSTALL_DIR}/kguitarpart)
 
 install(TARGETS kguitarpart DESTINATION ${PLUGIN_INSTALL_DIR})

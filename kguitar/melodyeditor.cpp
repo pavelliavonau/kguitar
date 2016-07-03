@@ -15,8 +15,7 @@
 #include <QVBoxLayout>
 #include <klocale.h>
 #include <qapplication.h>
-#include <KDialog>
-#include <KVBox>
+#include <QDialogButtonBox>
 
 MelodyEditor::MelodyEditor(TrackView *_tv, QWidget *parent)
 	: QWidget(parent)
@@ -93,17 +92,28 @@ void MelodyEditor::drawBackground()
 
 void MelodyEditor::optionsDialog()
 {
-	KDialog opDialog;
-	opDialog.setCaption(i18n("Melody Constructor"));
+	QDialog opDialog;
+	opDialog.setWindowTitle(i18n("Melody Constructor"));
 	opDialog.setModal(true);
-	opDialog.setButtons(KDialog::Help|KDialog::Default|KDialog::Ok|
-            KDialog::Apply|KDialog::Cancel);
-	KVBox *box = new KVBox(&opDialog);
-	opDialog.setMainWidget(box);
-	OptionsMelodyEditor op(Settings::config, (QFrame *) box);
-	connect(&opDialog, SIGNAL(defaultClicked()), &op, SLOT(defaultBtnClicked()));
-	connect(&opDialog, SIGNAL(okClicked()), &op, SLOT(applyBtnClicked()));
-	connect(&opDialog, SIGNAL(applyClicked()), &op, SLOT(applyBtnClicked()));
+
+
+	QDialogButtonBox* buttonBox = new QDialogButtonBox(QDialogButtonBox::Ok
+	                                                 | QDialogButtonBox::Cancel
+	                                                 | QDialogButtonBox::Apply
+	                                                 | QDialogButtonBox::RestoreDefaults
+	                                                 | QDialogButtonBox::Help,
+	                                                   &opDialog);
+
+	QVBoxLayout *box = new QVBoxLayout(&opDialog);
+	opDialog.setLayout(box);
+	OptionsMelodyEditor op(Settings::config);
+	box->addWidget(&op);
+	box->addWidget(buttonBox);
+	connect(buttonBox, &QDialogButtonBox::accepted, &opDialog, &QDialog::accept);
+	connect(buttonBox, &QDialogButtonBox::rejected, &opDialog, &QDialog::reject);
+	connect(buttonBox->button(QDialogButtonBox::RestoreDefaults), &QPushButton::clicked, &op, &OptionsPage::defaultBtnClicked);
+	connect(buttonBox->button(QDialogButtonBox::Apply)          , &QPushButton::clicked, &op, &OptionsPage::applyBtnClicked);
+	connect(buttonBox->button(QDialogButtonBox::Ok)             , &QPushButton::clicked, &op, &OptionsPage::applyBtnClicked);
 	opDialog.exec();
 	drawBackground();
 }

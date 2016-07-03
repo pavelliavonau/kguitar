@@ -1,16 +1,16 @@
 #include "kguitar.h"
 #include "kguitar.moc"
 
-#include <kaction.h>
 #include <kactioncollection.h>
 #include <kconfig.h>
 #include <kedittoolbar.h>
-#include <kfiledialog.h>
+#include <QFileDialog>
 #include <kshortcutsdialog.h>
-#include <klibloader.h>
+#include <KPluginFactory>
+#include <KPluginLoader>
 #include <kmessagebox.h>
 #include <kstandardaction.h>
-#include <kstatusbar.h>
+#include <QStatusBar>
 #include <kurl.h>
 #include <klocale.h>
 #include <krecentfilesaction.h>
@@ -107,7 +107,7 @@ void KGuitar::load(const QUrl& url)
 }
 
 // Call KPart's saving URL and maintain recent files list
-void KGuitar::saveURL(const KUrl& url)
+void KGuitar::saveURL(const QUrl &url)
 {
 	if (kgpart->saveAs(url))
 		openRecentAct->addUrl(url);
@@ -121,7 +121,7 @@ void KGuitar::fileNew()
 
 void KGuitar::fileOpen()
 {
-	KUrl url = KFileDialog::getOpenUrl(KUrl(),
+	QUrl url = QFileDialog::getOpenFileUrl(this, "", QUrl(),
 		"*.kg *.gp4 *.gp3 *.mid *.tab *.xml|" + i18n("All music files") + "\n"
 		"*.kg|" + i18n("KGuitar files") + " (*.kg)\n"
 		"*.tab|" + i18n("ASCII files") + " (*.tab)\n"
@@ -129,8 +129,7 @@ void KGuitar::fileOpen()
 		"*.gp4|" + i18n("Guitar Pro 4 files") + " (*.gp4)\n"
 		"*.gp3|" + i18n("Guitar Pro 3 files") + " (*.gp3)\n"
 		"*.xml|" + i18n("MusicXML files") + " (*.xml)\n"
-		"*|" + i18n("All files"),
-		this
+		"*|" + i18n("All files")
 	);
 
 	if (url.isEmpty() == false) {

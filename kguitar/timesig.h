@@ -1,14 +1,14 @@
 #ifndef TIMESIG_H
 #define TIMESIG_H
 
-#include <kdialog.h>
+#include <QDialog>
 #include "global.h"
 
 class QSpinBox;
 class QComboBox;
 class QCheckBox;
 
-class SetTimeSig: public KDialog {
+class SetTimeSig: public QDialog {
 	Q_OBJECT
 
 public:

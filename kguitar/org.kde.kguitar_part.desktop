@@ -8,3 +8,4 @@ Icon=kguitar
 MimeType=application/x-kguitar
 ServiceTypes=KParts/ReadOnlyPart,KParts/ReadWritePart,Browser/View
 Type=Service
+X-DBUS-ServiceName=org.kde.libkguitarpart

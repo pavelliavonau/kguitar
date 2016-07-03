@@ -6,23 +6,23 @@
 #include <qcombobox.h>
 #include <qcheckbox.h>
 #include <QFormLayout>
+#include <QDialogButtonBox>
 
 SetTimeSig::SetTimeSig(int t1, int t2, QWidget *parent)
-	: KDialog(parent)
+	: QDialog(parent)
 {
-	setCaption(i18n("Time signature"));
+	setWindowTitle(i18n("Time signature"));
 	setModal(true);
-	setButtons(Ok | Cancel);
 
-	QWidget *page = new QWidget(this);
-	setMainWidget(page);
+	QDialogButtonBox* buttonBox = new QDialogButtonBox(QDialogButtonBox::Ok
+	                                                 | QDialogButtonBox::Cancel);
 
-	m_time1 = new QSpinBox(page);
+	m_time1 = new QSpinBox(this);
 	m_time1->setMinimum(1);
 	m_time1->setMaximum(32);
 	m_time1->setValue(t1);
 
-	m_time2 = new QComboBox(page);
+	m_time2 = new QComboBox(this);
 	m_time2->setInsertPolicy(QComboBox::NoInsert);
 	m_time2->addItem("1");
 	m_time2->addItem("2");
@@ -42,11 +42,15 @@ SetTimeSig::SetTimeSig(int t1, int t2, QWidget *parent)
 
 	toend = new QCheckBox(i18n("Apply till the &end"),this);
 
-	QFormLayout *l = new QFormLayout(page);
+	QFormLayout *l = new QFormLayout(this);
 	l->addRow(i18n("&Beats per measure:"), m_time1);
 	l->addRow(i18n("Beat &value:"), m_time2);
 	l->addRow(toend);
-	page->setLayout(l);
+	l->addRow(buttonBox);
+	this->setLayout(l);
+
+	connect(buttonBox, &QDialogButtonBox::accepted, this, &QDialog::accept);
+	connect(buttonBox, &QDialogButtonBox::rejected, this, &QDialog::reject);
 }
 
 int SetTimeSig::time1()

@@ -1,0 +1,13 @@
+[KDE Desktop Entry]
+Encoding=UTF-8
+Name=KGuitar
+Exec=kguitar %u -qwindowtitle "%c" %m
+Icon=kguitar
+Type=Application
+Terminal=false
+MimeType=application/x-kguitar
+X-DBUS-ServiceName=org.kde.kguitar
+DocPath=kguitar/index.html
+GenericName=Tabulature editor for music instruments
+GenericName[de]=Tabulatur-Editor for Musikinstrumente
+GenericName[ru]=Редактор табулатур для музыкальных инструментов

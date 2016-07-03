@@ -22,7 +22,7 @@ bool ChordAnalyzer::analyze()
 	QChar tc = name[0];
 
 	// Get tonic
-	switch (tc.toAscii())  {
+	switch (tc.toLatin1())  {
 	case 'C': tonic = 0; break;
 	case 'D': tonic = 2; break;
 	case 'E': tonic = 4; break;

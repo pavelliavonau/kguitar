@@ -39,7 +39,7 @@ public:
 	/**
 	 * Provide "About..." credits data, required by KPart
 	 */
-	static K4AboutData *createAboutData();
+	//static K4AboutData *createAboutData();
 
 public slots:
 	void filePrint();

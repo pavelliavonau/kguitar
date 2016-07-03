@@ -23,7 +23,6 @@
 #include <klocale.h>
 #include <kdebug.h>
 #include <kxmlguiclient.h>
-#include <knuminput.h>
 #include <kmessagebox.h>
 #include <QUndoStack>
 

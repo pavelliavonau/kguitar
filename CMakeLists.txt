@@ -16,12 +16,18 @@ include(ECMAddAppIcon)
 include(ECMInstallIcons)
 
 # TODO: determine required modules
-find_package(Qt5 ${QT_MIN_VERSION} REQUIRED NO_MODULE COMPONENTS Core Widgets Xml)
+find_package(Qt5 ${QT_MIN_VERSION} REQUIRED NO_MODULE COMPONENTS
+    Core
+    Widgets
+    Xml
+    PrintSupport
+    )
+
 find_package(KF5 REQUIRED COMPONENTS
     Config
 #    ConfigWidgets
 #    DBusAddons
-#    DocTools
+    DocTools
 #    IconThemes
     I18n
 #    IdleTime

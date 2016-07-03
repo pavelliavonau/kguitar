@@ -32,9 +32,9 @@ SetTrack::SetTrack(TabTrack *trk, QWidget *parent)
 	QFormLayout *l = new QFormLayout(gen);
 
 	title = new QLineEdit(gen);
-	channel = new KIntNumInput(gen);
-	bank = new KIntNumInput(gen);
-	patch = new KIntNumInput(gen);
+	channel = new QSpinBox(gen);
+	bank = new QSpinBox(gen);
+	patch = new QSpinBox(gen);
 	mode = new QComboBox(gen);
 	mode->addItem(i18n("Fretted instrument"));
 	mode->addItem(i18n("Drum track"));
