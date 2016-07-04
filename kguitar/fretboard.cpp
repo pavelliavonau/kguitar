@@ -10,8 +10,6 @@
 #include <QPaintEvent>
 #include <QAbstractItemView>
 
-#include <kstandarddirs.h>
-
 #define FRET_DIVISOR     1.05946
 
 #define INLAY_FILL_COLOR 205, 214, 221
@@ -57,9 +55,9 @@ Fretboard::Fretboard(QAbstractItemView *tv_, QWidget *parent)
 
 	scaleback = NULL;
 	back = NULL;
-	wood = new QPixmap(KStandardDirs::locate("data", "kguitar/pics/rosewood.jpg"));
-	fret = new QImage(KStandardDirs::locate("data", "kguitar/pics/fret.png"));
-	zeroFret = new QImage(KStandardDirs::locate("data", "kguitar/pics/zerofret.png"));
+	wood = new QPixmap(QStandardPaths::locate(QStandardPaths::GenericDataLocation, "kguitar/pics/rosewood.jpg"));
+	fret = new QImage(QStandardPaths::locate(QStandardPaths::GenericDataLocation, "kguitar/pics/fret.png"));
+	zeroFret = new QImage(QStandardPaths::locate(QStandardPaths::GenericDataLocation, "kguitar/pics/zerofret.png"));
 
 	setFocusPolicy(Qt::WheelFocus); // the strongest focus gainer
 	setAutoFillBackground(true);
@@ -177,7 +175,7 @@ void Fretboard::drawBackground()
 	if(trk()->trackMode() != TabTrack::FretTab)
 		return;
 
-	kDebug() << "drawBackground - start\n";
+	qDebug() << "drawBackground - start";
 
 	if (back != NULL)
 		delete back;
@@ -280,13 +278,13 @@ void Fretboard::drawBackground()
 		p.drawLine(0, y + 1, width(), y + 1);
 	}
 
-	kDebug() << "drawBackground - end\n";
+	qDebug() << "drawBackground - end";
 	drawScaleBack();
 }
 
 void Fretboard::drawScaleBack()
 {
-	kDebug() << "drawScaleBack - start\n";
+	qDebug() << "drawScaleBack - start";
 
 	if (scaleback != NULL)
 		delete scaleback;
@@ -330,7 +328,7 @@ void Fretboard::drawScaleBack()
 	QPalette palette;
 	palette.setBrush(backgroundRole(), QBrush(*scaleback));
 	setPalette(palette);
-	kDebug() << "drawScaleBack - done\n";
+	qDebug() << "drawScaleBack - done";
 }
 
 TabTrack *Fretboard::trk()

@@ -47,7 +47,7 @@ void TabColumn::setFullDuration(quint16 len)
 		test /= 2;
 	}
 
-	kDebug() << "Very strange full duration: " << len << ", can't detect, using 120" << endl;
+	qDebug() << "Very strange full duration: " << len << ", can't detect, using 120";
 	l = 120;
 }
 

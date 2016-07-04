@@ -1,8 +1,6 @@
 #include "trackdrag.h"
 #include "data/tabtrack.h"
 
-#include <kdebug.h>
-
 #include <QBuffer>
 #include <QMimeData>
 #include <QDataStream>
@@ -13,7 +11,7 @@ QString TrackDrag::TRACK_MIME_TYPE = "application/x-kguitar-snippet";
 QByteArray TrackDrag::encode(TabTrack *trk)
 {
 	if (trk == NULL) {
-		kDebug() << "TrackDrag::setTrack() >>>>>> trk == NULL" << endl;
+		qDebug() << "TrackDrag::setTrack() >>>>>> trk == NULL";
 		return QByteArray();  // ALINXFIX: Write in buffer "NULLTRACK"
 	}
 
@@ -104,7 +102,7 @@ bool TrackDrag::decode(const QMimeData *e, TabTrack *&trk)
 	trk = NULL;
 
 	if (!canDecode(e)) {
-		kDebug() << "TrackDrag::decode(...) >> can't decode QMimeSource!!" << endl;
+		qDebug() << "TrackDrag::decode(...) >> can't decode QMimeSource!!";
 		return FALSE;
 	}
 
@@ -154,7 +152,7 @@ bool TrackDrag::decode(const QMimeData *e, TabTrack *&trk)
 	newtrk->bars()[0].time1 = 4;
 	newtrk->bars()[0].time2 = 4;
 
-	kDebug() << "TrackDrag::decode >> reading events" << endl;;
+	qDebug() << "TrackDrag::decode >> reading events";;
 	do {
 		s >> event;
 		s >> elength;
@@ -181,7 +179,7 @@ bool TrackDrag::decode(const QMimeData *e, TabTrack *&trk)
 			break;
 		case 'E':                   // Effects of prev column
 			if (x == 0) {			// Ignore if there were no tab cols
-				kDebug() << "TrackDrag::decode >> Warning: FX column with no tab columns, ignoring..." << endl;
+				qDebug() << "TrackDrag::decode >> Warning: FX column with no tab columns, ignoring...";
 				break;
 			}
 			for (int k = 0; k < string; k++) {
@@ -191,7 +189,7 @@ bool TrackDrag::decode(const QMimeData *e, TabTrack *&trk)
 			break;
 		case 'F':                   // Flag of prev column
 			if (x == 0) {			// Ignore if there were no tab cols
-				kDebug() << "TrackDrag::decode >> Warning: flag with no tab columns, ignoring..." << endl;
+				qDebug() << "TrackDrag::decode >> Warning: flag with no tab columns, ignoring...";
 				break;
 			}
 			s >> cn; newtrk->c[x-1].flags = cn;
@@ -213,7 +211,7 @@ bool TrackDrag::decode(const QMimeData *e, TabTrack *&trk)
 			finished = TRUE;
 			break;
 		default:
-			kDebug() << "TrackDrag::decode >> Warning: unknown event " << event << " Skipping..." << endl;
+			qDebug() << "TrackDrag::decode >> Warning: unknown event " << event << " Skipping...";
 			for (int k = 0; k < elength; k++)
 				s >> cn;
 			break;

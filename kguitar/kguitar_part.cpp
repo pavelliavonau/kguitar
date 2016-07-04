@@ -1,3 +1,5 @@
+#include "kguitar_part.h"
+
 #include "global.h"
 
 #include "songprint.h"
@@ -21,43 +23,34 @@
 #include "optionsexportascii.h"
 #include "optionsexportmusixtex.h"
 
-// KDE system things
-#include "kguitar_part.h"
-
-#include <kactioncollection.h>
+// Qt system things
 #include <QFileDialog>
-#include <KLocale>
-#include <KPluginFactory>
-#include <kstandardaction.h>
-#include <kmessagebox.h>
-#include <ktoggleaction.h>
 #include <QPrinter>
-#include <kdeprintdialog.h>
-#include <KComponentData>
-#include <KConfig>
-#include <KGlobal>
-#include <KSharedConfigPtr>
-#include <KIcon>
-
 #include <qpixmap.h>
 #include <qnamespace.h>
 #include <qstatusbar.h>
 #include <qclipboard.h>
-
 #include <qradiobutton.h>
 #include <qfileinfo.h>
 #include <QPrintDialog>
-
 #include <QUndoStack>
-#include <KExportPlugin>
-#include <KUrl>
 #include <QVBoxLayout>
 #include <QPushButton>
+
+// KDE system things
+#include <kactioncollection.h>
+#include <KPluginFactory>
+#include <kstandardaction.h>
+#include <kmessagebox.h>
+#include <ktoggleaction.h>
+#include <KConfig>
+#include <KSharedConfig>
+#include <KConfigGroup>
+#include <KLocalizedString>
 
 K_PLUGIN_FACTORY(KGuitarPartFactory,
                  registerPlugin<KGuitarPart>();
                 )
-K_EXPORT_PLUGIN(KGuitarPartFactory("kguitarpart"))
 K_EXPORT_PLUGIN_VERSION(0.7)
 
 #include "kguitar_part.moc"
@@ -72,7 +65,8 @@ KGuitarPart::KGuitarPart(QWidget *parentWidget, QObject *parent, const QVariantL
 	// we need an instance
 	setComponentName(QStringLiteral("kguitarpart"),"KGuitar Core Plugin");
 
-	Settings::config = KComponentData::mainComponent().config();
+
+	Settings::config = KSharedConfig::openConfig();
 
 	cmdHist = new QUndoStack();
 
@@ -175,7 +169,7 @@ bool KGuitarPart::openFile()
 	try {
 		if (converter)  success = converter->load(localFilePath());
 	} catch (QString msg) {
-		kDebug() << "Converter failed with message \"" << msg << "\"\n";
+		qDebug() << "Converter failed with message \"" << msg << "\"";
 		KMessageBox::sorry(0, msg, i18n("Loading failed"));
 
 		sv->song()->removeRows(0, sv->song()->rowCount());
@@ -277,8 +271,8 @@ bool KGuitarPart::saveFile()
 
 	QFileInfo *fi = new QFileInfo(url().fileName());
 	QString ext = fi->suffix().toLower();
-	kDebug() << "URL is " << url() << endl;
-	kDebug() << "Trying to save to " << localFilePath() << endl;
+	qDebug() << "URL is " << url();
+	qDebug() << "Trying to save to " << localFilePath();
 
 	bool success = FALSE;
 
@@ -290,7 +284,7 @@ bool KGuitarPart::saveFile()
 			return FALSE;
 		}
 	} catch (QString msg) {
-		kDebug() << "Converter failed with message \"" << msg << "\"\n";
+		qDebug() << "Converter failed with message \"" << msg << "\"";
 		KMessageBox::sorry(0, msg, i18n("Loading failed"));
 
 		sv->song()->removeRows(0, sv->song()->rowCount());
@@ -354,7 +348,7 @@ void KGuitarPart::filePrint()
 //  slotStatusMsg(i18n("Printing..."));
 
 	QPrinter printer(QPrinter::HighResolution);
-	if (KdePrint::createPrintDialog(&printer)->exec())
+	if (QPrintDialog(&printer).exec())
 		sv->print(&printer);
 
 //  slotStatusMsg(i18n("Ready."));
@@ -362,7 +356,7 @@ void KGuitarPart::filePrint()
 
 void KGuitarPart::options()
 {
-	KSharedConfigPtr config = KComponentData::mainComponent().config();
+	KSharedConfigPtr config = KSharedConfig::openConfig();
 	Options op(
 #ifdef WITH_TSE3
 		sv->midiScheduler(),

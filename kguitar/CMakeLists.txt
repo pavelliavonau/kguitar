@@ -71,7 +71,7 @@ add_library(kguitarpart ${kguitar_PART_SRCS})
 target_link_libraries(kguitarpart
 	Qt5::PrintSupport
 	KF5::Parts
-	KF5::KDELibs4Support
+	KF5::I18n
 )
 
 if(WITH_TSE3)

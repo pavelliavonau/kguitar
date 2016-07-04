@@ -64,7 +64,6 @@
 #include <QVector>
 #include <qpainter.h>
 #include <qprinter.h>
-#include <kglobal.h>
 
 /***************************************************************************
  * class SongPrint
@@ -179,12 +178,11 @@ static void fontInfo(QFont * f)
 //	bool b = fi.exactMatch();
 	QString s = fi.family();
 	if (s.isNull()) s = "(null)";
-// 	kDebug()
+// 	qDebug()
 // 	<< "f=" << f <<
 // 	<< (b ? " exact match" : " not matched")
 // 	<< " family=" << s
-// 	<< " pointsize=" << fi.pointSize()
-// 	<< endl;
+// 	<< " pointsize=" << fi.pointSize();
 }
 
 //static bool fontIsExactMatch(QFont * f)
@@ -219,7 +217,7 @@ void SongPrint::initFonts()
 // 	if (!fontIsExactMatch(fFeta)) {
 // 		delete fFeta;
 // 		fFeta = 0;
-// 		kWarning() << "KGuitar: could not find feta font, cannot show or print score\n";
+// 		qWarning() << "KGuitar: could not find feta font, cannot show or print score";
 // 	}
 }
 

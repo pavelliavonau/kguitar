@@ -6,7 +6,6 @@
 #include <klocale.h>
 #include <qlineedit.h>
 #include <QFormLayout>
-#include <knuminput.h>
 #include <qcombobox.h>
 #include <QDialogButtonBox>
 

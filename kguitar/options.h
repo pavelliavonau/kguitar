@@ -3,7 +3,7 @@
 
 #include <kpagedialog.h>
 #include "global.h"
-#include <ksharedconfig.h>
+#include <KSharedConfig>
 
 class QRadioButton;
 class QSlider;

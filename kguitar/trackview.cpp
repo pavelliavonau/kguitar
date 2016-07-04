@@ -10,12 +10,10 @@
 #include "ui/rhythmeditor.h"
 
 #include <kglobalsettings.h>
-#include <kglobal.h>
 #include <kmessagebox.h>
 #include <klocale.h>
 #include <kxmlguiclient.h>
 #include <kxmlguifactory.h>
-#include <kmenu.h>
 
 #include <qwidget.h>
 #include <qpainter.h>
@@ -34,6 +32,8 @@
 #include <qcombobox.h>
 #include <qcheckbox.h>
 #include <QUndoStack>
+#include <QMenu>
+#include <QFontDatabase>
 
 #include <stdlib.h>		// required for declaration of abs()
 #include <algorithm>
@@ -77,7 +77,7 @@ TrackView::TrackView(TabSong *s, KXMLGUIClient *_XMLGUIClient, QUndoStack *_cmdH
 
 	song = s;
 
-	normalFont = new QFont(KGlobalSettings::generalFont());
+	normalFont = new QFont(QFontDatabase::systemFont(QFontDatabase::GeneralFont));
 	if (normalFont->pointSize() == -1) {
 		normalFont->setPixelSize((int) NORMAL_FONT_FACTOR);
 	} else {
@@ -152,7 +152,7 @@ TabTrack *TrackView::trk()
 
 void TrackView::initFonts()
 {
-	kDebug() << "TrackView::initFonts\n";
+	qDebug() << "TrackView::initFonts\n";
 	fetaFont   = new QFont("FreeSerif", SCORE_FONT_FACTOR);
 	fetaNrFont = new QFont("FreeSerif", SCORE_SIG_FONT_FACTOR);
 	fetaNrFont->setBold(true);
@@ -904,12 +904,12 @@ void TrackView::mousePressEvent(QMouseEvent *e)
 		tmpWidget = xmlGUIClient->factory()->container("trackviewpopup", xmlGUIClient);
 
 		if (!tmpWidget) {
-			kDebug() << "TrackView::contentsMousePressEvent => no container widget" << endl;
+			qDebug() << "TrackView::contentsMousePressEvent => no container widget";
 			return;
 		}
 
 		if (!tmpWidget->inherits("QMenu")) {
-			kDebug() << "TrackView::contentsMousePressEvent => container widget is not QMenu" << endl;
+			qDebug() << "TrackView::contentsMousePressEvent => container widget is not QMenu";
 			return;
 		}
 

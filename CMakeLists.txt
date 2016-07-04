@@ -36,7 +36,6 @@ find_package(KF5 REQUIRED COMPONENTS
 #    TextWidgets
 #    XmlGui
 #    WindowSystem
-    KDELibs4Support
     Parts
     )
 

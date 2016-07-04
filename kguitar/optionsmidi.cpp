@@ -59,7 +59,7 @@ void OptionsMidi::fillMidiBox()
 	if (!sch)
 		return;
 
-	kDebug() << "OptionsMidi::fillMidiBox: starting to fill";
+	qDebug() << "OptionsMidi::fillMidiBox: starting to fill";
 
 	sch->portNumbers(portNums);
 

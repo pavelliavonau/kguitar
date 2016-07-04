@@ -2,7 +2,6 @@
 #include "songview.h"
 #include "data/tabtrack.h"
 
-#include <kdebug.h>
 #ifdef WITH_TSE3
 
 #include <tse3/MidiScheduler.h>
@@ -42,10 +41,10 @@ void PlaybackTracker::init()
 		TSE3::MidiSchedulerFactory factory;
 		try {
 			scheduler = factory.createScheduler();
-			kDebug() << "MIDI Scheduler created" << endl;
+			qDebug() << "MIDI Scheduler created";
 
 			if (!scheduler) {
-				kError() << "ERROR opening MIDI device / Music can't be played" << endl;
+				qCritical() << "ERROR opening MIDI device / Music can't be played";
 //			midiInUse = FALSE;
 //			return FALSE;
 			}
@@ -54,7 +53,7 @@ void PlaybackTracker::init()
 			transport = new TSE3::Transport(metronome, scheduler);
 			transport->attachCallback(this);
 		} catch (const TSE3::Error &e) {
-			kError() << "cannot create MIDI Scheduler" << endl;
+			qCritical() << "cannot create MIDI Scheduler";
 			scheduler = NULL;
 		}
 	}
@@ -63,7 +62,7 @@ void PlaybackTracker::init()
 void PlaybackTracker::playSong(TSE3::Song *song, int startClock)
 {
 	if (!scheduler) {
-		kWarning() << "PlaybackTracker::playSong - no scheduler";
+		qWarning() << "PlaybackTracker::playSong - no scheduler";
 		return;
 	}
 
@@ -86,11 +85,11 @@ void PlaybackTracker::playSong(TSE3::Song *song, int startClock)
 bool PlaybackTracker::stop()
 {
 	if (!scheduler) {
-		kWarning() << "PlaybackTracker::stopPlay - no scheduler";
+		qWarning() << "PlaybackTracker::stopPlay - no scheduler";
 		return false;
 	}
 
-	kDebug() << "PlaybackTracker::stopPlay" << endl;
+	qDebug() << "PlaybackTracker::stopPlay";
 	if (isRunning()) {
 		midiStop = true;
 	} else {
@@ -101,13 +100,13 @@ bool PlaybackTracker::stop()
 
 void PlaybackTracker::run()
 {
-	kDebug() << "run: prepare to start\n";
+	qDebug() << "run: prepare to start";
 	// GREYFIX needs mutex here!
 	TSE3::Song *song = this->song;
 	int startClock = this->startClock;
 
 	if (song) {
-		kDebug() << "run: starting\n";
+		qDebug() << "run: starting";
 
 //		transport->setLookAhead(5000);
 		transport->setAdaptiveLookAhead(true);
@@ -119,10 +118,10 @@ void PlaybackTracker::run()
 			if (midiStop)
 				transport->stop();
 			transport->poll();
-//			kDebug() << "polling...\n";
+//			qDebug() << "polling...";
 		} while (transport->status() != TSE3::Transport::Resting);
 
-		kDebug() << "run: stopping\n";
+		qDebug() << "run: stopping";
 
 		delete song;
 		this->song = NULL;
@@ -135,11 +134,11 @@ void PlaybackTracker::run()
 void PlaybackTracker::playAllNoteOff()
 {
 	if (!scheduler) {
-		kWarning() << "PlaybackTracker::playAllNoteOff - no scheduler";
+		qWarning() << "PlaybackTracker::playAllNoteOff - no scheduler";
 		return;
 	}
 
-	kDebug() << "starting panic on stop" << endl;
+	qDebug() << "starting panic on stop";
 	TSE3::Panic panic;
 	panic.setAllNotesOff(TRUE);
 // 	panic.setAllNotesOffManually(TRUE);
@@ -149,18 +148,18 @@ void PlaybackTracker::playAllNoteOff()
 		transport->poll();
 	} while (transport->status() != TSE3::Transport::Resting);
 
-	kDebug() << "completed panic on stop" << endl;
+	qDebug() << "completed panic on stop";
 }
 
 void PlaybackTracker::Transport_MidiOut(TSE3::MidiCommand c)
 {
 	int track, x;
-//	kDebug() << "TICK: cmd=" << c.status << " port=" << c.port
+//	qDebug() << "TICK: cmd=" << c.status << " port=" << c.port
 //	          << " data1=" << c.data1 << " data2=" << c.data2
-//	          << " ch=" << c.channel << endl;
+//	          << " ch=" << c.channel;
 	if (c.status == KGUITAR_MIDI_COMMAND && c.port == KGUITAR_MIDI_PORT) {
 		TabTrack::decodeTimeTracking(c, track, x);
-//		kDebug() << "TICK -----------> T" << track << ", x=" << x << endl;
+//		qDebug() << "TICK -----------> T" << track << ", x=" << x;
 		emit playColumn(track, x);
 	}
 }

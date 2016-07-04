@@ -21,7 +21,6 @@
 #include "fretboard.h"
 
 #include <klocale.h>
-#include <kdebug.h>
 #include <kxmlguiclient.h>
 #include <kmessagebox.h>
 #include <QUndoStack>
@@ -200,10 +199,10 @@ void SongView::trackBassLine()
 
 			if ((ChordListItem *) cs.chords->item(0)) {
 				note = ((ChordListItem *) cs.chords->item(0))->tonic();
-				kDebug() << "Column " << i << ", detected tonic " << Settings::noteName(note) << endl;
+				qDebug() << "Column " << i << ", detected tonic " << Settings::noteName(note);
 			} else {
 				note = -1;
-				kDebug() << "Column " << i << ", EMPTY " << endl;
+				qDebug() << "Column " << i << ", EMPTY ";
 			}
 
 			for (uint k = 0; k < MAX_STRINGS; k++) {
@@ -333,14 +332,14 @@ void SongView::songProperties()
 void SongView::playSong()
 {
 #ifdef WITH_TSE3
-	kDebug() << "SongView::playSong" << endl;
+	qDebug() << "SongView::playSong";
 
 	// Try to stop a running song, return if we invoked stopping
 	if (playThread->stop())
 		return;
 
 //	if (!scheduler) {
-//		kDebug() << "SongView::playSong: Scheduler not open from the beginning!" << endl;
+//		qDebug() << "SongView::playSong: Scheduler not open from the beginning!";
 //		if (!initMidi()) {
 //			KMessageBox::error(this, i18n("Error opening MIDI device!"));
 //			midiInUse = FALSE;
@@ -461,11 +460,11 @@ TabTrack *SongView::highlightedTabs()
 
 void SongView::insertTabs(TabTrack* trk)
 {
-	kDebug() << "SongView::insertTabs(TabTrack* trk) " << endl;
+	qDebug() << "SongView::insertTabs(TabTrack* trk) ";
 
 	if (!trk)
-		kDebug() << "   trk == NULL" << endl;
-	else kDebug() << "   trk with data" << endl;
+		qDebug() << "   trk == NULL";
+	else qDebug() << "   trk with data";
 
 	//ALINXFIX: Make it more flexible. (songviewcommands.cpp)
 	QString msg(i18n("There are some problems:\n\n"));

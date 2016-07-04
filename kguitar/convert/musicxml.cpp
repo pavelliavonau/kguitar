@@ -100,25 +100,23 @@ MusicXMLErrorHandler::MusicXMLErrorHandler()
 
 bool MusicXMLErrorHandler::warning(const QXmlParseException& exception)
 {
-	kDebug() << "MusicXMLErrorHandler::warning"
+	qDebug() << "MusicXMLErrorHandler::warning"
 		<< " col=" << exception.columnNumber()
 		<< " line=" << exception.lineNumber()
 		<< " msg=" << exception.message()
 		<< " pid=" << exception.publicId()
-		<< " sid=" << exception.systemId()
-		<< endl;
+		<< " sid=" << exception.systemId();
 	return true;	// continue parsing
 }
 
 bool MusicXMLErrorHandler::error(const QXmlParseException& exception)
 {
-	kDebug() << "MusicXMLErrorHandler::error"
+	qDebug() << "MusicXMLErrorHandler::error"
 		<< " col=" << exception.columnNumber()
 		<< " line=" << exception.lineNumber()
 		<< " msg=" << exception.message()
 		<< " pid=" << exception.publicId()
-		<< " sid=" << exception.systemId()
-		<< endl;
+		<< " sid=" << exception.systemId();
 	return true;	// continue parsing
 }
 
@@ -133,8 +131,7 @@ bool MusicXMLErrorHandler::fatalError(const QXmlParseException& exception)
 			if (parser) {
 				parser->reportError(exception.message());
 			} else {
-				kFatal() << "MusicXMLErrorHandler::fatalError"
-					<< " parser=0" << endl;
+				qFatal("MusicXMLErrorHandler::fatalError parser=0");
 			}
 			fatalReported = true;
 		}

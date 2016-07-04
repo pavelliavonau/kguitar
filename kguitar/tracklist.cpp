@@ -9,9 +9,8 @@
 #include <QHeaderView>
 #include <QScrollBar>
 
-#include <kdebug.h>
 #include <klocale.h>
-#include <kmenu.h>
+#include <QMenu>
 #include <kxmlguiclient.h>
 #include <kxmlguifactory.h>
 
@@ -80,12 +79,12 @@ void TrackList::mousePressEvent(QMouseEvent *e)
 		tmpWidget = xmlGUIClient->factory()->container("tracklistpopup", xmlGUIClient);
 
 		if (!tmpWidget) {
-			kDebug() << "TrackList::contentsMousePressEvent => no container widget" << endl;
+			qDebug() << "TrackList::contentsMousePressEvent => no container widget";
 			return;
 		}
 
 		if (!tmpWidget->inherits("QMenu")) {
-			kDebug() << "TrackList::contentsMousePressEvent => container widget is not QMenu" << endl;
+			qDebug() << "TrackList::contentsMousePressEvent => container widget is not QMenu";
 			return;
 		}
 

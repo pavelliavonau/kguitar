@@ -445,7 +445,7 @@ void ConvertXml::writeBeams(QTextStream& os, TabTrack * trk, int x, int v)
 		stxt = & trk->c[x].stu;
 	}
 	/*
-	kDebug()
+	qDebug()
 		<< "writeBeams()"
 		<< " x=" << x
 		<< " v=" << v
@@ -1045,7 +1045,7 @@ bool ConvertXml::endElement( const QString&, const QString&,
 	    stDiv = stCha;
 		iDiv = stDiv.toInt();
 		if (iDiv <= 0) {
-			kDebug() << "illegal divisions value: " << stDiv << endl;
+			qDebug() << "illegal divisions value: " << stDiv;
 		}
 	} else if (qName == "dot") {
 	    stDts++;
@@ -1201,8 +1201,7 @@ bool ConvertXml::addNote()
 	if (stCho) {
 		if (tStartCur < 0) {
 			// LVIFIX: report error ?
-			kDebug() << "<chord> at start of measure of after backup/forward"
-			          << endl;
+			qDebug() << "<chord> at start of measure of after backup/forward";
 			// pretend to be appending
 			tStartCur = tEndCur;
 		}
@@ -1215,7 +1214,7 @@ bool ConvertXml::addNote()
 	x = trk->x + 1;
 
 	if (stRst) {
-		// kDebug() << "rest, l=" << len << endl;
+		// qDebug() << "rest, l=" << len;
 	}
 
 	// if not rest or tie: fill in fret (if rest: frets stay -1)
@@ -1233,9 +1232,9 @@ bool ConvertXml::addNote()
 				Accidentals acc;
 				int pitch = acc.sao2Pitch(stStp, alt, oct);
 				if (!allocStrFrt(pitch, trk, x-1, str, frt)) {
-					kDebug() << "ConvertXml::addNote() ";
-					kDebug() << "string/fret allocation failed, ";
-					kDebug() << "column=" << x << endl;
+					qDebug() << "ConvertXml::addNote() ";
+					qDebug() << "string/fret allocation failed, ";
+					qDebug() << "column=" << x;
 				}
 			}
 		}
@@ -1374,7 +1373,7 @@ void ConvertXml::reportAll(const QString& lvl, const QString& err)
 	fullErr += ": ";
 	fullErr += err;
 	fullErr += "\n";
-	kDebug() << fullErr;
+	qDebug() << fullErr;
 }
 
 
