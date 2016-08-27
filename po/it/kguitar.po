@@ -269,7 +269,7 @@ msgid ""
 "help to implement this feature in KGuitar please write\n"
 "an email to: greycat@users.sourceforge.net"
 msgstr ""
-"La stampa �al momento non implementata.\n"
+"La stampa �al memento non implementata.\n"
 "Se vuoi aiutare ad implementare questa funzione\n"
 "scrivi un'e-mail a : greycat@users.sourceforge.net"
 
@@ -700,7 +700,7 @@ msgstr "Accordo"
 
 #: strum.h:36
 msgid "Plain single chord, all notes sound at the same time."
-msgstr "Semplice accordo singolo, tutte le note suonano nello stesso momento."
+msgstr "Semplice accordo singolo, tutte le note suonano nello stesso memento."
 
 #: strum.h:39
 msgid "6/8 Standard Arpegio"

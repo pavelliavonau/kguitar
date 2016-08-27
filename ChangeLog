@@ -311,7 +311,7 @@
 	such as 5/16 or something like that).
 
 	* Automatical bar arranger that understands splitting notes of bar
-	margins (with linking) and simplifying the tab by joining similiar
+	margins (with linking) and simplifying the tab by joining similar
 	columns into one. Note duration bars are linked in classic notes
 	manner.
 	
@@ -409,7 +409,7 @@
 	  a chord from a tonic note to steps, and then assembles step record
 	  again into readable chord form, thus detecing very weird (but
 	  sometimes useful chord forms, such as Em6/9sus4 or C7add11 (no3)).
-	  Compared to Guitar Pro chord analyzer that works on similiar concepts,
+	  Compared to Guitar Pro chord analyzer that works on similar concepts,
 	  this chord analyzer detects more chord forms (but currently lacks
 	  changed bass note detection, like Dm/E).
 	

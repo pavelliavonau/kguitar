@@ -78,7 +78,7 @@ page and the upload his national page back to website.
 
 Rules of thumb:
 
-1) Don't overwrite files that don't belong to you. Don't occassionally
+1) Don't overwrite files that don't belong to you. Don't occasionally
 overwrite the other language's translation files. The only files you
 should touch are your files and english files.
 2) Always check the file permissions. If you'll leave the file

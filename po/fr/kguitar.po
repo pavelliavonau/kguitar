@@ -15,7 +15,7 @@ msgstr ""
 
 #: application.cpp:133
 msgid "P&roperties..."
-msgstr "P&ropriétés"
+msgstr "P&ropriï¿½tï¿½s"
 
 #: application.cpp:138
 msgid "&Chord..."
@@ -31,7 +31,7 @@ msgstr "&Arranger la piste"
 
 #: application.cpp:151
 msgid "Whole"
-msgstr "Totalité"
+msgstr "Totalitï¿½"
 
 #: application.cpp:153
 msgid "1/2"
@@ -59,7 +59,7 @@ msgstr "Signature"
 
 #: application.cpp:168
 msgid "Link with previous column"
-msgstr "Lier avec la colonne précédente"
+msgstr "Lier avec la colonne prï¿½cï¿½dente"
 
 #: application.cpp:171
 msgid "Legato (hammer on/pull off)"
@@ -75,35 +75,35 @@ msgstr "Harmonique artificielle"
 
 #: application.cpp:182
 msgid "American, sharps"
-msgstr "Américain, diésées"
+msgstr "Amï¿½ricain, diï¿½sï¿½es"
 
 #: application.cpp:184
 msgid "American, flats"
-msgstr "Américain, bémolisées"
+msgstr "Amï¿½ricain, bï¿½molisï¿½es"
 
 #: application.cpp:186
 msgid "American, mixed"
-msgstr "Américain, mixte"
+msgstr "Amï¿½ricain, mixte"
 
 #: application.cpp:188
 msgid "European, sharps"
-msgstr "Européen, diésées"
+msgstr "Europï¿½en, diï¿½sï¿½es"
 
 #: application.cpp:190
 msgid "European, flats"
-msgstr "Européen, bémolisées"
+msgstr "Europï¿½en, bï¿½molisï¿½es"
 
 #: application.cpp:192
 msgid "European, mixed"
-msgstr "Européen, mixte"
+msgstr "Europï¿½en, mixte"
 
 #: application.cpp:194
 msgid "Jazz, sharps"
-msgstr "Jazz, diésées"
+msgstr "Jazz, diï¿½sï¿½es"
 
 #: application.cpp:196
 msgid "Jazz, flats"
-msgstr "Jazz, bémolisées"
+msgstr "Jazz, bï¿½molisï¿½es"
 
 #: application.cpp:198
 msgid "Jazz, mixed"
@@ -115,23 +115,23 @@ msgstr "&Jouer le morceau..."
 
 #: application.cpp:205
 msgid "&Stop"
-msgstr "Arrê&t"
+msgstr "Arrï¿½&t"
 
 #: application.cpp:217
 msgid "Move cursor right"
-msgstr "Déplacer le curseur vers la droite"
+msgstr "Dï¿½placer le curseur vers la droite"
 
 #: application.cpp:219
 msgid "Move cursor left"
-msgstr "Déplacer le curseur vers la gauche"
+msgstr "Dï¿½placer le curseur vers la gauche"
 
 #: application.cpp:221 application.cpp:223
 msgid "Move cursor up"
-msgstr "Déplacer le curseur vers le haut"
+msgstr "Dï¿½placer le curseur vers le haut"
 
 #: application.cpp:225 application.cpp:227
 msgid "Move cursor down"
-msgstr "Déplacer le curseur vers le bas"
+msgstr "Dï¿½placer le curseur vers le bas"
 
 #: application.cpp:231
 msgid "Dead note"
@@ -147,7 +147,7 @@ msgstr "Silence Palm"
 
 #: application.cpp:241
 msgid "Doted note"
-msgstr "Note pointée"
+msgstr "Note pointï¿½e"
 
 #: application.cpp:243
 msgid "Key plus"
@@ -199,11 +199,11 @@ msgstr "Touche 0"
 
 #: application.cpp:274
 msgid "Song Properties..."
-msgstr "Propriétés de la chanson..."
+msgstr "Propriï¿½tï¿½s de la chanson..."
 
 #: application.cpp:275
 msgid "Track Properties..."
-msgstr "Propriétés de la piste..."
+msgstr "Propriï¿½tï¿½s de la piste..."
 
 #: application.cpp:310
 msgid ""
@@ -215,14 +215,14 @@ msgid ""
 "\n"
 "Are you sure you want to use jazz notes?"
 msgstr ""
-"Les noms de notes jazz sont très spéciaux et ne\n"
-"doivent être utilisés que si vous savez ce que\n"
-"vous faîtes. L'utilisation des noms jazz sans but\n"
-"précis embrouillerait l'utilisateur et pourrait conduire\n"
-"à une fausse interprétation musicale pour ceux qui ne \n"
-"connaissent pas cette façon de nommer les notes.\n"
+"Les noms de notes jazz sont trï¿½s spï¿½ciaux et ne\n"
+"doivent ï¿½tre utilisï¿½s que si vous savez ce que\n"
+"vous faï¿½tes. L'utilisation des noms jazz sans but\n"
+"prï¿½cis embrouillerait l'utilisateur et pourrait conduire\n"
+"ï¿½ une fausse interprï¿½tation musicale pour ceux qui ne \n"
+"connaissent pas cette faï¿½on de nommer les notes.\n"
 "\n"
-"Êtes vous sûrs de vouloir les utiliser?"
+"ï¿½tes vous sï¿½rs de vouloir les utiliser?"
 
 #: application.cpp:329 application.cpp:337 application.cpp:377
 #: application.cpp:388 application.cpp:399 kguitar_shell.cpp:83
@@ -231,7 +231,7 @@ msgstr "Sans nom"
 
 #: application.cpp:348
 msgid "Please select a file."
-msgstr "Veillez sélectionner un fichier."
+msgstr "Veillez sï¿½lectionner un fichier."
 
 #: application.cpp:352
 msgid "You have no permission to read this file."
@@ -247,9 +247,9 @@ msgid ""
 "If you would help to implement this feature\n"
 "please write an email to: greycat@users.sourceforge.net"
 msgstr ""
-"Cette fonctionnalité n'est pas encore mise en oeuvre.\n"
-"Si vous souhaitez aider à sa mise en oeuvre, veillez\n"
-"envoyer un courriel à greycat@users.sourceforge.net"
+"Cette fonctionnalitï¿½ n'est pas encore mise en oeuvre.\n"
+"Si vous souhaitez aider ï¿½ sa mise en oeuvre, veillez\n"
+"envoyer un courriel ï¿½ greycat@users.sourceforge.net"
 
 #: application.cpp:427
 msgid "Can't save the song!"
@@ -267,8 +267,8 @@ msgid ""
 "an email to: greycat@users.sourceforge.net"
 msgstr ""
 "L'impression n'est pas encore mise en oeuvre. Si vous voulez\n"
-"aider à sa mise en oeuvre dans KGuitar, veillez envoyer un\n"
-"courriel à: greycat@users.sourceforge.net"
+"aider ï¿½ sa mise en oeuvre dans KGuitar, veillez envoyer un\n"
+"courriel ï¿½: greycat@users.sourceforge.net"
 
 #: chord.cpp:169
 msgid "Root"
@@ -320,7 +320,7 @@ msgstr "&Jouer"
 
 #: chord.cpp:297
 msgid "Chord constructor"
-msgstr "Générateur d'accords"
+msgstr "Gï¿½nï¿½rateur d'accords"
 
 #: chord.cpp:313
 #, fuzzy
@@ -342,7 +342,7 @@ msgstr "&Analyse"
 
 #: filebrowser.cpp:112
 msgid "Scan Subdirectories"
-msgstr "Analyse des sous répertoires"
+msgstr "Analyse des sous rï¿½pertoires"
 
 #: filebrowser.cpp:118
 msgid "Play score"
@@ -354,31 +354,31 @@ msgstr "Sans saut"
 
 #: filebrowser.cpp:125
 msgid "Jump after 1 bar"
-msgstr "Saut après 1 mesure"
+msgstr "Saut aprï¿½s 1 mesure"
 
 #: filebrowser.cpp:126
 msgid "Jump after 2 bars"
-msgstr "Saut après 2 mesures"
+msgstr "Saut aprï¿½s 2 mesures"
 
 #: filebrowser.cpp:127
 msgid "Jump after 5 bars"
-msgstr "Saut après 5 mesures"
+msgstr "Saut aprï¿½s 5 mesures"
 
 #: filebrowser.cpp:128
 msgid "Jump after 10 bars"
-msgstr "Saut après 10 mesures"
+msgstr "Saut aprï¿½s 10 mesures"
 
 #: filebrowser.cpp:129
 msgid "Jump after 25 bars"
-msgstr "Saut après 25 mesures"
+msgstr "Saut aprï¿½s 25 mesures"
 
 #: filebrowser.cpp:130
 msgid "Jump after the score"
-msgstr "Saut après la partition"
+msgstr "Saut aprï¿½s la partition"
 
 #: filebrowser.cpp:135
 msgid "Directories"
-msgstr "Répertoires"
+msgstr "Rï¿½pertoires"
 
 #: filebrowser.cpp:144
 msgid "Name"
@@ -390,11 +390,11 @@ msgstr "Taille"
 
 #: filebrowser.cpp:146
 msgid "Modified"
-msgstr "Modifié(e)"
+msgstr "Modifiï¿½(e)"
 
 #: filebrowser.cpp:147
 msgid "Directory"
-msgstr "Répertoire"
+msgstr "Rï¿½pertoire"
 
 #: filebrowser.cpp:156
 msgid "Title:"
@@ -410,11 +410,11 @@ msgstr "Transcripteur:"
 
 #: filebrowser.cpp:288
 msgid "Please select a directory!"
-msgstr "Veillez sélectionner un répertoire!"
+msgstr "Veillez sï¿½lectionner un rï¿½pertoire!"
 
 #: filebrowser.cpp:305 filebrowser.cpp:332
 msgid "You have no permission to read this directory!"
-msgstr "Vous n'avez pas le droit de lire ce répertoire!"
+msgstr "Vous n'avez pas le droit de lire ce rï¿½pertoire!"
 
 #: filebrowser.cpp:317
 msgid "There are no files."
@@ -472,7 +472,7 @@ msgstr ""
 
 #: kguitar_shell.cpp:153
 msgid "This file exists! Do you overwrite this file?"
-msgstr "Ce fichier existe, voulez-vous l'écraser?"
+msgstr "Ce fichier existe, voulez-vous l'ï¿½craser?"
 
 #: kguitar_shell.cpp:157
 msgid "You have no permission to write this file!"
@@ -484,11 +484,11 @@ msgstr "Veillez choisir un filtre ou ajoutez une extension."
 
 #: main.cpp:13
 msgid "File to open."
-msgstr "Fichier à ouvrir."
+msgstr "Fichier ï¿½ ouvrir."
 
 #: main.cpp:17
 msgid "A stringed instrument tabulature editor"
-msgstr "Un éditeur de tablature pour instrument a corde"
+msgstr "Un ï¿½diteur de tablature pour instrument a corde"
 
 #: main.cpp:22
 msgid "KGuitar"
@@ -503,24 +503,24 @@ msgid ""
 "Special Thanks to Ronald Gelten who\n"
 "allowed us to make changes to tabdefs.tex"
 msgstr ""
-"Nous remercions spécialement  Ronald Gelten\n"
+"Nous remercions spï¿½cialement  Ronald Gelten\n"
 "qui nous a permit de modifier tabdefs.tex"
 
 #: options.cpp:23
 msgid "Preferences"
-msgstr "Préférences"
+msgstr "Prï¿½fï¿½rences"
 
 #: options.cpp:44
 msgid "Music Theory"
-msgstr "Théorie musicale"
+msgstr "Thï¿½orie musicale"
 
 #: options.cpp:49
 msgid "Dominant 7th"
-msgstr "7-ième de Dominante"
+msgstr "7-iï¿½me de Dominante"
 
 #: options.cpp:63
 msgid "Alterations"
-msgstr "Altérations"
+msgstr "Altï¿½rations"
 
 #: options.cpp:65
 msgid "-/+ symbols"
@@ -540,7 +540,7 @@ msgstr "Disposition MusiXTeX"
 
 #: options.cpp:87
 msgid "Show Barnumber"
-msgstr "Afficher les numéros des mesures"
+msgstr "Afficher les numï¿½ros des mesures"
 
 #: options.cpp:89
 msgid "Show Tuning"
@@ -548,7 +548,7 @@ msgstr "Afficher l'accordage:"
 
 #: options.cpp:91
 msgid "Show Pagenumber"
-msgstr "Afficher les numéros de page"
+msgstr "Afficher les numï¿½ros de page"
 
 #: options.cpp:101
 msgid "Export as..."
@@ -584,7 +584,7 @@ msgstr "Grand"
 
 #: options.cpp:135
 msgid "MIDI Device Support"
-msgstr "Support de périphériques MIDI"
+msgstr "Support de pï¿½riphï¿½riques MIDI"
 
 #: options.cpp:165
 msgid "ALSA"
@@ -608,7 +608,7 @@ msgstr "P&ort de sortie MIDI"
 
 #: options.cpp:180
 msgid "&Refresh"
-msgstr "&Rafraîchir"
+msgstr "&Rafraï¿½chir"
 
 #: setsong.cpp:18
 msgid "&Title:"
@@ -628,7 +628,7 @@ msgstr "&Commentaires:"
 
 #: setsong.cpp:54
 msgid "Song properties"
-msgstr "Propriétés de la chansson"
+msgstr "Propriï¿½tï¿½s de la chansson"
 
 #: settabfret.cpp:23
 msgid "Tuning:"
@@ -644,7 +644,7 @@ msgstr "Frets:"
 
 #: settrack.cpp:28
 msgid "Fretted instrument"
-msgstr "Instrument à Fret"
+msgstr "Instrument ï¿½ Fret"
 
 #: settrack.cpp:29
 msgid "Drum track"
@@ -672,15 +672,15 @@ msgstr "&Mode:"
 
 #: settrack.cpp:72
 msgid "&General"
-msgstr "&Général"
+msgstr "&Gï¿½nï¿½ral"
 
 #: settrack.cpp:79 settrack.cpp:104 settrack.cpp:118
 msgid "&Mode-specific"
-msgstr "&Mode-spécifique"
+msgstr "&Mode-spï¿½cifique"
 
 #: settrack.cpp:89
 msgid "Track properties"
-msgstr "Propriétés de la piste"
+msgstr "Propriï¿½tï¿½s de la piste"
 
 #: strum.h:35
 msgid "Chord"
@@ -688,11 +688,11 @@ msgstr "Accord"
 
 #: strum.h:36
 msgid "Plain single chord, all notes sound at the same time."
-msgstr "Un accord plaqué, toutes les notes sont jouées en même temps."
+msgstr "Un accord plaquï¿½, toutes les notes sont jouï¿½es en mï¿½me temps."
 
 #: strum.h:39
 msgid "6/8 Standard Arpegio"
-msgstr "Arpège standard 6/8"
+msgstr "Arpï¿½ge standard 6/8"
 
 #: strum.h:40
 msgid ""
@@ -700,13 +700,13 @@ msgid ""
 "lyric songs. Used in the raw form (playing open strings) by Metallica in the "
 "song \"Nothing Else Matters\""
 msgstr ""
-"Arpège classique, joué en 6/8. Excellent accompagnement pour le slow,\n"
-"les chansons à paroles. Utilisé sous sa forme brute (jeu de cordes\n"
-"à vide) par Metallica dans la chanson \"Nothing Else Matters\""
+"Arpï¿½ge classique, jouï¿½ en 6/8. Excellent accompagnement pour le slow,\n"
+"les chansons ï¿½ paroles. Utilisï¿½ sous sa forme brute (jeu de cordes\n"
+"ï¿½ vide) par Metallica dans la chanson \"Nothing Else Matters\""
 
 #: strum.h:45
 msgid "4/4 Short Arpegio"
-msgstr "Arpège courte en 4/4"
+msgstr "Arpï¿½ge courte en 4/4"
 
 #: strum.h:46
 msgid ""
@@ -714,26 +714,26 @@ msgid ""
 "string pick in the middle. A cross between classic arpegio and bass pick "
 "technique."
 msgstr ""
-"Une variation courte de l'arpège classique, avec des accords \n"
-"semblables à deux cordes simultanées prises par le milieu.\n"
-"Un mélange d'arpège classique et de technique de piquer de basse."
+"Une variation courte de l'arpï¿½ge classique, avec des accords \n"
+"semblables ï¿½ deux cordes simultanï¿½es prises par le milieu.\n"
+"Un mï¿½lange d'arpï¿½ge classique et de technique de piquer de basse."
 
 #: strum.h:51
 msgid "8/8 Arpegio 1"
-msgstr "Arpège 1 en 8/8"
+msgstr "Arpï¿½ge 1 en 8/8"
 
 #: strum.h:52
 msgid ""
 "Pretty complex arpegio that makes dynamic progressing and continuous rhythm "
 "line. Fits best in medium tempo upbeat songs."
 msgstr ""
-"Arpège assez complexe faisant une progression dynamique et une ligne\n"
+"Arpï¿½ge assez complexe faisant une progression dynamique et une ligne\n"
 "rythmique continue. Convient mieux au tempo medium pour les chansons\n"
-"lors des montées."
+"lors des montï¿½es."
 
 #: strum.h:56
 msgid "8/8 Arpegio 2"
-msgstr "Arpège 2 en 8/8"
+msgstr "Arpï¿½ge 2 en 8/8"
 
 #: strum.h:57
 #, fuzzy
@@ -741,12 +741,12 @@ msgid ""
 "Variation of previous arpegio, can spice up sound if used several times with "
 "previous rhythm."
 msgstr ""
-"Variation de l'arpège précédente, pourrait agrémenter une chanson\n"
-"lorsqu'elle est utilisée plusieurs fois avec les rythmes précédents."
+"Variation de l'arpï¿½ge prï¿½cï¿½dente, pourrait agrï¿½menter une chanson\n"
+"lorsqu'elle est utilisï¿½e plusieurs fois avec les rythmes prï¿½cï¿½dents."
 
 #: strum.h:61
 msgid "3/4 Smooth Arpegio With Return"
-msgstr "Arpège égal en 3/4 avec rerpise"
+msgstr "Arpï¿½ge ï¿½gal en 3/4 avec rerpise"
 
 #: strum.h:62
 msgid ""
@@ -754,13 +754,13 @@ msgid ""
 "strumming relatively slow through the strings. Well-known from a song "
 "\"House of the Rising Sun\", performed by Animals and many others."
 msgstr ""
-"Arpège à accélération et décélération égale. Généralement joué au\n"
-"piquet, raclés assez langoureuses à travers les cordes. Rendu célèbre\n"
+"Arpï¿½ge ï¿½ accï¿½lï¿½ration et dï¿½cï¿½lï¿½ration ï¿½gale. Gï¿½nï¿½ralement jouï¿½ au\n"
+"piquet, raclï¿½s assez langoureuses ï¿½ travers les cordes. Rendu cï¿½lï¿½bre\n"
 "par la chanson \"House of the Rising Sun\" des Animals et bien d'autres."
 
 #: strum.h:68
 msgid "4/4 Rock Ballad Arpegio 1"
-msgstr "Arpége 1 en 4/4 d'une Balade Rock"
+msgstr "Arpï¿½ge 1 en 4/4 d'une Balade Rock"
 
 #: strum.h:69
 msgid ""
@@ -768,14 +768,14 @@ msgid ""
 "a smooth continuous rhythm, good for verses. One of the most well-known "
 "songs that uses such arpegio is \"Don't Cry\" by Guns'n'Roses."
 msgstr ""
-"L'un des plus fameux arpège rock. Lorsqu'il est interprété\n"
-"correctement, il peut donner un rythme égal continu, excellent pour\n"
-"les vers. L'une des chansons les plus célèbre utilisant un tel arpège\n"
+"L'un des plus fameux arpï¿½ge rock. Lorsqu'il est interprï¿½tï¿½\n"
+"correctement, il peut donner un rythme ï¿½gal continu, excellent pour\n"
+"les vers. L'une des chansons les plus cï¿½lï¿½bre utilisant un tel arpï¿½ge\n"
 "est \"Don't Cry\" de Guns'n'Roses."
 
 #: strum.h:75
 msgid "4/4 Rock Ballad Arpegio 2"
-msgstr "Arpége 2 en 4/4 d'une Balade Rock"
+msgstr "Arpï¿½ge 2 en 4/4 d'une Balade Rock"
 
 #: strum.h:76
 msgid ""
@@ -784,14 +784,14 @@ msgid ""
 "lyric ballads. Performed by Smokie in their song \"Living Next Door to "
 "Alice\""
 msgstr ""
-"Arpège lisse de balade rock. Le choix des motifs peut paraître\n"
-"aléatoire, ainsi tout l'arpège produit un rythme assez égal. Excellent\n"
-"pour les slows et les balades vocales. Exécuté par Smokie dans leur\n"
+"Arpï¿½ge lisse de balade rock. Le choix des motifs peut paraï¿½tre\n"
+"alï¿½atoire, ainsi tout l'arpï¿½ge produit un rythme assez ï¿½gal. Excellent\n"
+"pour les slows et les balades vocales. Exï¿½cutï¿½ par Smokie dans leur\n"
 "chanson \"Living Next Door to Alice\""
 
 #: strum.h:82
 msgid "4/4 Rock Ballad Arpegio 3"
-msgstr "Arpége 3 en 4/4 d'une Balade Rock"
+msgstr "Arpï¿½ge 3 en 4/4 d'une Balade Rock"
 
 #: strum.h:83
 msgid ""
@@ -799,13 +799,13 @@ msgid ""
 "rock lyric arpegio, with a bit of spanish feel. Used in the song of "
 "Scorpions \"Holiday\""
 msgstr ""
-"Bizarre, mais combinaison simple d'arpèges classiques, produit un bon\n"
-"arpège de rock vocal, avec un petit air espagnole. Utilisé dans la\n"
+"Bizarre, mais combinaison simple d'arpï¿½ges classiques, produit un bon\n"
+"arpï¿½ge de rock vocal, avec un petit air espagnole. Utilisï¿½ dans la\n"
 "chanson \"Holiday\" des Scorpions."
 
 #: strum.h:88
 msgid "4/4 Rock Ballad Arpegio 4"
-msgstr "Arpége 4 en 4/4 d'une Balade Rock"
+msgstr "Arpï¿½ge 4 en 4/4 d'une Balade Rock"
 
 #: strum.h:89
 msgid ""
@@ -814,14 +814,14 @@ msgid ""
 "metronome. Used in (and most likely originating from) Led Zeppelin's "
 "\"Stairway to Heaven\""
 msgstr ""
-"Arpège rock classique en escalier, ces choses ont servit d'exercices\n"
-"pour un grand nombre de musiciens. Des 4/4 très réguliers, la première\n"
-"note accentuée est un bon métronome. Utilisé dans (et\n"
+"Arpï¿½ge rock classique en escalier, ces choses ont servit d'exercices\n"
+"pour un grand nombre de musiciens. Des 4/4 trï¿½s rï¿½guliers, la premiï¿½re\n"
+"note accentuï¿½e est un bon mï¿½tronome. Utilisï¿½ dans (et\n"
 "vraisemblablement partit de) \"Stairway to Heaven\" de Led Zeppelin"
 
 #: strum.h:95
 msgid "4/4 Rock Ballad Arpegio 5"
-msgstr "Arpége 5 en 4/4 d'une Balade Rock"
+msgstr "Arpï¿½ge 5 en 4/4 d'une Balade Rock"
 
 #: strum.h:96
 msgid ""
@@ -830,10 +830,10 @@ msgid ""
 "giving a special feel. Good example of such picking is Kansas' \"Dust in the "
 "Wind\""
 msgstr ""
-"Un piquet de type Folk, appelé \"Travis picking\" en référence à Merle\n"
-"Travis qui l'a vraisemblablement inventé. La ligne d'arpège est d'une\n"
-"certaine façon syncopée, donnant ainsi une sensation spéciale. Un bon\n"
-"exemple d'un tel piquet est \"Dust in the Wind\" de Kansas"
+"Un piquet de type Folk, appelï¿½ \"Travis picking\" en rï¿½fï¿½rence ï¿½ Merle\n"
+"Travis qui l'a vraisemblablement inventï¿½. La ligne d'arpï¿½ge est d'une\n"
+"certaine faï¿½on syncopï¿½e, donnant ainsi une sensation spï¿½ciale. Un bon\n"
+"example d'un tel piquet est \"Dust in the Wind\" de Kansas"
 
 #: strum.h:102
 msgid "4/4 Normal Bass Pick"
@@ -846,8 +846,8 @@ msgid ""
 "trebles sounds. Very popular thing for lyric songs on acoustic (especially "
 "7-string) guitar."
 msgstr ""
-"Technique de piquet de basse avec altération. Joué en deux étapes: Au\n"
-"premier étape, une sorte de note basse est piquée et à la seconde, les\n"
+"Technique de piquet de basse avec altï¿½ration. Jouï¿½ en deux ï¿½tapes: Au\n"
+"premier ï¿½tape, une sorte de note basse est piquï¿½e et ï¿½ la seconde, les\n"
 "notes trebles sonnent. Quelque chose d'assez populaire avec les\n"
 "chansons vocales sur guitare acoustique (7-cordes en particulier)"
 
@@ -861,9 +861,9 @@ msgid ""
 "the first beat accented by bass note. Could be used in classic guitar "
 "playing experience, for example, in orchestra."
 msgstr ""
-"Piquet basse de style Valse. Produit un rythme dansant parfait - joué\n"
-"en 3/4 avec le premier beat accentué par la note basse. Peut être\n"
-"utilisé avec une expérience sur guitare classique, par exemple dans\n"
+"Piquet basse de style Valse. Produit un rythme dansant parfait - jouï¿½\n"
+"en 3/4 avec le premier beat accentuï¿½ par la note basse. Peut ï¿½tre\n"
+"utilisï¿½ avec une expï¿½rience sur guitare classique, par example dans\n"
 "les orchestres."
 
 #: strum.h:115
@@ -881,7 +881,7 @@ msgstr ""
 
 #: strumming.cpp:27
 msgid "Strum &pattern:"
-msgstr "Motif de &Raclé:"
+msgstr "Motif de &Raclï¿½:"
 
 #: strumming.cpp:63
 msgid "Strumming pattern"
@@ -897,11 +897,11 @@ msgstr "&Valeur du temps"
 
 #: timesig.cpp:47
 msgid "Apply till the &end"
-msgstr "Appliqu&er jusqu'à la fin"
+msgstr "Appliqu&er jusqu'ï¿½ la fin"
 
 #: tunings.h:24
 msgid "User defined"
-msgstr "Définit par l'utilisateur"
+msgstr "Dï¿½finit par l'utilisateur"
 
 #: tunings.h:26
 msgid "Guitar (6): standard"
@@ -965,7 +965,7 @@ msgstr "Banjo (5): open D"
 
 #: tunings.h:46
 msgid "Banjo (5): open D"
-msgstr "Banjo (5): D à vide"
+msgstr "Banjo (5): D ï¿½ vide"
 
 #: tunings.h:47
 msgid "Banjo (5): G minor"
@@ -997,7 +997,7 @@ msgstr "&Note"
 
 #: rc.cpp:6
 msgid "&Duration"
-msgstr "&Durée"
+msgstr "&Durï¿½e"
 
 #: rc.cpp:7
 msgid "&Effects"
