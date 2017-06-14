@@ -21,18 +21,18 @@ ConvertTex::ConvertTex(TabSong *song): ConvertBase(song)
 
 bool ConvertTex::save(QString fileName)
 {
-	bool success = FALSE;
+	bool success = false;
 
 	QFile f(fileName);
-    if (!f.open(QIODevice::WriteOnly))
-		return FALSE;
+	if (!f.open(QIODevice::WriteOnly))
+		return false;
 
 	QTextStream s(&f);
 
-	switch (Settings::texExportMode()) {
-	case 0: success = saveToTab(s); break;
-	case 1: success = saveToNotes(s); break;
-	}
+	if (Settings::texExportMode())
+		success = saveToNotes(s);
+	else
+		success = saveToTab(s);
 
 	f.close();
 	return success;
