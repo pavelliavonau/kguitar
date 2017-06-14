@@ -122,14 +122,14 @@ void KGuitar::fileNew()
 void KGuitar::fileOpen()
 {
 	QUrl url = QFileDialog::getOpenFileUrl(this, "", QUrl(),
-		"*.kg *.gp4 *.gp3 *.mid *.tab *.xml|" + i18n("All music files") + "\n"
-		"*.kg|" + i18n("KGuitar files") + " (*.kg)\n"
-		"*.tab|" + i18n("ASCII files") + " (*.tab)\n"
-		"*.mid|" + i18n("MIDI files") + " (*.mid)\n"
-		"*.gp4|" + i18n("Guitar Pro 4 files") + " (*.gp4)\n"
-		"*.gp3|" + i18n("Guitar Pro 3 files") + " (*.gp3)\n"
-		"*.xml|" + i18n("MusicXML files") + " (*.xml)\n"
-		"*|" + i18n("All files")
+		i18n("All music files")      + "(*.kg *.gp4 *.gp3 *.mid *.tab *.xml);;"
+		+ i18n("KGuitar files")      + " (*.kg) (*.kg);;"
+		+ i18n("ASCII files")        + " (*.tab) (*.tab);;"
+		+ i18n("MIDI files")         + " (*.mid) (*.mid);;"
+		+ i18n("Guitar Pro 4 files") + " (*.gp4) (*.gp4);;"
+		+ i18n("Guitar Pro 3 files") + " (*.gp3) (*.gp3);;"
+		+ i18n("MusicXML files")     + " (*.xml) (*.xml);;"
+		+ i18n("All files")          + "(*.*)"
 	);
 
 	if (url.isEmpty() == false) {
