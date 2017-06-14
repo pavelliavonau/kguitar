@@ -68,6 +68,12 @@ qt5_wrap_ui(kguitar_PART_SRCS
 
 add_library(kguitarpart ${kguitar_PART_SRCS})
 
+set_target_properties(kguitarpart PROPERTIES
+    CXX_STANDARD 14
+    CXX_STANDARD_REQUIRED YES
+    CXX_EXTENSIONS NO
+)
+
 target_link_libraries(kguitarpart
 	Qt5::PrintSupport
 	KF5::Parts

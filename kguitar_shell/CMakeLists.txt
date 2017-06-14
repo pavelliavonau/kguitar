@@ -6,6 +6,13 @@ set(kguitar_SRCS
 )
 
 add_executable(kguitar ${kguitar_SRCS})
+
+set_target_properties(kguitar PROPERTIES
+    CXX_STANDARD 14
+    CXX_STANDARD_REQUIRED YES
+    CXX_EXTENSIONS NO
+)
+
 # TODO: determine required modules
 target_link_libraries(kguitar
 	KF5::Parts
