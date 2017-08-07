@@ -5,7 +5,7 @@
 #include "trackviewcommands.h"
 #include "strumlib.h"
 
-#include <klocale.h>
+#include <KLocalizedString>
 #include <QList>
 #include "data/tabsong.h"
 #include <QAbstractProxyModel>

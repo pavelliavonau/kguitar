@@ -9,7 +9,7 @@
 #include "optionsexportascii.h"
 
 #include <kconfig.h>
-#include <klocale.h>
+#include <KLocalizedString>
 #include <kconfigdialog.h>
 
 #include <qlayout.h>

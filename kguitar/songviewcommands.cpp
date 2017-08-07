@@ -5,7 +5,7 @@
 #include "tracklist.h"
 #include "trackpane.h"
 
-#include <klocale.h>
+#include <KLocalizedString>
 
 SongView::SetSongPropCommand::SetSongPropCommand(SongView *_sv, QMap<QString, QString> _info, int _tempo)
 	: QUndoCommand(i18n("Set song properties"))

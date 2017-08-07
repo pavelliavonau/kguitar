@@ -1,6 +1,6 @@
 #include "convertgtp.h"
 
-#include <klocale.h>
+#include <KLocalizedString>
 #include <qfile.h>
 #include <qdatastream.h>
 

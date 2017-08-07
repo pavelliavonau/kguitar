@@ -13,7 +13,7 @@
 #include <QBoxLayout>
 #include <QHBoxLayout>
 #include <QVBoxLayout>
-#include <klocale.h>
+#include <KLocalizedString>
 #include <qapplication.h>
 #include <QDialogButtonBox>
 

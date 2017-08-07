@@ -23,7 +23,7 @@
 
 #include "keysig.h"
 
-#include <klocale.h>
+#include <KLocalizedString>
 
 #include <qcombobox.h>
 #include <qlabel.h>

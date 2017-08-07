@@ -7,7 +7,7 @@
 #include <QGroupBox>
 #include <QButtonGroup>
 
-#include <klocale.h>
+#include <KLocalizedString>
 #include <kconfig.h>
 #include <kconfiggroup.h>
 

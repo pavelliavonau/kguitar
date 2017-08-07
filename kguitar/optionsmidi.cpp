@@ -1,7 +1,7 @@
 #include "optionsmidi.h"
 #include "settings.h"
 
-#include <klocale.h>
+#include <KLocalizedString>
 
 #include <QLayout>
 #include <QLabel>

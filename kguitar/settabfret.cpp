@@ -4,7 +4,7 @@
 #include "tunings.h"
 #include "radiustuner.h"
 
-#include <klocale.h>
+#include <KLocalizedString>
 #include <qcombobox.h>
 #include <qspinbox.h>
 #include <qlabel.h>

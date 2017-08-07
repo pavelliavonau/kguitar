@@ -10,7 +10,7 @@
 #include "data/tabtrack.h"
 #include "chordlistitem.h"
 
-#include <klocale.h>
+#include <KLocalizedString>
 #include <kmessagebox.h>
 
 #include <qpushbutton.h>

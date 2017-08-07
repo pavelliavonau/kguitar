@@ -8,7 +8,7 @@
 
 #include <qglobal.h>
 #include <config.h>
-#include <kdebug.h>
+#include <QDebug>
 
 class QString;
 
@@ -16,8 +16,12 @@ QString midi_patch_name(int);
 
 extern QString drum_abbr[128];
 
+#ifndef _MSC_VER
+
 #pragma GCC diagnostic ignored "-Wsign-compare"
 #pragma GCC diagnostic ignored "-Wunused-but-set-variable"
+
+#endif
 
 #define FALSE false
 #define TRUE true

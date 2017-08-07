@@ -2,7 +2,7 @@
 
 #include "strum.h"
 
-#include <klocale.h>
+#include <KLocalizedString>
 #include <qlayout.h>
 #include <qlabel.h>
 #include <qpushbutton.h>

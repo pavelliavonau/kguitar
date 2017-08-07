@@ -20,7 +20,7 @@
 #include "melodyeditor.h"
 #include "fretboard.h"
 
-#include <klocale.h>
+#include <KLocalizedString>
 #include <kxmlguiclient.h>
 #include <kmessagebox.h>
 #include <QUndoStack>

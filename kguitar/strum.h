@@ -5,7 +5,7 @@
 
 #include "strumlib.h"
 
-#include <klocale.h>
+#include <KLocalizedString>
 
 // The library itself.
 

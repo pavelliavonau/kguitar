@@ -3,7 +3,7 @@
 
 // tunings.h - library of stringed instrument tunings
 
-#include <klocale.h>
+#include <KLocalizedString>
 #include <qstring.h>
 
 typedef struct {

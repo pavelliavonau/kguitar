@@ -9,9 +9,8 @@
 #include "settings.h"
 #include "ui/rhythmeditor.h"
 
-#include <kglobalsettings.h>
 #include <kmessagebox.h>
-#include <klocale.h>
+#include <KLocalizedString>
 #include <kxmlguiclient.h>
 #include <kxmlguifactory.h>
 

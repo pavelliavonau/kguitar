@@ -9,7 +9,7 @@
 #include <QHeaderView>
 #include <QScrollBar>
 
-#include <klocale.h>
+#include <KLocalizedString>
 #include <QMenu>
 #include <kxmlguiclient.h>
 #include <kxmlguifactory.h>

@@ -3,7 +3,7 @@
 #include <qstring.h>
 #include <kconfig.h>
 #include <kconfiggroup.h>
-#include <klocale.h>
+#include <KLocalizedString>
 
 QString Settings::noteNames[9][12] = {
 	{"C",  "C#", "D",  "D#", "E",  "F",	 "F#", "G",  "G#", "A",  "A#", "B"},

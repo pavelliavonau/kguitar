@@ -3,7 +3,7 @@
 #include "settabdrum.h"
 #include "settabmidi.h"
 
-#include <klocale.h>
+#include <KLocalizedString>
 #include <qlineedit.h>
 #include <QFormLayout>
 #include <qcombobox.h>

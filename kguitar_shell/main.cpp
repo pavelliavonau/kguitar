@@ -3,7 +3,7 @@
 
 #include <QApplication>
 #include <QCommandLineParser>
-#include <klocale.h>
+#include <KLocalizedString>
 #include <QDebug>
 #include <KAboutData>
 
@@ -17,6 +17,8 @@ static const char version[] = VERSION;
 
 int main(int argc, char **argv)
 {
+	QApplication app(argc, argv);
+
 	KAboutData about(
 		"kguitar", i18n("KGuitar"), version,
 		i18n(description), KAboutLicense::GPL,
@@ -38,8 +40,6 @@ int main(int argc, char **argv)
 	about.addCredit(i18n("Ronald Gelten"), i18n("Special thanks for allowing us to make changes to tabdefs.tex"));
 
 	KAboutData::setApplicationData(about);
-
-	QApplication app(argc, argv);
 
 	// TODO: check cmd line functionality
 	QCommandLineParser parser;

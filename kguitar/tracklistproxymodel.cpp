@@ -1,7 +1,7 @@
 #include "tracklistproxymodel.h"
 
 #include "data/tabsong.h"
-#include <klocale.h>
+#include <KLocalizedString>
 
 QVariant TrackListProxyModel::data(const QModelIndex &index, int role) const
 {

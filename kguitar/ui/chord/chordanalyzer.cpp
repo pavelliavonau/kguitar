@@ -1,6 +1,6 @@
 #include "chordanalyzer.h"
 
-#include <klocale.h>
+#include <KLocalizedString>
 
 ChordAnalyzer::ChordAnalyzer(QString name)
 {

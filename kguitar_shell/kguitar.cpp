@@ -11,8 +11,7 @@
 #include <kmessagebox.h>
 #include <kstandardaction.h>
 #include <QStatusBar>
-#include <kurl.h>
-#include <klocale.h>
+#include <KLocalizedString>
 #include <krecentfilesaction.h>
 #include <ktoolbar.h>
 #include <ktoggleaction.h>
