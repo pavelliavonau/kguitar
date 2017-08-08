@@ -58,7 +58,7 @@ ChordEditor::ChordEditor(TSE3::MidiScheduler *_scheduler, TabTrack *p, QWidget *
 	: QDialog(parent)
 {
 	setModal(true);
-	qDebug() << k_funcinfo;
+	qDebug() << Q_FUNC_INFO;
 
 	initChordSelector(p);
 	scheduler = _scheduler;
